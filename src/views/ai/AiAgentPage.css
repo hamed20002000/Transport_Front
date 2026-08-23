@@ -1,4 +1,3 @@
-
 * {
   box-sizing: border-box;
 }
@@ -64,9 +63,11 @@ button {
   background: var(--bg);
   max-height: 100vh;
 }
-.waiting-request-response{
+
+.waiting-request-response {
   margin: 0px !important;
 }
+
 /* =========================================================
    SIDEBAR
 ========================================================= */
@@ -366,7 +367,7 @@ button {
   border-radius: var(--radius-lg);
 
   box-shadow: var(--shadow);
-  position:relative;
+  position: relative;
   max-height: 90vh;
   min-height: 0;
 }
@@ -386,9 +387,9 @@ button {
   padding: 16px 20px;
 
   border-bottom: 1px solid var(--border);
-   position: sticky;
-    top: 0;
-    background: white;
+  position: sticky;
+  top: 0;
+  background: white;
 }
 
 .eyebrow {
@@ -549,6 +550,7 @@ button {
 }
 
 @keyframes thinking {
+
   0%,
   100% {
     opacity: 0.3;
@@ -637,12 +639,13 @@ button {
 
   background: var(--surface);
 
-  position:sticky;
-  bottom:0px;
-  width:100%;
+  position: sticky;
+  bottom: 0px;
+  width: 100%;
   margin-top: 5px;
 }
-.composer-container .file-container{
+
+.composer-container .file-container {
   display: flex;
   width: 100%;
   gap: 2px;
@@ -734,8 +737,9 @@ button {
 .send-button:hover {
   filter: brightness(0.95);
 }
+
 .send-button.inactive {
-  background:#2c67c5;
+  background: #2c67c5;
 }
 
 .composer-hint {
@@ -906,10 +910,11 @@ button {
 }
 
 .operation-card.success {
-   border: 1px solid #0abe7c;
+  border: 1px solid #0abe7c;
 }
+
 .operation-card.error {
-   border: 1px solid #e42706;
+  border: 1px solid #e42706;
 }
 
 .operation-top {
@@ -929,7 +934,8 @@ button {
 
   border-radius: 9px;
 
-  background: #0abe7c;;
+  background: #0abe7c;
+  ;
   color: var(--success);
 
   font-weight: 800;
@@ -950,8 +956,9 @@ button {
 
   font-weight: 800;
 }
-.operation-error span{
-  color:crimson !important
+
+.operation-error span {
+  color: crimson !important
 }
 
 .operation-top strong {
@@ -959,7 +966,7 @@ button {
   font-size: 12px;
 }
 
-.operation-top > div > span {
+.operation-top>div>span {
   display: block;
 
   /* margin-top: 2px; */
@@ -976,12 +983,13 @@ button {
 
   border-radius: 20px;
 
-  background:#0abe7c;
+  background: #0abe7c;
   color: white;
 
   font-size: 9px;
   font-weight: 600;
 }
+
 .error-pill {
   margin-left: auto;
 
@@ -989,7 +997,7 @@ button {
 
   border-radius: 20px;
 
-  background:#e42706;
+  background: #e42706;
   color: white;
 
   font-size: 9px;
@@ -1215,7 +1223,7 @@ button {
   gap: 8px;
 }
 
-.table-role > div {
+.table-role>div {
   width: 26px;
   height: 26px;
 
@@ -1293,8 +1301,7 @@ button {
 
   .workspace {
     grid-template-columns:
-      minmax(350px, 1fr)
-      minmax(330px, 0.85fr);
+      minmax(350px, 1fr) minmax(330px, 0.85fr);
   }
 
   .agent-header {
@@ -1326,7 +1333,7 @@ button {
     padding: 12px 15px;
   }
 
-  .agent-header > div:first-child {
+  .agent-header>div:first-child {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1482,5 +1489,41 @@ button {
 
   .data-section {
     padding: 0 10px 12px;
+  }
+}
+
+/* =========================================================
+   PROGRESS CURRENT OP ANIMATION
+========================================================= */
+.progress-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-text {
+  font-weight: 700;
+  white-space: nowrap;
+  /* create a moving green highlight inside the text */
+  background: linear-gradient(90deg, rgba(123, 93, 22, 0.15) 0%, rgba(123, 93, 22, 0.95) 50%, rgba(123, 93, 22, 0.15) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: slideText 3s linear infinite;
+}
+
+.progress-dots {
+  color: #7b5d16;
+  font-weight: 400;
+}
+
+@keyframes slideText {
+  0% {
+    background-position: 200% 0
+  }
+
+  100% {
+    background-position: -200% 0
   }
 }

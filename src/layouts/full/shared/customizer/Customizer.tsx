@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { useSelector, useDispatch } from 'src/store/Store';
 import Box, { BoxProps } from '@mui/material/Box';
+import Magic from '@mui/icons-material/AutoAwesome'
 import { IconX, IconSettings, IconCheck } from '@tabler/icons-react';
 import {
   setTheme,
@@ -35,6 +36,7 @@ import CallToActionTwoToneIcon from '@mui/icons-material/CallToActionTwoTone';
 import ViewSidebarTwoToneIcon from '@mui/icons-material/ViewSidebarTwoTone';
 import WebAssetTwoToneIcon from '@mui/icons-material/WebAssetTwoTone';
 import { ViewComfyTwoTone, PaddingTwoTone, BorderOuter } from '@mui/icons-material';
+import { useNavigate } from 'react-router';
 
 const SidebarWidth = '320px';
 interface colors {
@@ -45,6 +47,7 @@ interface colors {
 const Customizer: FC = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const customizer = useSelector((state: AppState) => state.customizer);
+  const navigate=useNavigate();
 
   const dispatch = useDispatch();
 
@@ -94,6 +97,8 @@ const Customizer: FC = () => {
     },
   ];
 
+
+
   return (
     <div>
       {/* ------------------------------------------- */}
@@ -109,6 +114,31 @@ const Customizer: FC = () => {
           <IconSettings stroke={1.5} />
         </Fab>
       </Tooltip>
+
+       <Tooltip title="Yapay zeka">
+        <Fab
+          color="primary"
+          aria-label="ai"
+          sx={{
+            position: 'fixed',
+            right: '25px',
+            bottom: '85px',
+            background: '#f4c304',
+            '&:hover': {
+              backgroundColor: '#f4c304',
+            },
+          }}
+          onClick={() => {
+            navigate('/ai');
+          }}
+          className="ai_shortcut"
+
+        >
+          <Magic style={{ color: '#e70000' }} />
+        </Fab>
+      </Tooltip>
+
+
       <Drawer
         anchor="right"
         open={showDrawer}

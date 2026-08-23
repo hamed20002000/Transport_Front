@@ -11,7 +11,7 @@ import { uniqueId } from "lodash";
 import { FunctionCallResultType, JwtPayload, SelectedFileType } from "./ai.types";
 import server from "../../assets/address.json"
 import { useSpeechToText } from "./hooks/useSpeechToText";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import resultViewLink from './localfiles/resultViewLink.json'
 
 
@@ -36,6 +36,8 @@ function AiAgentPage() {
         isListening,
         blobToAudioData
     } = useSpeechToText();
+    const userefSocket = useRef<Socket>();
+    const abortingref=useRef(false);
     //#endregion----------------- Constants---------------
 
 
@@ -108,6 +110,14 @@ function AiAgentPage() {
     };
 
     const handleSubmit = useCallback(async () => {
+
+        if (loadingButton) {
+            if(!abortingref.current){
+             handleCancel();
+               abortingref.current=true;
+            }
+             return;
+        }
         if (!voiceInput.trim()) {
             return;
         }
@@ -163,7 +173,7 @@ function AiAgentPage() {
                 })
             }
         } finally {
-            setLoadingButton(false);
+
         }
     }, [voiceInput, alert, navigate, selectedFile]);
 
@@ -178,6 +188,9 @@ function AiAgentPage() {
         const key = toolName.trim();
         return resultViewLink[key as keyof typeof resultViewLink] ?? "";
     }
+    const handleCancel = useCallback(() => {
+        userefSocket.current?.emit('cancel-execution');
+    }, []);
     //#endregion----------------- Handlers---------------
 
     //#region-------------------- Functions ---------------
@@ -226,10 +239,13 @@ function AiAgentPage() {
                 }, ...prev])
                 setVoiceInput('');
                 setSelectedFile([]);
+                if (data.lastsegment) {
+                    setLoadingButton(false)
+                }
 
             }
-            else {
-                setHistory((prev)=>[{
+            else{
+                setHistory((prev) => [{
                     id: uniqueId(),
                     list: data.list,
                     message: data.message,
@@ -238,15 +254,20 @@ function AiAgentPage() {
                     toolName: data.toolName,
                     time: `${new Date().getHours().toString()}:${new Date().getMinutes().toString().padStart(2, "0")}`
                 }, ...prev])
+            
+                 setLoadingButton(false)
+                 abortingref.current=false;
             }
+            
 
             setProgress({ currentOp: undefined })
+            
 
         }
         const handleToolCurrent = (data: any) => {
             setProgress({ currentOp: data.currentOp })
         }
-        const socket = io('http://localhost:3001/agent', {
+        userefSocket.current = io('http://localhost:3001/agent', {
             path: '/socket.io',
             transports: ['websocket', 'polling'] as string[],
 
@@ -254,27 +275,24 @@ function AiAgentPage() {
                 userId: userId
             }
         })
-        const timer = setTimeout(() => {
-            console.log('connecting...');
-            socket.connect();
-        }, 100);
-        socket.on("agent-current-tool", handleToolCurrent)
-        socket.on("agent-tool-result", handleToolResult)
-        socket.on("connect", () => {
-            console.log("nnnnnnnnn=" + userId)
+        userefSocket.current.on("agent-current-tool", handleToolCurrent)
+        userefSocket.current.on("agent-tool-result", handleToolResult)
+        userefSocket.current.on("connect", () => {
         })
+
+            const timer = setTimeout(() => {
+            console.log('connecting...');
+            userefSocket.current?.connect();
+        }, 100);
+
+
         return () => {
-            socket.off('agent-tool-result', handleToolResult);
-            socket.off('agent-current-tool', handleToolCurrent);
-            socket.disconnect();
+            userefSocket.current?.off('agent-tool-result', handleToolResult);
+            userefSocket.current?.off('agent-current-tool', handleToolCurrent);
+            userefSocket.current?.disconnect();
         };
     }, [])
     //#endregion----------------- UseEffects -------------
-
-
-
-
-
 
 
     return (
@@ -352,11 +370,13 @@ function AiAgentPage() {
 
 
                         {
-                            progress.currentOp != undefined && <div style={{ padding: "8px", paddingLeft: "35px", color: "#22222" }}>
+                            progress.currentOp != undefined && (
+                                <div className="progress-current" style={{ padding: "8px", paddingLeft: "35px", color: "#22222" }}>
 
-                                <span style={{ color: "#7b5d16", fontWeight: "bolder" }}>{progress.currentOp}</span>
-                                <span style={{ color: "#7b5d16", fontWeight: "normal" }}>...</span>
-                            </div>
+                                    <span className="progress-text">{progress.currentOp}</span>
+                                    <span className="progress-dots">...</span>
+                                </div>
+                            )
                         }
 
                         {history.map((item) => (
