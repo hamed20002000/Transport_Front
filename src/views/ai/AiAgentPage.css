@@ -337,6 +337,7 @@ button {
 ========================================================= */
 
 .workspace {
+  position: relative;
   flex: 1;
   min-height: 0;
 
@@ -351,6 +352,7 @@ button {
 
   overflow: hidden;
   justify-content: center;
+  display: flex;
 }
 
 .conversation-panel,
@@ -390,6 +392,42 @@ button {
   position: sticky;
   top: 0;
   background: white;
+}
+
+.result-header .newchat.active {
+  background: #224e93;
+  color: white;
+  padding: 8px;
+  border-radius: 13px;
+  cursor: pointer;
+}
+
+.result-header .newchat.inactive {
+  background: #ea1515;
+  color: white;
+  padding: 8px;
+  border-radius: 13px;
+  cursor: not-allowed;
+}
+
+.historyItem{
+
+  background: #2e2d32;
+  padding: 2px;
+  border-radius: 24px;
+  color: white;
+  font-size: 10px;
+  font-style: italic;
+  font-weight: bolder;
+  width: fit-content;
+  max-width: 200px;
+  text-wrap-mode: nowrap;
+  text-overflow: ellipsis;
+  overflow: scroll;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  padding-right: 5px;
+  cursor: pointer;
 }
 
 .eyebrow {
@@ -890,6 +928,7 @@ button {
 .result-panel {
   overflow-y: auto;
   scrollbar-width: none;
+  flex:8
 }
 
 .close-mobile-workspace {
@@ -1416,6 +1455,7 @@ button {
     top: 0;
     background: white;
   }
+
 
   .message-content {
     max-width: 88%;

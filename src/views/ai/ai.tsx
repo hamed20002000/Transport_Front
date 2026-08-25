@@ -6,9 +6,10 @@ import axios from 'axios';
 import BoltIcon from '@mui/icons-material/StopCircleSharp';
 import Mic from '@mui/icons-material/Mic';
 import EmptyIcon from '@mui/icons-material/GraphicEq';
+import ArrowRight from '@mui/icons-material/TrendingFlat'
 import Arrow from '@mui/icons-material/ArrowUpwardOutlined';
 import { uniqueId } from "lodash";
-import { FunctionCallResultType, JwtPayload, SelectedFileType } from "./ai.types";
+import { FunctionCallResultType, JwtPayload, SelectedFileType, SessionsItemType } from "./ai.types";
 import server from "../../assets/address.json"
 import { useSpeechToText } from "./hooks/useSpeechToText";
 import { io, Socket } from "socket.io-client";
@@ -37,7 +38,7 @@ function AiAgentPage() {
         blobToAudioData
     } = useSpeechToText();
     const userefSocket = useRef<Socket>();
-    const abortingref=useRef(false);
+    const abortingref = useRef(false);
     //#endregion----------------- Constants---------------
 
 
@@ -58,6 +59,10 @@ function AiAgentPage() {
     const [progress, setProgress] = useState({
         currentOp: undefined
     })
+    const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+    const [sessionHasPrompts, setSessionHasPrompts] = useState(false);
+    const [sessionList,setSessionList]=useState<SessionsItemType[]>([])
+
     //#endregion----------------- States ---------------
 
 
@@ -112,11 +117,11 @@ function AiAgentPage() {
     const handleSubmit = useCallback(async () => {
 
         if (loadingButton) {
-            if(!abortingref.current){
-             handleCancel();
-               abortingref.current=true;
+            if (!abortingref.current) {
+                handleCancel();
+                abortingref.current = true;
             }
-             return;
+            return;
         }
         if (!voiceInput.trim()) {
             return;
@@ -140,7 +145,8 @@ function AiAgentPage() {
                 'http://localhost:3001/api/baseinfo/agent',
                 {
                     prompt: voiceInput,
-                    files: selectedFile.map((file) => file.path)
+                    files: selectedFile.map((file) => file.path),
+                    sessionId:currentSessionId
                 },
                 {
                     headers: {
@@ -191,6 +197,87 @@ function AiAgentPage() {
     const handleCancel = useCallback(() => {
         userefSocket.current?.emit('cancel-execution');
     }, []);
+    // تابع جدید (کنار handleSubmit)
+    
+    const handleNewChat = useCallback(async () => {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            navigate('/');
+            return;
+        }
+        try {
+            const response = await axios.post(
+                'http://localhost:3001/api/agent/sessions/new',
+                {},
+                { headers: {  'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` } }
+            );
+            setCurrentSessionId(response.data.data.sessionId);
+            setHistory([]);
+            setVoiceInput('');
+        } catch (error) {
+            setAlert({
+                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            })
+        }
+    }, [alert, navigate]);
+
+    const getSessionSubmissions=async(sessionId:string)=>{
+               const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            navigate('/');
+            return;
+        }
+        try {
+            const response = await axios.get(
+                `http://localhost:3001/api/agent/sessions/${sessionId}/prompts`,
+                { headers: {  'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` } }
+            );
+            console.clear();
+             console.log(response.data.data);
+            
+        } catch (error) {
+            setAlert({
+                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            })
+        }
+    }
+
+
+    const getToolExecution=async(sessionId:string)=>{
+               const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            navigate('/');
+            return;
+        }
+        try {
+            const response = await axios.get(
+                `http://localhost:3001/api/agent/sessions/${sessionId}/executions`,
+                { headers: {  'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` } }
+            );
+            setHistory(response.data.data)
+            setCurrentSessionId(sessionId)
+            console.clear();
+            console.log(response.data.data);
+            
+        } catch (error) {
+            setAlert({
+                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            })
+        }
+    }
+
     //#endregion----------------- Handlers---------------
 
     //#region-------------------- Functions ---------------
@@ -217,6 +304,30 @@ function AiAgentPage() {
         }
     };
 
+    const getSession=async()=>{
+           const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            navigate('/');
+            return;
+        }
+        try {
+            const response = await axios.get(
+                'http://localhost:3001/api/agent/sessions',
+                { headers: {  'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` } }
+            );
+           setSessionList(response.data.data);
+            
+        } catch (error) {
+            setAlert({
+                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            })
+        }
+    }
+
     //#endregion----------------- Functions---------------
 
 
@@ -226,6 +337,8 @@ function AiAgentPage() {
         const decoded = authToken ? decodeJwtToken(authToken) : null;
         const userId = decoded?.userid;
 
+        handleNewChat();
+
         const handleToolResult = (data: any) => {
             if (data.result === "success") {
                 setHistory((prev) => [{
@@ -233,35 +346,38 @@ function AiAgentPage() {
                     list: data.list,
                     message: data.message,
                     result: data.result,
+                    prompt:data.prompt,
                     continuePrompt: data.continuePrompt,
                     toolName: data.toolName,
                     time: `${new Date().getHours().toString()}:${new Date().getMinutes().toString()}`
                 }, ...prev])
                 setVoiceInput('');
                 setSelectedFile([]);
+                setSessionHasPrompts(true)
                 if (data.lastsegment) {
                     setLoadingButton(false)
                 }
 
             }
-            else{
+            else {
                 setHistory((prev) => [{
                     id: uniqueId(),
                     list: data.list,
                     message: data.message,
                     result: data.result,
+                    prompt:data.prompt,
                     continuePrompt: data.continuePrompt,
                     toolName: data.toolName,
                     time: `${new Date().getHours().toString()}:${new Date().getMinutes().toString().padStart(2, "0")}`
                 }, ...prev])
-            
-                 setLoadingButton(false)
-                 abortingref.current=false;
+
+                setLoadingButton(false)
+                abortingref.current = false;
             }
-            
+
 
             setProgress({ currentOp: undefined })
-            
+
 
         }
         const handleToolCurrent = (data: any) => {
@@ -280,7 +396,7 @@ function AiAgentPage() {
         userefSocket.current.on("connect", () => {
         })
 
-            const timer = setTimeout(() => {
+        const timer = setTimeout(() => {
             console.log('connecting...');
             userefSocket.current?.connect();
         }, 100);
@@ -292,6 +408,10 @@ function AiAgentPage() {
             userefSocket.current?.disconnect();
         };
     }, [])
+
+    useEffect(()=>{
+            getSession()
+    },[sessionHasPrompts])
     //#endregion----------------- UseEffects -------------
 
 
@@ -352,6 +472,12 @@ function AiAgentPage() {
                 {/* Workspace */}
                 <div className="workspace">
 
+                    <div style={{left:"5px",top:"10px",display:"flex",flexDirection:"column",gap:"8px",flex:1}}>
+                        {
+                            sessionList.map((item,index)=><div onClick={()=>getToolExecution(item.id)} className="historyItem">{item.title}</div>)
+                        }
+                    </div>
+
 
                     {/* Result Workspace */}
                     <section
@@ -365,6 +491,9 @@ function AiAgentPage() {
                                 </span>
 
                                 <h2>İşlem sonucu</h2>
+                            </div>
+                            <div className={`newchat ${currentSessionId==null||!sessionHasPrompts?"inactive":"active"}`} onClick={handleNewChat}>
+                                <span>New Chat</span>
                             </div>
                         </div>
 
@@ -386,10 +515,11 @@ function AiAgentPage() {
                                         <span>{item.result == "success" ? "✓" : "x"}</span>
                                     </div>
 
-                                    <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word" }}>
-
-                                        <div style={{ display: "flex", width: "100%", gap: "8px" }}>
-                                            <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis" }}>
+                                    <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word",display:"flex" }}>
+                                        <div style={{display:"flex",alignItems:"center"}}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis",display:"flex",alignItems:"center" }}>{item.prompt}</strong></div>
+                                        <div><ArrowRight style={{fill:item.result=="success"?"#28ab2a":"red"}}/></div>
+                                        <div style={{ display: "flex", gap: "8px" }}>
+                                            <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis",display:"flex",alignItems:"center" }}>
                                                 {item.message}
                                             </strong>
                                             {item.toolName && (
@@ -533,6 +663,9 @@ function AiAgentPage() {
                             </div>
                         </div>
                     </section>
+                      <div style={{left:"5px",top:"10px",display:"flex",flexDirection:"column",gap:"8px",flex:1}}>
+             
+                    </div>
                 </div>
             </main>
         </div>

@@ -1,6 +1,7 @@
 export type FunctionCallResultType={
     result:"error"|"success",
     message:string,
+    prompt:string;
     list:any[],
     time:string,
     id:string,
@@ -19,4 +20,10 @@ export interface JwtPayload {
   username?: string;
   role?: string | string[];
   userid?: string;
+}
+
+export interface SessionsItemType{
+    id: string;
+    title: string;
+    createdAt: Date;
 }
