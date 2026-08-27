@@ -9,11 +9,12 @@ import EmptyIcon from '@mui/icons-material/GraphicEq';
 import ArrowRight from '@mui/icons-material/TrendingFlat'
 import Arrow from '@mui/icons-material/ArrowUpwardOutlined';
 import { uniqueId } from "lodash";
-import { FunctionCallResultType, JwtPayload, SelectedFileType, SessionsItemType } from "./ai.types";
+import { FunctionCallResultType, JwtPayload, SelectedFileType, SessionsItemType, SpecialPromptEnum } from "./ai.types";
 import server from "../../assets/address.json"
 import { useSpeechToText } from "./hooks/useSpeechToText";
 import { io, Socket } from "socket.io-client";
 import resultViewLink from './localfiles/resultViewLink.json'
+import TenderChoice from "./components/tenderChoice";
 
 
 
@@ -37,6 +38,7 @@ function AiAgentPage() {
         isListening,
         blobToAudioData
     } = useSpeechToText();
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const userefSocket = useRef<Socket>();
     const abortingref = useRef(false);
     //#endregion----------------- Constants---------------
@@ -61,7 +63,8 @@ function AiAgentPage() {
     })
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [sessionHasPrompts, setSessionHasPrompts] = useState(false);
-    const [sessionList,setSessionList]=useState<SessionsItemType[]>([])
+    const [sessionList, setSessionList] = useState<SessionsItemType[]>([])
+    const [specialPrompt, setSpecialPrompt] = useState<SpecialPromptEnum | null>(null)
 
     //#endregion----------------- States ---------------
 
@@ -146,7 +149,7 @@ function AiAgentPage() {
                 {
                     prompt: voiceInput,
                     files: selectedFile.map((file) => file.path),
-                    sessionId:currentSessionId
+                    sessionId: currentSessionId
                 },
                 {
                     headers: {
@@ -198,7 +201,7 @@ function AiAgentPage() {
         userefSocket.current?.emit('cancel-execution');
     }, []);
     // تابع جدید (کنار handleSubmit)
-    
+
     const handleNewChat = useCallback(async () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
@@ -209,9 +212,13 @@ function AiAgentPage() {
             const response = await axios.post(
                 'http://localhost:3001/api/agent/sessions/new',
                 {},
-                { headers: {  'Accept': 'application/json',
+                {
+                    headers: {
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` } }
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                }
             );
             setCurrentSessionId(response.data.data.sessionId);
             setHistory([]);
@@ -225,8 +232,8 @@ function AiAgentPage() {
         }
     }, [alert, navigate]);
 
-    const getSessionSubmissions=async(sessionId:string)=>{
-               const authToken = localStorage.getItem('authToken');
+    const getSessionSubmissions = async (sessionId: string) => {
+        const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate('/');
             return;
@@ -234,13 +241,17 @@ function AiAgentPage() {
         try {
             const response = await axios.get(
                 `http://localhost:3001/api/agent/sessions/${sessionId}/prompts`,
-                { headers: {  'Accept': 'application/json',
+                {
+                    headers: {
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` } }
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                }
             );
             console.clear();
-             console.log(response.data.data);
-            
+            console.log(response.data.data);
+
         } catch (error) {
             setAlert({
                 alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
@@ -251,8 +262,8 @@ function AiAgentPage() {
     }
 
 
-    const getToolExecution=async(sessionId:string)=>{
-               const authToken = localStorage.getItem('authToken');
+    const getToolExecution = async (sessionId: string) => {
+        const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate('/');
             return;
@@ -260,15 +271,19 @@ function AiAgentPage() {
         try {
             const response = await axios.get(
                 `http://localhost:3001/api/agent/sessions/${sessionId}/executions`,
-                { headers: {  'Accept': 'application/json',
+                {
+                    headers: {
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` } }
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                }
             );
             setHistory(response.data.data)
             setCurrentSessionId(sessionId)
             console.clear();
             console.log(response.data.data);
-            
+
         } catch (error) {
             setAlert({
                 alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
@@ -304,8 +319,8 @@ function AiAgentPage() {
         }
     };
 
-    const getSession=async()=>{
-           const authToken = localStorage.getItem('authToken');
+    const getSession = async () => {
+        const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate('/');
             return;
@@ -313,12 +328,16 @@ function AiAgentPage() {
         try {
             const response = await axios.get(
                 'http://localhost:3001/api/agent/sessions',
-                { headers: {  'Accept': 'application/json',
+                {
+                    headers: {
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` } }
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                }
             );
-           setSessionList(response.data.data);
-            
+            setSessionList(response.data.data);
+
         } catch (error) {
             setAlert({
                 alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
@@ -326,6 +345,25 @@ function AiAgentPage() {
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
         }
+    }
+
+    const handleSpecialPrompt = () => {
+
+
+        switch (specialPrompt) {
+            case SpecialPromptEnum.create_tender:
+                return handleTender();
+
+            // no break needed because we return
+            default:
+                return null;
+        }
+    }
+
+    const handleTender = () => {
+
+        return <TenderChoice setVoiceInput={setVoiceInput} />
+
     }
 
     //#endregion----------------- Functions---------------
@@ -346,7 +384,7 @@ function AiAgentPage() {
                     list: data.list,
                     message: data.message,
                     result: data.result,
-                    prompt:data.prompt,
+                    prompt: data.prompt,
                     continuePrompt: data.continuePrompt,
                     toolName: data.toolName,
                     time: `${new Date().getHours().toString()}:${new Date().getMinutes().toString()}`
@@ -358,6 +396,13 @@ function AiAgentPage() {
                     setLoadingButton(false)
                 }
 
+                if(data.isSpecial){
+                      setSpecialPrompt(SpecialPromptEnum[data.toolName as unknown as keyof typeof SpecialPromptEnum])
+                }
+                else{
+                    setSpecialPrompt(null)
+                }
+
             }
             else {
                 setHistory((prev) => [{
@@ -365,7 +410,7 @@ function AiAgentPage() {
                     list: data.list,
                     message: data.message,
                     result: data.result,
-                    prompt:data.prompt,
+                    prompt: data.prompt,
                     continuePrompt: data.continuePrompt,
                     toolName: data.toolName,
                     time: `${new Date().getHours().toString()}:${new Date().getMinutes().toString().padStart(2, "0")}`
@@ -409,9 +454,23 @@ function AiAgentPage() {
         };
     }, [])
 
-    useEffect(()=>{
-            getSession()
-    },[sessionHasPrompts])
+    useEffect(() => {
+        getSession()
+    }, [sessionHasPrompts])
+
+    useEffect(() => {
+        const ta = textareaRef.current;
+        if (ta) {
+            ta.style.height = "auto";
+            const computed = window.getComputedStyle(ta);
+            const lineHeight = parseInt(computed.lineHeight || "20", 10) || 20;
+            const maxHeight = lineHeight * 4;
+            const scrollH = ta.scrollHeight;
+            const desiredHeight = Math.min(maxHeight, Math.max(lineHeight, scrollH));
+            ta.style.height = `${desiredHeight}px`;
+            ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
+        }
+    }, [voiceInput, isListening]);
     //#endregion----------------- UseEffects -------------
 
 
@@ -472,9 +531,9 @@ function AiAgentPage() {
                 {/* Workspace */}
                 <div className="workspace">
 
-                    <div style={{left:"5px",top:"10px",display:"flex",flexDirection:"column",gap:"8px",flex:1}}>
+                    <div style={{ left: "5px", top: "10px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
                         {
-                            sessionList.map((item,index)=><div onClick={()=>getToolExecution(item.id)} className="historyItem">{item.title}</div>)
+                            sessionList.map((item, index) => <div onClick={() => getToolExecution(item.id)} className="historyItem">{item.title}</div>)
                         }
                     </div>
 
@@ -492,7 +551,7 @@ function AiAgentPage() {
 
                                 <h2>İşlem sonucu</h2>
                             </div>
-                            <div className={`newchat ${currentSessionId==null||!sessionHasPrompts?"inactive":"active"}`} onClick={handleNewChat}>
+                            <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`} onClick={handleNewChat}>
                                 <span>New Chat</span>
                             </div>
                         </div>
@@ -508,18 +567,18 @@ function AiAgentPage() {
                             )
                         }
 
-                        {history.map((item) => (
+                        {history.map((item,index) => (
                             <div className={`operation-card ${item.result == "success" ? "success" : "error"}`} key={item.id}>
                                 <div className="operation-top">
                                     <div className={`${item.result == "success" ? "operation-success" : "operation-error"}`}>
                                         <span>{item.result == "success" ? "✓" : "x"}</span>
                                     </div>
 
-                                    <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word",display:"flex" }}>
-                                        <div style={{display:"flex",alignItems:"center"}}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis",display:"flex",alignItems:"center" }}>{item.prompt}</strong></div>
-                                        <div><ArrowRight style={{fill:item.result=="success"?"#28ab2a":"red"}}/></div>
+                                    <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
+                                        <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
+                                        <div><ArrowRight style={{ fill: item.result == "success" ? "#28ab2a" : "red" }} /></div>
                                         <div style={{ display: "flex", gap: "8px" }}>
-                                            <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis",display:"flex",alignItems:"center" }}>
+                                            <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
                                                 {item.message}
                                             </strong>
                                             {item.toolName && (
@@ -532,15 +591,19 @@ function AiAgentPage() {
                                             </span>
                                         </div>
 
-                                        {item.continuePrompt && (
-                                            <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
-                                        )}
+
                                     </div>
 
                                     <span className={`${item.result == "success" ? "success-pill" : "error-pill"}`}>
                                         {item.result == "success" ? "Başarı" : "Hata"}
                                     </span>
                                 </div>
+                                {item.continuePrompt && (
+                                    <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
+                                )}
+                                {
+                                    specialPrompt&&index==0 && handleSpecialPrompt()
+                                }
                             </div>
                         ))}
 
@@ -572,56 +635,27 @@ function AiAgentPage() {
 
                             </div>
 
-
-                            {/* {isListening && (
-                                <div className="recording">
-                                    <div className="recording-indicator">
-                                        <span />
-                                        Recording...
-                                    </div>
-
-                                    <div className="wave">
-                                        {Array.from({ length: 28 }).map((_, index) => (
-                                            <i
-                                                key={index}
-                                                style={{
-                                                    height: `${12 + Math.random() * 25}px`,
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-
-                                    <button
-                                        className="stop-recording"
-                                        onClick={stop}
-                                    >
-                                        Stop
-                                    </button>
-                                </div>
-                            )} */}
-
                             <div className="composer">
-                                <button
-                                    className="composer-button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    title="Attach file"
-                                >
-                                    📎
-                                </button>
 
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    hidden
-                                    onChange={handleFileChange}
-                                />
 
                                 <textarea
+                                    ref={textareaRef}
                                     value={isListening ? `` : voiceInput}
-                                    onChange={(event) =>
-                                        //setPrompt(event.target.value)
+                                    style={{ width: "100%" }}
+                                    onChange={(event) => {
                                         setVoiceInput(event.target.value)
-                                    }
+                                        const ta = textareaRef.current;
+                                        if (ta) {
+                                            ta.style.height = "auto";
+                                            const computed = window.getComputedStyle(ta);
+                                            const lineHeight = parseInt(computed.lineHeight || "20", 10) || 20;
+                                            const maxHeight = lineHeight * 4;
+                                            const scrollH = ta.scrollHeight;
+                                            const desiredHeight = Math.min(maxHeight, Math.max(lineHeight, scrollH));
+                                            ta.style.height = `${desiredHeight}px`;
+                                            ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
+                                        }
+                                    }}
                                     placeholder="Temsilcinize sorun..."
                                     rows={1}
                                     onKeyDown={(event) => {
@@ -635,21 +669,46 @@ function AiAgentPage() {
                                     }}
                                 />
 
-                                <button
-                                    className={`composer-button ${isListening ? "recording-button" : ""
-                                        }`}
-                                    onClick={() => { isListening ? stop() : start() }}
-                                    title="Voice input"
-                                >
-                                    <Mic style={{ fill: isListening ? "greenyellow" : "gray" }} />
-                                </button>
+                                <div style={{ display: "flex", width: "100%" }}>
+                                    <button
+                                        className="composer-button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        title="Attach file"
+                                    >
+                                        📎
+                                    </button>
 
-                                <button
-                                    className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
-                                    onClick={handleSubmit}
-                                >
-                                    {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
-                                </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        hidden
+                                        onChange={handleFileChange}
+                                    />
+
+
+                                    <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
+                                        <button
+                                            className={`composer-button ${isListening ? "recording-button" : ""
+                                                }`}
+                                            onClick={() => { isListening ? stop() : start() }}
+                                            title="Voice input"
+                                        >
+                                            <Mic style={{ fill: isListening ? "greenyellow" : "gray" }} />
+                                        </button>
+
+                                        <button
+                                            className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
+                                            onClick={handleSubmit}
+                                        >
+                                            {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
+                                        </button>
+                                    </div>
+
+
+
+                                </div>
+
+
                             </div>
 
                             <div className="composer-hint">
@@ -663,8 +722,8 @@ function AiAgentPage() {
                             </div>
                         </div>
                     </section>
-                      <div style={{left:"5px",top:"10px",display:"flex",flexDirection:"column",gap:"8px",flex:1}}>
-             
+                    <div style={{ left: "5px", top: "10px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
+
                     </div>
                 </div>
             </main>

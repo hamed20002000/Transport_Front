@@ -27,3 +27,7 @@ export interface SessionsItemType{
     title: string;
     createdAt: Date;
 }
+
+export enum SpecialPromptEnum{
+    "create_tender"="create_tender"
+}

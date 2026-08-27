@@ -410,7 +410,7 @@ button {
   cursor: not-allowed;
 }
 
-.historyItem{
+.historyItem {
 
   background: #2e2d32;
   padding: 2px;
@@ -677,7 +677,7 @@ button {
 
   background: var(--surface);
 
-  position: sticky;
+  position: absolute;
   bottom: 0px;
   width: 100%;
   margin-top: 5px;
@@ -691,16 +691,17 @@ button {
 }
 
 .composer {
-  min-height: 52px;
+  min-height: 0;
 
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: stretch;
   gap: 7px;
 
   padding: 7px;
 
   border: 1px solid #212121;
-  border-radius: 50px;
+  border-radius: 20px;
 
   background: #333336;
 
@@ -713,10 +714,12 @@ button {
 }
 
 .composer textarea {
-  flex: 1;
-
   min-width: 0;
-  max-height: 120px;
+  max-height: 200px;
+  /* allow growth up to ~10 lines; JS still limits visible lines to 4 before internal scroll */
+  line-height: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
 
   resize: none;
 
@@ -730,6 +733,8 @@ button {
   color: white;
 
   font-size: 13px;
+  height: auto;
+  min-height: 20px;
 }
 
 .composer textarea::placeholder {
@@ -928,7 +933,8 @@ button {
 .result-panel {
   overflow-y: auto;
   scrollbar-width: none;
-  flex:8
+  flex: 8;
+  position: relative
 }
 
 .close-mobile-workspace {
