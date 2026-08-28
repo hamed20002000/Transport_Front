@@ -3,6 +3,14 @@ import "./AiAgentPage.css";
 import { AlertType } from "src/components/shared/Alert/alert.type";
 import { useNavigate } from "react-router";
 import axios from 'axios';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from '@mui/material';
 import BoltIcon from '@mui/icons-material/StopCircleSharp';
 import Mic from '@mui/icons-material/Mic';
 import EmptyIcon from '@mui/icons-material/GraphicEq';
@@ -15,6 +23,7 @@ import { useSpeechToText } from "./hooks/useSpeechToText";
 import { io, Socket } from "socket.io-client";
 import resultViewLink from './localfiles/resultViewLink.json'
 import TenderChoice from "./components/tenderChoice";
+import HistoryItem from "./components/historyItem";
 
 
 
@@ -28,15 +37,11 @@ function AiAgentPage() {
 
     //#region-------------------- Constants---------------
     const navigate = useNavigate();
-    const fileInputRef = useRef(null);
-    const mediaRecorderRef = useRef<any>(null);
-    const recognitionRef = useRef<any>(null);
-    const streamRef = useRef<MediaStream | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const {
         start,
         stop,
         isListening,
-        blobToAudioData
     } = useSpeechToText();
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const userefSocket = useRef<Socket>();
@@ -46,9 +51,7 @@ function AiAgentPage() {
 
     //#region-------------------- States---------------
 
-    const [prompt, setPrompt] = useState("");
     const [selectedFile, setSelectedFile] = useState<SelectedFileType[]>([]);
-    const [isRecording, setIsRecording] = useState(false);
     const [showWorkspace, setShowWorkspace] = useState(false);
     const [loadingButton, setLoadingButton] = useState<boolean>(false);
     const [voiceInput, setVoiceInput] = useState('');
@@ -65,6 +68,8 @@ function AiAgentPage() {
     const [sessionHasPrompts, setSessionHasPrompts] = useState(false);
     const [sessionList, setSessionList] = useState<SessionsItemType[]>([])
     const [specialPrompt, setSpecialPrompt] = useState<SpecialPromptEnum | null>(null)
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [pendingConfirmation, setPendingConfirmation] = useState<any>(null);
 
     //#endregion----------------- States ---------------
 
@@ -187,10 +192,6 @@ function AiAgentPage() {
     }, [voiceInput, alert, navigate, selectedFile]);
 
 
-    const toggleRecording = () => {
-        setIsRecording((current) => !current);
-    };
-
     const generateResultViewLink = (toolName: string) => {
 
         if (!toolName) return "";
@@ -232,36 +233,6 @@ function AiAgentPage() {
         }
     }, [alert, navigate]);
 
-    const getSessionSubmissions = async (sessionId: string) => {
-        const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            navigate('/');
-            return;
-        }
-        try {
-            const response = await axios.get(
-                `http://localhost:3001/api/agent/sessions/${sessionId}/prompts`,
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
-            console.clear();
-            console.log(response.data.data);
-
-        } catch (error) {
-            setAlert({
-                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
-                severity: "error",
-                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
-            })
-        }
-    }
-
-
     const getToolExecution = async (sessionId: string) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
@@ -292,6 +263,46 @@ function AiAgentPage() {
             })
         }
     }
+
+    const onClickSuccesItem = (item: FunctionCallResultType) => {
+        setVoiceInput(item.prompt)
+    }
+
+    const handleConfirmAction = async(confirmed: boolean) => {
+    
+
+             const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            navigate('/');
+            return;
+        }
+        try {
+            const response = await axios.put(
+                `http://localhost:3001/api/agent/sessions/confirm-action`,
+            {
+               confirmed
+            },
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                }
+            );
+
+
+        } catch (error) {
+            setAlert({
+                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            })
+        }
+
+        
+ 
+    };
 
     //#endregion----------------- Handlers---------------
 
@@ -371,6 +382,10 @@ function AiAgentPage() {
 
     //#region-------------------- UseEffects -------------
     useEffect(() => {
+        setShowWorkspace(false);
+    }, []);
+
+    useEffect(() => {
         const authToken = localStorage.getItem('authToken');
         const decoded = authToken ? decodeJwtToken(authToken) : null;
         const userId = decoded?.userid;
@@ -396,13 +411,17 @@ function AiAgentPage() {
                     setLoadingButton(false)
                 }
 
-                if(data.isSpecial){
-                      setSpecialPrompt(SpecialPromptEnum[data.toolName as unknown as keyof typeof SpecialPromptEnum])
+                if (data.isSpecial) {
+                    setSpecialPrompt(SpecialPromptEnum[data.toolName as unknown as keyof typeof SpecialPromptEnum])
                 }
-                else{
+                else {
                     setSpecialPrompt(null)
                 }
 
+            }
+            else if (data.result === "confirm_required") {
+                setPendingConfirmation(data);
+                setConfirmDialogOpen(true);
             }
             else {
                 setHistory((prev) => [{
@@ -448,6 +467,7 @@ function AiAgentPage() {
 
 
         return () => {
+            clearTimeout(timer);
             userefSocket.current?.off('agent-tool-result', handleToolResult);
             userefSocket.current?.off('agent-current-tool', handleToolCurrent);
             userefSocket.current?.disconnect();
@@ -531,10 +551,22 @@ function AiAgentPage() {
                 {/* Workspace */}
                 <div className="workspace">
 
-                    <div style={{ left: "5px", top: "10px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
-                        {
-                            sessionList.map((item, index) => <div onClick={() => getToolExecution(item.id)} className="historyItem">{item.title}</div>)
-                        }
+                    <div className="history-sidebar">
+                        <div className="history-sidebar__header">Kayıtlar</div>
+                        <div className="history-sidebar__list">
+                            {
+                                sessionList.map((item, index) => (
+                                    <HistoryItem
+                                        key={item.id}
+                                        getToolExecution={getToolExecution}
+                                        id={item.id}
+                                        title={item.title}
+                                        createdAt={item.createdAt}
+                                        status={index % 2 === 0 ? 'success' : 'error'}
+                                    />
+                                ))
+                            }
+                        </div>
                     </div>
 
 
@@ -557,58 +589,85 @@ function AiAgentPage() {
                         </div>
 
 
-                        {
-                            progress.currentOp != undefined && (
-                                <div className="progress-current" style={{ padding: "8px", paddingLeft: "35px", color: "#22222" }}>
+                        <div className="result-content">
+                            {
+                                progress.currentOp != undefined && (
+                                    <div className="progress-current" style={{ padding: "8px", paddingLeft: "35px", color: "#22222" }}>
 
-                                    <span className="progress-text">{progress.currentOp}</span>
-                                    <span className="progress-dots">...</span>
-                                </div>
-                            )
-                        }
-
-                        {history.map((item,index) => (
-                            <div className={`operation-card ${item.result == "success" ? "success" : "error"}`} key={item.id}>
-                                <div className="operation-top">
-                                    <div className={`${item.result == "success" ? "operation-success" : "operation-error"}`}>
-                                        <span>{item.result == "success" ? "✓" : "x"}</span>
+                                        <span className="progress-text">{progress.currentOp}</span>
+                                        <span className="progress-dots">...</span>
                                     </div>
+                                )
+                            }
 
-                                    <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
-                                        <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
-                                        <div><ArrowRight style={{ fill: item.result == "success" ? "#28ab2a" : "red" }} /></div>
-                                        <div style={{ display: "flex", gap: "8px" }}>
-                                            <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
-                                                {item.message}
-                                            </strong>
-                                            {item.toolName && (
-                                                <a href={generateResultViewLink(item.toolName)} style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }} target="_blank" >
-                                                    Sonucu Görüntüle
-                                                </a>
-                                            )}
-                                            <span style={{ fontWeight: "bold", color: "black" }}>
-                                                {item.time}
+                            {history.map((item, index) => {
+                                const isSuccess = item.result === "success";
+                                const isClickable = isSuccess && !!currentSessionId;
+
+                                return (
+                                    <div
+                                        className={`operation-card ${isSuccess ? "success" : "error"}`}
+                                        key={item.id}
+                                        onClick={
+                                            isClickable
+                                                ? () => onClickSuccesItem(item)
+                                                : undefined
+                                        }
+                                        role={isClickable ? "button" : undefined}
+                                        tabIndex={isClickable ? 0 : undefined}
+                                        onKeyDown={
+                                            isClickable
+                                                ? (event) => {
+                                                    if (event.key === "Enter" || event.key === " ") {
+                                                        event.preventDefault();
+                                                        onClickSuccesItem(item!);
+                                                    }
+                                                }
+                                                : undefined
+                                        }
+                                    >
+                                        <div className="operation-top">
+                                            <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
+                                                <span>{isSuccess ? "✓" : "x"}</span>
+                                            </div>
+
+                                            <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
+                                                <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
+                                                <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
+                                                <div style={{ display: "flex", gap: "8px" }}>
+                                                    <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
+                                                        {item.message}
+                                                    </strong>
+                                                    {item.toolName && (
+                                                        <a
+                                                            href={generateResultViewLink(item.toolName)}
+                                                            style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
+                                                            target="_blank"
+                                                            onClick={(event) => event.stopPropagation()}
+                                                        >
+                                                            Sonucu Görüntüle
+                                                        </a>
+                                                    )}
+                                                    <span style={{ fontWeight: "bold", color: "black" }}>
+                                                        {item.time}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
+                                                {isSuccess ? "Başarı" : "Hata"}
                                             </span>
                                         </div>
-
-
+                                        {item.continuePrompt && (
+                                            <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
+                                        )}
+                                        {
+                                            specialPrompt && index == 0 && handleSpecialPrompt()
+                                        }
                                     </div>
-
-                                    <span className={`${item.result == "success" ? "success-pill" : "error-pill"}`}>
-                                        {item.result == "success" ? "Başarı" : "Hata"}
-                                    </span>
-                                </div>
-                                {item.continuePrompt && (
-                                    <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
-                                )}
-                                {
-                                    specialPrompt&&index==0 && handleSpecialPrompt()
-                                }
-                            </div>
-                        ))}
-
-
-
+                                );
+                            })}
+                        </div>
 
                         <div className="composer-container">
 
@@ -727,6 +786,28 @@ function AiAgentPage() {
                     </div>
                 </div>
             </main>
+
+            <Dialog
+                open={confirmDialogOpen}
+                onClose={() => handleConfirmAction(false)}
+                aria-labelledby="confirm-delete-dialog-title"
+                style={{minWidth:"20vw",minHeight:"20vh"}}
+            >
+                <DialogTitle id="confirm-delete-dialog-title">Onay gerekli</DialogTitle>
+                <DialogContent>
+                    <DialogContentText style={{textAlign:"center"}}>
+                        {pendingConfirmation?.message || 'Bu işlem silme işlemi yapacaktır. Devam etmek istediğinize emin misiniz?'}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions style={{justifyContent:"center",display:"flex"}}>
+                    <Button onClick={() => handleConfirmAction(false)} color="inherit">
+                        Hayır
+                    </Button>
+                    <Button onClick={() => handleConfirmAction(true)} color="error" variant="contained" autoFocus>
+                        Evet, devam et
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

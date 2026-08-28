@@ -12,7 +12,9 @@ import HorizontalHeader from '../full/horizontal/header/Header';
 const MainWrapper = styled('div')(() => ({
   display: 'flex',
   minHeight: '100vh',
+  height: '100vh',
   width: '100%',
+  overflow: 'hidden',
 }));
 
 const PageWrapper = styled('div')(() => ({
@@ -22,6 +24,8 @@ const PageWrapper = styled('div')(() => ({
   flexDirection: 'column',
   zIndex: 1,
   width: '100%',
+  height: '100vh',
+  overflow: 'hidden',
   backgroundColor: 'transparent',
 }));
 
@@ -46,10 +50,15 @@ const FullLayout: FC = () => {
         <Container
           sx={{
             maxWidth: '100%!important',
+            height: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
           }}
         >
 
-          <Box sx={{ minHeight: 'calc(100vh - 170px)' }}>
+          <Box sx={{ flex: 1, minHeight: 0, height: '100%', overflow: 'hidden' }}>
             <Outlet />
           </Box>
         </Container>

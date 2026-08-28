@@ -31,3 +31,18 @@ export interface SessionsItemType{
 export enum SpecialPromptEnum{
     "create_tender"="create_tender"
 }
+
+
+import { Dispatch, SetStateAction } from "react";
+
+export type TenderChoiceProps = {
+    onManual?: () => void;
+    onDownload?: () => void;
+    filename?: string;
+    templateData?: Array<Array<string | number>>;
+    setVoiceInput: Dispatch<SetStateAction<string>>
+};
+
+export type HistoryItemType={
+    
+}

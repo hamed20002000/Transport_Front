@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useSelector, useDispatch } from 'src/store/Store';
 import Box, { BoxProps } from '@mui/material/Box';
-import Magic from '@mui/icons-material/AutoAwesome'
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import { IconX, IconSettings, IconCheck } from '@tabler/icons-react';
 import {
   setTheme,
@@ -47,7 +47,7 @@ interface colors {
 const Customizer: FC = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const customizer = useSelector((state: AppState) => state.customizer);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -115,7 +115,7 @@ const Customizer: FC = () => {
         </Fab>
       </Tooltip>
 
-       <Tooltip title="Yapay zeka">
+      <Tooltip title="Yapay zeka">
         <Fab
           color="primary"
           aria-label="ai"
@@ -123,18 +123,24 @@ const Customizer: FC = () => {
             position: 'fixed',
             right: '25px',
             bottom: '85px',
-            background: '#f4c304',
+            width: 54,
+            height: 54,
+            minHeight: 54,
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%)',
+            color: '#ffffff',
+            boxShadow: '0 12px 24px rgba(99, 102, 241, 0.38)',
+            border: '1px solid rgba(255,255,255,0.4)',
             '&:hover': {
-              backgroundColor: '#f4c304',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 42%, #1d4ed8 100%)',
+              boxShadow: '0 16px 28px rgba(99, 102, 241, 0.45)',
             },
           }}
           onClick={() => {
             navigate('/ai');
           }}
           className="ai_shortcut"
-
         >
-          <Magic style={{ color: '#e70000' }} />
+          <SmartToyOutlinedIcon sx={{ fontSize: 26, color: '#ffffff' }} />
         </Fab>
       </Tooltip>
 
@@ -195,7 +201,7 @@ const Customizer: FC = () => {
                 <SwipeLeftAltTwoToneIcon
                   color={customizer.activeDir === 'ltr' ? 'primary' : 'inherit'}
                 />{' '}
-                sola Sağdan 
+                sola Sağdan
               </StyledBox>
               <StyledBox onClick={() => dispatch(setDir('rtl'))} display="flex" gap={1}>
                 <SwipeRightAltTwoToneIcon

@@ -1,13 +1,8 @@
-import React, { useState, RefObject, Dispatch, SetStateAction } from 'react';
+import React, { useState } from 'react';
 import { Box, Button, Modal, Typography } from '@mui/material';
+import { TenderChoiceProps } from '../ai.types';
 
-type TenderChoiceProps = {
-    onManual?: () => void;
-    onDownload?: () => void;
-    filename?: string;
-    templateData?: Array<Array<string | number>>;
-    setVoiceInput: Dispatch<SetStateAction<string>>
-};
+
 
 const containerStyle: React.CSSProperties = {
     display: 'flex',
@@ -47,45 +42,12 @@ const modalStyle = {
     p: 4,
 };
 
-function arrayToCsv(rows: Array<Array<string | number>>): string {
-    return rows
-        .map((row) =>
-            row
-                .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-                .join(',')
-        )
-        .join('\n');
-}
-
 const TenderChoice: React.FC<TenderChoiceProps> = ({
     onManual,
-    onDownload,
-    filename = 'template.csv',
-    templateData,
     setVoiceInput
-    
+
 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const downloadTemplate = () => {
-        const rows =
-            templateData ?? [
-                ['Title', 'Description', 'Amount'],
-                ['Example title', 'Example description', 0],
-            ];
-
-        const csv = arrayToCsv(rows);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        onDownload?.();
-    };
 
     const handleExcelClick = () => {
         setIsModalOpen(true);

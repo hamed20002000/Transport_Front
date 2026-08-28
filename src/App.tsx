@@ -19,7 +19,6 @@ import { TooltipProvider } from './context/TooltipContext';
 
 
 import NotifyBootstrap from './socket/NotifyBootstrap';
-import AiAgentPage from "./views/ai/ai";
 import { loadWhisper } from "./services/whisper.service";
 import { useEffect } from "react";
 
@@ -28,7 +27,7 @@ function App() {
   const theme = ThemeSettings();
   const customizer = useSelector((state: AppState) => state.customizer);
 
-   useEffect(() => {
+  useEffect(() => {
     loadWhisper()
       .then(() => {
         console.log('Whisper is ready');
@@ -38,7 +37,7 @@ function App() {
       });
   }, []);
 
-  
+
 
   return (
     <Provider store={store}>

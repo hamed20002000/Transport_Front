@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -31,10 +31,8 @@ import axios from 'axios';
 import server from '../../../assets/address.json';
 import { useTooltip, CustomTooltip } from 'src/context/TooltipContext';
 
-const DEFAULT_IMAGE_URL = "";
-
 // استایل‌های سفارشی مشابه نمونه تصویر برای نمایش وضعیت تیک‌های ثابت نقش
-const StatusBadge = styled(Box)<{ isSuccess: boolean }>(({ theme, isSuccess }) => ({
+const StatusBadge = styled(Box)<{ isSuccess: boolean }>(({ isSuccess }) => ({
   display: 'inline-flex',
   alignItems: 'center',
   padding: '4px 12px',
@@ -183,11 +181,11 @@ export default function ListNotif() {
   // ۴. شبیه‌سازی دریافت نوتیفیکیشن‌های ذخیره شده متناسب با تغییر کامبو باکس‌ها (Mock Get Data)
   useEffect(() => {
     setSelectedNotifIds([]); // ریست کردن تیک‌ها هنگام تغییر المان سلکت شده
-    
+
     if (targetType === 'role' && selectedRoleId !== '') {
       // اینجا در آینده API گت مربوط به نقش صدا زده می‌شود. فعلا فرضی چند مورد تیک می‌خورد:
       setSelectedNotifIds(["1", "3", "5"]);
-    } 
+    }
     else if (targetType === 'user' && selectedUserId !== '') {
       // فرضی: نوتیفیکیشن‌های اختصاصی که قبلا مستقیم به خود یوزر داده شده
       setSelectedNotifIds(["2", "5", "9"]);
@@ -206,7 +204,7 @@ export default function ListNotif() {
     if (!currentSelectedUser) return false;
     // فرض می‌کنیم اگر کاربر نقش خاصی داشت، ایدی‌های فرد نوتیفیکیشن به رولش وصل هستن
     if (currentSelectedUser.roles.length > 0) {
-      return ["1", "4", "7", "12"].includes(notifId); 
+      return ["1", "4", "7", "12"].includes(notifId);
     }
     return false;
   }, [currentSelectedUser]);
@@ -285,7 +283,7 @@ export default function ListNotif() {
       <BlankCard>
         <Box sx={{ padding: '20px 25px' }}>
           <Typography variant="h5" mb={3}>Bildirim Listesi Yönetimi</Typography>
-          
+
           <Grid container spacing={3} alignItems="center">
             {/* انتخاب نوع فیلتر با رادیو باتن */}
             <Grid item xs={12} md={3}>
@@ -382,7 +380,7 @@ export default function ListNotif() {
                     Bu izinler kullanıcının bağlı olduğu rolden otomatik atanmıştır ve değiştirilemez.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
-                  
+
                   <Box display="flex" flexWrap="wrap" gap={1}>
                     {notifications.map((notif) => {
                       const hasRolePermission = isNotificationAssignedToRole(notif.id);
@@ -416,7 +414,7 @@ export default function ListNotif() {
                     Kullanıcıya özel olarak tanımlamak istediğiniz ek bildirimleri buradan işaretleyebilirsiniz.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
-                  
+
                   <FormGroup>
                     <Grid container spacing={2}>
                       {notifications.map((notif) => (
