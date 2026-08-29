@@ -20,16 +20,6 @@ const buttonExcelStyle: React.CSSProperties = {
     fontSize: '13px',
 };
 
-const buttonManualStyle: React.CSSProperties = {
-    padding: '2px 5px',
-    borderRadius: 8,
-    border: '1px solid #ccc',
-    background: 'rgb(190, 38, 22)',
-    cursor: 'pointer',
-    color: 'white',
-    fontSize: '13px',
-};
-
 const modalStyle = {
     position: 'absolute' as const,
     top: '50%',
@@ -43,20 +33,19 @@ const modalStyle = {
 };
 
 const TenderChoice: React.FC<TenderChoiceProps> = ({
-    onManual,
     setVoiceInput
-
 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleExcelClick = () => {
+    const handleExcelClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
         setIsModalOpen(true);
     };
 
-    const handleConfirmDownload = () => {
+    const handleConfirmDownload = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
         setIsModalOpen(false);
-        //downloadTemplate();
-        setVoiceInput("güncelleme")
+        setVoiceInput('güncelleme');
     };
 
     return (
@@ -65,13 +54,13 @@ const TenderChoice: React.FC<TenderChoiceProps> = ({
                 Excel dosyasını indirin
             </button>
 
-            <button
+            {/* <button
                 style={buttonManualStyle}
                 onClick={() => onManual?.()}
                 title="Manual entry"
             >
                 Manuel giriş
-            </button>
+            </button> */}
 
             <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <Box sx={modalStyle}>
@@ -84,9 +73,6 @@ const TenderChoice: React.FC<TenderChoiceProps> = ({
                         color="primary"
                         fullWidth
                         onClick={handleConfirmDownload}
-                        href="/tender_template.xlsx"
-                        download="ihale_sablonu.xlsx"
-
                     >
                         İndir
                     </Button>

@@ -1,259 +1,85 @@
-import { useRef, useState } from 'react';
-import { read_audio } from '@huggingface/transformers';
-import { loadWhisper } from 'src/services/whisper.service';
+import { useRef, useState, useCallback } from "react";
+import axios from "axios";
 
-export function useSpeechToText() {
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
+export function useSpeechToText(onTranscribed: (text: string) => void) {
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+    const streamRef = useRef<MediaStream | null>(null);
 
-  const [isListening, setIsListening] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [text, setText] = useState('');
+    const [isListening, setIsListening] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
 
-  // -----------------------------------------
-  // Start recording
-  // -----------------------------------------
+    const start = useCallback(async () => {
+        try {
+            // دسترسی به میکروفون کاربر
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
 
-  const start = async () => {
-    try {
-      const stream =
-        await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
 
-      const mimeTypes = [
-        'audio/webm;codecs=opus',
-        'audio/webm',
-        'audio/ogg;codecs=opus',
-        'audio/mp4',
-      ];
+            // هر تکه‌ی صوتی که ضبط می‌شه رو جمع می‌کنیم
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
 
-      const mimeType = mimeTypes.find((type) =>
-        MediaRecorder.isTypeSupported(type),
-      );
-
-      if (!mimeType) {
-        throw new Error(
-          'No supported audio recording format found.',
-        );
-      }
-
-      console.log('Selected MIME type:', mimeType);
-
-      const recorder = new MediaRecorder(stream, {
-        mimeType,
-      });
-
-      console.log(
-        'Recorder MIME:',
-        recorder.mimeType,
-      );
-
-      chunksRef.current = [];
-
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
+            mediaRecorder.start();
+            setIsListening(true);
+        } catch (error) {
+            console.error("Mikrofon erişimi reddedildi veya hata oluştu:", error);
         }
-      };
+    }, []);
 
-      recorder.start();
+    const stop = useCallback(() => {
+        const mediaRecorder = mediaRecorderRef.current;
+        if (!mediaRecorder) return;
 
-      mediaRecorderRef.current = recorder;
+        // وقتی ضبط واقعاً متوقف بشه، این callback اجرا می‌شه
+        mediaRecorder.onstop = async () => {
+            setIsListening(false);
+            setIsTranscribing(true);
 
-      setIsListening(true);
-      setText('');
-    } catch (error) {
-      console.error(
-        'Microphone error:',
-        error,
-      );
-    }
-  };
+            // همه‌ی تکه‌های صوتی رو به یک فایل واحد تبدیل کن
+            const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
 
-  // -----------------------------------------
-  // Stop recording + Whisper
-  // -----------------------------------------
+            try {
+                const authToken = localStorage.getItem("authToken");
+                const formData = new FormData();
+                formData.append("file", audioBlob, "recording.webm");
 
-  const stop = async () => {
-    const recorder = mediaRecorderRef.current;
+                const response = await axios.post(
+                    "http://localhost:3001/api/agent/speech/transcribe-test",
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                            Authorization: `Bearer ${authToken}`,
+                        },
+                    }
+                );
 
-    if (!recorder) {
-      return;
-    }
+          
+                onTranscribed(response.data.data.text);
+            } catch (error) {
+                console.error("Ses metne dönüştürülürken hata oluştu:", error);
+            } finally {
+                setIsTranscribing(false);
+            }
 
-    try {
-      const blob = await new Promise<Blob>(
-        (resolve) => {
-          recorder.onstop = () => {
-            const audioBlob = new Blob(
-              chunksRef.current,
-              {
-                type: recorder.mimeType,
-              },
-            );
+            // میکروفون رو آزاد کن (چراغ ضبط مرورگر خاموش بشه)
+            streamRef.current?.getTracks().forEach((track) => track.stop());
+        };
 
-            resolve(audioBlob);
-          };
+        mediaRecorder.stop();
+    }, [onTranscribed]);
 
-          recorder.stop();
-        },
-      );
+    const cancel=useCallback(()=>{
+     mediaRecorderRef.current?.stop()
+     setIsListening(false)
+    },[])
 
-      // Stop microphone
-      recorder.stream
-        .getTracks()
-        .forEach((track) => track.stop());
-
-      mediaRecorderRef.current = null;
-
-      setIsListening(false);
-      setIsProcessing(true);
-
-      console.log('Audio blob:', blob);
-      console.log(
-        'Audio MIME:',
-        blob.type,
-      );
-
-      // -----------------------------------------
-      // Optional: play recorded audio
-      // -----------------------------------------
-
-      const audioUrl =
-        URL.createObjectURL(blob);
-
-      const audio = new Audio(audioUrl);
-
-      audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      await audio.play();
-
-      // -----------------------------------------
-      // Convert audio for Whisper
-      // -----------------------------------------
-
-      const audioData =
-        await blobToAudioData(blob);
-
-      console.log(
-        'Sending audio to Whisper...',
-      );
-
-      console.log('Whisper input:', {
-        type: audioData.constructor.name,
-        length: audioData.length,
-        sampleRate: 16000,
-      });
-
-      // -----------------------------------------
-      // Load Whisper
-      // -----------------------------------------
-
-      const whisper = await loadWhisper();
-
-      // -----------------------------------------
-      // Transcription
-      // -----------------------------------------
-
-      const result = await whisper(
-        audioData,
-        {
-          language: 'tr',
-          task: 'transcribe',
-          return_timestamps: false,
-        },
-      );
-
-      console.log(
-        'Whisper result:',
-        result,
-      );
-
-      const transcript =
-        result?.text?.trim() ?? '';
-
-      setText(transcript);
-
-      console.log(
-        'Final text:',
-        transcript,
-      );
-    } catch (error) {
-      console.error(
-        'Audio processing error:',
-        error,
-      );
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // -----------------------------------------
-  // Blob -> Float32Array 16kHz
-  // -----------------------------------------
-
-  const blobToAudioData = async (
-    blob: Blob,
-  ) => {
-    const url =
-      URL.createObjectURL(blob);
-
-    try {
-      const audio = await read_audio(
-        url,
-        16000,
-      );
-
-      console.log(
-        'Whisper audio:',
-        {
-          type:
-            audio.constructor.name,
-          length: audio.length,
-          sampleRate: 16000,
-        },
-      );
-
-      let maxAmplitude = 0;
-      let sum = 0;
-
-      for (const value of audio) {
-        maxAmplitude = Math.max(
-          maxAmplitude,
-          Math.abs(value),
-        );
-
-        sum += value * value;
-      }
-
-      const rms = Math.sqrt(
-        sum / audio.length,
-      );
-
-      console.log(
-        'Max amplitude:',
-        maxAmplitude,
-      );
-
-      console.log(
-        'RMS:',
-        rms,
-      );
-
-      return audio;
-    } finally {
-      URL.revokeObjectURL(url);
-    }
-  };
-
-  return {
-    start,
-    stop,
-    text,
-    isListening,
-    isProcessing,
-  };
+    return { start, stop,cancel, isListening, isTranscribing };
 }

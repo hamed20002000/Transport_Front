@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import BoltIcon from '@mui/icons-material/StopCircleSharp';
 import Mic from '@mui/icons-material/Mic';
+import StopIcon from '@mui/icons-material/Stop';
+import CancelIcon from '@mui/icons-material/Cancel';
 import EmptyIcon from '@mui/icons-material/GraphicEq';
 import ArrowRight from '@mui/icons-material/TrendingFlat'
 import Arrow from '@mui/icons-material/ArrowUpwardOutlined';
@@ -41,8 +43,9 @@ function AiAgentPage() {
     const {
         start,
         stop,
+        cancel,
         isListening,
-    } = useSpeechToText();
+    } = useSpeechToText((text: string) => { setVoiceInput(text) });
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const userefSocket = useRef<Socket>();
     const abortingref = useRef(false);
@@ -67,9 +70,15 @@ function AiAgentPage() {
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [sessionHasPrompts, setSessionHasPrompts] = useState(false);
     const [sessionList, setSessionList] = useState<SessionsItemType[]>([])
+    const [searchText, setSearchText] = useState('');
     const [specialPrompt, setSpecialPrompt] = useState<SpecialPromptEnum | null>(null)
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [pendingConfirmation, setPendingConfirmation] = useState<any>(null);
+    const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
+    const [isMinimized, setIsMinimized] = useState(false);
+    const [isMaximized, setIsMaximized] = useState(false);
+    const debounceRef = useRef<number | null>(null);
+    const dragStateRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
 
     //#endregion----------------- States ---------------
 
@@ -201,7 +210,51 @@ function AiAgentPage() {
     const handleCancel = useCallback(() => {
         userefSocket.current?.emit('cancel-execution');
     }, []);
-    // تابع جدید (کنار handleSubmit)
+
+    const handleDialogDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
+        if ((event.target as HTMLElement).closest('button')) {
+            return;
+        }
+
+        dragStateRef.current = {
+            startX: event.clientX,
+            startY: event.clientY,
+            originX: dialogPosition.x,
+            originY: dialogPosition.y,
+        };
+
+        const handleMove = (moveEvent: MouseEvent) => {
+            const dragState = dragStateRef.current;
+            if (!dragState) return;
+
+            setDialogPosition({
+                x: dragState.originX + (moveEvent.clientX - dragState.startX),
+                y: dragState.originY + (moveEvent.clientY - dragState.startY),
+            });
+        };
+
+        const handleUp = () => {
+            dragStateRef.current = null;
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+    };
+    const handleToggleMinimize = () => {
+        setIsMinimized((prev) => !prev);
+        if (isMaximized) {
+            setIsMaximized(false);
+        }
+    };
+
+    const handleToggleMaximize = () => {
+        setIsMaximized((prev) => !prev);
+        if (isMinimized) {
+            setIsMinimized(false);
+        }
+    };
 
     const handleNewChat = useCallback(async () => {
         const authToken = localStorage.getItem('authToken');
@@ -268,20 +321,58 @@ function AiAgentPage() {
         setVoiceInput(item.prompt)
     }
 
-    const handleConfirmAction = async(confirmed: boolean) => {
-    
+    const handleConfirmAction = async (confirmed: boolean) => {
 
-             const authToken = localStorage.getItem('authToken');
+
+        const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate('/');
             return;
         }
+        setConfirmDialogOpen(false)
         try {
-            const response = await axios.put(
+            await axios.put(
                 `http://localhost:3001/api/agent/sessions/confirm-action`,
-            {
-               confirmed
-            },
+                {
+                    confirmed
+                },
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                }
+            );
+        } catch (error) {
+            setAlert({
+                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            })
+        }
+
+
+
+    };
+
+    const searchHistory = async (searchValue: string) => {
+        const trimmed = searchValue.trim();
+
+        if (trimmed.length < 3) {
+            setSessionList([]);
+            return;
+        }
+
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            navigate('/');
+            return;
+        }
+
+        try {
+            const result = await axios.get(
+                `http://localhost:3001/api/agent/sessions/search?q=${encodeURIComponent(trimmed)}`,
                 {
                     headers: {
                         'Accept': 'application/json',
@@ -291,18 +382,16 @@ function AiAgentPage() {
                 }
             );
 
-
+            setSessionList(result.data.data ?? []);
         } catch (error) {
             setAlert({
-                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                alertMessage: "Arama sırasında hata oluştu.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
         }
-
-        
- 
     };
+
 
     //#endregion----------------- Handlers---------------
 
@@ -495,319 +584,419 @@ function AiAgentPage() {
 
 
     return (
-        <div className="agent-page">
-            {/* Sidebar */}
+        <div className="agent-panel-overlay">
+            <div
+                className={`agent-modal-shell ${isMinimized ? "is-minimized" : ""} ${isMaximized ? "is-maximized" : ""}`}
+                style={{ transform: `translate(${dialogPosition.x}px, ${dialogPosition.y}px)` }}
+            >
+                <div className="agent-dialog-header" onMouseDown={handleDialogDragStart}>
+                    <div className="agent-window-bar">
+                        <div className="agent-window-title">Yapay Zeka Ajanı</div>
 
+                        <div className="agent-window-controls">
+                            <button
+                                type="button"
+                                className="agent-window-button agent-window-button--minimize"
+                                onClick={handleToggleMinimize}
+                                aria-label="Minimize AI panel"
+                                title="Minimize"
+                            >
+                                –
+                            </button>
 
-            <aside className="agent-sidebar">
-                <div className="sidebar-header">
-                    <div className="brand">
-                        <div className="brand-icon">AI</div>
+                            <button
+                                type="button"
+                                className="agent-window-button agent-window-button--maximize"
+                                onClick={handleToggleMaximize}
+                                aria-label="Maximize AI panel"
+                                title={isMaximized ? "Restore" : "Maximize"}
+                            >
+                                {isMaximized ? "▣" : "▢"}
+                            </button>
 
-                        <div>
-                            <strong>AI Agent</strong>
-                            <span>Workspace</span>
-                        </div>
-                    </div>
-
-                    <button className="new-chat-button">
-                        <span>+</span>
-                        New Chat
-                    </button>
-                </div>
-
-                <div className="conversation-section">
-                    <div className="section-label">TODAY</div>
-
-                    {conversations.map((conversation, index) => (
-                        <button
-                            key={conversation}
-                            className={`conversation-item ${index === 0 ? "active" : ""
-                                }`}
-                        >
-                            <span className="conversation-icon">◈</span>
-
-                            <span>{conversation}</span>
-                        </button>
-                    ))}
-                </div>
-
-                <div className="sidebar-footer">
-                    <div className="agent-status">
-                        <span className="status-dot" />
-
-                        <div>
-                            <strong>Agent online</strong>
-                            <span>Ready to execute</span>
+                            <button
+                                type="button"
+                                className="agent-window-button agent-window-button--close"
+                                onClick={() => navigate(-1)}
+                                aria-label="Close AI panel"
+                                title="Close"
+                            >
+                                ×
+                            </button>
                         </div>
                     </div>
                 </div>
-            </aside>
 
-            <main className="agent-main">
-
-
-
-                {/* Workspace */}
-                <div className="workspace">
-
-                    <div className="history-sidebar">
-                        <div className="history-sidebar__header">Kayıtlar</div>
-                        <div className="history-sidebar__list">
-                            {
-                                sessionList.map((item, index) => (
-                                    <HistoryItem
-                                        key={item.id}
-                                        getToolExecution={getToolExecution}
-                                        id={item.id}
-                                        title={item.title}
-                                        createdAt={item.createdAt}
-                                        status={index % 2 === 0 ? 'success' : 'error'}
-                                    />
-                                ))
-                            }
-                        </div>
-                    </div>
+                {!isMinimized && (
+                    <div className="agent-page">
+                        {/* Sidebar */}
 
 
-                    {/* Result Workspace */}
-                    <section
-                        className={`result-panel ${showWorkspace ? "show-mobile" : ""
-                            }`}
-                    >
-                        <div className="result-header">
-                            <div>
-                                <span className="eyebrow">
-                                    ÇALIŞMA ALANI
-                                </span>
+                        <aside className="agent-sidebar">
+                            <div className="sidebar-header">
+                                <div className="brand">
+                                    <div className="brand-icon">AI</div>
 
-                                <h2>İşlem sonucu</h2>
-                            </div>
-                            <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`} onClick={handleNewChat}>
-                                <span>New Chat</span>
-                            </div>
-                        </div>
-
-
-                        <div className="result-content">
-                            {
-                                progress.currentOp != undefined && (
-                                    <div className="progress-current" style={{ padding: "8px", paddingLeft: "35px", color: "#22222" }}>
-
-                                        <span className="progress-text">{progress.currentOp}</span>
-                                        <span className="progress-dots">...</span>
+                                    <div>
+                                        <strong>Yapay Zeka Ajanı</strong>
+                                        <span>Workspace</span>
                                     </div>
-                                )
-                            }
+                                </div>
 
-                            {history.map((item, index) => {
-                                const isSuccess = item.result === "success";
-                                const isClickable = isSuccess && !!currentSessionId;
-
-                                return (
-                                    <div
-                                        className={`operation-card ${isSuccess ? "success" : "error"}`}
-                                        key={item.id}
-                                        onClick={
-                                            isClickable
-                                                ? () => onClickSuccesItem(item)
-                                                : undefined
-                                        }
-                                        role={isClickable ? "button" : undefined}
-                                        tabIndex={isClickable ? 0 : undefined}
-                                        onKeyDown={
-                                            isClickable
-                                                ? (event) => {
-                                                    if (event.key === "Enter" || event.key === " ") {
-                                                        event.preventDefault();
-                                                        onClickSuccesItem(item!);
-                                                    }
-                                                }
-                                                : undefined
-                                        }
-                                    >
-                                        <div className="operation-top">
-                                            <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
-                                                <span>{isSuccess ? "✓" : "x"}</span>
-                                            </div>
-
-                                            <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
-                                                <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
-                                                <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
-                                                <div style={{ display: "flex", gap: "8px" }}>
-                                                    <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
-                                                        {item.message}
-                                                    </strong>
-                                                    {item.toolName && (
-                                                        <a
-                                                            href={generateResultViewLink(item.toolName)}
-                                                            style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
-                                                            target="_blank"
-                                                            onClick={(event) => event.stopPropagation()}
-                                                        >
-                                                            Sonucu Görüntüle
-                                                        </a>
-                                                    )}
-                                                    <span style={{ fontWeight: "bold", color: "black" }}>
-                                                        {item.time}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
-                                                {isSuccess ? "Başarı" : "Hata"}
-                                            </span>
-                                        </div>
-                                        {item.continuePrompt && (
-                                            <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
-                                        )}
-                                        {
-                                            specialPrompt && index == 0 && handleSpecialPrompt()
-                                        }
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <div className="composer-container">
-
-                            <div className="file-container">
-                                {selectedFile.map((item, index) =>
-                                    <div className="attachment">
-                                        <div className="attachment-icon">
-                                            📎
-                                        </div>
-
-                                        <div className="attachment-info">
-                                            <strong>{item?.file.name}</strong>
-
-                                            <span>
-                                                {(item?.file.size / 1024).toFixed(1)} KB
-                                            </span>
-                                        </div>
-
-                                        <button onClick={() => removeFile(index)}>
-                                            ×
-                                        </button>
-                                    </div>
-                                )}
-
+                                <button className="new-chat-button">
+                                    <span>+</span>
+                                    New Chat
+                                </button>
                             </div>
 
-                            <div className="composer">
+                            <div className="conversation-section">
+                                <div className="section-label">TODAY</div>
 
-
-                                <textarea
-                                    ref={textareaRef}
-                                    value={isListening ? `` : voiceInput}
-                                    style={{ width: "100%" }}
-                                    onChange={(event) => {
-                                        setVoiceInput(event.target.value)
-                                        const ta = textareaRef.current;
-                                        if (ta) {
-                                            ta.style.height = "auto";
-                                            const computed = window.getComputedStyle(ta);
-                                            const lineHeight = parseInt(computed.lineHeight || "20", 10) || 20;
-                                            const maxHeight = lineHeight * 4;
-                                            const scrollH = ta.scrollHeight;
-                                            const desiredHeight = Math.min(maxHeight, Math.max(lineHeight, scrollH));
-                                            ta.style.height = `${desiredHeight}px`;
-                                            ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
-                                        }
-                                    }}
-                                    placeholder="Temsilcinize sorun..."
-                                    rows={1}
-                                    onKeyDown={(event) => {
-                                        if (
-                                            event.key === "Enter" &&
-                                            !event.shiftKey
-                                        ) {
-                                            event.preventDefault();
-                                            handleSubmit();
-                                        }
-                                    }}
-                                />
-
-                                <div style={{ display: "flex", width: "100%" }}>
+                                {conversations.map((conversation, index) => (
                                     <button
-                                        className="composer-button"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        title="Attach file"
+                                        key={conversation}
+                                        className={`conversation-item ${index === 0 ? "active" : ""
+                                            }`}
                                     >
-                                        📎
+                                        <span className="conversation-icon">◈</span>
+
+                                        <span>{conversation}</span>
                                     </button>
+                                ))}
+                            </div>
 
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        hidden
-                                        onChange={handleFileChange}
-                                    />
+                            <div className="sidebar-footer">
+                                <div className="agent-status">
+                                    <span className="status-dot" />
+
+                                    <div>
+                                        <strong>Agent online</strong>
+                                        <span>Ready to execute</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+
+                        <main className="agent-main">
 
 
-                                    <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
-                                        <button
-                                            className={`composer-button ${isListening ? "recording-button" : ""
-                                                }`}
-                                            onClick={() => { isListening ? stop() : start() }}
-                                            title="Voice input"
-                                        >
-                                            <Mic style={{ fill: isListening ? "greenyellow" : "gray" }} />
-                                        </button>
 
-                                        <button
-                                            className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
-                                            onClick={handleSubmit}
-                                        >
-                                            {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
-                                        </button>
+                            {/* Workspace */}
+                            <div className="workspace">
+
+                                <div className="history-sidebar">
+                                    <div className="history-sidebar__header">Kayıtlar</div>
+
+                                    <div className="history-sidebar__search">
+                                        <input
+                                            type="text"
+                                            value={searchText}
+                                            onChange={(event) => {
+                                                const value = event.target.value;
+                                                setSearchText(value);
+
+                                                if (debounceRef.current) {
+                                                    window.clearTimeout(debounceRef.current);
+                                                }
+
+                                                debounceRef.current = window.setTimeout(() => {
+                                                    if (value.trim().length >= 3) {
+                                                        searchHistory(value);
+                                                    } else {
+                                                        getSession();
+                                                    }
+                                                }, 500);
+                                            }}
+                                            placeholder="Arama yap..."
+                                            aria-label="Arama"
+                                        />
                                     </div>
 
-
-
+                                    <div className="history-sidebar__list">
+                                        {sessionList.map((item, index) => (
+                                            <HistoryItem
+                                                key={item.id}
+                                                getToolExecution={getToolExecution}
+                                                id={item.id}
+                                                title={item.title}
+                                                createdAt={item.createdAt}
+                                                status={index % 2 === 0 ? 'success' : 'error'}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
 
 
+                                {/* Result Workspace */}
+                                <section
+                                    className={`result-panel ${showWorkspace ? "show-mobile" : ""
+                                        }`}
+                                >
+                                    <div className="result-header">
+                                        <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+                                            <div>
+                                                <span className="eyebrow">
+                                                    ÇALIŞMA ALANI
+                                                </span>
+
+                                                <h2>İşlem sonucu</h2>
+                                            </div>
+                                            <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`}  onClick={handleNewChat}>
+                                                <span>Yeni Sohbet</span>
+                                            </div>
+
+                                        </div>
+
+
+                                        <div style={{ width: "100%" }}>
+                                            {
+                                                progress.currentOp != undefined && (
+                                                    <div className="progress-current" style={{ padding: "8px", paddingLeft: "35px", color: "#22222" }}>
+
+                                                        <span className="progress-text">{progress.currentOp}</span>
+                                                        <span className="progress-dots">...</span>
+                                                    </div>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+
+
+                                    <div className="result-content">
+
+
+                                        {history.map((item, index) => {
+                                            const isSuccess = item.result === "success";
+                                            const isClickable = isSuccess && !!currentSessionId;
+
+                                            return (
+                                                <div
+                                                    className={`operation-card ${isSuccess ? "success" : "error"}`}
+                                                    key={item.id}
+                                                    onClick={
+                                                        isClickable
+                                                            ? () => onClickSuccesItem(item)
+                                                            : undefined
+                                                    }
+                                                    role={isClickable ? "button" : undefined}
+                                                    tabIndex={isClickable ? 0 : undefined}
+                                                    onKeyDown={
+                                                        isClickable
+                                                            ? (event) => {
+                                                                if (event.key === "Enter" || event.key === " ") {
+                                                                    event.preventDefault();
+                                                                    onClickSuccesItem(item!);
+                                                                }
+                                                            }
+                                                            : undefined
+                                                    }
+                                                >
+                                                    <div className="operation-top">
+                                                        <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
+                                                            <span>{isSuccess ? "✓" : "x"}</span>
+                                                        </div>
+
+                                                        <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
+                                                            <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
+                                                            <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
+                                                            <div style={{ display: "flex", gap: "8px" }}>
+                                                                <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
+                                                                    {item.message}
+                                                                </strong>
+                                                                {item.toolName && (
+                                                                    <a
+                                                                        href={generateResultViewLink(item.toolName)}
+                                                                        style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
+                                                                        target="_blank"
+                                                                        onClick={(event) => event.stopPropagation()}
+                                                                    >
+                                                                        Sonucu Görüntüle
+                                                                    </a>
+                                                                )}
+                                                                <span style={{ fontWeight: "bold", color: "black" }}>
+                                                                    {item.time}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
+                                                            {isSuccess ? "Başarı" : "Hata"}
+                                                        </span>
+                                                    </div>
+                                                    {item.continuePrompt && (
+                                                        <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
+                                                    )}
+                                                    {
+                                                        specialPrompt && index == 0 && handleSpecialPrompt()
+                                                    }
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="composer-container">
+
+                                        <div className="file-container">
+                                            {selectedFile.map((item, index) =>
+                                                <div className="attachment">
+                                                    <div className="attachment-icon">
+                                                        📎
+                                                    </div>
+
+                                                    <div className="attachment-info">
+                                                        <strong>{item?.file.name}</strong>
+
+                                                        <span>
+                                                            {(item?.file.size / 1024).toFixed(1)} KB
+                                                        </span>
+                                                    </div>
+
+                                                    <button onClick={() => removeFile(index)}>
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                        </div>
+
+                                        <div className="composer">
+
+
+                                            <textarea
+                                                ref={textareaRef}
+                                                value={isListening ? `` : voiceInput}
+                                                style={{ width: "100%" }}
+                                                onChange={(event) => {
+                                                    setVoiceInput(event.target.value)
+                                                    const ta = textareaRef.current;
+                                                    if (ta) {
+                                                        ta.style.height = "auto";
+                                                        const computed = window.getComputedStyle(ta);
+                                                        const lineHeight = parseInt(computed.lineHeight || "20", 10) || 20;
+                                                        const maxHeight = lineHeight * 4;
+                                                        const scrollH = ta.scrollHeight;
+                                                        const desiredHeight = Math.min(maxHeight, Math.max(lineHeight, scrollH));
+                                                        ta.style.height = `${desiredHeight}px`;
+                                                        ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
+                                                    }
+                                                }}
+                                                placeholder="Temsilcinize sorun..."
+                                                rows={1}
+                                                onKeyDown={(event) => {
+                                                    if (
+                                                        event.key === "Enter" &&
+                                                        !event.shiftKey
+                                                    ) {
+                                                        event.preventDefault();
+                                                        handleSubmit();
+                                                    }
+                                                }}
+                                            />
+
+                                            <div style={{ display: "flex", width: "100%" }}>
+                                                <button
+                                                    className="composer-button"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    title="Attach file"
+                                                >
+                                                    📎
+                                                </button>
+
+                                                <input
+                                                    ref={fileInputRef}
+                                                    type="file"
+                                                    hidden
+                                                    onChange={handleFileChange}
+                                                />
+
+
+                                                <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
+
+                                                    <button
+                                                        className={`composer-button ${isListening ? "recording-button" : ""
+                                                            }`}
+                                                        onClick={() => { isListening ? stop() : start() }}
+                                                        title={isListening ? "Stop recording" : "Voice input"}
+                                                    >
+                                                        {isListening ? (
+                                                            <StopIcon style={{ fill: "#ff4d4f" }} />
+                                                        ) : (
+                                                            <Mic style={{ fill: "gray" }} />
+                                                        )
+
+                                                        }
+
+                                                    </button>
+
+                                                    {
+                                                        isListening && <button
+                                                            className={`composer-button`}
+                                                        >
+                                                            <CancelIcon style={{ fill: "#ff4d4f" }} onClick={(e) => { e.stopPropagation(); cancel() }} />
+                                                        </button>
+                                                    }
+                                                    <button
+                                                        className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
+                                                        onClick={handleSubmit}
+                                                    >
+                                                        {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
+                                                    </button>
+                                                </div>
+
+
+
+                                            </div>
+
+
+                                        </div>
+
+                                        <div className="composer-hint">
+                                            <span>
+                                                Göndermek için Enter'a basın
+                                            </span>
+
+                                            <span>
+                                                Yeni satır için Shift + Enter
+                                            </span>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div style={{ left: "5px", top: "10px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
+
+                                </div>
                             </div>
+                        </main>
 
-                            <div className="composer-hint">
-                                <span>
-                                    Göndermek için Enter'a basın
-                                </span>
-
-                                <span>
-                                    Yeni satır için Shift + Enter
-                                </span>
-                            </div>
-                        </div>
-                    </section>
-                    <div style={{ left: "5px", top: "10px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
-
+                        <Dialog
+                            open={confirmDialogOpen}
+                            onClose={() => handleConfirmAction(false)}
+                            aria-labelledby="confirm-delete-dialog-title"
+                            PaperProps={{
+                                className: "confirm-dialog-paper",
+                                sx: {
+                                    minWidth: "30vw",
+                                    minHeight: "15vh"
+                                }
+                            }}
+                        >
+                            <DialogTitle id="confirm-delete-dialog-title" textAlign={"center"}>Onay gerekli</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText style={{ textAlign: "center" }}>
+                                    {pendingConfirmation?.message || 'Bu işlem silme işlemi yapacaktır. Devam etmek istediğinize emin misiniz?'}
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions style={{ justifyContent: "center", display: "flex" }}>
+                                <Button onClick={() => handleConfirmAction(false)} color="inherit" style={{ background: "#be1919", color: "white" }}>
+                                    Hayır
+                                </Button>
+                                <Button onClick={() => handleConfirmAction(true)} color="inherit" style={{ background: "#4a974a", color: "white" }} variant="contained" autoFocus>
+                                    Evet, devam et
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                     </div>
-                </div>
-            </main>
-
-            <Dialog
-                open={confirmDialogOpen}
-                onClose={() => handleConfirmAction(false)}
-                aria-labelledby="confirm-delete-dialog-title"
-                style={{minWidth:"20vw",minHeight:"20vh"}}
-            >
-                <DialogTitle id="confirm-delete-dialog-title">Onay gerekli</DialogTitle>
-                <DialogContent>
-                    <DialogContentText style={{textAlign:"center"}}>
-                        {pendingConfirmation?.message || 'Bu işlem silme işlemi yapacaktır. Devam etmek istediğinize emin misiniz?'}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions style={{justifyContent:"center",display:"flex"}}>
-                    <Button onClick={() => handleConfirmAction(false)} color="inherit">
-                        Hayır
-                    </Button>
-                    <Button onClick={() => handleConfirmAction(true)} color="error" variant="contained" autoFocus>
-                        Evet, devam et
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                )}
+            </div>
         </div>
     );
 }

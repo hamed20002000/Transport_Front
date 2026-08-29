@@ -10,19 +10,22 @@ import Navigation from '../full/horizontal/navbar/Navigation';
 import HorizontalHeader from '../full/horizontal/header/Header';
 
 const MainWrapper = styled('div')(() => ({
+  position: 'relative',
   display: 'flex',
   minHeight: '100vh',
   height: '100vh',
   width: '100%',
   overflow: 'hidden',
+  zIndex: 0,
 }));
 
 const PageWrapper = styled('div')(() => ({
+  position: 'relative',
   display: 'flex',
   flexGrow: 1,
   paddingBottom: '60px',
   flexDirection: 'column',
-  zIndex: 1,
+  zIndex: 2000,
   width: '100%',
   height: '100vh',
   overflow: 'hidden',

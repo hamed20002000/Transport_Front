@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import type { SessionsItemType } from '../ai.types';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
+import Cancel from '@mui/icons-material/CancelRounded';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 
@@ -68,6 +69,10 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ id, title, getToolExecution, 
         stopPropagation(event);
         await onSave();
     };
+      const onCancelClick = async (event: React.MouseEvent) => {
+        stopPropagation(event);
+        setEditing((prev) => !prev);
+    };
 
     return (
         <div onClick={() => getToolExecution(id)} className={`historyItem historyItem--${status}`}>
@@ -91,6 +96,11 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ id, title, getToolExecution, 
                     <EditIcon className="historyItem__icon" fontSize="small" onClick={onEditToggle} />
                 )}
             </span>
+              {editing && ( <span className="historyItem__action">
+             
+                    <Cancel className="historyItem__icon" fontSize="small" onClick={onCancelClick} color='error' />
+                
+            </span>) }
         </div>
     )
 };
