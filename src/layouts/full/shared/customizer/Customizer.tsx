@@ -36,7 +36,7 @@ import CallToActionTwoToneIcon from '@mui/icons-material/CallToActionTwoTone';
 import ViewSidebarTwoToneIcon from '@mui/icons-material/ViewSidebarTwoTone';
 import WebAssetTwoToneIcon from '@mui/icons-material/WebAssetTwoTone';
 import { ViewComfyTwoTone, PaddingTwoTone, BorderOuter } from '@mui/icons-material';
-import { useNavigate } from 'react-router';
+import AiAgentPage from 'src/views/ai/ai';
 
 const SidebarWidth = '320px';
 interface colors {
@@ -46,8 +46,8 @@ interface colors {
 }
 const Customizer: FC = () => {
   const [showDrawer, setShowDrawer] = useState(false);
+  const [showAi, setShowAi] = useState(false);
   const customizer = useSelector((state: AppState) => state.customizer);
-  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -135,14 +135,14 @@ const Customizer: FC = () => {
               boxShadow: '0 16px 28px rgba(99, 102, 241, 0.45)',
             },
           }}
-          onClick={() => {
-            navigate('/ai');
-          }}
+          onClick={() => setShowAi(true)}
           className="ai_shortcut"
         >
           <SmartToyOutlinedIcon sx={{ fontSize: 26, color: '#ffffff' }} />
         </Fab>
       </Tooltip>
+
+      {showAi ? <AiAgentPage onClose={() => setShowAi(false)} /> : null}
 
 
       <Drawer

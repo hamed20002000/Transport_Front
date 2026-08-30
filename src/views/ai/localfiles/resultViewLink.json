@@ -46,5 +46,11 @@
     "create_force_major": "/baseinfo/list-forcemajor",
     "update_force_major": "/baseinfo/list-forcemajor",
     "delete_force_major": "/baseinfo/list-forcemajor",
-    "update_force_major_record_status": "/baseinfo/list-forcemajor"
+    "update_force_major_record_status": "/baseinfo/list-forcemajor",
+
+
+    "create_tender": "/tender/list-tender",
+    "update_tender": "/tender/list-tender",
+    "delete_tender": "/tender/list-tender",
+    "update_tender_record_status": "/tender/list-tender"
 }

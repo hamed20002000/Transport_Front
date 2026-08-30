@@ -45,6 +45,7 @@ import { NotoSansRegular } from 'src/assets/fonts/NotoSans-Regular';
 import Logo from 'src/assets/images/logos/logo.png';
 
 import { useAuth } from 'src/context/AuthContext';
+import { useDomainRefresh } from "../ai/hooks/Usedomainrefres";
 
 
 const formatDateDisplay = (dateString: string | null): string => {
@@ -235,6 +236,9 @@ const ListTender = () => {
   const [openDownloadModal, setOpenDownloadModal] = useState<boolean>(false);
   const [openDownloadOptionsModal, setOpenDownloadOptionsModal] = useState<boolean>(false);
   const [selectedTenderForDownload, setSelectedTenderForDownload] = useState<TenderType | null>(null);
+
+   
+     useDomainRefresh("tender",()=>{getListTender();})
 
 
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -1164,6 +1168,8 @@ const ListTender = () => {
     setPage(0);
   };
 
+
+  
 
   return (
     <>

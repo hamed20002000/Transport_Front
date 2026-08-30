@@ -39,6 +39,7 @@ import { tr } from 'date-fns/locale';
 import { format } from 'date-fns';
 
 import { useAuth } from 'src/context/AuthContext';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 const formatDateDisplay = (dateString: string | null): string => {
   if (!dateString) return "N/A";
@@ -157,6 +158,7 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const SystemRole = () => {
   const navigate = useNavigate();
+  useDomainRefresh("role",()=>{handleRefreshAI();})
 
   const [name, setName] = useState<string>('');
   const [rolesList, setRolesList] = useState<RowType[]>(initialRows);
@@ -722,6 +724,11 @@ const SystemRole = () => {
     }
     handleCloseMenu();
   }, [selectedRowForMenu, handleCloseMenu]);
+
+
+  const handleRefreshAI=()=>{
+     getListRole();
+  }
 
   useEffect(() => {
     getListRole();

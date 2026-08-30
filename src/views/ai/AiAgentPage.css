@@ -71,8 +71,8 @@ button {
 }
 
 .agent-modal-shell {
-  position: relative;
-  width: min(96vw, 1520px);
+  position: fixed;
+  width: min(75vw, 1520px);
   height: min(92vh, 960px);
   max-height: 92vh;
   border-radius: 22px;
@@ -81,8 +81,23 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 4000001;
   pointer-events: auto;
-  background: transparent;
+  background: var(--surface);
   padding-top: 52px;
+  transition:
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    top 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    left 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    width 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    max-height 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 320ms ease;
+  will-change: transform, top, left, width, height, opacity;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  backface-visibility: hidden;
 }
 
 .agent-dialog-header {
@@ -131,6 +146,15 @@ button {
   gap: 8px;
 }
 
+.agent-window-progress {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 7px;
+  z-index: 21;
+  pointer-events: none;
+}
+
 .agent-window-button {
   position: relative;
   z-index: 23;
@@ -163,22 +187,46 @@ button {
 }
 
 .agent-modal-shell.is-minimized {
-  height: 52px;
+  width: 380px !important;
+  height: clamp(155px, 18vh, 190px) !important;
+  max-height: clamp(155px, 18vh, 190px) !important;
+  position: fixed !important;
+  border-radius: 16px;
+  padding-top: 52px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.32);
+  border: 1px solid rgba(99, 91, 255, 0.15);
 }
 
 .agent-modal-shell.is-maximized {
-  width: calc(100vw - 28px);
-  height: calc(100vh - 28px);
-  max-height: calc(100vh - 28px);
+  position: fixed !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: calc(100vh - 28px) !important;
+  border-radius: 12px;
+  box-shadow: 0 40px 100px rgba(15, 23, 42, 0.4);
 }
 
 .agent-page {
-  height: calc(100% - 52px);
+  height: 100%;
   width: 100%;
   overflow: hidden;
   display: flex;
   background: var(--bg);
   border-radius: 22px;
+  margin-top: 0;
+}
+
+.agent-page.minimized-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  /* padding: 12px; */
+  gap: 10px;
+  background: var(--surface);
+  border-radius: 0;
+  overflow: hidden;
   margin-top: 0;
 }
 
@@ -498,7 +546,7 @@ button {
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
   overflow: hidden;
   height: 100%;
-  max-height: 90%;
+  max-height: 100%;
 }
 
 .history-sidebar__header {
@@ -1015,11 +1063,28 @@ button {
   flex-shrink: 0;
 }
 
+.agent-page.minimized-view .composer-container {
+  position: relative;
+  padding: 12px 14px 14px;
+  border-top: none;
+  background: var(--surface);
+  margin-top: 0;
+  border-radius: 0 0 16px 16px;
+}
+
 .composer-container .file-container {
   display: flex;
   width: 100%;
   gap: 2px;
   flex-wrap: wrap;
+}
+
+.agent-page.minimized-view .file-container {
+  max-height: 80px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
 }
 
 .composer {
@@ -1126,6 +1191,10 @@ button {
   color: var(--text-muted);
 
   font-size: 9px;
+}
+
+.agent-page.minimized-view .composer-hint {
+  display: none;
 }
 
 .attachment {

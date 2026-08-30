@@ -41,6 +41,7 @@ import { TimesNewRoman } from 'src/assets/fonts/Times';
 import Logo from 'src/assets/images/logos/logo.png';
 import Excel from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "N/A";
@@ -205,6 +206,8 @@ const buildRegionTree = (regions: RegionType[] | undefined, depth: number = 0): 
 
 const ListProviders = () => {
     const navigate = useNavigate();
+    useDomainRefresh("provider", () => { handleRefreshAI(); })
+
 
     const [name, setName] = useState<string>('');
     const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -286,13 +289,13 @@ const ListProviders = () => {
         });
     }, [currentMenu]);
 
-     const hasPermission = (opName: string) => {   
-    return allowedOperations.some((op: any) =>
-      op.systemOperationName === opName
-    //  &&
-    //   currentMenuOpIds.includes(String(op.menuOperationId))
-    );
-  };
+    const hasPermission = (opName: string) => {
+        return allowedOperations.some((op: any) =>
+            op.systemOperationName === opName
+            //  &&
+            //   currentMenuOpIds.includes(String(op.menuOperationId))
+        );
+    };
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
     const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
@@ -371,6 +374,11 @@ const ListProviders = () => {
             setLoadingData(false);
         }
     }, [navigate]);
+
+    const handleRefreshAI = () => {
+        fetchRegions();
+        fetchProviders();
+    }
 
     useEffect(() => {
         fetchRegions();

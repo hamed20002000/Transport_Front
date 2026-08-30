@@ -39,6 +39,7 @@ import { TimesNewRoman } from 'src/assets/fonts/Times';
 import Logo from 'src/assets/images/logos/logo.png';
 import Excel from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 
 const formatDateDisplay = (dateString: string | null): string => {
@@ -155,6 +156,8 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const ListUnit = () => {
   const navigate = useNavigate();
+  useDomainRefresh("item_unit",()=>{handleRefreshAI();})
+  
 
   const [name, setName] = useState<string>('');
   const [unitsList, setUnitsList] = useState<UnitType[]>(MOCK_UNITS);
@@ -541,6 +544,10 @@ const ListUnit = () => {
         showAlert('Operasyon listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
       }
     });
+  }
+
+  const handleRefreshAI=()=>{
+    getListUnit();
   }
   useEffect(() => {
     getListUnit();

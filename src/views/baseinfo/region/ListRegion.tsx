@@ -63,6 +63,7 @@ import { TimesNewRoman } from 'src/assets/fonts/Times';
 import Logo from 'src/assets/images/logos/logo.png';
 import Excel from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 
 const StyledTableCell = styled(MuiTableCell)(({ theme }) => ({
@@ -195,6 +196,8 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const ListRegion = () => {
     const navigate = useNavigate();
+            useDomainRefresh("region",()=>{handleRefreshAI();})
+    
 
     const [name, setName] = useState<string>('');
     const [rawApiRegions, setRawApiRegions] = useState<ApiRegionType[]>([]);
@@ -656,6 +659,9 @@ const ListRegion = () => {
         setIsFormVisible(false);
     };
 
+      const handleRefreshAI=async()=>{
+       await fetchRegions();
+      }
 
     useEffect(() => {
         const initFetch = async () => {

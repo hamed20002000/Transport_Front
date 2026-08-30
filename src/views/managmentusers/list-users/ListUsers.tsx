@@ -45,6 +45,7 @@ import { format } from 'date-fns';
 
 
 import { useAuth } from 'src/context/AuthContext';
+import { useDomainRefresh } from 'src/views/ai/hooks/Usedomainrefres';
 
 
 const formatDateDisplay = (dateString: string | null): string => {
@@ -174,6 +175,10 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const ListUsers = () => {
   const navigate = useNavigate();
+    useDomainRefresh("user",()=>{handleRefreshAI();})
+  
+
+
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -855,6 +860,13 @@ const ListUsers = () => {
       fileInputRef.current.value = "";
     }
   }, []);
+
+    const handleRefreshAI=()=>{
+     getListUsers();
+     getListRoles();
+  }
+
+
 
   useEffect(() => {
     getListUsers();

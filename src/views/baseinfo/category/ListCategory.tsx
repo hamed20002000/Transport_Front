@@ -62,6 +62,7 @@ import Logo from 'src/assets/images/logos/logo.png';
 
 import Excel from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 
 const blinkAnimation = keyframes`
@@ -185,6 +186,8 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const ListCategory = () => {
   const navigate = useNavigate();
+      useDomainRefresh("category",()=>{handleRefreshAI();})
+  
 
   const [name, setName] = useState<string>('');
   const [rawApiCategories, setRawApiCategories] = useState<ApiCategoryType[]>([]);
@@ -364,6 +367,10 @@ const ListCategory = () => {
   const clearAlert = () => {
     setAlertMessage(null);
   };
+
+  const handleRefreshAI=async()=>{
+    await fetchCategories();
+  }
 
   useEffect(() => {
     let timer: NodeJS.Timeout;

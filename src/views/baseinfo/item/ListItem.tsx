@@ -52,6 +52,7 @@ import Logo from 'src/assets/images/logos/logo.png';
 
 import Excel from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 const stripHtml = (htmlString: string) => {
   const doc = new DOMParser().parseFromString(htmlString, 'text/html');
@@ -379,6 +380,8 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const ListItemComponent = () => {
   const navigate = useNavigate();
+    useDomainRefresh("product",()=>{handleRefreshAI();})
+  
 
   const [name, setName] = useState<string>('');
   const [originalName, setOriginalName] = useState<string>('');
@@ -1096,6 +1099,12 @@ const ListItemComponent = () => {
       setStatusFilter('all');
     }
   };
+
+  const handleRefreshAI=()=>{
+     getUnitOptions();
+    getAllCategories();
+    getListItem();
+  }
 
   useEffect(() => {
     getUnitOptions();

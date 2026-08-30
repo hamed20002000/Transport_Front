@@ -1,7 +1,7 @@
 // ListForceMajors.tsx
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     TableContainer, Table, TableHead, TableRow, TableBody,
@@ -39,6 +39,7 @@ import { TimesNewRoman } from 'src/assets/fonts/Times';
 import Logo from 'src/assets/images/logos/logo.png';
 import Excel from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
 
 
 const formatDateDisplay = (dateString: string | null): string => {
@@ -155,6 +156,7 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 
 const ListForceMajors = () => {
     const navigate = useNavigate();
+        useDomainRefresh("force_major", () => { handleRefreshAI(); })
 
     const [title, setTitle] = useState<string>('');
     const [forceMajorsList, setForceMajorsList] = useState<ForceMajorType[]>(MOCK_FORCEMAJORS);
@@ -535,6 +537,11 @@ const ListForceMajors = () => {
             }
         });
     }
+
+    const handleRefreshAI=useCallback(()=>{
+                getListForceMajors();
+
+    },[])
     useEffect(() => {
         getListForceMajors();
     }, []);

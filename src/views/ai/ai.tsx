@@ -10,6 +10,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    LinearProgress,
 } from '@mui/material';
 import BoltIcon from '@mui/icons-material/StopCircleSharp';
 import Mic from '@mui/icons-material/Mic';
@@ -35,7 +36,13 @@ const conversations = [
     "Permissions",
 ];
 
-function AiAgentPage() {
+const MINIMIZED_PANEL_WIDTH = 380;
+
+type AiAgentPageProps = {
+    onClose?: () => void;
+};
+
+function AiAgentPage({ onClose }: AiAgentPageProps) {
 
     //#region-------------------- Constants---------------
     const navigate = useNavigate();
@@ -64,8 +71,12 @@ function AiAgentPage() {
         onClose: () => { }
     })
     const [history, setHistory] = useState<FunctionCallResultType[]>([])
-    const [progress, setProgress] = useState({
-        currentOp: undefined
+    const [progress, setProgress] = useState<{
+        currentOp?: string;
+        percent: number;
+    }>({
+        currentOp: undefined,
+        percent: 0,
     })
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [sessionHasPrompts, setSessionHasPrompts] = useState(false);
@@ -77,8 +88,78 @@ function AiAgentPage() {
     const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [minimizedPosition, setMinimizedPosition] = useState(() => ({
+        top: 20,
+        left: typeof window !== 'undefined'
+            ? Math.max(window.innerWidth - MINIMIZED_PANEL_WIDTH - 20, 20)
+            : 20,
+    }));
     const debounceRef = useRef<number | null>(null);
+    const shellRef = useRef<HTMLDivElement | null>(null);
     const dragStateRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
+    const progressStagesRef = useRef<string[]>([]);
+    const progressResetTimerRef = useRef<number | null>(null);
+
+    const clearProgressResetTimer = useCallback(() => {
+        if (progressResetTimerRef.current !== null) {
+            window.clearTimeout(progressResetTimerRef.current);
+            progressResetTimerRef.current = null;
+        }
+    }, []);
+
+    const resetProgress = useCallback(() => {
+        clearProgressResetTimer();
+        progressStagesRef.current = [];
+        setProgress({
+            currentOp: undefined,
+            percent: 0,
+        });
+    }, [clearProgressResetTimer]);
+
+    const startProgressRun = useCallback(() => {
+        clearProgressResetTimer();
+        progressStagesRef.current = [];
+        setProgress({
+            currentOp: undefined,
+            percent: 8,
+        });
+    }, [clearProgressResetTimer]);
+
+    const updateProgressStage = useCallback((currentOp?: string) => {
+        if (!currentOp || !currentOp.trim()) {
+            return;
+        }
+
+        clearProgressResetTimer();
+
+        const normalizedStage = currentOp.trim().toLowerCase();
+        let stageIndex = progressStagesRef.current.indexOf(normalizedStage);
+
+        if (stageIndex === -1) {
+            progressStagesRef.current.push(normalizedStage);
+            stageIndex = progressStagesRef.current.length - 1;
+        }
+
+        const nextPercent = Math.min(90, 12 + (stageIndex * 16));
+
+        setProgress((prev) => ({
+            currentOp,
+            percent: Math.max(prev.percent, nextPercent),
+        }));
+    }, [clearProgressResetTimer]);
+
+    const finishProgressRun = useCallback((label?: string) => {
+        clearProgressResetTimer();
+        setProgress((prev) => ({
+            currentOp: label ?? prev.currentOp,
+            percent: 100,
+        }));
+
+        progressResetTimerRef.current = window.setTimeout(() => {
+            resetProgress();
+        }, 450);
+    }, [clearProgressResetTimer, resetProgress]);
 
     //#endregion----------------- States ---------------
 
@@ -156,6 +237,7 @@ function AiAgentPage() {
         }
 
         try {
+            startProgressRun();
             setLoadingButton(true);
 
             const response = await axios.post(
@@ -180,6 +262,9 @@ function AiAgentPage() {
 
             }
         } catch (error: any) {
+            setLoadingButton(false);
+            abortingref.current = false;
+            resetProgress();
             if (error.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate('/');
@@ -198,7 +283,7 @@ function AiAgentPage() {
         } finally {
 
         }
-    }, [voiceInput, alert, navigate, selectedFile]);
+    }, [alert, navigate, resetProgress, selectedFile, startProgressRun, voiceInput]);
 
 
     const generateResultViewLink = (toolName: string) => {
@@ -216,31 +301,68 @@ function AiAgentPage() {
             return;
         }
 
-        dragStateRef.current = {
-            startX: event.clientX,
-            startY: event.clientY,
-            originX: dialogPosition.x,
-            originY: dialogPosition.y,
-        };
+        if (isMaximized) {
+            return;
+        }
 
-        const handleMove = (moveEvent: MouseEvent) => {
-            const dragState = dragStateRef.current;
-            if (!dragState) return;
+        event.preventDefault();
+        setIsDragging(true);
 
-            setDialogPosition({
-                x: dragState.originX + (moveEvent.clientX - dragState.startX),
-                y: dragState.originY + (moveEvent.clientY - dragState.startY),
-            });
-        };
+        if (isMinimized) {
+            dragStateRef.current = {
+                startX: event.clientX,
+                startY: event.clientY,
+                originX: minimizedPosition.left,
+                originY: minimizedPosition.top,
+            };
 
-        const handleUp = () => {
-            dragStateRef.current = null;
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('mouseup', handleUp);
-        };
+            const handleMove = (moveEvent: MouseEvent) => {
+                const dragState = dragStateRef.current;
+                if (!dragState) return;
 
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseup', handleUp);
+                setMinimizedPosition({
+                    left: dragState.originX + (moveEvent.clientX - dragState.startX),
+                    top: dragState.originY + (moveEvent.clientY - dragState.startY),
+                });
+            };
+
+            const handleUp = () => {
+                dragStateRef.current = null;
+                setIsDragging(false);
+                window.removeEventListener('mousemove', handleMove);
+                window.removeEventListener('mouseup', handleUp);
+            };
+
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleUp);
+        } else {
+            dragStateRef.current = {
+                startX: event.clientX,
+                startY: event.clientY,
+                originX: dialogPosition.x,
+                originY: dialogPosition.y,
+            };
+
+            const handleMove = (moveEvent: MouseEvent) => {
+                const dragState = dragStateRef.current;
+                if (!dragState) return;
+
+                setDialogPosition({
+                    x: dragState.originX + (moveEvent.clientX - dragState.startX),
+                    y: dragState.originY + (moveEvent.clientY - dragState.startY),
+                });
+            };
+
+            const handleUp = () => {
+                dragStateRef.current = null;
+                setIsDragging(false);
+                window.removeEventListener('mousemove', handleMove);
+                window.removeEventListener('mouseup', handleUp);
+            };
+
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleUp);
+        }
     };
     const handleToggleMinimize = () => {
         setIsMinimized((prev) => !prev);
@@ -263,6 +385,7 @@ function AiAgentPage() {
             return;
         }
         try {
+            resetProgress();
             const response = await axios.post(
                 'http://localhost:3001/api/agent/sessions/new',
                 {},
@@ -284,7 +407,7 @@ function AiAgentPage() {
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
         }
-    }, [alert, navigate]);
+    }, [alert, navigate, resetProgress]);
 
     const getToolExecution = async (sessionId: string) => {
         const authToken = localStorage.getItem('authToken');
@@ -466,6 +589,78 @@ function AiAgentPage() {
 
     }
 
+    const generatePreviousItems = (history: FunctionCallResultType) => {
+
+            return history.map((item, index) => {
+                const isSuccess = item.result === "success";
+                const isClickable = isSuccess && !!currentSessionId;
+
+                return (
+                    <div
+                        className={`operation-card ${isSuccess ? "success" : "error"}`}
+                        key={item.id}
+                        onClick={
+                            isClickable
+                                ? () => onClickSuccesItem(item)
+                                : undefined
+                        }
+                        role={isClickable ? "button" : undefined}
+                        tabIndex={isClickable ? 0 : undefined}
+                        onKeyDown={
+                            isClickable
+                                ? (event) => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault();
+                                        onClickSuccesItem(item!);
+                                    }
+                                }
+                                : undefined
+                        }
+                    >
+                        <div className="operation-top">
+                            <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
+                                <span>{isSuccess ? "✓" : "x"}</span>
+                            </div>
+
+                            <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
+                                <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
+                                <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                    <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
+                                        {item.message}
+                                    </strong>
+                                    {item.toolName && (
+                                        <a
+                                            href={generateResultViewLink(item.toolName)}
+                                            style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
+                                            target="_blank"
+                                            onClick={(event) => event.stopPropagation()}
+                                        >
+                                            Sonucu Görüntüle
+                                        </a>
+                                    )}
+                                    <span style={{ fontWeight: "bold", color: "black" }}>
+                                        {item.time}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
+                                {isSuccess ? "Başarı" : "Hata"}
+                            </span>
+                        </div>
+                        {item.continuePrompt && (
+                            <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
+                        )}
+                        {
+                            specialPrompt && index == 0 && handleSpecialPrompt()
+                        }
+                    </div>
+                );
+            })
+
+    }
+
     //#endregion----------------- Functions---------------
 
 
@@ -498,6 +693,8 @@ function AiAgentPage() {
                 setSessionHasPrompts(true)
                 if (data.lastsegment) {
                     setLoadingButton(false)
+                    abortingref.current = false;
+                    finishProgressRun(data.toolName ?? data.currentOp ?? "Tamamlandı");
                 }
 
                 if (data.isSpecial) {
@@ -526,15 +723,18 @@ function AiAgentPage() {
 
                 setLoadingButton(false)
                 abortingref.current = false;
+                finishProgressRun(data.toolName ?? data.currentOp ?? "Tamamlandı");
             }
-
-
-            setProgress({ currentOp: undefined })
-
+            if (data.result === "success" && !data.lastsegment) {
+                setProgress((prev) => ({
+                    currentOp: undefined,
+                    percent: prev.percent,
+                }));
+            }
 
         }
         const handleToolCurrent = (data: any) => {
-            setProgress({ currentOp: data.currentOp })
+            updateProgressStage(data.currentOp);
         }
         userefSocket.current = io('http://localhost:3001/agent', {
             path: '/socket.io',
@@ -557,11 +757,12 @@ function AiAgentPage() {
 
         return () => {
             clearTimeout(timer);
+            clearProgressResetTimer();
             userefSocket.current?.off('agent-tool-result', handleToolResult);
             userefSocket.current?.off('agent-current-tool', handleToolCurrent);
             userefSocket.current?.disconnect();
         };
-    }, [])
+    }, [clearProgressResetTimer, finishProgressRun, updateProgressStage])
 
     useEffect(() => {
         getSession()
@@ -580,14 +781,35 @@ function AiAgentPage() {
             ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
         }
     }, [voiceInput, isListening]);
-    //#endregion----------------- UseEffects -------------
 
+    //#endregion----------------- UseEffects -------------
 
     return (
         <div className="agent-panel-overlay">
             <div
+                ref={shellRef}
                 className={`agent-modal-shell ${isMinimized ? "is-minimized" : ""} ${isMaximized ? "is-maximized" : ""}`}
-                style={{ transform: `translate(${dialogPosition.x}px, ${dialogPosition.y}px)` }}
+                style={
+                    isMinimized
+                        ? {
+                            position: "fixed" as const,
+                            top: `${minimizedPosition.top}px`,
+                            left: `${minimizedPosition.left}px`,
+                            right: "auto",
+                            bottom: "auto",
+                            transform: "none",
+                            transition: isDragging ? "none" : undefined,
+                        }
+                        : {
+                            top: "50%",
+                            left: "50%",
+                            right: "auto",
+                            bottom: "auto",
+                            transform: `translate3d(calc(-50% + ${dialogPosition.x}px), calc(-50% + ${dialogPosition.y}px), 0)`,
+                            transformOrigin: "center center",
+                            transition: isDragging ? "none" : undefined,
+                        }
+                }
             >
                 <div className="agent-dialog-header" onMouseDown={handleDialogDragStart}>
                     <div className="agent-window-bar">
@@ -617,17 +839,159 @@ function AiAgentPage() {
                             <button
                                 type="button"
                                 className="agent-window-button agent-window-button--close"
-                                onClick={() => navigate(-1)}
+                                onClick={() => {
+                                    if (onClose) {
+                                        onClose();
+                                        return;
+                                    }
+                                    navigate(-1);
+                                }}
                                 aria-label="Close AI panel"
                                 title="Close"
                             >
                                 ×
                             </button>
                         </div>
+                        {isMinimized && (progress.currentOp != undefined || loadingButton) ? (
+                            <div className="agent-window-progress" aria-live="polite">
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={progress.percent}
+                                    sx={{
+                                        height: 4,
+                                        borderRadius: 999,
+                                        backgroundColor: 'rgba(255,255,255,0.14)',
+                                        '& .MuiLinearProgress-bar': {
+                                            borderRadius: 999,
+                                            background: 'linear-gradient(90deg, #60a5fa 0%, #8b5cf6 50%, #22c55e 100%)',
+                                        },
+                                    }}
+                                />
+                            </div>
+                        ) : null}
                     </div>
                 </div>
 
-                {!isMinimized && (
+                {isMinimized ? (
+                    <div className="agent-page minimized-view">
+                        {
+                            generatePreviousItems(history[0]?[history[0]]:[])
+                        }
+                        <div className="composer-container">
+                            <div className="file-container">
+                                {selectedFile.map((item, index) =>
+                                    <div className="attachment">
+                                        <div className="attachment-icon">
+                                            📎
+                                        </div>
+
+                                        <div className="attachment-info">
+                                            <strong>{item?.file.name}</strong>
+
+                                            <span>
+                                                {(item?.file.size / 1024).toFixed(1)} KB
+                                            </span>
+                                        </div>
+
+                                        <button onClick={() => removeFile(index)}>
+                                            ×
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="composer">
+                                <textarea
+                                    ref={textareaRef}
+                                    value={isListening ? `` : voiceInput}
+                                    style={{ width: "100%" }}
+                                    onChange={(event) => {
+                                        setVoiceInput(event.target.value)
+                                        const ta = textareaRef.current;
+                                        if (ta) {
+                                            ta.style.height = "auto";
+                                            const computed = window.getComputedStyle(ta);
+                                            const lineHeight = parseInt(computed.lineHeight || "20", 10) || 20;
+                                            const maxHeight = lineHeight * 4;
+                                            const scrollH = ta.scrollHeight;
+                                            const desiredHeight = Math.min(maxHeight, Math.max(lineHeight, scrollH));
+                                            ta.style.height = `${desiredHeight}px`;
+                                            ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
+                                        }
+                                    }}
+                                    placeholder="Temsilcinize sorun..."
+                                    rows={1}
+                                    onKeyDown={(event) => {
+                                        if (
+                                            event.key === "Enter" &&
+                                            !event.shiftKey
+                                        ) {
+                                            event.preventDefault();
+                                            handleSubmit();
+                                        }
+                                    }}
+                                />
+
+                                <div style={{ display: "flex", width: "100%" }}>
+                                    <button
+                                        className="composer-button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        title="Attach file"
+                                    >
+                                        📎
+                                    </button>
+
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        hidden
+                                        onChange={handleFileChange}
+                                    />
+
+                                    <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
+                                        <button
+                                            className={`composer-button ${isListening ? "recording-button" : ""
+                                                }`}
+                                            onClick={() => { isListening ? stop() : start() }}
+                                            title={isListening ? "Stop recording" : "Voice input"}
+                                        >
+                                            {isListening ? (
+                                                <StopIcon style={{ fill: "#ff4d4f" }} />
+                                            ) : (
+                                                <Mic style={{ fill: "gray" }} />
+                                            )}
+                                        </button>
+
+                                        {
+                                            isListening && <button
+                                                className={`composer-button`}
+                                            >
+                                                <CancelIcon style={{ fill: "#ff4d4f" }} onClick={(e) => { e.stopPropagation(); cancel() }} />
+                                            </button>
+                                        }
+
+                                        <button
+                                            className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
+                                            onClick={handleSubmit}
+                                        >
+                                            {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="composer-hint">
+                                <span>
+                                    Göndermek için Enter'a basın
+                                </span>
+
+                                <span>
+                                    Yeni satır için Shift + Enter
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
                     <div className="agent-page">
                         {/* Sidebar */}
 
@@ -741,7 +1105,7 @@ function AiAgentPage() {
 
                                                 <h2>İşlem sonucu</h2>
                                             </div>
-                                            <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`}  onClick={handleNewChat}>
+                                            <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`} onClick={handleNewChat}>
                                                 <span>Yeni Sohbet</span>
                                             </div>
 
@@ -765,73 +1129,7 @@ function AiAgentPage() {
                                     <div className="result-content">
 
 
-                                        {history.map((item, index) => {
-                                            const isSuccess = item.result === "success";
-                                            const isClickable = isSuccess && !!currentSessionId;
-
-                                            return (
-                                                <div
-                                                    className={`operation-card ${isSuccess ? "success" : "error"}`}
-                                                    key={item.id}
-                                                    onClick={
-                                                        isClickable
-                                                            ? () => onClickSuccesItem(item)
-                                                            : undefined
-                                                    }
-                                                    role={isClickable ? "button" : undefined}
-                                                    tabIndex={isClickable ? 0 : undefined}
-                                                    onKeyDown={
-                                                        isClickable
-                                                            ? (event) => {
-                                                                if (event.key === "Enter" || event.key === " ") {
-                                                                    event.preventDefault();
-                                                                    onClickSuccesItem(item!);
-                                                                }
-                                                            }
-                                                            : undefined
-                                                    }
-                                                >
-                                                    <div className="operation-top">
-                                                        <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
-                                                            <span>{isSuccess ? "✓" : "x"}</span>
-                                                        </div>
-
-                                                        <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
-                                                            <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
-                                                            <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
-                                                            <div style={{ display: "flex", gap: "8px" }}>
-                                                                <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
-                                                                    {item.message}
-                                                                </strong>
-                                                                {item.toolName && (
-                                                                    <a
-                                                                        href={generateResultViewLink(item.toolName)}
-                                                                        style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
-                                                                        target="_blank"
-                                                                        onClick={(event) => event.stopPropagation()}
-                                                                    >
-                                                                        Sonucu Görüntüle
-                                                                    </a>
-                                                                )}
-                                                                <span style={{ fontWeight: "bold", color: "black" }}>
-                                                                    {item.time}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
-                                                            {isSuccess ? "Başarı" : "Hata"}
-                                                        </span>
-                                                    </div>
-                                                    {item.continuePrompt && (
-                                                        <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
-                                                    )}
-                                                    {
-                                                        specialPrompt && index == 0 && handleSpecialPrompt()
-                                                    }
-                                                </div>
-                                            );
-                                        })}
+                                        {generatePreviousItems(history)}
                                     </div>
 
                                     <div className="composer-container">
@@ -961,9 +1259,6 @@ function AiAgentPage() {
                                         </div>
                                     </div>
                                 </section>
-                                <div style={{ left: "5px", top: "10px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
-
-                                </div>
                             </div>
                         </main>
 
