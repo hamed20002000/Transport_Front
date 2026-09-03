@@ -27,6 +27,8 @@ import { io, Socket } from "socket.io-client";
 import resultViewLink from './localfiles/resultViewLink.json'
 import TenderChoice from "./components/tenderChoice";
 import HistoryItem from "./components/historyItem";
+import DeleteConfirm from "./components/deleteConfirm";
+import SelectionConfirm from "./components/selectionConfirm";
 
 
 
@@ -515,6 +517,13 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         }
     };
 
+    const confirmSelectionPending=(id:string)=>{
+        userefSocket.current?.emit('respond-to-pending-action', { value: id });
+
+    }
+    const handleCancelAction=()=>{
+    }
+
 
     //#endregion----------------- Handlers---------------
 
@@ -658,6 +667,20 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                     </div>
                 );
             })
+
+    }
+
+    const ConfirmRequiredContent=(data:any)=>{
+         if(!data) return;
+         switch(data.data.type){
+
+            case "selection":
+                return <SelectionConfirm handleConfirmAction={confirmSelectionPending} handleCancelAction={handleCancelAction} pendingConfirmation={pendingConfirmation}/>;
+            default:
+
+         }
+      return <DeleteConfirm handleConfirmAction={handleConfirmAction} pendingConfirmation={data}/>
+
 
     }
 
@@ -1274,20 +1297,9 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                 }
                             }}
                         >
-                            <DialogTitle id="confirm-delete-dialog-title" textAlign={"center"}>Onay gerekli</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText style={{ textAlign: "center" }}>
-                                    {pendingConfirmation?.message || 'Bu işlem silme işlemi yapacaktır. Devam etmek istediğinize emin misiniz?'}
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions style={{ justifyContent: "center", display: "flex" }}>
-                                <Button onClick={() => handleConfirmAction(false)} color="inherit" style={{ background: "#be1919", color: "white" }}>
-                                    Hayır
-                                </Button>
-                                <Button onClick={() => handleConfirmAction(true)} color="inherit" style={{ background: "#4a974a", color: "white" }} variant="contained" autoFocus>
-                                    Evet, devam et
-                                </Button>
-                            </DialogActions>
+                             {
+                                ConfirmRequiredContent(pendingConfirmation)
+                             }
                         </Dialog>
                     </div>
                 )}
