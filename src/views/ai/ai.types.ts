@@ -29,7 +29,8 @@ export interface SessionsItemType{
 }
 
 export enum SpecialPromptEnum{
-    "create_tender"="create_tender"
+    "create_tender"="create_tender",
+    "create_network"="create_network"
 }
 
 

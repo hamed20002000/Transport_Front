@@ -29,6 +29,7 @@ import TenderChoice from "./components/tenderChoice";
 import HistoryItem from "./components/historyItem";
 import DeleteConfirm from "./components/deleteConfirm";
 import SelectionConfirm from "./components/selectionConfirm";
+import NetworkChoice from "./components/networkChoice";
 
 
 
@@ -518,10 +519,13 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
     };
 
     const confirmSelectionPending=(id:string)=>{
-        userefSocket.current?.emit('respond-to-pending-action', { value: id });
+        setConfirmDialogOpen(false)
+        userefSocket.current?.emit('respond-to-pending-action', { value: id,cancel:false });
 
     }
     const handleCancelAction=()=>{
+                userefSocket.current?.emit('respond-to-pending-action', { cancel:true,value:null });
+
     }
 
 
@@ -585,6 +589,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         switch (specialPrompt) {
             case SpecialPromptEnum.create_tender:
                 return handleTender();
+            case SpecialPromptEnum.create_network:
+                return handleNetwork();
 
             // no break needed because we return
             default:
@@ -595,6 +601,12 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
     const handleTender = () => {
 
         return <TenderChoice setVoiceInput={setVoiceInput} />
+
+    }
+
+      const handleNetwork = () => {
+
+        return <NetworkChoice setVoiceInput={setVoiceInput} />
 
     }
 
@@ -765,7 +777,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
             query: {
                 userId: userId
-            }
+            },
+            auth: { token: authToken }
         })
         userefSocket.current.on("agent-current-tool", handleToolCurrent)
         userefSocket.current.on("agent-tool-result", handleToolResult)

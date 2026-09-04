@@ -188,8 +188,8 @@ button {
 
 .agent-modal-shell.is-minimized {
   width: 380px !important;
-  height: clamp(155px, 18vh, 190px) !important;
-  max-height: clamp(155px, 18vh, 190px) !important;
+  height: fit-content;
+  /* max-height: clamp(155px, 18vh, 190px) !important; */
   position: fixed !important;
   border-radius: 16px;
   padding-top: 52px;
