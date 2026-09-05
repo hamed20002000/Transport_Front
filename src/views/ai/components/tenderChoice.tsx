@@ -73,6 +73,8 @@ const TenderChoice: React.FC<TenderChoiceProps> = ({
                         color="primary"
                         fullWidth
                         onClick={handleConfirmDownload}
+                         href="/tender_template.xlsx"
+                          download="ihale_sablonu.xlsx"
                     >
                         İndir
                     </Button>

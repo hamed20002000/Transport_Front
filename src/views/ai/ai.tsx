@@ -646,8 +646,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                             <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
                                 <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
                                 <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
-                                <div style={{ display: "flex", gap: "8px" }}>
-                                    <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>
+                                <div style={{ display: "flex", gap: "8px",minWidth:"0" }}>
+                                    <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "block",minWidth:"0" }}>
                                         {item.message}
                                     </strong>
                                     {item.toolName && (
@@ -684,14 +684,16 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
     const ConfirmRequiredContent=(data:any)=>{
          if(!data) return;
-         switch(data.data.type){
+         
+         switch(data.data?.type??""){
 
             case "selection":
                 return <SelectionConfirm handleConfirmAction={confirmSelectionPending} handleCancelAction={handleCancelAction} pendingConfirmation={pendingConfirmation}/>;
             default:
+                      return <DeleteConfirm handleConfirmAction={handleConfirmAction} pendingConfirmation={data}/>
+
 
          }
-      return <DeleteConfirm handleConfirmAction={handleConfirmAction} pendingConfirmation={data}/>
 
 
     }

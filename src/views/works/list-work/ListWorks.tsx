@@ -33,6 +33,8 @@ import axios from 'axios';
 import server from '../../../assets/address.json';
 import { useTooltip, CustomTooltip } from 'src/context/TooltipContext';
 import DeleteWork from './DeleteWork';
+import { useDomainRefresh } from "src/views/ai/hooks/Usedomainrefres";
+
 
 import { tr } from 'date-fns/locale';
 import { format } from 'date-fns';
@@ -155,6 +157,9 @@ const StyledToggleButton = styled(MuiToggleButton)(({ theme, value, selected }) 
 }));
 const ListWorks = () => {
     const navigate = useNavigate();
+ 
+            useDomainRefresh("work",()=>{handleRefreshAI();})
+    
     const [title, setTitle] = useState<string>('');
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(null);
@@ -238,13 +243,18 @@ const ListWorks = () => {
     const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
 
+         const handleRefreshAI=()=>{
+                  getListWork();
+        getTenderOptions();
+
+    }
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const tenderIdFromUrl = params.get('tenderId');
         if (tenderIdFromUrl) {
         }
-        getListWork();
-        getTenderOptions();
+       handleRefreshAI()
     }, []);
 
     useEffect(() => {

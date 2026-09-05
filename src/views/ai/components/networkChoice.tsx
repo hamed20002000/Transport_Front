@@ -73,6 +73,8 @@ const NetworkChoice: React.FC<TenderChoiceProps> = ({
                         color="primary"
                         fullWidth
                         onClick={handleConfirmDownload}
+                          href="/ŞEBEKE-KANAL-TR.xlsx"
+                          download="ŞEBEKE-KANAL-TR_sablonu.xlsx"
                     >
                         İndir
                     </Button>
