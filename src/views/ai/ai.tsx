@@ -518,13 +518,14 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         }
     };
 
-    const confirmSelectionPending=(id:string)=>{
+    const confirmSelectionPending = (id: string) => {
         setConfirmDialogOpen(false)
-        userefSocket.current?.emit('respond-to-pending-action', { value: id,cancel:false });
+        userefSocket.current?.emit('respond-to-pending-action', { value: id, cancel: false });
 
     }
-    const handleCancelAction=()=>{
-                userefSocket.current?.emit('respond-to-pending-action', { cancel:true,value:null });
+    const handleCancelAction = () => {
+        setConfirmDialogOpen(false)
+        userefSocket.current?.emit('respond-to-pending-action', { cancel: true, value: null });
 
     }
 
@@ -604,7 +605,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
     }
 
-      const handleNetwork = () => {
+    const handleNetwork = () => {
 
         return <NetworkChoice setVoiceInput={setVoiceInput} />
 
@@ -612,88 +613,88 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
     const generatePreviousItems = (history: FunctionCallResultType) => {
 
-            return history.map((item, index) => {
-                const isSuccess = item.result === "success";
-                const isClickable = isSuccess && !!currentSessionId;
+        return history.map((item, index) => {
+            const isSuccess = item.result === "success";
+            const isClickable = isSuccess && !!currentSessionId;
 
-                return (
-                    <div
-                        className={`operation-card ${isSuccess ? "success" : "error"}`}
-                        key={item.id}
-                        onClick={
-                            isClickable
-                                ? () => onClickSuccesItem(item)
-                                : undefined
-                        }
-                        role={isClickable ? "button" : undefined}
-                        tabIndex={isClickable ? 0 : undefined}
-                        onKeyDown={
-                            isClickable
-                                ? (event) => {
-                                    if (event.key === "Enter" || event.key === " ") {
-                                        event.preventDefault();
-                                        onClickSuccesItem(item!);
-                                    }
+            return (
+                <div
+                    className={`operation-card ${isSuccess ? "success" : "error"}`}
+                    key={item.id}
+                    onClick={
+                        isClickable
+                            ? () => onClickSuccesItem(item)
+                            : undefined
+                    }
+                    role={isClickable ? "button" : undefined}
+                    tabIndex={isClickable ? 0 : undefined}
+                    onKeyDown={
+                        isClickable
+                            ? (event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    onClickSuccesItem(item!);
                                 }
-                                : undefined
-                        }
-                    >
-                        <div className="operation-top">
-                            <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
-                                <span>{isSuccess ? "✓" : "x"}</span>
-                            </div>
-
-                            <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
-                                <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
-                                <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
-                                <div style={{ display: "flex", gap: "8px",minWidth:"0" }}>
-                                    <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "block",minWidth:"0" }}>
-                                        {item.message}
-                                    </strong>
-                                    {item.toolName && (
-                                        <a
-                                            href={generateResultViewLink(item.toolName)}
-                                            style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
-                                            target="_blank"
-                                            onClick={(event) => event.stopPropagation()}
-                                        >
-                                            Sonucu Görüntüle
-                                        </a>
-                                    )}
-                                    <span style={{ fontWeight: "bold", color: "black" }}>
-                                        {item.time}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
-                                {isSuccess ? "Başarı" : "Hata"}
-                            </span>
+                            }
+                            : undefined
+                    }
+                >
+                    <div className="operation-top">
+                        <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
+                            <span>{isSuccess ? "✓" : "x"}</span>
                         </div>
-                        {item.continuePrompt && (
-                            <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
-                        )}
-                        {
-                            specialPrompt && index == 0 && handleSpecialPrompt()
-                        }
+
+                        <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
+                            <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
+                            <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
+                            <div style={{ display: "flex", gap: "8px", minWidth: "0" }}>
+                                <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "block", minWidth: "0" }}>
+                                    {item.message}
+                                </strong>
+                                {item.toolName && (
+                                    <a
+                                        href={generateResultViewLink(item.toolName)}
+                                        style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
+                                        target="_blank"
+                                        onClick={(event) => event.stopPropagation()}
+                                    >
+                                        Sonucu Görüntüle
+                                    </a>
+                                )}
+                                <span style={{ fontWeight: "bold", color: "black" }}>
+                                    {item.time}
+                                </span>
+                            </div>
+                        </div>
+
+                        <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
+                            {isSuccess ? "Başarı" : "Hata"}
+                        </span>
                     </div>
-                );
-            })
+                    {item.continuePrompt && (
+                        <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
+                    )}
+                    {
+                        specialPrompt && index == 0 && handleSpecialPrompt()
+                    }
+                </div>
+            );
+        })
 
     }
 
-    const ConfirmRequiredContent=(data:any)=>{
-         if(!data) return;
-         
-         switch(data.data?.type??""){
+    const ConfirmRequiredContent = (data: any) => {
+        if (!data) return;
+
+        switch (data.data?.type ?? "") {
 
             case "selection":
-                return <SelectionConfirm handleConfirmAction={confirmSelectionPending} handleCancelAction={handleCancelAction} pendingConfirmation={pendingConfirmation}/>;
+                return <SelectionConfirm handleConfirmAction={confirmSelectionPending} handleCancelAction={handleCancelAction} pendingConfirmation={pendingConfirmation} />;
             default:
-                      return <DeleteConfirm handleConfirmAction={handleConfirmAction} pendingConfirmation={data}/>
+                return <DeleteConfirm handleConfirmAction={handleConfirmAction} pendingConfirmation={data} />
 
 
-         }
+        }
 
 
     }
@@ -913,7 +914,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                 {isMinimized ? (
                     <div className="agent-page minimized-view">
                         {
-                            generatePreviousItems(history[0]?[history[0]]:[])
+                            generatePreviousItems(history[0] ? [history[0]] : [])
                         }
                         <div className="composer-container">
                             <div className="file-container">
@@ -1312,9 +1313,9 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                 }
                             }}
                         >
-                             {
+                            {
                                 ConfirmRequiredContent(pendingConfirmation)
-                             }
+                            }
                         </Dialog>
                     </div>
                 )}

@@ -48,6 +48,7 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
       const handleConfirm = () => {
         if (selectedValue) {
           handleConfirmAction(selectedValue);
+          setSelectedValue('');
         }
       }
   return (
