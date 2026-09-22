@@ -1,0 +1,222 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Grid, Box, CircularProgress, Alert } from 'src/shared/components/compat';
+import axios from 'axios';
+import {
+    IconUsers,
+    IconGavel,
+    IconBriefcase,
+    IconBuildingWarehouse,
+    IconCar,
+    IconPackage,
+    IconSchool,
+    IconTimeline,
+    IconBuildingStore,
+    IconBasket,
+    IconClipboardCheck
+} from '@tabler/icons-react';
+import StatCard from 'src/features/dashboard/components/StatCard';
+import server from 'src/core/config/endpoints.json';
+
+interface DashboardStatsType {
+    active_personnel: number;
+    all_personnel: number;
+    accepted_tender: number;
+    all_tender: number;
+    active_works: number;
+    all_works: number;
+    active_projects: number;
+    all_projects: number;
+    active_workhouses: number;
+    all_workhouses: number;
+    car_count: number;
+    consignment_count: number;
+    course_count: number;
+    warhouse_items_count: number;
+    store_items_count: number;
+    kabullar_count: number;
+}
+
+const DashboardStats = () => {
+    const navigate = useNavigate();
+    const [stats, setStats] = useState<DashboardStatsType | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            const authToken = localStorage.getItem('authToken');
+            try {
+                const response = await axios.get(
+                    server.baseurl + server.report + 'get-dashboard-stats',
+                    { headers: { "Authorization": `Bearer ${authToken}` } }
+                );
+
+                if (response.data.httpStatusCode === 200 && response.data.data) {
+                    setStats(response.data.data);
+                } else {
+                    setError(response.data.message || 'Veri alınamadı');
+                }
+            } catch (err) {
+                console.error(err);
+                setError('Bir hata oluştu');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
+    if (loading) return <Box display="flex" justifyContent="center" p={3}><CircularProgress /></Box>;
+    if (error) return <Alert severity="error">{error}</Alert>;
+    if (!stats) return null;
+
+    return (
+        <Box>
+            <Grid container spacing={3} mb={3}>
+                <Grid item xs={12} sm={6} md={2.4}>
+                    <Box onClick={() => navigate('/hr/personnal/')} sx={{ cursor: 'pointer' }}>
+                        <StatCard
+                            title="Personel"
+                            total={stats.all_personnel}
+                            active={stats.active_personnel}
+                            activeLabel="Çalışanlar"
+                            inactiveLabel="Ayrılanlar"
+                            icon={IconUsers}
+                            color="#5D87FF"
+                        />
+                    </Box>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={2.4}>
+
+                    <Box onClick={() => navigate('/workhouse/list-workhouse/')} sx={{ cursor: 'pointer' }}>
+
+
+                        <StatCard
+                            title="Şantiyeler"
+                            total={stats.all_workhouses}
+                            active={stats.active_workhouses}
+                            activeLabel="Aktivler"
+                            inactiveLabel="Kapananlar"
+                            icon={IconBuildingWarehouse}
+                            color="#49BEFF"
+                        />
+                    </Box>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={2.4}>
+
+                    <Box onClick={() => navigate('/project/list-projects/')} sx={{ cursor: 'pointer' }}>
+                        <StatCard
+                            title="Projeler"
+                            total={stats.all_projects}
+                            active={stats.active_projects}
+                            activeLabel="Aktivler"
+                            inactiveLabel="Bitenler"
+                            icon={IconTimeline}
+                            color="#13DEB9"
+                        />
+                    </Box>
+
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={2.4}>
+
+                    <Box onClick={() => navigate('/tender/define-work/')} sx={{ cursor: 'pointer' }}>
+                        <StatCard
+                            title="İşler"
+                            total={stats.all_works}
+                            active={stats.active_works}
+                            activeLabel="Aktivler"
+                            inactiveLabel="Bitenler"
+                            icon={IconBriefcase}
+                            color="#FFAE1F"
+                        />
+                    </Box>
+
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={2.4}>
+
+                    <Box onClick={() => navigate('/tender/list-tender')} sx={{ cursor: 'pointer' }}>
+                        <StatCard
+                            title="İhaleler"
+                            total={stats.all_tender}
+                            active={stats.accepted_tender}
+                            activeLabel="Aktivler"
+                            inactiveLabel="Red+Bekleyen"
+                            icon={IconGavel}
+                            color="#FA896B"
+                        />
+                    </Box>
+
+                </Grid>
+            </Grid>
+
+            <Grid container spacing={3} mb={3}>
+
+                <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/care-warehouse/list-details-care-warehouse/')}>
+                    <StatCard
+                        title="Araçlar"
+                        total={stats.car_count}
+                        icon={IconCar}
+                        color="#0074BA"
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/hr/list-consignments/')}>
+                    <StatCard
+                        title="Demirbaş Sayısı"
+                        total={stats.consignment_count}
+                        icon={IconPackage}
+                        color="#757575"
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/education/list-teachers/')}>
+                    <StatCard
+                        title="Eğitimler"
+                        total={stats.course_count}
+                        icon={IconSchool}
+                        color="#8E24AA"
+                    />
+                </Grid>
+            </Grid>
+
+            <Grid container spacing={3}>
+
+                <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/warehouse/list-warehouse/')}>
+                    <StatCard
+                        title="Depo Ürünleri"
+                        total={stats.warhouse_items_count}
+                        icon={IconBuildingStore}
+                        color="#2E7D32"
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/workhouse/list-workhouse/')}>
+                    <StatCard
+                        title="Şantiye Ürünleri"
+                        total={stats.store_items_count}
+                        icon={IconBasket}
+                        color="#D84315"
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/report/commitee-members-report/')}>
+                    <StatCard
+                        title="Kabullar"
+                        total={stats.kabullar_count}
+                        icon={IconClipboardCheck}
+                        color="#00695C"
+                    />
+                </Grid>
+
+            </Grid>
+        </Box>
+    );
+};
+
+export default DashboardStats;

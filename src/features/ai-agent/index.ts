@@ -1,0 +1,1 @@
+export { aiAgentRoutes } from './routes';

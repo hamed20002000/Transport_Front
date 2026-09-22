@@ -1,0 +1,66 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import * as React from 'react';
+import { IconButton, Box, AppBar, useMediaQuery, Toolbar, styled, Stack, Theme } from 'src/shared/components/compat';
+
+import { useSelector, useDispatch } from 'src/app/store';
+import { toggleMobileSidebar } from 'src/app/store/customizer/CustomizerSlice';
+import { IconMenu2 } from '@tabler/icons-react';
+import Profile from 'src/app/layouts/full/vertical/header/Profile';
+import Search from 'src/app/layouts/full/vertical/header/Search';
+import { AppState } from 'src/app/store';
+
+const Header = () => {
+  const lgDown = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+  const lgUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
+
+  const customizer = useSelector((state: AppState) => state.customizer);
+  const dispatch = useDispatch();
+
+  const AppBarStyled = styled(AppBar)(({ theme }) => ({
+    background: theme.palette.background.paper,
+    justifyContent: 'center',
+    backdropFilter: 'blur(4px)',
+
+    [theme.breakpoints.up('lg')]: {
+      minHeight: customizer.TopbarHeight,
+    },
+  }));
+  const ToolbarStyled = styled(Toolbar)(({ theme }) => ({ margin: '0 auto', width: '100%', color: `${theme.palette.text.secondary} !important`, }));
+
+  return (
+    <AppBarStyled position="sticky" color="default" elevation={8}>
+      <ToolbarStyled
+        sx={{
+          maxWidth: customizer.isLayout === 'boxed' ? 'lg' : '100%!important',
+        }}
+      >
+        <Box sx={{ width: lgDown ? '45px' : 'auto', overflow: 'hidden' }}>
+          <span>Setah</span>
+        </Box>
+        {lgDown ? (
+          <IconButton
+            color="inherit"
+            aria-label="menu"
+            onClick={() => dispatch(toggleMobileSidebar())}
+          >
+            <IconMenu2 />
+          </IconButton>
+        ) : (
+          ''
+        )}
+        <Search />
+        {lgUp ? (
+          <>
+          </>
+        ) : null}
+        <Box flexGrow={1} />
+        <Stack spacing={1} direction="row" alignItems="center">
+          <Profile />
+        </Stack>
+      </ToolbarStyled>
+    </AppBarStyled>
+  );
+};
+
+export default Header;

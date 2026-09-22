@@ -1,0 +1,1 @@
+export { referenceDataRoutes } from './routes';

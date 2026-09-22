@@ -1,22 +1,21 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import React, { Suspense } from 'react';
-import { Provider } from 'react-redux';
+import { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import App from 'src/app/App';
+import { AppProviders } from 'src/app/providers/AppProviders';
+import Spinner from 'src/shared/components/spinner/Spinner';
+import 'src/shared/utils/i18n';
+import 'src/app/mocks';
+import 'src/app/styles/admin.css';
 
-import App from './App';
-import { store } from './store/Store';
-import Spinner from './views/spinner/Spinner';
-import './utils/i18n';
-import './_mockApis';
+document.body.classList.add('admin-shell');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <Provider store={store}>
-    <Suspense fallback={<Spinner />}>
-      <BrowserRouter>
+  <BrowserRouter>
+    <AppProviders>
+      <Suspense fallback={<Spinner />}>
         <App />
-      </BrowserRouter>
-    </Suspense>
-  </Provider>,
-)
+      </Suspense>
+    </AppProviders>
+  </BrowserRouter>,
+);

@@ -1,27 +1,23 @@
-# React + TypeScript + Vite
+# Transport Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Vite، با ساختار feature-based و رابط shadcn/ui، Tailwind و CSS Modules.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+```sh
+npm install
+npm run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+سرور توسعه روی پورت `3002` اجرا می‌شود. پنل جدید پس از ورود در `/admin` و از گزینه «پنل مدیریت» در منوی فعلی در دسترس است. مسیرها و دسترسی‌های صفحات عملیاتی قبلی حفظ شده‌اند.
+
+ساختار و قواعد توسعه در [docs/architecture.md](docs/architecture.md) توضیح داده شده‌اند. فایل تنظیم سرویس‌ها: `src/core/config/endpoints.json`.
+
+```sh
+npm run check:architecture
+npm run typecheck
+npm run build
+npm run test:ui
+```
+
+برای تست مرورگر ابتدا `npx playwright install chromium` را اجرا کنید. آزمون‌های پنل پاسخ API را شبیه‌سازی می‌کنند؛ صحت عملیات تجاری با سرور واقعی باید در محیط یکپارچه بررسی شود.
+
+اجزای عمومی shadcn در `src/shared/components/ui` هستند. `components.json` برای همین مسیر تنظیم شده است. کد جدید هر قابلیت را در `src/features/<feature>` بنویسید؛ `shared/components/compat` فقط برای حفظ قرارداد کنترل‌های صفحات قدیمی است و وابستگی به MUI ندارد.

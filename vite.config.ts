@@ -18,7 +18,7 @@ export default defineConfig({
     },
     esbuild: {
         loader: 'tsx',
-        include: /src\/.*\.tsx?$/,
+        include: /(?:src|tests)\/.*\.[jt]sx?$/,
         exclude: [],
     },
     optimizeDeps: {
