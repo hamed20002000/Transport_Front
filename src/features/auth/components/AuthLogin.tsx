@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   ArrowLeft,
   Eye,
@@ -15,9 +16,18 @@ import styles from '../styles/login.module.css';
 
 export default function AuthLogin() {
   const form = useLogin();
+  const { search } = useLocation();
   const [visible, setVisible] = useState(false);
   return (
-    <form onSubmit={form.submit} className={styles.form} aria-busy={form.loading}>
+    <form
+      onChange={form.clearError}
+      onClickCapture={(event) => {
+        if (event.target instanceof Element && event.target.closest('button, a')) form.clearError();
+      }}
+      onSubmit={form.submit}
+      className={styles.form}
+      aria-busy={form.loading}
+    >
       <div className={styles.field}>
         <label htmlFor="username">نام کاربری</label>
         <div className={styles.inputWrap}>
@@ -98,6 +108,9 @@ export default function AuthLogin() {
             <ArrowLeft size={20} />
           </>
         )}
+      </Button>
+      <Button asChild variant="outline" className="tw-h-12 tw-w-full tw-rounded-xl tw-text-base">
+        <Link to={`/auth/register${search}`}>ایجاد حساب کاربری</Link>
       </Button>
     </form>
   );

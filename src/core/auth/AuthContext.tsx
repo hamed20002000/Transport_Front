@@ -28,6 +28,10 @@ interface JwtPayload {
   username?: string;
   role?: string | string[];
   userid?: string;
+  userId?: string;
+  roles?: string[];
+  exp?: number;
+  isActive?: boolean;
 }
 
 interface MenuOperation {
@@ -106,7 +110,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const decodeJwtToken = (token: string): JwtPayload | null => {
+export const decodeJwtToken = (token: string): JwtPayload | null => {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -224,7 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const authToken = localStorage.getItem('authToken');
     const decoded = authToken ? decodeJwtToken(authToken) : null;
-    const userId = decoded?.userid;
+    const userId = (decoded?.userId ?? decoded?.userid);
 
     if (!authToken) {
       setIsAuthDataLoading(false);
@@ -328,6 +332,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
+      const identity = decodeJwtToken(authToken);
+      if (!identity?.username || identity.isActive === false ||
+          (identity.exp !== undefined && identity.exp * 1000 <= Date.now())) {
+        throw new Error('Invalid or expired authentication token.');
+      }
+      const identityRoles = identity.roles ?? (Array.isArray(identity.role) ? identity.role : [identity.role]);
+      const accountRoles = identityRoles.filter((role): role is string =>
+        typeof role === 'string' && ['COMPANY', 'DRIVER', 'BROKER'].includes(role));
+      // Basic account pages need no legacy administration menus or operation IDs.
+      if (accountRoles.length && accountRoles.length === identityRoles.length) {
+        const savedRole = localStorage.getItem('activeUserRoleName');
+        const activeRole = accountRoles.find(role => role === savedRole) ?? accountRoles[0];
+        setUsername(identity.username);
+        setUserRoles(accountRoles.map(name => ({ id: '', name })));
+        setActiveRoleName(activeRole);
+        setActiveRoleId(null);
+        setAllowedOperations([]);
+        setMenuItems([]);
+        setIsAuth(true);
+        localStorage.setItem('activeUserRoleName', activeRole);
+        localStorage.removeItem('activeUserRoleId');
+        localStorage.setItem('lastLoggedInUsername', identity.username);
+        return;
+      }
       const [rolesResponse, decodedToken, rawMenus] = await Promise.all([
         axios.get<{ data: RoleApiResponse[] }>(`${server.baseurl}${server.user}get-roles`, {
           headers: { "Authorization": `Bearer ${authToken}` }
@@ -343,7 +371,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Invalid authentication data.');
       }
 
-      const userRoleNames = Array.isArray(decodedToken.role) ? decodedToken.role : [decodedToken.role];
+      const userRoleNames = decodedToken.roles ?? (Array.isArray(decodedToken.role) ? decodedToken.role : [decodedToken.role]);
       const rolesFromToken = userRoleNames
         .map(roleName => allActiveRoles.find(ar => ar.name === roleName))
         .filter((role): role is RoleApiResponse => role !== undefined)
@@ -356,7 +384,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       let ops: AllowedOperation[] = [];
       if (roleToActivate) {
-        const userId = decodedToken?.userid;
+        const userId = (decodedToken?.userId ?? decodedToken?.userid);
 
         const [roleOpsRes, userOpsRes] = await Promise.all([
           axios.get(`${server.baseurl}${server.user}get-role-with-operations/${roleToActivate.id}`,

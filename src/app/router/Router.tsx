@@ -17,6 +17,7 @@ import { educationRoutes } from 'src/features/education';
 import { reportsRoutes } from 'src/features/reports';
 import { aiAgentRoutes } from 'src/features/ai-agent';
 import { authRoutes } from 'src/features/auth';
+import { accountRoutes } from 'src/features/account';
 import { landingRoutes } from 'src/features/landing';
 
 const FullLayout = Loadable(lazy(() => import('src/app/layouts/full/FullLayout')));
@@ -51,6 +52,7 @@ const Router: RouteObject[] = [
     element: <BlankLayout />,
     children: [
       ...authRoutes,
+      ...accountRoutes,
       ...landingRoutes,
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],

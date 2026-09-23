@@ -1,13 +1,14 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useFormError } from './useFormError';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from 'src/core/auth/AuthContext';
+import { accountHome } from 'src/features/account';
+import { decodeJwtToken, useAuth } from 'src/core/auth/AuthContext';
 import { login } from '../api/login';
 
 const rememberedUsernameKey = 'transport.rememberedUsername';
 
-function returnPath(search: string) {
-  const fallback = '/dashboards/dashboard';
+function returnPath(search: string, fallback = '/dashboards/dashboard') {
   const requested = new URLSearchParams(search).get('url');
   if (!requested) return fallback;
   try {
@@ -21,15 +22,26 @@ function returnPath(search: string) {
 }
 
 export function useLogin() {
-  const [username, setUsername] = useState(() => localStorage.getItem(rememberedUsernameKey) || '');
+  const location = useLocation();
+  const [username, setUsername] = useState(
+    () =>
+      (location.state as { registrationUsername?: string } | null)?.registrationUsername ??
+      localStorage.getItem(rememberedUsernameKey) ??
+      '',
+  );
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(() => !!localStorage.getItem(rememberedUsernameKey));
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { error, setError, clearError } = useFormError();
   const pending = useRef(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const { loadAuthData } = useAuth();
+  useEffect(() => {
+    if ((location.state as { registrationLoginFailed?: boolean } | null)?.registrationLoginFailed) {
+      setError('حساب شما ساخته شد، اما ورود خودکار انجام نشد. لطفاً وارد شوید.');
+      navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
+    }
+  }, [location.state, location.pathname, location.search, navigate, setError]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -49,7 +61,11 @@ export function useLogin() {
         throw new Error('دریافت اطلاعات حساب انجام نشد. دوباره تلاش کنید.');
       if (remember) localStorage.setItem(rememberedUsernameKey, username.trim());
       else localStorage.removeItem(rememberedUsernameKey);
-      navigate(returnPath(location.search), { replace: true });
+      const identity = decodeJwtToken(token);
+      const roles =
+        identity?.roles ?? (Array.isArray(identity?.role) ? identity.role : [identity?.role]);
+      const home = roles.map((role) => accountHome(role)).find(Boolean);
+      navigate(home || returnPath(location.search), { replace: true });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(
@@ -72,6 +88,7 @@ export function useLogin() {
     setRemember,
     loading,
     error,
+    clearError,
     submit,
   };
 }
