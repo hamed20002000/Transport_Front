@@ -104,7 +104,7 @@ interface AuthContextType {
   menuItems: MenuitemsType[];
   isAuthDataLoading: boolean;
   updateActiveRole: (newRoleName: string) => void;
-  loadAuthData: () => Promise<void>;
+  loadAuthData: () => Promise<boolean>;
   isAuth: boolean;
 }
 
@@ -328,15 +328,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setMenuItems([]);
       setIsAuth(false);
       setIsAuthDataLoading(false);
-      return;
+      return false;
     }
 
+    const identity = decodeJwtToken(authToken);
+    let validIdentity = false;
     try {
-      const identity = decodeJwtToken(authToken);
       if (!identity?.username || identity.isActive === false ||
           (identity.exp !== undefined && identity.exp * 1000 <= Date.now())) {
         throw new Error('Invalid or expired authentication token.');
       }
+      validIdentity = true;
       const identityRoles = identity.roles ?? (Array.isArray(identity.role) ? identity.role : [identity.role]);
       const accountRoles = identityRoles.filter((role): role is string =>
         typeof role === 'string' && ['COMPANY', 'DRIVER', 'BROKER'].includes(role));
@@ -354,7 +356,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('activeUserRoleName', activeRole);
         localStorage.removeItem('activeUserRoleId');
         localStorage.setItem('lastLoggedInUsername', identity.username);
-        return;
+        return true;
       }
       const [rolesResponse, decodedToken, rawMenus] = await Promise.all([
         axios.get<{ data: RoleApiResponse[] }>(`${server.baseurl}${server.user}get-roles`, {
@@ -429,8 +431,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setIsAuth(true);
       localStorage.setItem('lastLoggedInUsername', currentUsername);
+      return true;
 
     } catch (e) {
+      // The transport backend does not expose the legacy admin endpoints.
+      // Keep authenticated identity, but grant no menu or operation permissions.
+      if (validIdentity && identity && axios.isAxiosError(e) && e.response?.status === 404) {
+        const roles = identity.roles ?? (Array.isArray(identity.role) ? identity.role : [identity.role]);
+        const names = roles.filter((role): role is string => typeof role === 'string' && !!role);
+        if (names.length) {
+          const savedRole = localStorage.getItem('activeUserRoleName');
+          const activeRole = names.find(name => name === savedRole) ?? names[0];
+          setUsername(identity.username!);
+          setUserRoles(names.map(name => ({ id: '', name })));
+          setActiveRoleName(activeRole);
+          setActiveRoleId(null);
+          setAllowedOperations([]);
+          setMenuItems([]);
+          setIsAuth(true);
+          localStorage.setItem('activeUserRoleName', activeRole);
+          localStorage.removeItem('activeUserRoleId');
+          localStorage.setItem('lastLoggedInUsername', identity.username!);
+          return true;
+        }
+      }
       setUsername('Guest');
       setUserRoles([]);
       setActiveRoleName(null);
@@ -438,7 +462,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setAllowedOperations([]);
       setMenuItems([]);
       setIsAuth(false);
-      localStorage.removeItem('authToken');
+      if (!validIdentity || (axios.isAxiosError(e) && e.response?.status === 401)) {
+        localStorage.removeItem('authToken');
+      }
+      return false;
 
     } finally {
       setIsAuthDataLoading(false);
@@ -493,7 +520,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const authContextValue: AuthContextType = {
     username, userRoles, activeRoleName, activeRoleId, allowedOperations,
-    menuItems, isAuthDataLoading, updateActiveRole, loadAuthData, isAuth,
+    menuItems: isAuth && userRoles.some(role => role.name === 'ADMIN')
+      ? [...menuItems.filter(item => item.href !== '/admin/subscription-plans'), { id: 'subscription-plans', title: 'پلن‌های اشتراک', href: '/admin/subscription-plans', icon: IconCrown }]
+      : menuItems, isAuthDataLoading, updateActiveRole, loadAuthData, isAuth,
   };
 
   return (

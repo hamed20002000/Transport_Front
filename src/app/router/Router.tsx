@@ -18,6 +18,7 @@ import { reportsRoutes } from 'src/features/reports';
 import { aiAgentRoutes } from 'src/features/ai-agent';
 import { authRoutes } from 'src/features/auth';
 import { accountRoutes } from 'src/features/account';
+import { subscriptionPlanRoutes } from 'src/features/subscription-plans';
 import { landingRoutes } from 'src/features/landing';
 
 const FullLayout = Loadable(lazy(() => import('src/app/layouts/full/FullLayout')));
@@ -30,6 +31,7 @@ const Router: RouteObject[] = [
     children: [
       { path: '/', element: <Navigate to="/auth/login" /> },
       ...dashboardRoutes,
+      ...subscriptionPlanRoutes,
       ...accessManagementRoutes,
       ...notificationsRoutes,
       ...referenceDataRoutes,

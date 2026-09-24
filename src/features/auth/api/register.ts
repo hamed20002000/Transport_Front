@@ -7,7 +7,7 @@ const base = `${endpoints.baseurl}${endpoints.login}register`;
 export async function requestRegistrationOtp(payload: RegisterRequest) {
   const { data } = await axios.post<{
     success: boolean;
-    data?: { phoneNumber?: string; expiresIn?: number };
+    data?: { phoneNumber?: string; expiresIn?: number; retryAfter?: number };
   }>(`${base}/request-otp`, payload, { timeout: 20000 });
   if (!data.success) throw new Error('ارسال کد انجام نشد. دوباره تلاش کنید.');
   return data.data;

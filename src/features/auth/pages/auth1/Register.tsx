@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, ShieldCheck, Truck, UserRoundPlus } from 'lucide-react';
+import { Clock3, Eye, EyeOff, ShieldCheck, Truck, UserRoundPlus } from 'lucide-react';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import { Button } from 'src/shared/components/ui/button';
 import { Input } from 'src/shared/components/ui/input';
@@ -13,6 +13,30 @@ export default function Register() {
   const form = useRegister();
   const [visible, setVisible] = useState(false);
   const { search } = useLocation();
+  const retryTime = `${String(Math.floor(form.retryRemaining / 60)).padStart(2, '0')}:${String(
+    form.retryRemaining % 60,
+  ).padStart(2, '0')}`.replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
+  const resendCountdown =
+    form.retryRemaining > 0 ? (
+      <div className="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-emerald-50 tw-p-3 tw-text-sm tw-text-emerald-900">
+        <Clock3 size={18} aria-hidden="true" />
+        <span>تا ارسال مجدد کد</span>
+        <span
+          role="timer"
+          aria-label={`زمان باقی‌مانده تا ارسال مجدد کد: ${retryTime}`}
+          dir="ltr"
+          className="tw-inline-grid tw-w-[5ch] tw-shrink-0 tw-grid-cols-5 tw-text-center tw-font-mono tw-font-bold tw-leading-5 tw-tabular-nums"
+        >
+          {Array.from(retryTime, (character, index) => (
+            <span key={index} aria-hidden="true">
+              {character}
+            </span>
+          ))}
+        </span>
+      </div>
+    ) : form.step === 'otp' ? (
+      <p className={styles.description}>اکنون می‌توانید کد جدید درخواست کنید.</p>
+    ) : null;
 
   return (
     <PageContainer
@@ -154,6 +178,7 @@ export default function Register() {
                     <UserRoundPlus size={20} />
                     {form.loading ? 'در حال ارسال کد…' : 'ارسال کد تأیید'}
                   </Button>
+                  {resendCountdown}
                 </fieldset>
                 {form.step === 'otp' && (
                   <fieldset className={`${styles.form} tw-min-w-0`} disabled={form.loading}>
@@ -165,6 +190,7 @@ export default function Register() {
                       <Input
                         id="register-otp"
                         name="code"
+                        maxLength={6}
                         inputMode="numeric"
                         autoComplete="one-time-code"
                         autoFocus
@@ -182,11 +208,12 @@ export default function Register() {
                     </p>
                     <Button
                       type="submit"
-                      disabled={form.loading || form.remaining === 0}
+                      disabled={form.loading || form.remaining === 0 || form.attemptsExhausted}
                       className="tw-h-12 tw-w-full tw-rounded-xl tw-bg-emerald-800 tw-text-white"
                     >
                       {form.loading ? 'در حال تأیید…' : 'تأیید و تکمیل ثبت‌نام'}
                     </Button>
+                    {resendCountdown}
                     <Button type="button" variant="outline" onClick={form.editDetails}>
                       ویرایش شماره یا درخواست کد جدید
                     </Button>

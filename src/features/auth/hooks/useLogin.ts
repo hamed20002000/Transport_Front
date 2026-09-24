@@ -56,8 +56,8 @@ export function useLogin() {
     try {
       const token = await login(username.trim(), password);
       localStorage.setItem('authToken', token);
-      await loadAuthData();
-      if (!localStorage.getItem('authToken'))
+      const loaded = await loadAuthData();
+      if (!loaded)
         throw new Error('دریافت اطلاعات حساب انجام نشد. دوباره تلاش کنید.');
       if (remember) localStorage.setItem(rememberedUsernameKey, username.trim());
       else localStorage.removeItem(rememberedUsernameKey);
