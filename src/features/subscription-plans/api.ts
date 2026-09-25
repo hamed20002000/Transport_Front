@@ -29,3 +29,8 @@ export async function createPlan(input: PlanInput) {
   if (!data.success || !data.data?.id) throw new Error('ثبت پلن انجام نشد.');
   return data.data;
 }
+// The server only deactivates the plan (recordStatus = 1); it is not removed from the database.
+export async function deletePlan(id: string) {
+  const { data } = await axios.delete<{ success: boolean }>(`${url}/${id}`, config());
+  if (!data.success) throw new Error('حذف پلن انجام نشد.');
+}
