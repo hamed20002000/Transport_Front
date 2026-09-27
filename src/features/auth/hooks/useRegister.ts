@@ -50,22 +50,41 @@ export function useRegister() {
 
   function reportError(error: unknown, verifying: boolean) {
     if (axios.isAxiosError(error)) {
-      const status = error.response?.status;
+      if (!error.response) {
+        setError(
+          error.code === 'ECONNABORTED'
+            ? 'پاسخی از سرور دریافت نشد. دوباره تلاش کنید.'
+            : 'ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی و دوباره تلاش کنید.',
+        );
+        return;
+      }
+      const { status } = error.response;
+      const raw = (error.response.data as { message?: unknown } | undefined)?.message;
+      const detail = (Array.isArray(raw) ? raw.join(' ') : typeof raw === 'string' ? raw : '').trim();
+      const says = (text: string) => detail.toLowerCase().includes(text);
       if (verifying && status === 429) setAttemptsExhausted(true);
       setError(
         status === 409
-          ? 'نام کاربری یا شماره موبایل قبلاً ثبت شده است.'
+          ? says('in progress')
+            ? 'درخواست دیگری برای این شماره در حال پردازش است. چند لحظه بعد دوباره تلاش کنید.'
+            : says('username') && !says('phone')
+              ? 'این نام کاربری قبلاً ثبت شده است.'
+              : says('phone') && !says('username')
+                ? 'این شماره موبایل قبلاً ثبت شده است.'
+                : 'نام کاربری یا شماره موبایل قبلاً ثبت شده است.'
           : status === 429
             ? verifying
               ? 'تعداد تلاش‌های تأیید بیش از حد مجاز است. کد جدید درخواست کنید.'
               : 'برای ارسال مجدد کد، حداقل ۶۰ ثانیه صبر کنید.'
-            : status === 410
-              ? 'کد تأیید منقضی شده است. کد جدید درخواست کنید.'
+            : status === 410 || (verifying && says('expired'))
+              ? 'کد تأیید منقضی شده یا یافت نشد. کد جدید درخواست کنید.'
               : status === 400 || status === 401 || status === 422
                 ? verifying
-                  ? 'کد تأیید نامعتبر یا منقضی شده است.'
+                  ? says('invalid registration code')
+                    ? 'کد تأیید اشتباه است.'
+                    : 'کد تأیید نامعتبر یا منقضی شده است.'
                   : 'اطلاعات ثبت‌نام یا شماره موبایل معتبر نیست.'
-                : 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.',
+                : `خطای سرور (${status})${detail ? `: ${detail}` : ''}. دوباره تلاش کنید.`,
       );
     } else setError(error instanceof Error ? error.message : 'عملیات انجام نشد.');
   }
