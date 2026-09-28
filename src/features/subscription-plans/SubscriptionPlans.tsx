@@ -5,6 +5,7 @@ import { useAuth } from 'src/core/auth/AuthContext';
 import { Button } from 'src/shared/components/ui/button';
 import { Input } from 'src/shared/components/ui/input';
 import PageContainer from 'src/shared/components/container/PageContainer';
+import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { createPlan, deletePlan, listPlans, type Plan, type PlanInput } from './api';
 
 import { currencies, type Currency } from './currencies';
@@ -39,7 +40,7 @@ function PlansContent() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [listError, setListError] = useState('');
-  const [success, setSuccess] = useState('');
+  const toast = useToast();
   const [reload, setReload] = useState(0);
   const [deletingId, setDeletingId] = useState('');
   const pending = useRef(false);
@@ -70,7 +71,6 @@ function PlansContent() {
     const duration = digits(String(data.get('durationDays') || '')).trim();
     const order = digits(String(data.get('sortOrder') || '0')).trim();
     setError('');
-    setSuccess('');
     if (
       !title ||
       Array.from(title).length > 150 ||
@@ -99,7 +99,7 @@ function PlansContent() {
       form.reset();
       setCurrency('IRR');
       setPrice('');
-      setSuccess('پلن اشتراک با موفقیت ثبت شد.');
+      toast.success('پلن اشتراک با موفقیت ثبت شد.');
       setReload((value) => value + 1);
     } catch (e) {
       setError(errorMessage(e));
@@ -112,11 +112,10 @@ function PlansContent() {
     if (deletingId || !window.confirm(`پلن «${plan.title}» حذف شود؟`)) return;
     setDeletingId(plan.id);
     setError('');
-    setSuccess('');
     try {
       await deletePlan(plan.id);
       setPlans((current) => current.filter((item) => item.id !== plan.id));
-      setSuccess('پلن اشتراک حذف شد.');
+      toast.success('پلن اشتراک حذف شد.');
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -210,11 +209,6 @@ function PlansContent() {
             {error && (
               <p role="alert" className="tw-mt-4 tw-text-red-700">
                 {error}
-              </p>
-            )}
-            {success && (
-              <p role="status" className="tw-mt-4 tw-text-emerald-800">
-                {success}
               </p>
             )}
             <Button type="submit" disabled={saving || loading} className="tw-mt-5">

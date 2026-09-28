@@ -8,6 +8,7 @@ import { AuthProvider } from 'src/core/auth/AuthContext';
 import NotifyBootstrap from 'src/core/socket/NotifyBootstrap';
 import { ThemeProvider } from 'src/shared/components/compat';
 import { TooltipProvider } from 'src/shared/components/tooltip/TooltipContext';
+import { ToastProvider } from 'src/shared/components/toast/ToastProvider';
 
 function WorkspaceProviders({ children }: { children: ReactNode }) {
   const theme = ThemeSettings();
@@ -17,7 +18,9 @@ function WorkspaceProviders({ children }: { children: ReactNode }) {
       <NotifyBootstrap />
       <TooltipProvider>
         <ThemeProvider theme={theme}>
-          <RTL direction={direction}>{children}</RTL>
+          <RTL direction={direction}>
+            <ToastProvider>{children}</ToastProvider>
+          </RTL>
         </ThemeProvider>
       </TooltipProvider>
     </AuthProvider>

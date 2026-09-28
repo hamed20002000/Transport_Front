@@ -1,5 +1,6 @@
 {
     "baseurl": "http://localhost:3006/api/",
+    "tarabariurl": "http://localhost:3001/api/",
     "socketurl": "http://localhost:3001",
     "urldpwonload": "https://setasportal.com",
     "admin": "Admin/",

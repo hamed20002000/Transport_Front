@@ -18,6 +18,18 @@ module.exports = {
         accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--foreground))' },
         destructive: { DEFAULT: 'hsl(var(--destructive))', foreground: '#fff' },
         card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--foreground))' },
+        // Account panels (company/driver/broker): orange accent on navy ink over a pale blue page.
+        brand: {
+          orange: '#F5761A',
+          'orange-dark': '#DC6310',
+          'orange-soft': '#FDEEE3',
+          'orange-ink': '#C2410C',
+          navy: '#0E1A3B',
+          muted: '#6B7488',
+          sky: '#E8EEFA',
+          line: '#E3E9F4',
+          bg: '#F4F7FC',
+        },
       },
       borderRadius: { lg: 'var(--radius)', md: 'calc(var(--radius) - 2px)', sm: 'calc(var(--radius) - 4px)' },
     },
