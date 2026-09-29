@@ -44,15 +44,15 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
   return (
     <Grid item xs={12} md={4} sx={{ px: 2, py: 1 }}>
       <CustomFormLabel htmlFor="select-option" required>
-        {pendingConfirmation?.data?.label || 'Seçim'}
+        {pendingConfirmation?.data?.label || 'انتخاب'}
       </CustomFormLabel>
       <FormControl fullWidth sx={{ minHeight: 64 }}>
-        <InputLabel id="select-option-label">Seçin</InputLabel>
+        <InputLabel id="select-option-label">انتخاب کنید</InputLabel>
         <Select
           labelId="select-option-label"
           id="select-option"
           value={selectedValue || ''}
-          label={pendingConfirmation?.data?.label || 'Seçin'}
+          label={pendingConfirmation?.data?.label || 'انتخاب کنید'}
           sx={{ minHeight: 56 }}
           onChange={(e) => {
             setSelectedValue(e.target.value as string);
@@ -69,7 +69,7 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
           <TextField
             autoFocus
             fullWidth
-            placeholder="Ara..."
+            placeholder="جست‌وجو…"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onClick={(e) => e.stopPropagation()}
@@ -85,7 +85,7 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
           />
           {loading ? (
             <UiMenuItem disabled>
-              <CircularProgress size={20} /> Yükleniyor...
+              <CircularProgress size={20} /> در حال بارگذاری…
             </UiMenuItem>
           ) : filteredOptions.length > 0 ? (
             filteredOptions.map((option) => (
@@ -94,7 +94,7 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
               </UiMenuItem>
             ))
           ) : (
-            <UiMenuItem disabled>Hiç seçenek bulunamadı.</UiMenuItem>
+            <UiMenuItem disabled>گزینه‌ای پیدا نشد.</UiMenuItem>
           )}
         </Select>
       </FormControl>
@@ -106,7 +106,7 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
             onClick={() => handleConfirm()}
             disabled={!selectedValue || loading}
           >
-            Onayla
+            تأیید
           </Button>
         </Grid>
         <Grid item xs={6}>
@@ -116,7 +116,7 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
             color="error"
             onClick={() => handleCancel()}
           >
-            İptal
+            انصراف
           </Button>
         </Grid>
       </Grid>

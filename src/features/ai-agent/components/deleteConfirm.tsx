@@ -10,18 +10,18 @@ const DeleteConfirm=({handleConfirmAction,pendingConfirmation}:DeleteConfirmProp
 
     return (
       <>
-       <DialogTitle id="confirm-delete-dialog-title" textAlign={"center"}>Onay gerekli</DialogTitle>
+       <DialogTitle id="confirm-delete-dialog-title" textAlign={"center"}>نیاز به تأیید</DialogTitle>
                             <DialogContent>
                                 <DialogContentText style={{ textAlign: "center" }}>
-                                    {pendingConfirmation?.message || 'Bu işlem silme işlemi yapacaktır. Devam etmek istediğinize emin misiniz?'}
+                                    {pendingConfirmation?.message || 'این عملیات چیزی را حذف می‌کند. مطمئن هستید که ادامه می‌دهید؟'}
                                 </DialogContentText>
                             </DialogContent>
                             <DialogActions style={{ justifyContent: "center", display: "flex" }}>
                                 <Button onClick={() => handleConfirmAction(false)} color="inherit" style={{ background: "#be1919", color: "white" }}>
-                                    Hayır
+                                    خیر
                                 </Button>
                                 <Button onClick={() => handleConfirmAction(true)} color="inherit" style={{ background: "#4a974a", color: "white" }} variant="contained" autoFocus>
-                                    Evet, devam et
+                                    بله، ادامه بده
                                 </Button>
                             </DialogActions>
                             </>

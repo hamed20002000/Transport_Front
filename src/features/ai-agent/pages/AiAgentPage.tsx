@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "src/features/ai-agent/pages/AiAgentPage.css";
 import { AlertType } from "src/shared/components/Alert/alert.type.ts";
 import { useNavigate } from "react-router";
-import axios from 'axios';
 import { Dialog, LinearProgress } from 'src/shared/components/compat';
 import { StopCircleSharp as BoltIcon } from 'src/shared/components/compat/icons';
 import { Mic } from 'src/shared/components/compat/icons';
@@ -12,8 +11,9 @@ import { GraphicEq as EmptyIcon } from 'src/shared/components/compat/icons';
 import { TrendingFlat as ArrowRight } from 'src/shared/components/compat/icons';
 import { ArrowUpwardOutlined as Arrow } from 'src/shared/components/compat/icons';
 import { uniqueId } from "lodash";
+import { ArrowRight as BackGlyph, ChevronUp as RestoreGlyph, Maximize2 as MaximizeGlyph, Minimize2 as UnmaximizeGlyph, Minus as MinimizeGlyph, X as CloseGlyph } from "lucide-react";
 import { FunctionCallResultType, JwtPayload, SelectedFileType, SessionsItemType, SpecialPromptEnum } from "src/features/ai-agent/types/index.ts";
-import server from "src/core/config/endpoints.json"
+import { agentApi, type AgentBackend } from "src/features/ai-agent/services/agentApi";
 import { useSpeechToText } from "src/features/ai-agent/hooks/useSpeechToText";
 import { io, Socket } from "socket.io-client";
 import resultViewLink from 'src/features/ai-agent/localfiles/resultViewLink.json'
@@ -26,28 +26,33 @@ import NetworkChoice from "src/features/ai-agent/components/networkChoice";
 
 
 const conversations = [
-    "Role management",
-    "User management",
-    "Permissions",
+    "مدیریت نقش‌ها",
+    "مدیریت کاربران",
+    "دسترسی‌ها",
 ];
 
 const MINIMIZED_PANEL_WIDTH = 380;
 
 type AiAgentPageProps = {
     onClose?: () => void;
+    /** Which backend the panel uses; see agentApi. The admin layout keeps the default. */
+    backend?: AgentBackend;
 };
 
-function AiAgentPage({ onClose }: AiAgentPageProps) {
+function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
 
     //#region-------------------- Constants---------------
     const navigate = useNavigate();
+    const api = useMemo(() => agentApi(backend), [backend]);
+    // The recorder calls the latest handleVoice (defined below with the progress helpers).
+    const handleVoiceRef = useRef<(audio: Blob) => Promise<void>>(async () => undefined);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const {
         start,
         stop,
         cancel,
         isListening,
-    } = useSpeechToText((text: string) => { setVoiceInput(text) });
+    } = useSpeechToText((audio: Blob) => handleVoiceRef.current(audio));
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const userefSocket = useRef<Socket>();
     const abortingref = useRef(false);
@@ -58,6 +63,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
     const [selectedFile, setSelectedFile] = useState<SelectedFileType[]>([]);
     const [showWorkspace, setShowWorkspace] = useState(false);
+    // Mobile only: the history list opens over the chat instead of sitting beside it.
+    const [showHistory, setShowHistory] = useState(false);
     const [loadingButton, setLoadingButton] = useState<boolean>(false);
     const [voiceInput, setVoiceInput] = useState('');
     const [alert, setAlert] = useState<AlertType>({
@@ -95,6 +102,17 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
     const dragStateRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
     const progressStagesRef = useRef<string[]>([]);
     const progressResetTimerRef = useRef<number | null>(null);
+    const pendingSessionRef = useRef<Promise<string> | null>(null);
+
+    // گفتگو هنگام باز شدن پنل ساخته می‌شود؛ اگر هنوز آماده نشده یا ساختنش خطا داده بود،
+    // ارسال متن/صدا همین‌جا منتظر آن می‌ماند یا دوباره می‌سازدش (سرور گفتگوی خالی را دوباره می‌دهد).
+    const ensureSession = useCallback(async (current: string | null): Promise<string> => {
+        if (current) return current;
+        pendingSessionRef.current ??= api.newSession().finally(() => { pendingSessionRef.current = null; });
+        const sessionId = await pendingSessionRef.current;
+        setCurrentSessionId(sessionId);
+        return sessionId;
+    }, [api]);
 
     const clearProgressResetTimer = useCallback(() => {
         if (progressResetTimerRef.current !== null) {
@@ -167,7 +185,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         if (!authToken) {
 
             setAlert({
-                alertMessage: "Lütfen önce giriş yapın.",
+                alertMessage: "لطفاً ابتدا وارد شوید.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
@@ -176,25 +194,13 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         }
 
         if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
             try {
-                const uploadResponse = await axios.post(
-                    server.baseurl + server.baseinfo + "upload-files",
-                    formData,
-                    { headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${authToken}` } }
-                );
-
-                if (uploadResponse.data.httpStatusCode === 201) {
-                    setSelectedFile([...selectedFile, { file, path: uploadResponse.data.data.files }]);
-                } else {
-                    return null;
-                }
+                const path = await api.uploadFile(file);
+                if (!path) return null;
+                setSelectedFile([...selectedFile, { file, path }]);
             } catch (e: any) {
                 return null;
             }
-
         }
 
 
@@ -223,7 +229,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             setAlert({
-                alertMessage: "Lütfen önce giriş yapın.",
+                alertMessage: "لطفاً ابتدا وارد شوید.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
@@ -235,27 +241,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
             startProgressRun();
             setLoadingButton(true);
 
-            const response = await axios.post(
-                'http://localhost:3001/api/baseinfo/agent',
-                {
-                    prompt: voiceInput,
-                    files: selectedFile.map((file) => file.path),
-                    sessionId: currentSessionId
-                },
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
-
-            if (response.data.httpStatusCode === 200 || response.status === 201) {
-
-
-
-            }
+            // The result arrives on the /agent socket (handleToolResult).
+            await api.send(voiceInput, await ensureSession(currentSessionId), selectedFile);
         } catch (error: any) {
             setLoadingButton(false);
             abortingref.current = false;
@@ -264,13 +251,13 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                 localStorage.removeItem('authToken');
                 navigate('/');
                 setAlert({
-                    alertMessage: "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
+                    alertMessage: "نشست شما منقضی شده است. لطفاً دوباره وارد شوید.",
                     severity: "error",
                     onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
                 })
             } else {
                 setAlert({
-                    alertMessage: error.response?.data?.message || "Mesaj gönderiminde hata oluştu.",
+                    alertMessage: error.response?.data?.message || "ارسال پیام با خطا روبه‌رو شد.",
                     severity: "error",
                     onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
                 })
@@ -278,7 +265,46 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         } finally {
 
         }
-    }, [alert, navigate, resetProgress, selectedFile, startProgressRun, voiceInput]);
+    }, [alert, api, currentSessionId, ensureSession, navigate, resetProgress, selectedFile, startProgressRun, voiceInput]);
+
+    // Voice: the admin backend returns text for the input box; the account backend runs it as a
+    // command straight away, so the panel shows progress like after pressing send.
+    handleVoiceRef.current = async (audio: Blob) => {
+        const showError = (error: unknown) => {
+            const response = (error as { response?: { status?: number; data?: { message?: unknown } } })?.response;
+            const serverMessage = typeof response?.data?.message === "string" ? response.data.message : "";
+            setAlert({
+                alertMessage: response?.status === 400 && /speech/i.test(serverMessage)
+                    ? "صدایی تشخیص داده نشد؛ دوباره و واضح‌تر بگویید."
+                    : "پردازش صدا با خطا روبه‌رو شد.",
+                severity: "error",
+                onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
+            });
+        };
+
+        if (!api.voiceRunsCommand) {
+            try {
+                setVoiceInput(await api.voice(audio, currentSessionId));
+            } catch (error) {
+                showError(error);
+            }
+            return;
+        }
+
+        if (loadingButton) return;
+        startProgressRun();
+        setLoadingButton(true);
+        // Local stages until the server's own ones arrive on the socket (same wording, so they merge).
+        updateProgressStage("در حال ارسال صدا");
+        try {
+            await api.voice(audio, await ensureSession(currentSessionId), () => updateProgressStage("در حال تبدیل صدا به متن"));
+        } catch (error) {
+            setLoadingButton(false);
+            abortingref.current = false;
+            resetProgress();
+            showError(error);
+        }
+    };
 
 
     const generateResultViewLink = (toolName: string) => {
@@ -381,28 +407,17 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         }
         try {
             resetProgress();
-            const response = await axios.post(
-                'http://localhost:3001/api/agent/sessions/new',
-                {},
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
-            setCurrentSessionId(response.data.data.sessionId);
+            setCurrentSessionId(await api.newSession());
             setHistory([]);
             setVoiceInput('');
         } catch (error) {
             setAlert({
-                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                alertMessage: "شروع گفتگوی جدید با خطا روبه‌رو شد.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
         }
-    }, [alert, navigate, resetProgress]);
+    }, [alert, api, navigate, resetProgress]);
 
     const getToolExecution = async (sessionId: string) => {
         const authToken = localStorage.getItem('authToken');
@@ -411,24 +426,12 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
             return;
         }
         try {
-            const response = await axios.get(
-                `http://localhost:3001/api/agent/sessions/${sessionId}/executions`,
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
-            setHistory(response.data.data)
+            setHistory(await api.executions(sessionId))
             setCurrentSessionId(sessionId)
-            console.clear();
-            console.log(response.data.data);
 
         } catch (error) {
             setAlert({
-                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                alertMessage: "شروع گفتگوی جدید با خطا روبه‌رو شد.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
@@ -449,22 +452,10 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         }
         setConfirmDialogOpen(false)
         try {
-            await axios.put(
-                `http://localhost:3001/api/agent/sessions/confirm-action`,
-                {
-                    confirmed
-                },
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
+            await api.confirmAction(confirmed);
         } catch (error) {
             setAlert({
-                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                alertMessage: "شروع گفتگوی جدید با خطا روبه‌رو شد.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
@@ -489,21 +480,10 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         }
 
         try {
-            const result = await axios.get(
-                `http://localhost:3001/api/agent/sessions/search?q=${encodeURIComponent(trimmed)}`,
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
-
-            setSessionList(result.data.data ?? []);
+            setSessionList(await api.searchSessions(trimmed));
         } catch (error) {
             setAlert({
-                alertMessage: "Arama sırasında hata oluştu.",
+                alertMessage: "جست‌وجو با خطا روبه‌رو شد.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
@@ -555,21 +535,11 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
             return;
         }
         try {
-            const response = await axios.get(
-                'http://localhost:3001/api/agent/sessions',
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                }
-            );
-            setSessionList(response.data.data);
+            setSessionList(await api.listSessions());
 
         } catch (error) {
             setAlert({
-                alertMessage: "Yeni sohbet başlatılırken hata oluştu.",
+                alertMessage: "شروع گفتگوی جدید با خطا روبه‌رو شد.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }
             })
@@ -638,7 +608,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
                         <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
                             <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
-                            <div><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
+                            <div className="operation-arrow"><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
                             <div style={{ display: "flex", gap: "8px", minWidth: "0" }}>
                                 <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "block", minWidth: "0" }}>
                                     {item.message}
@@ -650,7 +620,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                         target="_blank"
                                         onClick={(event) => event.stopPropagation()}
                                     >
-                                        Sonucu Görüntüle
+                                        مشاهده نتیجه
                                     </a>
                                 )}
                                 <span style={{ fontWeight: "bold", color: "black" }}>
@@ -660,7 +630,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                         </div>
 
                         <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
-                            {isSuccess ? "Başarı" : "Hata"}
+                            {isSuccess ? "موفق" : "خطا"}
                         </span>
                     </div>
                     {item.continuePrompt && (
@@ -724,7 +694,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                 if (data.lastsegment) {
                     setLoadingButton(false)
                     abortingref.current = false;
-                    finishProgressRun(data.toolName ?? data.currentOp ?? "Tamamlandı");
+                    finishProgressRun(data.currentOp || undefined);
                 }
 
                 if (data.isSpecial) {
@@ -753,7 +723,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
                 setLoadingButton(false)
                 abortingref.current = false;
-                finishProgressRun(data.toolName ?? data.currentOp ?? "Tamamlandı");
+                finishProgressRun(data.currentOp || undefined);
             }
             if (data.result === "success" && !data.lastsegment) {
                 setProgress((prev) => ({
@@ -766,7 +736,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         const handleToolCurrent = (data: any) => {
             updateProgressStage(data.currentOp);
         }
-        userefSocket.current = io('http://localhost:3001/agent', {
+        userefSocket.current = io(api.socketUrl, {
             path: '/socket.io',
             transports: ['websocket', 'polling'] as string[],
 
@@ -793,7 +763,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
             userefSocket.current?.off('agent-current-tool', handleToolCurrent);
             userefSocket.current?.disconnect();
         };
-    }, [clearProgressResetTimer, finishProgressRun, updateProgressStage])
+    }, [api, clearProgressResetTimer, finishProgressRun, updateProgressStage])
 
     useEffect(() => {
         getSession()
@@ -819,6 +789,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
         <div className="agent-panel-overlay">
             <div
                 ref={shellRef}
+                dir="rtl"
                 className={`agent-modal-shell ${isMinimized ? "is-minimized" : ""} ${isMaximized ? "is-maximized" : ""}`}
                 style={
                     isMinimized
@@ -844,27 +815,27 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
             >
                 <div className="agent-dialog-header" onMouseDown={handleDialogDragStart}>
                     <div className="agent-window-bar">
-                        <div className="agent-window-title">Yapay Zeka Ajanı</div>
+                        <div className="agent-window-title">دستیار هوشمند</div>
 
                         <div className="agent-window-controls">
                             <button
                                 type="button"
                                 className="agent-window-button agent-window-button--minimize"
                                 onClick={handleToggleMinimize}
-                                aria-label="Minimize AI panel"
-                                title="Minimize"
+                                aria-label={isMinimized ? "باز کردن پنل دستیار" : "کوچک کردن پنل دستیار"}
+                                title={isMinimized ? "باز کردن" : "کوچک کردن"}
                             >
-                                –
+                                {isMinimized ? <RestoreGlyph aria-hidden /> : <MinimizeGlyph aria-hidden />}
                             </button>
 
                             <button
                                 type="button"
                                 className="agent-window-button agent-window-button--maximize"
                                 onClick={handleToggleMaximize}
-                                aria-label="Maximize AI panel"
-                                title={isMaximized ? "Restore" : "Maximize"}
+                                aria-label={isMaximized ? "اندازه عادی پنل دستیار" : "تمام‌صفحه کردن پنل دستیار"}
+                                title={isMaximized ? "اندازه عادی" : "تمام‌صفحه"}
                             >
-                                {isMaximized ? "▣" : "▢"}
+                                {isMaximized ? <UnmaximizeGlyph aria-hidden /> : <MaximizeGlyph aria-hidden />}
                             </button>
 
                             <button
@@ -877,10 +848,10 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                     }
                                     navigate(-1);
                                 }}
-                                aria-label="Close AI panel"
-                                title="Close"
+                                aria-label="بستن پنل دستیار"
+                                title="بستن"
                             >
-                                ×
+                                <CloseGlyph aria-hidden />
                             </button>
                         </div>
                         {isMinimized && (progress.currentOp != undefined || loadingButton) ? (
@@ -934,6 +905,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                             <div className="composer">
                                 <textarea
                                     ref={textareaRef}
+                                    dir="auto"
                                     value={isListening ? `` : voiceInput}
                                     style={{ width: "100%" }}
                                     onChange={(event) => {
@@ -950,7 +922,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                             ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
                                         }
                                     }}
-                                    placeholder="Temsilcinize sorun..."
+                                    placeholder="از دستیار بپرسید…"
                                     rows={1}
                                     onKeyDown={(event) => {
                                         if (
@@ -967,7 +939,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                     <button
                                         className="composer-button"
                                         onClick={() => fileInputRef.current?.click()}
-                                        title="Attach file"
+                                        title="پیوست فایل"
                                     >
                                         📎
                                     </button>
@@ -984,7 +956,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                             className={`composer-button ${isListening ? "recording-button" : ""
                                                 }`}
                                             onClick={() => { isListening ? stop() : start() }}
-                                            title={isListening ? "Stop recording" : "Voice input"}
+                                            title={isListening ? "توقف ضبط" : "ورودی صوتی"}
                                         >
                                             {isListening ? (
                                                 <StopIcon style={{ fill: "#ff4d4f" }} />
@@ -1013,11 +985,11 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
                             <div className="composer-hint">
                                 <span>
-                                    Göndermek için Enter'a basın
+                                    برای ارسال Enter بزنید
                                 </span>
 
                                 <span>
-                                    Yeni satır için Shift + Enter
+                                    برای خط جدید Shift + Enter
                                 </span>
                             </div>
                         </div>
@@ -1033,19 +1005,19 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                     <div className="brand-icon">AI</div>
 
                                     <div>
-                                        <strong>Yapay Zeka Ajanı</strong>
-                                        <span>Workspace</span>
+                                        <strong>دستیار هوشمند</strong>
+                                        <span>فضای کار</span>
                                     </div>
                                 </div>
 
                                 <button className="new-chat-button">
                                     <span>+</span>
-                                    New Chat
+                                    گفتگوی جدید
                                 </button>
                             </div>
 
                             <div className="conversation-section">
-                                <div className="section-label">TODAY</div>
+                                <div className="section-label">امروز</div>
 
                                 {conversations.map((conversation, index) => (
                                     <button
@@ -1065,8 +1037,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                     <span className="status-dot" />
 
                                     <div>
-                                        <strong>Agent online</strong>
-                                        <span>Ready to execute</span>
+                                        <strong>دستیار آنلاین</strong>
+                                        <span>آماده اجرا</span>
                                     </div>
                                 </div>
                             </div>
@@ -1079,8 +1051,13 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                             {/* Workspace */}
                             <div className="workspace">
 
-                                <div className="history-sidebar">
-                                    <div className="history-sidebar__header">Kayıtlar</div>
+                                <div className={`history-sidebar ${showHistory ? "show-mobile" : ""}`}>
+                                    <div className="history-sidebar__header">
+                                        سوابق
+                                        <button type="button" className="history-close" onClick={() => setShowHistory(false)} aria-label="بازگشت به گفتگو" title="بازگشت">
+                                            <BackGlyph aria-hidden />
+                                        </button>
+                                    </div>
 
                                     <div className="history-sidebar__search">
                                         <input
@@ -1102,8 +1079,8 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                                     }
                                                 }, 500);
                                             }}
-                                            placeholder="Arama yap..."
-                                            aria-label="Arama"
+                                            placeholder="جست‌وجو…"
+                                            aria-label="جست‌وجو در سوابق"
                                         />
                                     </div>
 
@@ -1111,7 +1088,11 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                         {sessionList.map((item, index) => (
                                             <HistoryItem
                                                 key={item.id}
-                                                getToolExecution={getToolExecution}
+                                                onRename={api.renameSession}
+                                                getToolExecution={(sessionId) => {
+                                                    setShowHistory(false);
+                                                    getToolExecution(sessionId);
+                                                }}
                                                 id={item.id}
                                                 title={item.title}
                                                 createdAt={item.createdAt}
@@ -1129,15 +1110,25 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                 >
                                     <div className="result-header">
                                         <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-                                            <div>
+                                            <div className="result-header__title">
                                                 <span className="eyebrow">
-                                                    ÇALIŞMA ALANI
+                                                    فضای کار
                                                 </span>
 
-                                                <h2>İşlem sonucu</h2>
+                                                <h2>نتیجه عملیات</h2>
                                             </div>
-                                            <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`} onClick={handleNewChat}>
-                                                <span>Yeni Sohbet</span>
+                                            <div className="result-header__actions">
+                                                <button
+                                                    type="button"
+                                                    className="mobile-history-toggle"
+                                                    onClick={() => setShowHistory((value) => !value)}
+                                                    aria-expanded={showHistory}
+                                                >
+                                                    سوابق
+                                                </button>
+                                                <div className={`newchat ${currentSessionId == null || !sessionHasPrompts ? "inactive" : "active"}`} onClick={handleNewChat}>
+                                                    <span>گفتگوی جدید</span>
+                                                </div>
                                             </div>
 
                                         </div>
@@ -1160,7 +1151,15 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                     <div className="result-content">
 
 
-                                        {generatePreviousItems(history)}
+                                        {history.length ? (
+                                            generatePreviousItems(history)
+                                        ) : (
+                                            <div className="agent-empty">
+                                                <span className="agent-empty__icon" aria-hidden>✦</span>
+                                                <strong>چه کاری برایتان انجام دهم؟</strong>
+                                                <span>درخواستتان را بنویسید یا با میکروفون بگویید.</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="composer-container">
@@ -1193,6 +1192,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
                                             <textarea
                                                 ref={textareaRef}
+                                                dir="auto"
                                                 value={isListening ? `` : voiceInput}
                                                 style={{ width: "100%" }}
                                                 onChange={(event) => {
@@ -1209,7 +1209,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                                         ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
                                                     }
                                                 }}
-                                                placeholder="Temsilcinize sorun..."
+                                                placeholder="از دستیار بپرسید…"
                                                 rows={1}
                                                 onKeyDown={(event) => {
                                                     if (
@@ -1226,7 +1226,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                                 <button
                                                     className="composer-button"
                                                     onClick={() => fileInputRef.current?.click()}
-                                                    title="Attach file"
+                                                    title="پیوست فایل"
                                                 >
                                                     📎
                                                 </button>
@@ -1245,7 +1245,7 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
                                                         className={`composer-button ${isListening ? "recording-button" : ""
                                                             }`}
                                                         onClick={() => { isListening ? stop() : start() }}
-                                                        title={isListening ? "Stop recording" : "Voice input"}
+                                                        title={isListening ? "توقف ضبط" : "ورودی صوتی"}
                                                     >
                                                         {isListening ? (
                                                             <StopIcon style={{ fill: "#ff4d4f" }} />
@@ -1281,11 +1281,11 @@ function AiAgentPage({ onClose }: AiAgentPageProps) {
 
                                         <div className="composer-hint">
                                             <span>
-                                                Göndermek için Enter'a basın
+                                                برای ارسال Enter بزنید
                                             </span>
 
                                             <span>
-                                                Yeni satır için Shift + Enter
+                                                برای خط جدید Shift + Enter
                                             </span>
                                         </div>
                                     </div>

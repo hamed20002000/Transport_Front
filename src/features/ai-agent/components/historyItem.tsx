@@ -3,21 +3,16 @@ import type { SessionsItemType } from 'src/features/ai-agent/types/index.ts';
 import { Edit as EditIcon } from 'src/shared/components/compat/icons';
 import { SaveAs as SaveAsIcon } from 'src/shared/components/compat/icons';
 import { CancelRounded as Cancel } from 'src/shared/components/compat/icons';
-import { useNavigate } from 'react-router';
-import axios from 'axios';
 
 
 type HistoryItemProps = SessionsItemType & {
     getToolExecution: (sessionId: string) => void;
+    /** Renames the chat on the server; without it the item cannot be renamed. */
+    onRename?: (sessionId: string, name: string) => Promise<void>;
     status?: 'success' | 'error';
 };
 
-const HistoryItem: React.FC<HistoryItemProps> = ({ id, title, getToolExecution, status = 'success' }) => {
-
-    //#region ------------------ Constants -----------------
-    const navigate = useNavigate();
-
-    //#endregion --------------- Constants -----------------
+const HistoryItem: React.FC<HistoryItemProps> = ({ id, title, getToolExecution, onRename, status = 'success' }) => {
 
     //#region ------------------ States --------------------
     const [editing, setEditing] = useState(false);
@@ -29,27 +24,8 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ id, title, getToolExecution, 
     };
 
     const onSave = async () => {
-        const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            navigate('/');
-            return;
-        }
-
         try {
-            await axios.put(
-                `http://localhost:3001/api/agent/sessions/changename`,
-                {
-                    sessionId: id,
-                    name: text
-                },
-                {
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    }
-                }
-            );
+            await onRename?.(id, text);
             setEditing(false);
         } catch (error) {
             // no-op
@@ -89,13 +65,13 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ id, title, getToolExecution, 
                 )}
             </div>
 
-            <span className="historyItem__action">
+            {onRename && <span className="historyItem__action">
                 {editing ? (
                     <SaveAsIcon className="historyItem__icon" fontSize="small" onClick={onSaveClick} />
                 ) : (
                     <EditIcon className="historyItem__icon" fontSize="small" onClick={onEditToggle} />
                 )}
-            </span>
+            </span>}
               {editing && ( <span className="historyItem__action">
              
                     <Cancel className="historyItem__icon" fontSize="small" onClick={onCancelClick} color='error' />

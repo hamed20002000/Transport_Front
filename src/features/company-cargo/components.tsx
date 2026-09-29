@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, type LucideIcon as Icon } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ChevronLeft, ChevronRight, Hash, MapPin, Phone, type LucideIcon as Icon } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
+import { toLatinDigits } from './api';
 
 const faNumber = (value: number) => value.toLocaleString('fa-IR');
 
@@ -25,6 +27,58 @@ export function timeAgo(value?: string | null) {
     amount /= size;
   }
   return formatDate(value);
+}
+
+// Iranian numbers in free text (Persian/Arabic digits too): 0 or +98 followed by 10 digits, spaces/dashes allowed.
+export function extractPhones(text?: string | null) {
+  if (!text) return [];
+  const found = toLatinDigits(text).match(/(?<!\d)(?:\+98|0098|0)(?:[\s-]?\d){10}(?!\d)/g) ?? [];
+  return [...new Set(found.map((raw) => '0' + raw.replace(/\D/g, '').slice(-10)))];
+}
+
+export function PhoneLinks({ phones }: { phones: string[] }) {
+  if (!phones.length) return null;
+  return (
+    <div className="tw-flex tw-flex-wrap tw-gap-2">
+      {phones.map((phone) => (
+        <a
+          key={phone}
+          href={`tel:${phone}`}
+          dir="ltr"
+          className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-border tw-border-brand-line tw-px-3 tw-py-1 tw-text-xs tw-font-medium hover:tw-border-brand-orange hover:tw-text-brand-orange"
+        >
+          <Phone size={13} aria-hidden /> {phone}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+// «کد بار» chip; a click copies the code (drivers quote it on the phone).
+export function CargoCode({ code }: { code?: string | null }) {
+  const [copied, setCopied] = useState(false);
+  if (!code) return null;
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(code!);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard can be blocked (http, permissions); the code stays readable on the chip.
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      title={copied ? 'کپی شد' : 'کپی کد بار'}
+      aria-label={`کد بار ${code}، کپی`}
+      className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border tw-border-brand-line tw-bg-white tw-px-2 tw-py-0.5 tw-text-xs tw-font-bold tw-text-brand-navy tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange-ink"
+    >
+      {copied ? <Check size={12} aria-hidden className="tw-text-green-600" /> : <Hash size={12} aria-hidden className="tw-text-brand-muted" />}
+      <span dir="ltr">{code}</span>
+    </button>
+  );
 }
 
 // Round white action button with a navy icon (the call/locate buttons in the design).
@@ -109,25 +163,17 @@ export function StatTile({ icon, label, value, accent }: { icon: Icon; label: st
   );
 }
 
-// Vertical origin → destination: orange ring, dotted connector, navy pin.
+// Single-row origin → destination: orange ring, dotted connector, navy pin; long names get an ellipsis.
 export function RouteLine({ origin, destination }: { origin?: string | null; destination?: string | null }) {
   return (
-    <div className="tw-flex tw-gap-3">
-      <div className="tw-flex tw-flex-col tw-items-center tw-pt-1.5" aria-hidden>
-        <span className="tw-h-4 tw-w-4 tw-rounded-full tw-border-[3px] tw-border-brand-orange tw-bg-white" />
-        <span className="tw-my-1 tw-w-0 tw-flex-1 tw-border-r-2 tw-border-dotted tw-border-brand-line" />
-        <MapPin size={18} className="tw-fill-brand-navy tw-text-white" />
-      </div>
-      <dl className="tw-m-0 tw-min-w-0 tw-flex-1 tw-space-y-3">
-        <div>
-          <dt className="tw-text-xs tw-text-brand-muted">مبدأ بارگیری</dt>
-          <dd className="tw-m-0 tw-truncate tw-text-base tw-font-bold">{origin || 'نامشخص'}</dd>
-        </div>
-        <div>
-          <dt className="tw-text-xs tw-text-brand-muted">مقصد تخلیه</dt>
-          <dd className="tw-m-0 tw-truncate tw-text-base tw-font-bold">{destination || 'نامشخص'}</dd>
-        </div>
-      </dl>
+    <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2 tw-text-base tw-font-bold">
+      <span className="tw-h-3.5 tw-w-3.5 tw-shrink-0 tw-rounded-full tw-border-[3px] tw-border-brand-orange tw-bg-white" aria-hidden />
+      <span className="tw-sr-only">مبدأ بارگیری: </span>
+      <span className="tw-min-w-0 tw-max-w-[45%] tw-truncate" title={origin || undefined}>{origin || 'نامشخص'}</span>
+      <span className="tw-min-w-[1.5rem] tw-flex-1 tw-border-t-2 tw-border-dotted tw-border-brand-line" aria-hidden />
+      <MapPin size={18} className="tw-shrink-0 tw-fill-brand-navy tw-text-white" aria-hidden />
+      <span className="tw-sr-only">مقصد تخلیه: </span>
+      <span className="tw-min-w-0 tw-max-w-[45%] tw-truncate" title={destination || undefined}>{destination || 'نامشخص'}</span>
     </div>
   );
 }

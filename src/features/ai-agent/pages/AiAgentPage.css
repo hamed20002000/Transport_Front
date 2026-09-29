@@ -31,28 +31,17 @@
   --shadow: 0 8px 30px rgba(20, 25, 40, 0.06);
 }
 
-body {
-  margin: 0;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-
+/* Scoped to the panel: the page's own font (Persian) and background stay as they are.
+   :where() keeps these as weak as the element rules they replace. */
+:where(.agent-panel-overlay) {
   color: var(--text);
-  background: var(--bg);
 }
 
-button,
-input,
-textarea {
+:where(.agent-panel-overlay) :where(button, input, textarea) {
   font: inherit;
 }
 
-button {
+:where(.agent-panel-overlay) button {
   border: 0;
   cursor: pointer;
 }
@@ -1995,5 +1984,434 @@ button {
 
   100% {
     background-position: -200% 0
+  }
+}
+
+/* =========================================================
+   FOCUS: no outline or coloured border on focus anywhere in the panel.
+========================================================= */
+
+.agent-panel-overlay *,
+.agent-panel-overlay *:focus,
+.agent-panel-overlay *:focus-visible {
+  outline: none !important;
+}
+
+.agent-panel-overlay .composer:focus-within {
+  border-color: #212121;
+  box-shadow: none;
+}
+
+.agent-panel-overlay .history-sidebar__search input:focus,
+.agent-panel-overlay .historyItem__input:focus {
+  border-color: rgba(142, 155, 180, 0.32);
+  box-shadow: none;
+}
+
+/* =========================================================
+   RTL + SHARED BITS
+========================================================= */
+
+/* Glyphs sized to the small window dots on desktop; the mobile app bar enlarges them. */
+.agent-window-button svg {
+  width: 8px;
+  height: 8px;
+  stroke-width: 3;
+}
+
+/* The arrow between the prompt and its result points along the reading direction. */
+.agent-modal-shell[dir="rtl"] .operation-arrow svg {
+  transform: scaleX(-1);
+}
+
+.result-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-history-toggle,
+.history-close {
+  display: none;
+}
+
+.agent-empty {
+  height: 100%;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary, #6b7280);
+  font-size: 13px;
+}
+
+.agent-empty strong {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.agent-empty__icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  color: #fff;
+  font-size: 24px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+}
+
+/* =========================================================
+   MOBILE PANEL
+   A plain full-screen chat: white app bar, the chat filling the
+   screen, history as its own full-screen sheet. Comes last so it
+   wins over the rules above and the inline drag/centre position.
+========================================================= */
+
+@media (max-width: 800px) {
+  .agent-panel-overlay {
+    padding: 0;
+  }
+
+  /* Normal size: a sheet over the lower part of the screen; the page stays visible above it. */
+  .agent-modal-shell:not(.is-minimized):not(.is-maximized) {
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    height: 78vh;
+    height: 78dvh;
+    max-height: 78dvh !important;
+    padding-top: 56px;
+    border: 0;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.22);
+    background: #fff;
+  }
+
+  /* Full screen */
+  .agent-modal-shell.is-maximized {
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding-top: 56px;
+    border: 0;
+    border-radius: 0 !important;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  /* Minimized: a small bar docked at the bottom (dragging is mouse-only, so the saved position is ignored) */
+  .agent-modal-shell.is-minimized {
+    top: auto !important;
+    bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+    left: 8px !important;
+    width: calc(100vw - 16px) !important;
+    padding-top: 56px;
+    border-radius: 18px;
+    background: #fff;
+  }
+
+  /* App bar */
+  .agent-dialog-header {
+    height: 56px;
+    cursor: default;
+    background: #fff;
+  }
+
+  .agent-window-bar {
+    padding: 0 16px 0 10px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .agent-window-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+  }
+
+  .agent-window-title::before {
+    content: "✦";
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 15px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%);
+  }
+
+  .agent-window-controls {
+    gap: 2px;
+  }
+
+  .agent-window-button {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 12px;
+    box-shadow: none;
+    background: transparent;
+    color: var(--text);
+  }
+
+  .agent-window-button:active {
+    background: var(--surface-soft);
+  }
+
+  .agent-window-button svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+
+  .agent-window-button--close svg,
+  .history-close svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+  }
+
+  /* Chat fills the screen, no card inside the card */
+  .agent-page:not(.minimized-view) {
+    display: flex;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    background: #fff;
+  }
+
+  .workspace {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .result-panel {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex: 1;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .result-header {
+    min-height: 0;
+    padding: 10px 16px;
+    flex-direction: row;
+  }
+
+  .result-header__title {
+    display: none;
+  }
+
+  /* The current step gets its own row under the buttons instead of being squeezed beside them. */
+  .result-header {
+    flex-wrap: wrap;
+  }
+
+  .result-header .progress-current {
+    justify-content: center;
+    padding: 8px 0 0 !important;
+  }
+
+  .result-header__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mobile-history-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .mobile-history-toggle::before {
+    content: "☰";
+    font-size: 13px;
+  }
+
+  .result-header .newchat {
+    white-space: nowrap;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 13px;
+  }
+
+  .result-content {
+    padding: 4px 0;
+  }
+
+  .operation-card {
+    margin: 8px 12px;
+  }
+
+  .composer-container {
+    margin-top: 0;
+    padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+    border-top: 0;
+  }
+
+  .composer {
+    border-radius: 24px;
+    padding: 8px 10px;
+  }
+
+  .composer textarea {
+    font-size: 15px;
+  }
+
+  /* History: its own full-screen sheet */
+  .history-sidebar {
+    display: none;
+  }
+
+  .history-sidebar.show-mobile {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    max-height: none;
+    gap: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .history-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 8px 8px 8px 16px;
+    min-height: 56px;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history-close {
+    order: -1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    color: var(--text);
+  }
+
+  .history-sidebar__search {
+    padding: 12px 16px 4px;
+    background: #fff;
+  }
+
+  .history-sidebar__search input {
+    height: 44px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .history-sidebar__list {
+    padding: 8px 16px 16px;
+    background: #fff;
+  }
+
+  .history-sidebar__list .historyItem {
+    width: 100%;
+    max-width: none;
+    min-height: 44px;
+    font-size: 13px;
+  }
+
+  .history-sidebar__list .historyItem__text {
+    max-width: none;
+  }
+}
+
+/* No attachments: drop the empty strip (and its divider) above the composer. */
+.composer-container .file-container:empty {
+  display: none;
+}
+
+/* =========================================================
+   TOP BAR COLOUR
+   The account panels' brand orange (brand.orange in tailwind.config,
+   the colour of their primary buttons), on desktop and mobile alike. The .agent-panel-overlay prefix makes
+   it win over the plain white/dark bar rules above.
+========================================================= */
+
+.agent-panel-overlay .agent-dialog-header,
+.agent-panel-overlay .agent-window-bar {
+  background: #f5761a;
+  border-bottom: 0;
+}
+
+.agent-panel-overlay .agent-window-title {
+  color: #fff;
+}
+
+@media (max-width: 800px) {
+  /* On the gradient the title badge turns into a frosted chip instead of repeating the gradient. */
+  .agent-panel-overlay .agent-window-title::before {
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  }
+
+  .agent-panel-overlay .agent-window-button {
+    color: #fff;
+  }
+
+  .agent-panel-overlay .agent-window-button:active {
+    background: rgba(255, 255, 255, 0.16);
   }
 }

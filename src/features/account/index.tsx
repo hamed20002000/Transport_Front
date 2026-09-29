@@ -1,9 +1,9 @@
 import { Link, Navigate, type RouteObject } from 'react-router-dom';
-import { Archive, Building2, ChevronLeft, Handshake, Inbox, Link2, SquarePlus, Truck } from 'lucide-react';
+import { Archive, Building2, ChevronLeft, Handshake, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
-import { CompanyShell } from 'src/features/company-cargo';
+import { CompanyShell, displayName, useProfile } from 'src/features/company-cargo';
 
 const accounts = {
   COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2 },
@@ -16,6 +16,8 @@ const companyTiles = [
   { to: '/account/company/cargo/new', title: 'ثبت بار', icon: SquarePlus },
   { to: '/account/company/cargo?tab=listings', title: 'بارهای من', icon: Archive },
   { to: '/account/company/channels', title: 'گروه‌ها و کانال‌ها', icon: Link2 },
+  { to: '/account/company/filters', title: 'تنظیمات نمایش بار', icon: SlidersHorizontal },
+  { to: '/account/company/profile', title: 'پروفایل', icon: UserRound },
 ];
 
 export function accountHome(role: string | null | undefined) {
@@ -23,12 +25,13 @@ export function accountHome(role: string | null | undefined) {
 }
 
 function Welcome({ title, username }: { title: string; username: string }) {
+  const name = displayName(useProfile());
   return (
     <section>
       <p className="tw-text-sm tw-font-bold tw-text-brand-orange-ink">سامانه هوشمند بار</p>
       <h1 className="tw-mt-1 tw-text-2xl tw-font-bold tw-text-brand-navy sm:tw-text-3xl">پنل {title}</h1>
       <p className="tw-mt-2 tw-text-brand-muted">
-        <bdi>{username}</bdi>، خوش آمدید.
+        <bdi>{name || username}</bdi>، خوش آمدید.
       </p>
     </section>
   );

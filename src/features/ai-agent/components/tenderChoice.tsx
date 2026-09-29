@@ -45,27 +45,27 @@ const TenderChoice: React.FC<TenderChoiceProps> = ({
     const handleConfirmDownload = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setIsModalOpen(false);
-        setVoiceInput('güncelleme');
+        setVoiceInput('به‌روزرسانی');
     };
 
     return (
         <div style={containerStyle}>
-            <button style={buttonExcelStyle} onClick={handleExcelClick} title="Download Excel template">
-                Excel dosyasını indirin
+            <button style={buttonExcelStyle} onClick={handleExcelClick} title="دانلود قالب اکسل">
+                دانلود فایل اکسل
             </button>
 
             {/* <button
                 style={buttonManualStyle}
                 onClick={() => onManual?.()}
-                title="Manual entry"
+                title="ورود دستی"
             >
-                Manuel giriş
+                ورود دستی
             </button> */}
 
             <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <Box sx={modalStyle}>
                     <Typography variant="h6" component="h2" sx={{ mb: 2, textAlign: "center" }}>
-                        Bilgileri girdikten sonra şablonu yükleyin ve güncelleme düğmesine tıklayın.
+                        پس از وارد کردن اطلاعات، قالب را بارگذاری کنید و دکمه به‌روزرسانی را بزنید.
                     </Typography>
 
                     <Button
@@ -74,9 +74,9 @@ const TenderChoice: React.FC<TenderChoiceProps> = ({
                         fullWidth
                         onClick={handleConfirmDownload}
                          href="/tender_template.xlsx"
-                          download="ihale_sablonu.xlsx"
+                          download="قالب-مناقصه.xlsx"
                     >
-                        İndir
+                        دانلود
                     </Button>
                 </Box>
             </Modal>

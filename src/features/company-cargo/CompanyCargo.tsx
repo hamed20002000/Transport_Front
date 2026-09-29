@@ -13,16 +13,18 @@ import {
   Inbox,
   Layers,
   Mail,
+  Megaphone,
   Package,
   PackageCheck,
-  Phone,
   RefreshCw,
   RotateCcw,
   Send,
+  SlidersHorizontal,
   SquarePlus,
   TriangleAlert,
   Truck,
   Weight,
+  X,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
@@ -30,11 +32,13 @@ import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import {
+  getSuggestionDraft,
   getSummary,
   listMyListings,
   listSuggestions,
   markAllSuggestionsRead,
   markSuggestionRead,
+  publishSuggestion,
   setListingStatus,
   type CargoListing,
   type CargoSuggestion,
@@ -43,13 +47,16 @@ import {
   type Page,
 } from './api';
 import CompanyShell from './CompanyShell';
+import ListingForm, { type PublishedListing } from './ListingForm';
 import { useNotificationEvent } from './notificationSocket';
 import {
   Badge,
   CardSkeleton,
+  CargoCode,
   EmptyState,
   IconButton,
   Pager,
+  PhoneLinks,
   PrimaryButton,
   RouteLine,
   SecondaryButton,
@@ -57,6 +64,7 @@ import {
   Segmented,
   Spec,
   StatTile,
+  extractPhones,
   formatDate,
   timeAgo,
 } from './components';
@@ -148,7 +156,7 @@ function CargoCard({
   route: JSX.Element;
   specs: JSX.Element;
   notes?: string | null;
-  extra?: JSX.Element | false;
+  extra?: JSX.Element;
   footer: JSX.Element;
 }) {
   return (
@@ -183,7 +191,7 @@ function Specs({ cargoType, weight, vehicleType, price, priceHighlight = true }:
   );
 }
 
-function SuggestionCard({ item, onRead }: { item: CargoSuggestion; onRead: () => void }) {
+function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSuggestion; onRead: () => void; onAnnounce: () => void }) {
   const [open, setOpen] = useState(false);
   const { cargo } = item;
   const receivedAt = cargo.receivedAt || item.createdAt;
@@ -192,9 +200,12 @@ function SuggestionCard({ item, onRead }: { item: CargoSuggestion; onRead: () =>
       highlighted={!item.isRead}
       head={
         <>
-          <time dateTime={receivedAt} title={formatDate(receivedAt)} className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted">
-            <Clock size={14} aria-hidden /> {timeAgo(receivedAt)}
-          </time>
+          <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+            <CargoCode code={cargo.code} />
+            <time dateTime={receivedAt} title={formatDate(receivedAt)} className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted">
+              <Clock size={14} aria-hidden /> {timeAgo(receivedAt)}
+            </time>
+          </div>
           <div className="tw-flex tw-gap-1.5">
             {!item.isRead && (
               <Badge tone="orange">
@@ -213,15 +224,23 @@ function SuggestionCard({ item, onRead }: { item: CargoSuggestion; onRead: () =>
       specs={<Specs {...cargo} />}
       notes={cargo.extraNotes}
       extra={
-        open && (
-          <p className="tw-whitespace-pre-wrap tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{cargo.rawText || item.text}</p>
-        )
+        <>
+          <PhoneLinks phones={extractPhones(cargo.rawText || item.text)} />
+          {open && <p className="tw-whitespace-pre-wrap tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{cargo.rawText || item.text}</p>}
+        </>
       }
       footer={
         <>
-          <SecondaryButton onClick={() => setOpen((v) => !v)}>
-            <FileText size={16} aria-hidden /> {open ? 'بستن متن' : 'متن پیام'}
-          </SecondaryButton>
+          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            {!item.published && (
+              <PrimaryButton onClick={onAnnounce}>
+                <Megaphone size={16} aria-hidden /> اعلام بار
+              </PrimaryButton>
+            )}
+            <SecondaryButton onClick={() => setOpen((v) => !v)}>
+              <FileText size={16} aria-hidden /> {open ? 'بستن متن' : 'متن پیام'}
+            </SecondaryButton>
+          </div>
           {!item.isRead && <IconButton icon={CheckCheck} label="علامت خوانده‌شده" onClick={onRead} />}
         </>
       }
@@ -242,9 +261,12 @@ function ListingCard({ listing, saving, disabled, onToggle }: { listing: CargoLi
     <CargoCard
       head={
         <>
-          <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted" title={formatDate(listing.createdAt)}>
-            <Send size={14} aria-hidden /> {timeAgo(listing.createdAt)}
-          </span>
+          <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+            <CargoCode code={listing.code} />
+            <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted" title={formatDate(listing.createdAt)}>
+              <Send size={14} aria-hidden /> {timeAgo(listing.createdAt)}
+            </span>
+          </div>
           <Badge tone={taken ? 'muted' : 'orange'}>
             {taken ? <CircleCheck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
             {statusLabels[listing.status]}
@@ -254,22 +276,7 @@ function ListingCard({ listing, saving, disabled, onToggle }: { listing: CargoLi
       route={<RouteLine origin={listing.origin} destination={listing.destination} />}
       specs={<Specs {...listing} priceHighlight={!taken} />}
       notes={listing.extraNotes}
-      extra={
-        !!listing.contactPhones.length && (
-          <div className="tw-flex tw-flex-wrap tw-gap-2">
-            {listing.contactPhones.map((phone) => (
-              <a
-                key={phone}
-                href={`tel:${phone}`}
-                dir="ltr"
-                className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-border tw-border-brand-line tw-px-3 tw-py-1 tw-text-xs tw-font-medium hover:tw-border-brand-orange hover:tw-text-brand-orange"
-              >
-                <Phone size={13} aria-hidden /> {phone}
-              </a>
-            ))}
-          </div>
-        )
-      }
+      extra={<PhoneLinks phones={listing.contactPhones} />}
       footer={
         <>
           <span className="tw-text-xs tw-text-brand-muted">{listing.takenAt ? `برداشته شد ${timeAgo(listing.takenAt)}` : 'در انتظار راننده'}</span>
@@ -284,11 +291,81 @@ function ListingCard({ listing, saving, disabled, onToggle }: { listing: CargoLi
   );
 }
 
+// «اعلام بار»: the suggestion as an editable listing, prefilled from the message and the company's profile.
+function AnnounceDialog({ item, onClose, onPublished }: { item: CargoSuggestion; onClose: () => void; onPublished: (listing: PublishedListing) => void }) {
+  const panel = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    panel.current?.focus();
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener('keydown', onKey);
+      previous?.focus();
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-brand-navy/40 sm:tw-items-center sm:tw-p-6"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div
+        ref={panel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="announce-title"
+        tabIndex={-1}
+        dir="rtl"
+        className="tw-flex tw-max-h-[92vh] tw-w-full tw-flex-col tw-overflow-hidden tw-rounded-t-2xl tw-bg-white tw-text-brand-navy tw-shadow-xl tw-outline-none sm:tw-max-w-2xl sm:tw-rounded-2xl"
+      >
+        <div className="tw-flex tw-items-start tw-gap-3 tw-border-b tw-border-brand-line tw-bg-brand-orange-soft/60 tw-px-5 tw-py-4">
+          <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
+            <h2 id="announce-title" className="tw-flex tw-items-center tw-gap-2 tw-text-lg tw-font-bold">
+              <Megaphone size={20} aria-hidden className="tw-text-brand-orange" /> اعلام بار
+            </h2>
+            <p className="tw-text-xs tw-leading-6 tw-text-brand-muted">اطلاعات از پیام کانال و پروفایل شما پر شده؛ قبل از ارسال بررسی و در صورت نیاز ویرایش کنید.</p>
+          </div>
+          <IconButton icon={X} label="بستن" onClick={onClose} />
+        </div>
+        <ListingForm
+          variant="dialog"
+          initial={item.cargo}
+          load={() => getSuggestionDraft(item.id)}
+          submit={(input) => publishSuggestion(item.id, input)}
+          onDone={onPublished}
+          onCancel={onClose}
+          submitLabel="اعلام برای راننده‌ها"
+        />
+      </div>
+    </div>
+  );
+}
+
 function Suggestions({ onChanged }: { onChanged: () => void }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const toast = useToast();
   const state = usePage(() => listSuggestions(page, filter === 'unread'), [page, filter]);
+  const [announcing, setAnnouncing] = useState<CargoSuggestion | null>(null);
+  const closeAnnounce = useCallback(() => setAnnouncing(null), []);
+
+  function published(item: CargoSuggestion, listing: PublishedListing) {
+    setAnnouncing(null);
+    state.setData(
+      (current) =>
+        current && {
+          ...current,
+          items: current.items.map((row) => (row.id === item.id ? { ...row, published: { id: listing.id, status: listing.status } } : row)),
+        },
+    );
+    toast.success(`بار اعلام شد و برای ${listing.recipients.toLocaleString('fa-IR')} راننده ارسال شد.`);
+    onChanged();
+  }
 
   // بار جدید از سوکت (NotificationsGateway) -- لیست و شمارنده‌ها همان لحظه به‌روز
   // می‌شوند، بدون رفرش صفحه.
@@ -340,6 +417,14 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
               ]}
             />
             <IconButton icon={CheckCheck} label="همه خوانده شد" onClick={markAll} />
+            <Link
+              to="/account/company/filters"
+              title="تنظیمات نمایش بار"
+              aria-label="تنظیمات نمایش بار"
+              className="tw-inline-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-brand-line tw-bg-white tw-text-brand-navy tw-shadow-sm tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange"
+            >
+              <SlidersHorizontal size={18} aria-hidden />
+            </Link>
           </div>
         }
       />
@@ -351,8 +436,9 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
           title: filter === 'unread' ? 'پیام خوانده‌نشده‌ای ندارید' : 'هنوز باری پیشنهاد نشده',
           hint: 'بارهایی که در کانال‌های ثبت‌شدهٔ شما دیده شوند و با فیلترهایتان جور باشند، اینجا نمایش داده می‌شوند.',
         }}
-        render={(item) => <SuggestionCard key={item.id} item={item} onRead={() => markRead(item)} />}
+        render={(item) => <SuggestionCard key={item.id} item={item} onRead={() => markRead(item)} onAnnounce={() => setAnnouncing(item)} />}
       />
+      {announcing && <AnnounceDialog item={announcing} onClose={closeAnnounce} onPublished={(listing) => published(announcing, listing)} />}
     </section>
   );
 }

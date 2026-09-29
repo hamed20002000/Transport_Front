@@ -104,7 +104,7 @@ const Customizer: FC = () => {
         </Fab>
       </Tooltip>
 
-      <Tooltip title="Yapay zeka">
+      <Tooltip title="دستیار هوشمند">
         <Fab
           color="primary"
           aria-label="ai"
