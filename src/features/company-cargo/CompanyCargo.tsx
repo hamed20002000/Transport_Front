@@ -57,6 +57,7 @@ import {
   IconButton,
   Pager,
   PhoneLinks,
+  LoadFailed,
   PrimaryButton,
   RouteLine,
   SecondaryButton,
@@ -83,6 +84,7 @@ function errorMessage(error: unknown) {
 
 // Loads a page whenever `deps` change; `reload` forces a refetch.
 function usePage<T>(load: () => Promise<Page<T>>, deps: unknown[]) {
+  const toast = useToast();
   const [data, setData] = useState<Page<T> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -93,7 +95,11 @@ function usePage<T>(load: () => Promise<Page<T>>, deps: unknown[]) {
     setError('');
     load()
       .then((page) => active && setData(page))
-      .catch((e) => active && setError(errorMessage(e)))
+      .catch((e) => {
+        if (!active) return;
+        setError(errorMessage(e));
+        toast.error(errorMessage(e));
+      })
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
@@ -131,7 +137,7 @@ function ListBody<T>({
         {[0, 1, 2, 3].map((i) => <CardSkeleton key={i} />)}
       </div>
     );
-  if (state.error) return <ErrorBox message={state.error} onRetry={state.reload} />;
+  if (state.error) return <LoadFailed onRetry={state.reload} />;
   if (!state.data?.items.length) return <EmptyState {...empty} />;
   return (
     <>

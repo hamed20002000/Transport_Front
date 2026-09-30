@@ -2,15 +2,16 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import {
+  ArrowDownToLine,
+  ArrowLeftRight,
+  ArrowUpFromLine,
   CircleCheck,
   Clock,
   Hourglass,
   Layers,
   Link2,
-  MessageCircle,
   Plus,
   RotateCcw,
-  Send,
   Tag,
   Trash2,
   TriangleAlert,
@@ -21,17 +22,30 @@ import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
-import { detectPlatform, listChannels, registerChannel, removeChannel, type Channel, type ChannelPlatform } from './channelsApi';
+import { detectPlatform, listChannels, registerChannel, removeChannel, type Channel, type ChannelPlatform, type ChannelRole } from './channelsApi';
 import CompanyShell from './CompanyShell';
-import { CardSkeleton, EmptyState, IconButton, SectionTitle, Segmented, timeAgo } from './components';
+import { CardSkeleton, EmptyState, IconButton, LoadFailed, SectionTitle, Segmented, timeAgo } from './components';
 import { useNotificationEvent, type ChannelStatusEvent } from './notificationSocket';
 
-const platforms: Record<ChannelPlatform, { label: string; icon: LucideIcon; tile: string; text: string }> = {
-  whatsapp: { label: 'واتساپ', icon: MessageCircle, tile: 'tw-bg-[#E7F8EE] tw-text-[#128C4B]', text: 'tw-text-[#128C4B]' },
-  telegram: { label: 'تلگرام', icon: Send, tile: 'tw-bg-[#E6F4FB] tw-text-[#1C8AC4]', text: 'tw-text-[#1C8AC4]' },
+// Logos are served from /public.
+const platforms: Record<ChannelPlatform, { label: string; logo: string; tile: string; text: string }> = {
+  whatsapp: { label: 'واتساپ', logo: '/whatsapp.svg', tile: 'tw-bg-[#E7F8EE] tw-text-[#128C4B]', text: 'tw-text-[#128C4B]' },
+  telegram: { label: 'تلگرام', logo: '/telegram.svg', tile: 'tw-bg-[#E6F4FB] tw-text-[#1C8AC4]', text: 'tw-text-[#1C8AC4]' },
+  bale: { label: 'بله', logo: '/bale.svg', tile: 'tw-bg-[#E6F7F5] tw-text-[#0F8A7E]', text: 'tw-text-[#0F8A7E]' },
+  rubika: { label: 'روبیکا', logo: '/rubika.svg', tile: 'tw-bg-[#F3ECFB] tw-text-[#7B3FC4]', text: 'tw-text-[#7B3FC4]' },
 };
 
+function PlatformLogo({ platform, size }: { platform: ChannelPlatform; size: number }) {
+  return <img src={platforms[platform].logo} alt="" aria-hidden width={size} height={size} className="tw-shrink-0 tw-object-contain" />;
+}
+
 const typeLabels = { group: 'گروه', channel: 'کانال' };
+
+const roles: Record<ChannelRole, { label: string; hint: string; icon: LucideIcon }> = {
+  source: { label: 'منبع', hint: 'بارهای این گروه/کانال برای شما می‌آید', icon: ArrowDownToLine },
+  destination: { label: 'مقصد', hint: 'بارهای پردازش‌شده در این گروه/کانال فرستاده می‌شود', icon: ArrowUpFromLine },
+  both: { label: 'منبع و مقصد', hint: 'هم بار از آن خوانده و هم بار در آن فرستاده می‌شود', icon: ArrowLeftRight },
+};
 
 function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
@@ -76,7 +90,7 @@ function ChannelRow({ channel, removing, onRemove }: { channel: Channel; removin
   return (
     <li className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
       <span className={cn('tw-flex tw-h-11 tw-w-11 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl', platform.tile)}>
-        <platform.icon size={22} aria-hidden />
+        <PlatformLogo platform={channel.platform} size={26} />
       </span>
       <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
         <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
@@ -88,6 +102,7 @@ function ChannelRow({ channel, removing, onRemove }: { channel: Channel; removin
             {platform.label}
             {channel.type && ` · ${typeLabels[channel.type]}`}
           </span>
+          <span>{roles[channel.role ?? 'source'].label}</span>
           {channel.label && channel.identifier && (
             <span dir="ltr" className="tw-truncate">
               {channel.identifier}
@@ -102,25 +117,26 @@ function ChannelRow({ channel, removing, onRemove }: { channel: Channel; removin
 }
 
 function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => void }) {
+  const toast = useToast();
   const [link, setLink] = useState('');
   const [label, setLabel] = useState('');
+  const [role, setRole] = useState<ChannelRole>('source');
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
   const pending = useRef(false);
   const platform = link.trim() ? detectPlatform(link) : null;
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (pending.current) return;
-    setError('');
-    if (!link.trim()) return setError('لینک گروه یا کانال را وارد کنید.');
-    if (!platform) return setError('این لینک واتساپ یا تلگرام نیست. نمونه‌های پایین فرم را ببینید.');
+    if (!link.trim()) return toast.error('لینک گروه یا کانال را وارد کنید.');
+    if (!platform) return toast.error('این لینک واتساپ، تلگرام، بله یا روبیکا نیست. نمونه‌های پایین فرم را ببینید.');
     pending.current = true;
     setSaving(true);
     try {
-      const result = await registerChannel(link.trim(), label.trim() || undefined);
+      const result = await registerChannel(link.trim(), label.trim() || undefined, role);
       setLink('');
       setLabel('');
+      setRole('source');
       onAdded(
         result.channel,
         [result.created ? 'لینک ثبت شد. عضویت در گروه/کانال به‌زودی انجام می‌شود.' : 'این گروه/کانال قبلاً ثبت شده بود و به لیست شما اضافه شد.', result.warning]
@@ -128,7 +144,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
           .join(' '),
       );
     } catch (e) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       pending.current = false;
       setSaving(false);
@@ -152,7 +168,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
               dir="ltr"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              placeholder="https://chat.whatsapp.com/…  یا  https://t.me/…"
+              placeholder="chat.whatsapp.com/…  t.me/…  ble.ir/…  rubika.ir/…"
               maxLength={500}
               autoComplete="off"
             />
@@ -164,7 +180,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
                   detected ? detected.tile : 'tw-bg-red-50 tw-text-red-700',
                 )}
               >
-                {detected ? <detected.icon size={13} aria-hidden /> : <TriangleAlert size={13} aria-hidden />}
+                {platform ? <PlatformLogo platform={platform} size={14} /> : <TriangleAlert size={13} aria-hidden />}
                 {detected ? detected.label : 'نامعتبر'}
               </span>
             )}
@@ -183,18 +199,26 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
           <Plus size={18} aria-hidden className={saving ? 'tw-animate-spin' : undefined} />
           {saving ? 'در حال ثبت…' : 'افزودن'}
         </button>
+        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3 md:tw-col-span-3">
+          <Segmented
+            label="نقش گروه/کانال"
+            value={role}
+            onChange={setRole}
+            options={(Object.keys(roles) as ChannelRole[]).map((value) => ({ value, label: roles[value].label, icon: roles[value].icon }))}
+          />
+          <span className="tw-text-xs tw-text-brand-muted">{roles[role].hint}</span>
+        </div>
       </fieldset>
-      {error && (
-        <p role="alert" className="tw-mt-3 tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-text-red-700">
-          <TriangleAlert size={16} aria-hidden /> {error}
-        </p>
-      )}
       <div className="tw-mt-4 tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-1 tw-text-xs tw-text-brand-muted" dir="ltr">
         <span>chat.whatsapp.com/…</span>
         <span>whatsapp.com/channel/…</span>
         <span>t.me/username</span>
         <span>t.me/+invite</span>
         <span>@username</span>
+        <span>ble.ir/username</span>
+        <span>ble.ir/join/…</span>
+        <span>rubika.ir/username</span>
+        <span>rubika.ir/joing/…</span>
       </div>
     </form>
   );
@@ -202,7 +226,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
 
 function ChannelsContent() {
   const [channels, setChannels] = useState<Channel[] | null>(null);
-  const [error, setError] = useState('');
+  const [loadFailed, setLoadFailed] = useState(false);
   const [filter, setFilter] = useState<ChannelPlatform | 'all'>('all');
   const [removingId, setRemovingId] = useState('');
   const [version, setVersion] = useState(0);
@@ -220,15 +244,19 @@ function ChannelsContent() {
 
   useEffect(() => {
     let active = true;
-    setError('');
+    setLoadFailed(false);
     setChannels(null);
     listChannels()
       .then((rows) => active && setChannels(rows))
-      .catch((e) => active && setError(errorMessage(e)));
+      .catch((e) => {
+        if (!active) return;
+        setLoadFailed(true);
+        toast.error(errorMessage(e));
+      });
     return () => {
       active = false;
     };
-  }, [version]);
+  }, [version, toast]);
 
   async function remove(channel: Channel) {
     if (removingId || !window.confirm(`«${channel.label || channel.identifier}» از لیست شما حذف شود؟ دیگر باری از آن دریافت نمی‌کنید.`)) return;
@@ -249,7 +277,7 @@ function ChannelsContent() {
 
   return (
     <div className="tw-space-y-6">
-      <SectionTitle title="گروه‌ها و کانال‌ها" hint="لینک گروه یا کانال واتساپ و تلگرام را ثبت کنید تا بارهایش برای شما بیاید" />
+      <SectionTitle title="گروه‌ها و کانال‌ها" hint="لینک گروه یا کانال واتساپ، تلگرام، بله و روبیکا را ثبت کنید تا بارهایش برای شما بیاید" />
 
       <AddForm
         onAdded={(channel, message) => {
@@ -266,19 +294,17 @@ function ChannelsContent() {
           onChange={setFilter}
           options={[
             { value: 'all', label: `همه (${(channels?.length ?? 0).toLocaleString('fa-IR')})`, icon: Layers },
-            { value: 'whatsapp', label: `واتساپ (${count('whatsapp').toLocaleString('fa-IR')})`, icon: MessageCircle },
-            { value: 'telegram', label: `تلگرام (${count('telegram').toLocaleString('fa-IR')})`, icon: Send },
+            { value: 'whatsapp', label: `واتساپ (${count('whatsapp').toLocaleString('fa-IR')})`, icon: platforms.whatsapp.logo },
+            { value: 'telegram', label: `تلگرام (${count('telegram').toLocaleString('fa-IR')})`, icon: platforms.telegram.logo },
+            { value: 'bale', label: `بله (${count('bale').toLocaleString('fa-IR')})`, icon: platforms.bale.logo },
+            { value: 'rubika', label: `روبیکا (${count('rubika').toLocaleString('fa-IR')})`, icon: platforms.rubika.logo },
           ]}
         />
         <IconButton icon={RotateCcw} label="به‌روزرسانی" onClick={() => setVersion((v) => v + 1)} />
       </div>
 
-      {error ? (
-        <div role="alert" className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4 tw-text-sm tw-text-red-800">
-          <TriangleAlert size={20} aria-hidden />
-          <span className="tw-flex-1">{error}</span>
-          <IconButton icon={RotateCcw} label="تلاش مجدد" onClick={() => setVersion((v) => v + 1)} />
-        </div>
+      {loadFailed ? (
+        <LoadFailed onRetry={() => setVersion((v) => v + 1)} />
       ) : !channels ? (
         <div className="tw-space-y-3" role="status" aria-label="در حال دریافت لینک‌ها">
           <CardSkeleton />
@@ -303,7 +329,7 @@ export default function ChannelLinks() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="گروه‌ها و کانال‌ها | Setaş Transport" description="ثبت لینک گروه و کانال واتساپ و تلگرام">
+    <PageContainer title="گروه‌ها و کانال‌ها | Marand Trabar" description="ثبت لینک گروه و کانال واتساپ، تلگرام، بله و روبیکا">
       <CompanyShell>
         <ChannelsContent />
       </CompanyShell>

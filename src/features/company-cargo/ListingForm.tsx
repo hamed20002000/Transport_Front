@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import axios from 'axios';
-import { Banknote, Building2, Flag, MapPin, NotebookPen, Package, Phone, Plus, Send, TriangleAlert, Truck, Weight, X } from 'lucide-react';
+import { Banknote, Building2, Flag, MapPin, NotebookPen, Package, Phone, Plus, Send, Truck, Weight, X } from 'lucide-react';
+import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import { listingLimits, phonePattern, type CargoListing, type CargoListingInput } from './api';
 
@@ -103,7 +104,7 @@ export default function ListingForm({
   const [fields, setFields] = useState<Fields>(() => merge(empty, initial));
   const [phones, setPhones] = useState<string[]>(() => (initial?.contactPhones?.length ? initial.contactPhones.slice(0, listingLimits.phones) : ['']));
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const toast = useToast();
   // Set by the server (the channel cargo's code, or a new one for a manual cargo); shown, never sent.
   const [code, setCode] = useState(initial?.code ?? '');
   const pending = useRef(false);
@@ -132,13 +133,12 @@ export default function ListingForm({
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (pending.current) return;
-    setError('');
     const origin = fields.origin.trim();
     const destination = fields.destination.trim();
     const contactPhones = phones.map((p) => p.trim()).filter(Boolean);
-    if (!origin || !destination) return setError('مبدأ و مقصد را وارد کنید.');
-    if (!contactPhones.length) return setError('حداقل یک شماره تماس وارد کنید.');
-    if (contactPhones.some((p) => !phonePattern.test(p))) return setError('شماره تماس معتبر نیست؛ فقط رقم و + - ( ) بین ۵ تا ۲۰ کاراکتر.');
+    if (!origin || !destination) return toast.error('مبدأ و مقصد را وارد کنید.');
+    if (!contactPhones.length) return toast.error('حداقل یک شماره تماس وارد کنید.');
+    if (contactPhones.some((p) => !phonePattern.test(p))) return toast.error('شماره تماس معتبر نیست؛ فقط رقم و + - ( ) بین ۵ تا ۲۰ کاراکتر.');
 
     const optional = (value: string) => value.trim() || undefined;
     pending.current = true;
@@ -157,7 +157,7 @@ export default function ListingForm({
       });
       onDone(listing);
     } catch (e) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       pending.current = false;
       setSaving(false);
@@ -268,13 +268,6 @@ export default function ListingForm({
 
   const preview = <p className="tw-m-0 tw-whitespace-pre-wrap tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{previewText(fields, phones, code)}</p>;
 
-  const errorBox = error && (
-    <div role="alert" className="tw-flex tw-items-start tw-gap-2 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4 tw-text-sm tw-text-red-800">
-      <TriangleAlert size={18} aria-hidden className="tw-mt-0.5" />
-      {error}
-    </div>
-  );
-
   const submitButton = (
     <button
       type="submit"
@@ -300,7 +293,6 @@ export default function ListingForm({
           </details>
         </div>
         <div className="tw-space-y-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">
-          {errorBox}
           <div className="tw-flex tw-items-center tw-justify-end tw-gap-2">
             {onCancel && (
               <button
@@ -326,7 +318,6 @@ export default function ListingForm({
           <h2 className="tw-mb-3 tw-text-base tw-font-bold">پیش‌نمایش پیام راننده</h2>
           {preview}
         </section>
-        {errorBox}
         {submitButton}
       </aside>
     </form>

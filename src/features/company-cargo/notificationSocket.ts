@@ -38,7 +38,7 @@ export type ChannelMembershipStatus = 'queued' | 'pending' | 'joined' | 'failed'
 
 /** payload رویداد channel-status (ChannelMembershipNotifier در transport_backend). */
 export interface ChannelStatusEvent {
-  platform: 'whatsapp' | 'telegram';
+  platform: 'whatsapp' | 'telegram' | 'bale' | 'rubika';
   channelId: string;
   label: string | null;
   identifier: string | null;

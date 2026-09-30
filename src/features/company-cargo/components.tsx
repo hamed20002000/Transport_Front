@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Hash, MapPin, Phone, type LucideIcon as Icon } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Hash, MapPin, Phone, RotateCcw, type LucideIcon as Icon } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { toLatinDigits } from './api';
 
@@ -235,6 +235,16 @@ export function EmptyState({ icon, title, hint }: { icon: Icon; title: string; h
   );
 }
 
+// The failure reason is shown as a toast; this only keeps a way to retry.
+export function LoadFailed({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="tw-flex tw-items-center tw-justify-center tw-gap-3 tw-rounded-2xl tw-border tw-border-dashed tw-border-brand-line tw-bg-white tw-p-6 tw-text-sm tw-text-brand-muted">
+      اطلاعات دریافت نشد.
+      <IconButton icon={RotateCcw} label="تلاش مجدد" onClick={onRetry} />
+    </div>
+  );
+}
+
 export function Pager({ page, total, pageSize, onChange }: { page: number; total: number; pageSize: number; onChange: (page: number) => void }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
@@ -258,7 +268,8 @@ export function Segmented<T extends string>({
 }: {
   value: T;
   onChange: (value: T) => void;
-  options: Array<{ value: T; label: string; icon: Icon }>;
+  // icon is a lucide icon, or an image URL (e.g. a platform logo).
+  options: Array<{ value: T; label: string; icon: Icon | string }>;
   label: string;
 }) {
   return (
@@ -277,7 +288,11 @@ export function Segmented<T extends string>({
               active ? 'tw-bg-brand-orange-soft tw-font-bold tw-text-brand-orange-ink' : 'tw-bg-transparent tw-text-brand-muted hover:tw-text-brand-navy',
             )}
           >
-            <IconComponent size={15} aria-hidden />
+            {typeof IconComponent === 'string' ? (
+              <img src={IconComponent} alt="" aria-hidden width={15} height={15} className="tw-object-contain" />
+            ) : (
+              <IconComponent size={15} aria-hidden />
+            )}
             {optionLabel}
           </button>
         );

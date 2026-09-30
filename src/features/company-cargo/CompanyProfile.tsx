@@ -10,10 +10,8 @@ import {
   Mailbox,
   MapPinned,
   Phone,
-  RotateCcw,
   Save,
   Smartphone,
-  TriangleAlert,
   User,
   type LucideIcon,
 } from 'lucide-react';
@@ -34,7 +32,7 @@ import {
 } from './api';
 import CompanyShell from './CompanyShell';
 import { setCachedProfile } from './profileStore';
-import { CardSkeleton, IconButton, SectionTitle, Segmented } from './components';
+import { CardSkeleton, LoadFailed, SectionTitle, Segmented } from './components';
 
 type Fields = Record<ProfileTextField, string> & { profileType: ProfileType | null };
 
@@ -102,15 +100,14 @@ function ProfileContent() {
   const toast = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [fields, setFields] = useState<Fields | null>(null);
-  const [loadError, setLoadError] = useState('');
-  const [error, setError] = useState('');
+  const [loadFailed, setLoadFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [version, setVersion] = useState(0);
   const pending = useRef(false);
 
   useEffect(() => {
     let active = true;
-    setLoadError('');
+    setLoadFailed(false);
     getUserProfile()
       .then((result) => {
         if (!active) return;
@@ -118,20 +115,17 @@ function ProfileContent() {
         setFields(toFields(result));
         setCachedProfile(result);
       })
-      .catch((e) => active && setLoadError(errorMessage(e)));
+      .catch((e) => {
+        if (!active) return;
+        setLoadFailed(true);
+        toast.error(errorMessage(e));
+      });
     return () => {
       active = false;
     };
-  }, [version]);
+  }, [version, toast]);
 
-  if (loadError)
-    return (
-      <div role="alert" className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4 tw-text-sm tw-text-red-800">
-        <TriangleAlert size={20} aria-hidden />
-        <span className="tw-flex-1">{loadError}</span>
-        <IconButton icon={RotateCcw} label="تلاش مجدد" onClick={() => setVersion((v) => v + 1)} />
-      </div>
-    );
+  if (loadFailed) return <LoadFailed onRetry={() => setVersion((v) => v + 1)} />;
 
   if (!profile || !fields)
     return (
@@ -161,7 +155,6 @@ function ProfileContent() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (pending.current || !fields) return;
-    setError('');
 
     // Only changed fields are sent; a cleared field goes as null so the server removes it.
     const body: UserProfileInput = {};
@@ -170,7 +163,7 @@ function ProfileContent() {
       if (!changed(key)) continue;
       const value = toLatinDigits(fields[key].trim());
       const { pattern, message } = profileRules[key];
-      if (value && pattern && !pattern.test(value)) return setError(message ?? 'مقدار واردشده معتبر نیست.');
+      if (value && pattern && !pattern.test(value)) return toast.error(message ?? 'مقدار واردشده معتبر نیست.');
       body[key] = value || null;
     }
 
@@ -183,7 +176,7 @@ function ProfileContent() {
       setCachedProfile(updated); // header and home greeting pick up the new name
       toast.success('پروفایل ذخیره شد.');
     } catch (e) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       pending.current = false;
       setSaving(false);
@@ -275,12 +268,6 @@ function ProfileContent() {
             <ReadOnly icon={Smartphone} label="موبایل" value={profile.mobile} />
             <ReadOnly icon={AtSign} label="ایمیل" value={profile.email} />
           </section>
-          {error && (
-            <div role="alert" className="tw-flex tw-items-start tw-gap-2 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4 tw-text-sm tw-text-red-800">
-              <TriangleAlert size={18} aria-hidden className="tw-mt-0.5" />
-              {error}
-            </div>
-          )}
           <button
             type="submit"
             disabled={saving || !dirty}
@@ -292,10 +279,7 @@ function ProfileContent() {
           {dirty && !saving && (
             <button
               type="button"
-              onClick={() => {
-                setFields(saved);
-                setError('');
-              }}
+              onClick={() => setFields(saved)}
               className="tw-w-full tw-rounded-xl tw-bg-transparent tw-py-2 tw-text-sm tw-font-medium tw-text-brand-muted hover:tw-text-brand-navy"
             >
               لغو تغییرات

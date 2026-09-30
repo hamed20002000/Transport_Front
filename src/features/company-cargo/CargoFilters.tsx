@@ -8,11 +8,9 @@ import {
   MapPin,
   Package,
   Plus,
-  RotateCcw,
   Save,
   SlidersHorizontal,
   Trash2,
-  TriangleAlert,
   Truck,
   X,
   type LucideIcon,
@@ -33,7 +31,7 @@ import {
   toLatinDigits,
 } from './api';
 import CompanyShell from './CompanyShell';
-import { CardSkeleton, EmptyState, IconButton, SectionTitle } from './components';
+import { CardSkeleton, EmptyState, IconButton, LoadFailed, SectionTitle } from './components';
 
 type ListKey = 'origins' | 'destinations' | 'cargoTypes' | 'vehicleTypes';
 // Prices are kept as the typed digits so the inputs can be edited freely.
@@ -278,21 +276,25 @@ function FilterCard({
 function FiltersContent() {
   const toast = useToast();
   const [rows, setRows] = useState<Row[] | null>(null);
-  const [loadError, setLoadError] = useState('');
+  const [loadFailed, setLoadFailed] = useState(false);
   const [busyKey, setBusyKey] = useState('');
   const [version, setVersion] = useState(0);
   const newKey = useRef(0);
 
   useEffect(() => {
     let active = true;
-    setLoadError('');
+    setLoadFailed(false);
     listCargoFilters()
       .then((filters) => active && setRows(filters.map((filter) => ({ key: filter.id, saved: filter, draft: toDraft(filter) }))))
-      .catch((e) => active && setLoadError(errorMessage(e)));
+      .catch((e) => {
+        if (!active) return;
+        setLoadFailed(true);
+        toast.error(errorMessage(e));
+      });
     return () => {
       active = false;
     };
-  }, [version]);
+  }, [version, toast]);
 
   const replace = (key: string, next: Row | null) => setRows((current) => current && current.flatMap((row) => (row.key === key ? (next ? [next] : []) : [row])));
 
@@ -378,12 +380,8 @@ function FiltersContent() {
         </ul>
       </div>
 
-      {loadError ? (
-        <div role="alert" className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4 tw-text-sm tw-text-red-800">
-          <TriangleAlert size={20} aria-hidden />
-          <span className="tw-flex-1">{loadError}</span>
-          <IconButton icon={RotateCcw} label="تلاش مجدد" onClick={() => setVersion((v) => v + 1)} />
-        </div>
+      {loadFailed ? (
+        <LoadFailed onRetry={() => setVersion((v) => v + 1)} />
       ) : !rows ? (
         <div className="tw-space-y-4" role="status" aria-label="در حال دریافت فیلترها">
           <CardSkeleton />

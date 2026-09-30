@@ -1,13 +1,17 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 
-export type ChannelPlatform = 'whatsapp' | 'telegram';
+export type ChannelPlatform = 'whatsapp' | 'telegram' | 'bale' | 'rubika';
+
+// MonitoredChannelRole in tarabari_backend: source = cargo is read from it, destination = processed cargo is posted to it.
+export type ChannelRole = 'source' | 'destination' | 'both';
 
 export interface Channel {
   id: string;
   platform: ChannelPlatform;
   identifier: string | null;
   type: 'group' | 'channel' | null;
+  role: ChannelRole;
   label: string | null;
   isActive: boolean;
   isMember: boolean;
@@ -28,6 +32,10 @@ const config = () => ({
 export function detectPlatform(link: string): ChannelPlatform | null {
   const value = link.trim();
   if (/chat\.whatsapp\.com\/[A-Za-z0-9]+|whatsapp\.com\/channel\/[A-Za-z0-9]+/.test(value)) return 'whatsapp';
+  // Bale: ble.ir/username or ble.ir/join/<hash>.
+  if (/^(?:https?:\/\/)?(?:www\.)?ble\.ir\/(?:join\/[\w-]+|[A-Za-z][A-Za-z0-9_]{3,})/i.test(value)) return 'bale';
+  // Rubika: rubika.ir/username, rubika.ir/joing/<hash> (group) or rubika.ir/joinc/<hash> (channel).
+  if (/^(?:https?:\/\/)?(?:www\.)?rubika\.ir\/(?:join[gc]\/[\w-]+|[A-Za-z][A-Za-z0-9_]{3,})/i.test(value)) return 'rubika';
   const telegramHost = /^(?:https?:\/\/)?(?:www\.)?(?:t\.me|telegram\.me|telegram\.dog)\//i;
   if (
     new RegExp(`${telegramHost.source}(?:\\+|joinchat\\/)[\\w-]+`, 'i').test(value) ||
@@ -45,10 +53,10 @@ export async function listChannels() {
   return data;
 }
 
-export async function registerChannel(link: string, label?: string) {
+export async function registerChannel(link: string, label?: string, role: ChannelRole = 'source') {
   const { data } = await axios.post<{ created: boolean; channel: Channel; warning: string | null }>(
     url,
-    { link, label },
+    { link, label, role },
     config(),
   );
   if (!data?.channel) throw new Error('ثبت لینک انجام نشد.');
