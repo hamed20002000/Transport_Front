@@ -234,6 +234,8 @@ export interface CargoFilter {
   destinations: string[];
   cargoTypes: string[];
   vehicleTypes: string[];
+  // Publishing company names; only drivers set this (channel cargo has no company).
+  companies: string[];
   // Fare range in toman; null means no bound. Cargo whose fare cannot be read does not match a range.
   minPrice: number | null;
   maxPrice: number | null;
@@ -242,7 +244,7 @@ export interface CargoFilter {
   updatedAt: string;
 }
 
-export type CargoFilterInput = Partial<Pick<CargoFilter, 'origins' | 'destinations' | 'cargoTypes' | 'vehicleTypes' | 'minPrice' | 'maxPrice' | 'isActive'>> & {
+export type CargoFilterInput = Partial<Pick<CargoFilter, 'origins' | 'destinations' | 'cargoTypes' | 'vehicleTypes' | 'companies' | 'minPrice' | 'maxPrice' | 'isActive'>> & {
   label?: string | null;
 };
 

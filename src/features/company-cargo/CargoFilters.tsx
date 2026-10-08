@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   Banknote,
+  Building2,
   Flag,
   Info,
   MapPin,
@@ -33,7 +34,8 @@ import {
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, IconButton, LoadFailed, SectionTitle } from './components';
 
-type ListKey = 'origins' | 'destinations' | 'cargoTypes' | 'vehicleTypes';
+type ListKey = 'origins' | 'destinations' | 'cargoTypes' | 'vehicleTypes' | 'companies';
+export type FilterAudience = 'company' | 'driver';
 // Prices are kept as the typed digits so the inputs can be edited freely.
 type Draft = { label: string; isActive: boolean; minPrice: string; maxPrice: string } & Record<ListKey, string[]>;
 // A filter on screen: `saved` is null until the new filter is created on the server.
@@ -44,7 +46,11 @@ const lists: Array<{ key: ListKey; label: string; icon: LucideIcon; placeholder:
   { key: 'destinations', label: 'مقصد', icon: Flag, placeholder: 'مثلاً مشهد' },
   { key: 'cargoTypes', label: 'نوع بار', icon: Package, placeholder: 'مثلاً آهن‌آلات' },
   { key: 'vehicleTypes', label: 'نوع خودرو', icon: Truck, placeholder: 'مثلاً تریلی' },
+  // Only cargo published by a company carries its name, so this list is offered to drivers alone.
+  { key: 'companies', label: 'شرکت اعلام‌کننده', icon: Building2, placeholder: 'مثلاً باربری ستاره' },
 ];
+
+const listsFor = (audience: FilterAudience) => lists.filter(({ key }) => key !== 'companies' || audience === 'driver');
 
 const toDraft = (filter: CargoFilter | null): Draft => ({
   label: filter?.label ?? '',
@@ -53,6 +59,7 @@ const toDraft = (filter: CargoFilter | null): Draft => ({
   destinations: filter?.destinations ?? [],
   cargoTypes: filter?.cargoTypes ?? [],
   vehicleTypes: filter?.vehicleTypes ?? [],
+  companies: filter?.companies ?? [],
   minPrice: filter?.minPrice == null ? '' : String(filter.minPrice),
   maxPrice: filter?.maxPrice == null ? '' : String(filter.maxPrice),
 });
@@ -193,6 +200,7 @@ function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onCh
 }
 
 function FilterCard({
+  audience,
   row,
   busy,
   onDraft,
@@ -200,6 +208,7 @@ function FilterCard({
   onToggle,
   onRemove,
 }: {
+  audience: FilterAudience;
   row: Row;
   busy: boolean;
   onDraft: (draft: Draft) => void;
@@ -227,7 +236,7 @@ function FilterCard({
         <Toggle label="فعال بودن فیلتر" checked={draft.isActive} disabled={busy} onChange={(value) => (saved ? onToggle(value) : set({ isActive: value }))} />
       </div>
       <fieldset disabled={busy} className="tw-m-0 tw-grid tw-min-w-0 tw-gap-4 tw-border-0 tw-p-5 sm:tw-grid-cols-2">
-        {lists.map(({ key, label, icon, placeholder }) => (
+        {listsFor(audience).map(({ key, label, icon, placeholder }) => (
           <TagInput key={key} label={label} icon={icon} placeholder={placeholder} values={draft[key]} onChange={(values) => set({ [key]: values })} />
         ))}
         <div className="tw-space-y-1.5 sm:tw-col-span-2">
@@ -273,7 +282,7 @@ function FilterCard({
   );
 }
 
-function FiltersContent() {
+export function FiltersContent({ audience = 'company' }: { audience?: FilterAudience }) {
   const toast = useToast();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -346,7 +355,7 @@ function FiltersContent() {
     <div className="tw-space-y-6">
       <SectionTitle
         title="تنظیمات نمایش بار"
-        hint="مشخص کنید کدام بارهای کانال‌ها برای شما نمایش داده و اعلان شوند"
+        hint={audience === 'driver' ? 'مشخص کنید کدام بارهای اعلام‌شده برای شما نمایش داده و اعلان شوند' : 'مشخص کنید کدام بارهای کانال‌ها برای شما نمایش داده و اعلان شوند'}
         side={
           rows && (
             <button
@@ -370,7 +379,7 @@ function FiltersContent() {
               </>
             ) : (
               <>
-                <strong>فیلتر فعالی ندارید</strong>؛ همه بارهای کانال‌های شما نمایش داده می‌شود.
+                <strong>فیلتر فعالی ندارید</strong>؛ {audience === 'driver' ? 'همه بارهای اعلام‌شده' : 'همه بارهای کانال‌های شما'} نمایش داده می‌شود.
               </>
             )}
           </li>
@@ -394,6 +403,7 @@ function FiltersContent() {
           {rows.map((row) => (
             <FilterCard
               key={row.key}
+              audience={audience}
               row={row}
               busy={busyKey === row.key}
               onDraft={(draft) => replace(row.key, { ...row, draft })}

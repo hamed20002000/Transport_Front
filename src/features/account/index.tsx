@@ -4,6 +4,7 @@ import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { CompanyShell, displayName, useProfile } from 'src/features/company-cargo';
+import { DriverHome } from 'src/features/driver-panel';
 
 const accounts = {
   COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2 },
@@ -70,6 +71,8 @@ function AccountHome({ type }: { type: keyof typeof accounts }) {
     const ownHome = userRoles.map((role) => accountHome(role.name)).find(Boolean);
     return <Navigate to={ownHome || '/dashboards/dashboard'} replace />;
   }
+  // The driver panel brings its own frame and page title.
+  if (type === 'DRIVER') return <DriverHome />;
   const { title, icon: Icon } = accounts[type];
   return (
     <PageContainer title={`پنل ${title} | Setaş Transport`} description={`صفحه اصلی حساب ${title}`}>

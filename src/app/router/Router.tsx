@@ -21,6 +21,7 @@ import { accountRoutes } from 'src/features/account';
 import { subscriptionPlanRoutes } from 'src/features/subscription-plans';
 import { landingRoutes } from 'src/features/landing';
 import { companyCargoRoutes } from 'src/features/company-cargo';
+import { driverPanelRoutes } from 'src/features/driver-panel';
 
 const FullLayout = Loadable(lazy(() => import('src/app/layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('src/app/layouts/blank/BlankLayout')));
@@ -57,6 +58,7 @@ const Router: RouteObject[] = [
       ...authRoutes,
       ...accountRoutes,
       ...companyCargoRoutes,
+      ...driverPanelRoutes,
       ...landingRoutes,
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
