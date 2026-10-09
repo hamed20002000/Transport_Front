@@ -16,6 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -103,6 +104,8 @@ function ProfileContent() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [version, setVersion] = useState(0);
+  // پروفایلی که با agent ویرایش شد همین‌جا دیده شود
+  useDomainRefresh('company_profile', () => setVersion((v) => v + 1), 'account');
   const pending = useRef(false);
 
   useEffect(() => {

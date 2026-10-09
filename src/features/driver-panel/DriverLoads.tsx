@@ -140,11 +140,24 @@ export function patchPage(setData: (fn: (current: Page<OpenLoad> | null) => Page
     setData((current) => current && { ...current, items: current.items.map((item) => (item.id === id ? { ...item, ...patch } : item)) });
 }
 
-// Keeps load cards in step with the company: «برداشته شد» arrives over the socket.
-export function useLoadStatusEvents(update: (id: string, patch: Partial<OpenLoad>) => void) {
-  useNotificationEvent<{ listingId: string; status: 'OPEN' | 'TAKEN'; takenAt: string | null }>('cargo-status', (event) =>
-    update(event.listingId, { status: event.status, takenAt: event.takenAt }),
-  );
+export interface ListingChangedEvent {
+  listingId: string;
+  status: 'OPEN' | 'TAKEN';
+  takenAt: string | null;
+}
+
+// Keeps load cards in step with the company. The event goes to every driver, not only the ones the
+// listing was announced to, so a load that missed this driver's filters (or that they published
+// themselves) still shows up or flips to «برداشته شد». `onOpened` gets loads that are not on screen yet.
+export function useLoadStatusEvents(
+  update: (id: string, patch: Partial<OpenLoad>) => void,
+  items: OpenLoad[] | undefined,
+  onOpened: () => void,
+) {
+  useNotificationEvent<ListingChangedEvent>('cargo-listing-changed', (event) => {
+    if (items?.some((item) => item.id === event.listingId)) update(event.listingId, { status: event.status, takenAt: event.takenAt });
+    else if (event.status === 'OPEN') onOpened();
+  });
 }
 
 const inputClass =
@@ -162,7 +175,7 @@ function LoadsContent() {
   const state = useAsync(() => listLoads({ page, origin, destination, matchFilters: scope === 'mine' }), [page, origin, destination, scope]);
   const update = patchPage(state.setData);
   const actions = useLoadActions(update);
-  useLoadStatusEvents(update);
+  useLoadStatusEvents(update, state.data?.items, () => page === 1 && state.reload());
 
   useEffect(() => setDraft({ origin, destination }), [origin, destination]);
 
@@ -177,7 +190,7 @@ function LoadsContent() {
     if (event.kind !== 'listing') return;
     toast.info('بار تازه‌ای اعلام شد.');
     if (event.listing?.id) setFreshIds((ids) => new Set(ids).add(event.listing!.id));
-    if (page === 1) state.reload();
+    // the list itself reloads on cargo-listing-changed
     markAllLoadsRead()
       .then(reloadUnread)
       .catch(() => undefined);

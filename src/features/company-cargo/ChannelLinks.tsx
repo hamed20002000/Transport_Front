@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -230,6 +231,8 @@ function ChannelsContent() {
   const [filter, setFilter] = useState<ChannelPlatform | 'all'>('all');
   const [removingId, setRemovingId] = useState('');
   const [version, setVersion] = useState(0);
+  // کانالی که با agent اضافه/حذف شد همین‌جا دیده شود
+  useDomainRefresh('company_channels', () => setVersion((v) => v + 1), 'account');
   const toast = useToast();
 
   // عضویت تأیید/رد شد یا ربات حذف شد -- پیام همان لحظه نشان داده و لیست دوباره گرفته می‌شود.

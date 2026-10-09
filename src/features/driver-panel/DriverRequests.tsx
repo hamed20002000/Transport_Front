@@ -6,7 +6,7 @@ import { CardSkeleton, EmptyState, IconButton, LoadFailed, Pager, PhoneLinks, ti
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { cancelRequest, errorMessage, listMyRequests, type CargoRequest } from './api';
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
-import { LoadSpecs } from './DriverLoads';
+import { LoadSpecs, type ListingChangedEvent } from './DriverLoads';
 import DriverShell from './DriverShell';
 
 // What happened last, in the card footer: «فرستاده شد ۲ ساعت پیش» / «قبول شد …».
@@ -71,7 +71,9 @@ function RequestsContent() {
   const state = useAsync(() => listMyRequests(page), [page]);
 
   // The company's answer reaches the bots; a status change on a listing is the web signal, so refresh.
-  useNotificationEvent('cargo-status', () => state.reload());
+  useNotificationEvent<ListingChangedEvent>('cargo-listing-changed', (event) => {
+    if (state.data?.items.some((request) => request.listing?.id === event.listingId)) state.reload();
+  });
 
   async function cancel(request: CargoRequest) {
     if (!window.confirm('درخواست این بار لغو شود؟')) return;

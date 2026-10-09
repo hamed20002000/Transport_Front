@@ -1,48 +1,64 @@
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+import endpoints from "src/core/config/endpoints.json";
 import { decodeJwtToken } from "src/features/ai-agent/helpers/token";
 
-// یک اتصال مشترک برای کل برنامه -- به‌جای اینکه هر صفحه یک اتصال جدا
+// هر backend یک اتصال مشترک برای کل برنامه -- به‌جای اینکه هر صفحه یک اتصال جدا
 // بسازه (که برای ۵۰ صفحه یعنی ۵۰ تا کانکشن جدا، اتلاف منابع)، همه‌ی
 // صفحات از همین یک نمونه استفاده می‌کنن
-let sharedSocket: Socket | null = null;
+//  - admin: صفحه‌های پنل مدیریت (همان socketurl پنل agent ادمین)
+//  - account: پنل شرکت/راننده (transport_backend، همان سرور baseurl). AgentGateway کاربر را
+//    فقط از روی JWT می‌شناسد و بدون token اتصال را می‌بندد.
+export type DomainRefreshBackend = "admin" | "account";
 
-function getSharedSocket(): Socket {
-     const authToken = localStorage.getItem('authToken');
-        const decoded = authToken ? decodeJwtToken(authToken) : null;
-        const userId = decoded?.userid;
-    if (!sharedSocket) {
-        sharedSocket = io("http://localhost:3001/agent", {
+const sockets: Partial<Record<DomainRefreshBackend, Socket>> = {};
+
+function getSharedSocket(backend: DomainRefreshBackend): Socket {
+    const existing = sockets[backend];
+    if (existing) return existing;
+
+    const socket = backend === "account"
+        ? io(`${new URL(endpoints.baseurl).origin}/agent`, {
             path: "/socket.io",
             transports: ["websocket", "polling"],
-              query: {
-                userId: userId
+            // هر بار اتصال (یا اتصال دوباره) token فعلی خوانده می‌شود.
+            auth: (cb) => cb({ token: localStorage.getItem("authToken") ?? "" }),
+        })
+        : io(`${endpoints.socketurl}/agent`, {
+            path: "/socket.io",
+            transports: ["websocket", "polling"],
+            query: {
+                userId: decodeJwtToken(localStorage.getItem("authToken") ?? "")?.userid
             }
         });
-    }
-    return sharedSocket;
+    sockets[backend] = socket;
+    return socket;
 }
 
 /**
- * هر صفحه‌ی لیست (از ۵۰+ صفحه‌ای که داری) فقط با یک خط از این hook
- * استفاده می‌کنه -- مثال:
+ * هر صفحه‌ی لیست فقط با یک خط از این hook استفاده می‌کنه -- مثال:
  *
  *   useDomainRefresh("tenders", fetchTendersList);
+ *   useDomainRefresh(["company_my_cargo", "company_create_cargo"], reload, "account");
  *
  * دیگه نیازی نیست هر صفحه خودش کد اتصال/subscribe/cleanup رو تکرار کنه.
  */
-export function useDomainRefresh(domain: string, onRefresh: () => void) {
+export function useDomainRefresh(domain: string | string[], onRefresh: () => void, backend: DomainRefreshBackend = "admin") {
     const onRefreshRef = useRef(onRefresh);
     onRefreshRef.current = onRefresh;
+    const key = Array.isArray(domain) ? domain.join("|") : domain;
 
     useEffect(() => {
-        const socket = getSharedSocket();
+        const domains = key.split("|");
+        const socket = getSharedSocket(backend);
 
         const subscribe = () => {
-            socket.emit("subscribe-domain", { domain });
+            domains.forEach((name) => socket.emit("subscribe-domain", { domain: name }));
         };
 
-        const handleDomainChanged = () => {
+        // اتصال مشترک است، پس رویداد domain صفحه‌های دیگر هم به این handler می‌رسد.
+        const handleDomainChanged = (data?: { domain?: string }) => {
+            if (data?.domain && !domains.includes(data.domain)) return;
             onRefreshRef.current();
         };
 
@@ -52,15 +68,12 @@ export function useDomainRefresh(domain: string, onRefresh: () => void) {
             subscribe();
         }
         socket.on("connect", subscribe);
-        // نکته: چون Socket.io خودش پیام رو فقط به اعضای همون room
-        // می‌فرسته (که سمت سرور مدیریت می‌شه)، حتی با یک اتصال مشترک،
-        // این handler فقط برای domain هایی که این صفحه‌ی خاص عضوشه فایر می‌شه
         socket.on("domain-changed", handleDomainChanged);
 
         return () => {
-            socket.emit("unsubscribe-domain", { domain });
+            domains.forEach((name) => socket.emit("unsubscribe-domain", { domain: name }));
             socket.off("connect", subscribe);
             socket.off("domain-changed", handleDomainChanged);
         };
-    }, [domain]);
+    }, [key, backend]);
 }

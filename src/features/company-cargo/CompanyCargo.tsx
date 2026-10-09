@@ -27,6 +27,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -540,6 +541,16 @@ function CargoContent() {
       .catch(() => setSummary(null));
   }, []);
   useEffect(loadSummary, [loadSummary]);
+
+  // ثبت/انتشار بار، «برداشته شد» یا خواندن پیشنهادها با agent: لیست‌ها و آمار همین‌جا بروز شوند
+  useDomainRefresh(
+    ['company_my_cargo', 'company_create_cargo', 'company_suggested_cargo'],
+    () => {
+      loadSummary();
+      setRefreshKey((v) => v + 1);
+    },
+    'account',
+  );
 
   function refresh() {
     setRefreshing(true);

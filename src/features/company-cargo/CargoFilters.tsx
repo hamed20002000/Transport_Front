@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -288,6 +289,8 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
   const [loadFailed, setLoadFailed] = useState(false);
   const [busyKey, setBusyKey] = useState('');
   const [version, setVersion] = useState(0);
+  // فیلتری که با agent ساخته/عوض شد همین‌جا دیده شود
+  useDomainRefresh('company_cargo_display_filters', () => setVersion((v) => v + 1), 'account');
   const newKey = useRef(0);
 
   useEffect(() => {

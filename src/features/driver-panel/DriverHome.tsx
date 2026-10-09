@@ -53,7 +53,7 @@ function HomeContent() {
   const latest = useAsync(() => listLoads({ page: 1, pageSize: 4, matchFilters: true }), []);
   const update = patchPage(latest.setData);
   const actions = useLoadActions(update);
-  useLoadStatusEvents(update);
+  useLoadStatusEvents(update, latest.data?.items, latest.reload);
 
   const activeTrips = trips.data ?? [];
   const today = new Date().toLocaleDateString('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' });
