@@ -5,11 +5,14 @@ import type { CargoListing, Page } from 'src/features/company-cargo/api';
 export type { CargoListing, Page };
 
 // CargoRequestStatus in transport_backend; ACCEPTED is the driver's active trip.
-export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED' | 'DELIVERED';
+// OFFERED: the company handed the load to this driver and waits for the driver to confirm (until offerExpiresAt).
+export type RequestStatus = 'PENDING' | 'OFFERED' | 'ACCEPTED' | 'REJECTED' | 'DECLINED' | 'EXPIRED' | 'CANCELLED' | 'DELIVERED';
 
 export interface OpenLoad extends CargoListing {
   // This driver's own request for the load, if any.
-  myRequest: { id: string; status: RequestStatus } | null;
+  myRequest: { id: string; status: RequestStatus; offerExpiresAt?: string | null } | null;
+  // Handed to another driver who has not answered yet: no new requests meanwhile.
+  reserved?: boolean;
 }
 
 export interface CargoRequest {
@@ -18,6 +21,7 @@ export interface CargoRequest {
   createdAt: string;
   decidedAt: string | null;
   deliveredAt: string | null;
+  offerExpiresAt?: string | null;
   listing: CargoListing | null;
 }
 
@@ -113,6 +117,12 @@ export function getRouteFuel(id: string, route: number) {
   return unwrap<RouteFuel>(axios.get(url(`loads/${id}/fuel`), { ...config({ route }), timeout: 60000 }));
 }
 
+// The same stations read out (mp3) for a driver behind the wheel.
+export async function getRouteFuelVoice(id: string, route: number): Promise<Blob> {
+  const { data } = await axios.get<Blob>(url(`loads/${id}/fuel/voice`), { ...config({ route }), responseType: 'blob', timeout: 60000 });
+  return data;
+}
+
 export function listReturnLoads(id: string, page = 1) {
   return unwrap<Page<CargoListing & { toOrigin: boolean }>>(axios.get(url(`loads/${id}/return-loads`), config({ page, pageSize: 5 })));
 }
@@ -123,6 +133,11 @@ export function listMyRequests(page: number, pageSize = 20) {
 
 export function requestLoad(listingId: string) {
   return unwrap<CargoRequest>(axios.post(url('requests'), { listingId }, config()));
+}
+
+// Answer to a load the company handed to this driver: accept starts the trip, otherwise the company picks someone else.
+export function respondOffer(id: string, accept: boolean) {
+  return unwrap<CargoRequest>(axios.patch(url(`requests/${id}/offer`), { accept }, config()));
 }
 
 export function cancelRequest(id: string) {
@@ -169,6 +184,9 @@ const conflicts: Record<string, string> = {
   rejected: 'شرکت قبلاً درخواست شما برای این بار را رد کرده است.',
   notPending: 'این درخواست دیگر در انتظار نیست.',
   notActive: 'این سفر دیگر فعال نیست.',
+  reserved: 'این بار فعلاً به راننده‌ی دیگری سپرده شده و منتظر تأیید اوست.',
+  notOffered: 'این بار دیگر منتظر تأیید شما نیست.',
+  offerExpired: 'مهلت تأیید این بار تمام شده است.',
 };
 
 export function errorMessage(error: unknown) {
@@ -205,10 +223,10 @@ export interface DriverProfile {
   capacityTons: number | null;
   fleetCardNumber: string | null;
   // Stored file name when a photo exists; it changes on every upload, so it doubles as a cache key.
-  photos: { vehicle: string | null; plate: string | null };
+  photos: { face: string | null; vehicle: string | null; plate: string | null };
 }
 
-export type DriverPhotoKind = 'vehicle' | 'plate';
+export type DriverPhotoKind = 'face' | 'vehicle' | 'plate';
 export type DriverProfileInput = Partial<Omit<DriverProfile, 'username' | 'mobile' | 'photos'>>;
 
 export function getDriverProfile() {

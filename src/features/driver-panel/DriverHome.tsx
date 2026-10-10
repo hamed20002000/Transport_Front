@@ -17,6 +17,7 @@ import { displayName, useProfile } from 'src/features/company-cargo/profileStore
 import { listActiveTrips, listLoads, listMyRequests, unreadLoadCount, type CargoRequest } from './api';
 import { Hero, useAsync } from './components';
 import { LoadCard, patchPage, useLoadActions, useLoadStatusEvents } from './DriverLoads';
+import { useLoadsChangedEvent } from './loadEvents';
 import DriverShell from './DriverShell';
 import { TripCard } from './DriverTrip';
 import LocationCard from './LocationCard';
@@ -52,6 +53,7 @@ function HomeContent() {
   const trips = useAsync(listActiveTrips, []);
   const latest = useAsync(() => listLoads({ page: 1, pageSize: 4, matchFilters: true }), []);
   const update = patchPage(latest.setData);
+  useLoadsChangedEvent(latest.reload);
   const actions = useLoadActions(update);
   useLoadStatusEvents(update, latest.data?.items, latest.reload);
 
@@ -148,6 +150,7 @@ function HomeContent() {
                 requesting={actions.requestingId === load.id}
                 onDetails={() => actions.openDetails(load)}
                 onRequest={() => actions.request(load)}
+                onAnswered={(request) => update(load.id, { myRequest: { id: request.id, status: request.status } })}
               />
             ))}
           </ul>

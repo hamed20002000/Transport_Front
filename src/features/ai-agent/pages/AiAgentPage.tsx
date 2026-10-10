@@ -17,6 +17,10 @@ import { agentApi, type AgentBackend } from "src/features/ai-agent/services/agen
 import { useSpeechToText } from "src/features/ai-agent/hooks/useSpeechToText";
 import { io, Socket } from "socket.io-client";
 import resultViewLink from 'src/features/ai-agent/localfiles/resultViewLink.json'
+import AgentCargoList from 'src/features/ai-agent/components/AgentCargoList';
+import AgentChannelList from 'src/features/ai-agent/components/AgentChannelList';
+import AgentDriverLoadList from 'src/features/ai-agent/components/AgentDriverLoadList';
+import { hasAgentCards, isChannel, isDriverLoad } from 'src/features/ai-agent/helpers/agentCards';
 import TenderChoice from "src/features/ai-agent/components/tenderChoice";
 import HistoryItem from "src/features/ai-agent/components/historyItem";
 import DeleteConfirm from "src/features/ai-agent/components/deleteConfirm";
@@ -578,6 +582,9 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         return history.map((item, index) => {
             const isSuccess = item.result === "success";
             const isClickable = isSuccess && !!currentSessionId;
+            // With cards the full text list is redundant: only its first line (e.g. «۳ بار از بجنورد:») stays.
+            const cards = hasAgentCards(item.list) ? item.list : null;
+            const message = cards ? item.message?.split("\n")[0] : item.message;
 
             return (
                 <div
@@ -611,7 +618,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                             <div className="operation-arrow"><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
                             <div style={{ display: "flex", gap: "8px", minWidth: "0" }}>
                                 <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "block", minWidth: "0" }}>
-                                    {item.message}
+                                    {message}
                                 </strong>
                                 {item.toolName && (
                                     <a
@@ -636,6 +643,11 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                     {item.continuePrompt && (
                         <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
                     )}
+                    {cards && (cards.some(isChannel)
+                        ? <AgentChannelList items={cards.filter(isChannel)} />
+                        : cards.some(isDriverLoad)
+                            ? <AgentDriverLoadList items={cards.filter(isDriverLoad)} />
+                            : <AgentCargoList items={cards} />)}
                     {
                         specialPrompt && index == 0 && handleSpecialPrompt()
                     }
@@ -876,9 +888,10 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
 
                 {isMinimized ? (
                     <div className="agent-page minimized-view">
-                        {
-                            generatePreviousItems(history[0] ? [history[0]] : [])
-                        }
+                        {/* The last answer can be a long card list; it scrolls and the composer stays in view. */}
+                        <div className="minimized-result">
+                            {generatePreviousItems(history[0] ? [history[0]] : [])}
+                        </div>
                         <div className="composer-container">
                             <div className="file-container">
                                 {selectedFile.map((item, index) =>
@@ -1293,25 +1306,26 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                             </div>
                         </main>
 
-                        <Dialog
-                            open={confirmDialogOpen}
-                            onClose={() => handleConfirmAction(false)}
-                            aria-labelledby="confirm-delete-dialog-title"
-                            PaperProps={{
-                                className: "confirm-dialog-paper",
-                                sx: {
-                                    minWidth: "30vw",
-                                    minHeight: "15vh"
-                                }
-                            }}
-                        >
-                            {
-                                ConfirmRequiredContent(pendingConfirmation)
-                            }
-                        </Dialog>
                     </div>
                 )}
             </div>
+            {/* Outside the minimized/full branches: a tool can ask (confirm, pick one) in either mode. */}
+            <Dialog
+                open={confirmDialogOpen}
+                onClose={() => handleConfirmAction(false)}
+                aria-labelledby="confirm-delete-dialog-title"
+                PaperProps={{
+                    className: "confirm-dialog-paper",
+                    sx: {
+                        minWidth: "30vw",
+                        minHeight: "15vh"
+                    }
+                }}
+            >
+                {
+                    ConfirmRequiredContent(pendingConfirmation)
+                }
+            </Dialog>
         </div>
     );
 }

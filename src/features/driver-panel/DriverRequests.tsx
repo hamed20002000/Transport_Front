@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClipboardList, Navigation, RefreshCw, Undo2 } from 'lucide-react';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { CardSkeleton, EmptyState, IconButton, LoadFailed, Pager, PhoneLinks, timeAgo } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
@@ -8,6 +9,8 @@ import { cancelRequest, errorMessage, listMyRequests, type CargoRequest } from '
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
 import { LoadSpecs, type ListingChangedEvent } from './DriverLoads';
 import DriverShell from './DriverShell';
+import { useLoadsChangedEvent } from './loadEvents';
+import OfferAnswer from './OfferAnswer';
 
 // What happened last, in the card footer: «فرستاده شد ۲ ساعت پیش» / «قبول شد …».
 function lastEvent(request: CargoRequest) {
@@ -17,13 +20,23 @@ function lastEvent(request: CargoRequest) {
   return `درخواست ${timeAgo(request.createdAt)}`;
 }
 
-function RequestCard({ request, busy, onCancel }: { request: CargoRequest; busy: boolean; onCancel: () => void }) {
+function RequestCard({
+  request,
+  busy,
+  onCancel,
+  onAnswered,
+}: {
+  request: CargoRequest;
+  busy: boolean;
+  onCancel: () => void;
+  onAnswered: (request: CargoRequest) => void;
+}) {
   const listing = request.listing;
   if (!listing) return null;
-  const ended = request.status === 'REJECTED' || request.status === 'CANCELLED';
+  const ended = ['REJECTED', 'CANCELLED', 'DECLINED', 'EXPIRED'].includes(request.status);
   return (
     <LoadFrame
-      tone={request.status === 'ACCEPTED' ? 'green' : request.status === 'PENDING' ? 'orange' : 'sky'}
+      tone={request.status === 'ACCEPTED' ? 'green' : request.status === 'PENDING' || request.status === 'OFFERED' ? 'orange' : 'sky'}
       head={
         <>
           <LoadHead code={listing.code} at={listing.createdAt} company={listing.companyName} />
@@ -33,6 +46,7 @@ function RequestCard({ request, busy, onCancel }: { request: CargoRequest; busy:
       footer={
         <>
           <span className="tw-text-xs tw-text-brand-muted">{lastEvent(request)}</span>
+          {request.status === 'OFFERED' && <OfferAnswer requestId={request.id} expiresAt={request.offerExpiresAt} onAnswered={onAnswered} />}
           {request.status === 'PENDING' && (
             <ActionButton variant="danger" onClick={onCancel} busy={busy}>
               <Undo2 size={16} aria-hidden /> لغو درخواست
@@ -69,6 +83,9 @@ function RequestsContent() {
   const [page, setPage] = useState(1);
   const [busyId, setBusyId] = useState('');
   const state = useAsync(() => listMyRequests(page), [page]);
+  // درخواستی که با agent یا از کارت‌های چت فرستاده شد
+  useDomainRefresh('driver_loads', state.reload, 'account');
+  useLoadsChangedEvent(state.reload);
 
   // The company's answer reaches the bots; a status change on a listing is the web signal, so refresh.
   useNotificationEvent<ListingChangedEvent>('cargo-listing-changed', (event) => {
@@ -128,7 +145,15 @@ function RequestsContent() {
         <>
           <ul className="tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
             {state.data.items.map((request) => (
-              <RequestCard key={request.id} request={request} busy={busyId === request.id} onCancel={() => cancel(request)} />
+              <RequestCard
+                key={request.id}
+                request={request}
+                busy={busyId === request.id}
+                onCancel={() => cancel(request)}
+                onAnswered={(updated) =>
+                  state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === updated.id ? { ...row, ...updated } : row)) })
+                }
+              />
             ))}
           </ul>
           <Pager page={state.data.page} total={state.data.total} pageSize={state.data.pageSize} onChange={setPage} />

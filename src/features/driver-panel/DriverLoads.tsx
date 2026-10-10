@@ -6,6 +6,7 @@ import {
   CircleCheck,
   Filter,
   Hand,
+  Hourglass,
   Layers,
   Map as MapIcon,
   MapPin,
@@ -19,6 +20,7 @@ import {
   Weight,
   X,
 } from 'lucide-react';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import {
@@ -34,10 +36,12 @@ import {
   Spec,
 } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
-import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type OpenLoad, type Page } from './api';
+import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type CargoRequest, type OpenLoad, type Page } from './api';
+import OfferAnswer from './OfferAnswer';
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
+import { useLoadsChangedEvent } from './loadEvents';
 
 export function LoadSpecs({ load, muted }: { load: Pick<OpenLoad, 'cargoType' | 'weight' | 'vehicleType' | 'price'>; muted?: boolean }) {
   return (
@@ -57,16 +61,19 @@ export function LoadCard({
   requesting,
   onDetails,
   onRequest,
+  onAnswered,
 }: {
   load: OpenLoad;
   fresh?: boolean;
   requesting: boolean;
   onDetails: () => void;
   onRequest: () => void;
+  // The company handed this load to the driver and the driver answered (OfferAnswer).
+  onAnswered?: (request: CargoRequest) => void;
 }) {
   const taken = load.status === 'TAKEN';
   const status = load.myRequest?.status;
-  const canRequest = !taken && (!status || status === 'CANCELLED');
+  const canRequest = !taken && !load.reserved && (!status || status === 'CANCELLED' || status === 'DECLINED' || status === 'EXPIRED');
   return (
     <LoadFrame
       tone={status === 'ACCEPTED' ? 'green' : fresh ? 'orange' : 'sky'}
@@ -76,6 +83,10 @@ export function LoadCard({
           {taken ? (
             <Badge tone="muted">
               <CircleCheck size={12} aria-hidden /> برداشته شد
+            </Badge>
+          ) : load.reserved ? (
+            <Badge tone="muted">
+              <Hourglass size={12} aria-hidden /> رزرو شده
             </Badge>
           ) : (
             fresh && <Badge tone="orange">تازه</Badge>
@@ -87,7 +98,9 @@ export function LoadCard({
           <ActionButton variant="secondary" onClick={onDetails}>
             <MapIcon size={16} aria-hidden /> مسیر و جزئیات
           </ActionButton>
-          {status && status !== 'CANCELLED' ? (
+          {status === 'OFFERED' && load.myRequest && onAnswered ? (
+            <OfferAnswer requestId={load.myRequest.id} expiresAt={load.myRequest.offerExpiresAt} onAnswered={onAnswered} />
+          ) : status && !['CANCELLED', 'DECLINED', 'EXPIRED'].includes(status) ? (
             <RequestBadge status={status} />
           ) : (
             canRequest && (
@@ -109,9 +122,14 @@ export function LoadCard({
   );
 }
 
-// Request a load and the details dialog, shared by every list of loads.
-export function useLoadActions(update: (id: string, patch: Partial<OpenLoad>) => void) {
+// Request a load and the details dialog, shared by every list of loads (and the agent chat, which
+// shows the outcome itself and lifts the dialog above its panel).
+export function useLoadActions(
+  update: (id: string, patch: Partial<OpenLoad>) => void,
+  options: { notify?: { success: (message: string) => void; error: (message: string) => void }; dialogLayer?: number; onChanged?: () => void } = {},
+) {
   const toast = useToast();
+  const say = options.notify ?? { success: (message: string) => toast.success(message), error: (message: string) => toast.error(message) };
   const [requestingId, setRequestingId] = useState('');
   const [details, setDetails] = useState<OpenLoad | null>(null);
   const close = useCallback(() => setDetails(null), []);
@@ -123,15 +141,18 @@ export function useLoadActions(update: (id: string, patch: Partial<OpenLoad>) =>
       const patch = { myRequest: { id: created.id, status: created.status } };
       update(load.id, patch);
       setDetails((current) => (current?.id === load.id ? { ...current, ...patch } : current));
-      toast.success('درخواست شما برای شرکت فرستاده شد؛ جوابش را همین‌جا و در پیام‌رسان خبر می‌دهیم.');
+      say.success('درخواست شما برای شرکت فرستاده شد؛ جوابش را همین‌جا و در پیام‌رسان خبر می‌دهیم.');
+      options.onChanged?.();
     } catch (error) {
-      toast.error(errorMessage(error));
+      say.error(errorMessage(error));
     } finally {
       setRequestingId('');
     }
   }
 
-  const dialog = details && <LoadDetails load={details} onClose={close} onRequest={() => request(details)} requesting={requestingId === details.id} />;
+  const dialog = details && (
+    <LoadDetails load={details} layer={options.dialogLayer} onClose={close} onRequest={() => request(details)} requesting={requestingId === details.id} />
+  );
   return { requestingId, request, openDetails: setDetails, dialog };
 }
 
@@ -176,6 +197,9 @@ function LoadsContent() {
   const update = patchPage(state.setData);
   const actions = useLoadActions(update);
   useLoadStatusEvents(update, state.data?.items, () => page === 1 && state.reload());
+  useLoadsChangedEvent(state.reload);
+  // درخواست یا جستجویی که با agent انجام شد
+  useDomainRefresh('driver_loads', state.reload, 'account');
 
   useEffect(() => setDraft({ origin, destination }), [origin, destination]);
 
@@ -308,6 +332,7 @@ function LoadsContent() {
                 requesting={actions.requestingId === load.id}
                 onDetails={() => actions.openDetails(load)}
                 onRequest={() => actions.request(load)}
+                onAnswered={(request) => update(load.id, { myRequest: { id: request.id, status: request.status } })}
               />
             ))}
           </ul>

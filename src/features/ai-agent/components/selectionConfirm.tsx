@@ -8,6 +8,9 @@ type SelectionOption = {
   title: string;
 };
 
+// Up to this many options are shown as buttons instead of a searchable dropdown.
+const QUICK_CHOICES = 4;
+
 type SelectionConfirmProps = {
   pendingConfirmation: any;
   handleConfirmAction: (id: string) => void;
@@ -41,6 +44,29 @@ const SelectionConfirm = ({ pendingConfirmation, handleConfirmAction, handleCanc
           setSelectedValue('');
         }
       }
+  // A short question (e.g. «ذخیره شود؟ بله / خیر») is answered with one click, no dropdown.
+  if (options.length > 0 && options.length <= QUICK_CHOICES) {
+    return (
+      <Grid item xs={12} sx={{ px: 2, py: 1 }}>
+        <CustomFormLabel required>{pendingConfirmation?.data?.label || 'انتخاب'}</CustomFormLabel>
+        <Grid container spacing={1} sx={{ mt: 1 }}>
+          {options.map((option, index) => (
+            <Grid item xs={12} sm={6} key={option.id}>
+              <Button fullWidth variant={index === 0 ? 'contained' : 'outlined'} onClick={() => handleConfirmAction(option.id)}>
+                {option.title}
+              </Button>
+            </Grid>
+          ))}
+          <Grid item xs={12}>
+            <Button fullWidth variant="text" color="error" onClick={() => handleCancel()}>
+              انصراف
+            </Button>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  }
+
   return (
     <Grid item xs={12} md={4} sx={{ px: 2, py: 1 }}>
       <CustomFormLabel htmlFor="select-option" required>

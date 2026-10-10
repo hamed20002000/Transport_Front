@@ -7,6 +7,7 @@ import {
   Clock,
   Hourglass,
   Navigation,
+  Send,
   type LucideIcon,
 } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -58,8 +59,11 @@ export function useAsync<T>(load: () => Promise<T>, deps: unknown[]) {
 
 export const requestStatus: Record<RequestStatus, { label: string; icon: LucideIcon; tone: string }> = {
   PENDING: { label: 'در انتظار جواب شرکت', icon: Hourglass, tone: 'tw-bg-amber-50 tw-text-amber-700 tw-ring-amber-200' },
+  OFFERED: { label: 'شرکت بار را به شما سپرده · منتظر تأیید شما', icon: Send, tone: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink tw-ring-brand-orange/40' },
   ACCEPTED: { label: 'قبول شد · سفر فعال', icon: Navigation, tone: 'tw-bg-emerald-50 tw-text-emerald-700 tw-ring-emerald-200' },
   REJECTED: { label: 'رد شد', icon: CircleX, tone: 'tw-bg-red-50 tw-text-red-700 tw-ring-red-200' },
+  DECLINED: { label: 'نپذیرفتید', icon: Ban, tone: 'tw-bg-stone-100 tw-text-brand-muted tw-ring-stone-200' },
+  EXPIRED: { label: 'مهلت تأیید تمام شد', icon: Hourglass, tone: 'tw-bg-stone-100 tw-text-brand-muted tw-ring-stone-200' },
   CANCELLED: { label: 'لغو کردید', icon: Ban, tone: 'tw-bg-stone-100 tw-text-brand-muted tw-ring-stone-200' },
   DELIVERED: { label: 'تحویل شد', icon: CircleCheck, tone: 'tw-bg-brand-sky tw-text-brand-navy tw-ring-brand-line' },
 };

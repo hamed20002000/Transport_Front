@@ -219,6 +219,45 @@
   margin-top: 0;
 }
 
+/* The confirm dialog is portaled with the shared dialog layers (50/51); lift its overlay and paper above the panel. */
+.admin-shell:has(> .confirm-dialog-paper) > * {
+  z-index: 4000100;
+}
+
+/* Dropdowns opened from that dialog (the option select) must sit above it too. */
+body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
+  z-index: 4000200 !important;
+}
+
+/*
+ * Agent answer cards: columns follow the width of the card area itself, not the window, so the large
+ * panel (normal or maximized) gets a grid and the minimized panel (380px) one column.
+ */
+.agent-card-area {
+  container-type: inline-size;
+}
+
+.agent-card-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 700px) {
+  .agent-card-list {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+.agent-page.minimized-view .minimized-result {
+  min-height: 0;
+  max-height: min(55vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.agent-page.minimized-view .minimized-result:empty {
+  display: none;
+}
+
 .agent-close-button {
   position: absolute;
   top: 14px;
@@ -1342,6 +1381,8 @@
 }
 
 .operation-card {
+  /* Cards inside (agent lists) must not widen it past the chat panel. */
+  min-width: 0;
   margin: 16px;
   padding: 15px 16px;
   border: 1px solid rgba(167, 187, 255, 0.18);

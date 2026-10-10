@@ -1,21 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Navigate } from 'react-router-dom';
-import axios from 'axios';
 import {
-  ArrowDownToLine,
-  ArrowLeftRight,
-  ArrowUpFromLine,
-  CircleCheck,
-  Clock,
-  Hourglass,
   Layers,
   Link2,
   Plus,
   RotateCcw,
   Tag,
-  Trash2,
   TriangleAlert,
-  type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
@@ -23,99 +14,13 @@ import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
-import { detectPlatform, listChannels, registerChannel, removeChannel, type Channel, type ChannelPlatform, type ChannelRole } from './channelsApi';
+import { detectPlatform, listChannels, registerChannel, type Channel, type ChannelPlatform, type ChannelRole } from './channelsApi';
+import { CHANNELS_CHANGED_EVENT, errorMessage, useChannelRemove } from './channelActions';
+import { ChannelRow, PlatformLogo } from './channelCards';
+import { platforms, roles } from './channelMeta';
 import CompanyShell from './CompanyShell';
-import { CardSkeleton, EmptyState, IconButton, LoadFailed, SectionTitle, Segmented, timeAgo } from './components';
+import { CardSkeleton, EmptyState, IconButton, LoadFailed, SectionTitle, Segmented } from './components';
 import { useNotificationEvent, type ChannelStatusEvent } from './notificationSocket';
-
-// Logos are served from /public.
-const platforms: Record<ChannelPlatform, { label: string; logo: string; tile: string; text: string }> = {
-  whatsapp: { label: 'واتساپ', logo: '/whatsapp.svg', tile: 'tw-bg-[#E7F8EE] tw-text-[#128C4B]', text: 'tw-text-[#128C4B]' },
-  telegram: { label: 'تلگرام', logo: '/telegram.svg', tile: 'tw-bg-[#E6F4FB] tw-text-[#1C8AC4]', text: 'tw-text-[#1C8AC4]' },
-  bale: { label: 'بله', logo: '/bale.svg', tile: 'tw-bg-[#E6F7F5] tw-text-[#0F8A7E]', text: 'tw-text-[#0F8A7E]' },
-  rubika: { label: 'روبیکا', logo: '/rubika.svg', tile: 'tw-bg-[#F3ECFB] tw-text-[#7B3FC4]', text: 'tw-text-[#7B3FC4]' },
-};
-
-function PlatformLogo({ platform, size }: { platform: ChannelPlatform; size: number }) {
-  return <img src={platforms[platform].logo} alt="" aria-hidden width={size} height={size} className="tw-shrink-0 tw-object-contain" />;
-}
-
-const typeLabels = { group: 'گروه', channel: 'کانال' };
-
-const roles: Record<ChannelRole, { label: string; hint: string; icon: LucideIcon }> = {
-  source: { label: 'منبع', hint: 'بارهای این گروه/کانال برای شما می‌آید', icon: ArrowDownToLine },
-  destination: { label: 'مقصد', hint: 'بارهای پردازش‌شده در این گروه/کانال فرستاده می‌شود', icon: ArrowUpFromLine },
-  both: { label: 'منبع و مقصد', hint: 'هم بار از آن خوانده و هم بار در آن فرستاده می‌شود', icon: ArrowLeftRight },
-};
-
-function errorMessage(error: unknown) {
-  if (axios.isAxiosError(error)) {
-    if (!error.response) return 'ارتباط با سرور برقرار نشد. اتصال را بررسی و دوباره تلاش کنید.';
-    const { status, data } = error.response;
-    const raw = (data as { message?: unknown } | undefined)?.message;
-    const detail = Array.isArray(raw) ? raw.join(' ') : typeof raw === 'string' ? raw : '';
-    if (status === 400) return detail && /[؀-ۿ]/.test(detail) ? detail : 'لینک معتبر نیست.';
-    if (status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';
-    if (status === 404) return 'لینک پیدا نشد یا قبلاً حذف شده است.';
-    if (status === 502 || status === 503) return 'سرویس گروه‌ها و کانال‌ها در دسترس نیست. کمی بعد دوباره تلاش کنید.';
-    return `خطای سرور (${status}). دوباره تلاش کنید.`;
-  }
-  return error instanceof Error ? error.message : 'عملیات انجام نشد.';
-}
-
-// Membership progress as tarabari reports it: joined, waiting for admin approval, failed, or still queued.
-function Status({ channel }: { channel: Channel }) {
-  const [label, Icon, tone] = channel.membershipStatus === 'failed'
-    ? (['عضویت ناموفق', TriangleAlert, 'tw-bg-red-50 tw-text-red-700'] as const)
-    : channel.membershipStatus === 'removed'
-      ? (['ربات از گروه حذف شد', TriangleAlert, 'tw-bg-red-50 tw-text-red-700'] as const)
-    : !channel.isActive
-    ? (['غیرفعال', Clock, 'tw-bg-stone-100 tw-text-brand-muted'] as const)
-    : channel.isMember
-      ? (['فعال · در حال دریافت بار', CircleCheck, 'tw-bg-emerald-50 tw-text-emerald-700'] as const)
-      : channel.lastError
-        ? (['خطا در عضویت', TriangleAlert, 'tw-bg-red-50 tw-text-red-700'] as const)
-        : channel.joinRequestPending
-          ? (['در انتظار تأیید ادمین', Hourglass, 'tw-bg-brand-orange-soft tw-text-brand-orange-ink'] as const)
-          : (['در صف عضویت', Hourglass, 'tw-bg-brand-sky tw-text-brand-navy'] as const);
-  return (
-    <span title={channel.lastError ?? undefined} className={cn('tw-inline-flex tw-items-center tw-gap-1 tw-whitespace-nowrap tw-rounded-full tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium', tone)}>
-      <Icon size={12} aria-hidden /> {label}
-    </span>
-  );
-}
-
-function ChannelRow({ channel, removing, onRemove }: { channel: Channel; removing: boolean; onRemove: () => void }) {
-  const platform = platforms[channel.platform];
-  const title = channel.label || channel.identifier || 'بدون نام';
-  return (
-    <li className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
-      <span className={cn('tw-flex tw-h-11 tw-w-11 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl', platform.tile)}>
-        <PlatformLogo platform={channel.platform} size={26} />
-      </span>
-      <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
-        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-          <strong className="tw-truncate">{title}</strong>
-          <Status channel={channel} />
-        </div>
-        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-3 tw-gap-y-0.5 tw-text-xs tw-text-brand-muted">
-          <span className={platform.text}>
-            {platform.label}
-            {channel.type && ` · ${typeLabels[channel.type]}`}
-          </span>
-          <span>{roles[channel.role ?? 'source'].label}</span>
-          {channel.label && channel.identifier && (
-            <span dir="ltr" className="tw-truncate">
-              {channel.identifier}
-            </span>
-          )}
-          <span>{timeAgo(channel.createdAt)}</span>
-        </div>
-      </div>
-      <IconButton icon={removing ? RotateCcw : Trash2} spinning={removing} label="حذف لینک" disabled={removing} onClick={onRemove} />
-    </li>
-  );
-}
 
 function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => void }) {
   const toast = useToast();
@@ -229,10 +134,15 @@ function ChannelsContent() {
   const [channels, setChannels] = useState<Channel[] | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [filter, setFilter] = useState<ChannelPlatform | 'all'>('all');
-  const [removingId, setRemovingId] = useState('');
   const [version, setVersion] = useState(0);
   // کانالی که با agent اضافه/حذف شد همین‌جا دیده شود
   useDomainRefresh('company_channels', () => setVersion((v) => v + 1), 'account');
+  // ... یا از روی کارت‌های چت agent حذف شد
+  useEffect(() => {
+    const reload = () => setVersion((v) => v + 1);
+    window.addEventListener(CHANNELS_CHANGED_EVENT, reload);
+    return () => window.removeEventListener(CHANNELS_CHANGED_EVENT, reload);
+  }, []);
   const toast = useToast();
 
   // عضویت تأیید/رد شد یا ربات حذف شد -- پیام همان لحظه نشان داده و لیست دوباره گرفته می‌شود.
@@ -261,19 +171,9 @@ function ChannelsContent() {
     };
   }, [version, toast]);
 
-  async function remove(channel: Channel) {
-    if (removingId || !window.confirm(`«${channel.label || channel.identifier}» از لیست شما حذف شود؟ دیگر باری از آن دریافت نمی‌کنید.`)) return;
-    setRemovingId(channel.id);
-    try {
-      await removeChannel(channel);
-      setChannels((current) => current?.filter((row) => row.id !== channel.id) ?? null);
-      toast.success(`«${channel.label || channel.identifier}» از لیست شما حذف شد.`);
-    } catch (e) {
-      toast.error(errorMessage(e));
-    } finally {
-      setRemovingId('');
-    }
-  }
+  const { remove, removingId } = useChannelRemove({
+    onRemoved: (channel) => setChannels((current) => current?.filter((row) => row.id !== channel.id) ?? null),
+  });
 
   const visible = channels?.filter((channel) => filter === 'all' || channel.platform === filter) ?? [];
   const count = (platform: ChannelPlatform) => channels?.filter((channel) => channel.platform === platform).length ?? 0;

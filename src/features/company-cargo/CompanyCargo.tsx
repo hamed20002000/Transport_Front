@@ -1,87 +1,50 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 import {
   Archive,
-  Banknote,
   BellDot,
   CheckCheck,
   CircleCheck,
   CircleDot,
-  Clock,
-  FileText,
   Inbox,
   Layers,
   Mail,
-  Megaphone,
-  Package,
-  PackageCheck,
   RefreshCw,
   RotateCcw,
-  Send,
   SlidersHorizontal,
   SquarePlus,
   TriangleAlert,
-  Truck,
-  Weight,
-  X,
 } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { cn } from 'src/shared/utils/utils';
 import {
-  getSuggestionDraft,
   getSummary,
   listMyListings,
   listSuggestions,
   markAllSuggestionsRead,
-  markSuggestionRead,
-  publishSuggestion,
-  setListingStatus,
-  type CargoListing,
-  type CargoSuggestion,
   type CargoSummary,
   type ListingStatus,
   type Page,
 } from './api';
 import CompanyShell from './CompanyShell';
-import ListingForm, { type PublishedListing } from './ListingForm';
+import { useListingToggle, useSuggestionActions } from './cargoActions';
+import { ListingCard, SuggestionCard } from './cargoCards';
+import { CARGO_CHANGED_EVENT, errorMessage, statusLabels } from './cargoText';
 import { useNotificationEvent } from './notificationSocket';
 import {
-  Badge,
   CardSkeleton,
-  CargoCode,
   EmptyState,
   IconButton,
   Pager,
-  PhoneLinks,
   LoadFailed,
-  PrimaryButton,
-  RouteLine,
-  SecondaryButton,
   SectionTitle,
   Segmented,
-  Spec,
   StatTile,
-  extractPhones,
-  formatDate,
-  timeAgo,
 } from './components';
 
-const statusLabels: Record<ListingStatus, string> = { OPEN: 'باز', TAKEN: 'برداشته شد' };
-
-function errorMessage(error: unknown) {
-  if (axios.isAxiosError(error)) {
-    if (!error.response) return 'ارتباط با سرور برقرار نشد. اتصال را بررسی و دوباره تلاش کنید.';
-    if (error.response.status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';
-    if (error.response.status === 404) return 'بار پیدا نشد.';
-    return `خطای سرور (${error.response.status}). دوباره تلاش کنید.`;
-  }
-  return error instanceof Error ? error.message : 'عملیات انجام نشد.';
-}
 
 // Loads a page whenever `deps` change; `reload` forces a refetch.
 function usePage<T>(load: () => Promise<Page<T>>, deps: unknown[]) {
@@ -148,231 +111,16 @@ function ListBody<T>({
   );
 }
 
-// Card layout from the design: tinted header strip, route, spec chips, action footer.
-function CargoCard({
-  highlighted,
-  head,
-  route,
-  specs,
-  notes,
-  extra,
-  footer,
-}: {
-  highlighted?: boolean;
-  head: JSX.Element;
-  route: JSX.Element;
-  specs: JSX.Element;
-  notes?: string | null;
-  extra?: JSX.Element;
-  footer: JSX.Element;
-}) {
-  return (
-    <li
-      className={cn(
-        'tw-flex tw-flex-col tw-overflow-hidden tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm tw-transition-shadow hover:tw-shadow-md',
-        highlighted ? 'tw-border-brand-orange/50' : 'tw-border-brand-line',
-      )}
-    >
-      <div className={cn('tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3', highlighted ? 'tw-bg-brand-orange-soft/60' : 'tw-bg-brand-sky/60')}>
-        {head}
-      </div>
-      <div className="tw-flex-1 tw-space-y-4 tw-p-5">
-        {route}
-        <div className="tw-flex tw-flex-wrap tw-gap-2">{specs}</div>
-        {notes && <p className="tw-text-sm tw-leading-7 tw-text-brand-muted">{notes}</p>}
-        {extra}
-      </div>
-      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">{footer}</div>
-    </li>
-  );
-}
-
-function Specs({ cargoType, weight, vehicleType, price, priceHighlight = true }: { cargoType?: string | null; weight?: string | null; vehicleType?: string | null; price?: string | null; priceHighlight?: boolean }) {
-  return (
-    <>
-      <Spec icon={Package} label="نوع بار" value={cargoType} />
-      <Spec icon={Weight} label="وزن" value={weight} />
-      <Spec icon={Truck} label="نوع خودرو" value={vehicleType} />
-      <Spec icon={Banknote} label="کرایه" value={price} highlight={priceHighlight} />
-    </>
-  );
-}
-
-function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSuggestion; onRead: () => void; onAnnounce: () => void }) {
-  const [open, setOpen] = useState(false);
-  const { cargo } = item;
-  const receivedAt = cargo.receivedAt || item.createdAt;
-  return (
-    <CargoCard
-      highlighted={!item.isRead}
-      head={
-        <>
-          <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-            <CargoCode code={cargo.code} />
-            <time dateTime={receivedAt} title={formatDate(receivedAt)} className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted">
-              <Clock size={14} aria-hidden /> {timeAgo(receivedAt)}
-            </time>
-          </div>
-          <div className="tw-flex tw-gap-1.5">
-            {!item.isRead && (
-              <Badge tone="orange">
-                <BellDot size={12} aria-hidden /> جدید
-              </Badge>
-            )}
-            {item.published && (
-              <Badge tone="sky">
-                <Send size={12} aria-hidden /> منتشر شده · {statusLabels[item.published.status]}
-              </Badge>
-            )}
-          </div>
-        </>
-      }
-      route={<RouteLine origin={cargo.origin} destination={cargo.destination} />}
-      specs={<Specs {...cargo} />}
-      notes={cargo.extraNotes}
-      extra={
-        <>
-          <PhoneLinks phones={extractPhones(cargo.rawText || item.text)} />
-          {open && <p className="tw-whitespace-pre-wrap tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{cargo.rawText || item.text}</p>}
-        </>
-      }
-      footer={
-        <>
-          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-            {!item.published && (
-              <PrimaryButton onClick={onAnnounce}>
-                <Megaphone size={16} aria-hidden /> اعلام بار
-              </PrimaryButton>
-            )}
-            <SecondaryButton onClick={() => setOpen((v) => !v)}>
-              <FileText size={16} aria-hidden /> {open ? 'بستن متن' : 'متن پیام'}
-            </SecondaryButton>
-          </div>
-          {!item.isRead && <IconButton icon={CheckCheck} label="علامت خوانده‌شده" onClick={onRead} />}
-        </>
-      }
-    />
-  );
-}
-
-function ListingCard({ listing, saving, disabled, onToggle }: { listing: CargoListing; saving: boolean; disabled: boolean; onToggle: () => void }) {
-  const taken = listing.status === 'TAKEN';
-  const ToggleIcon = saving ? RefreshCw : taken ? RotateCcw : PackageCheck;
-  const toggleContent = (
-    <>
-      <ToggleIcon size={16} aria-hidden className={saving ? 'tw-animate-spin' : undefined} />
-      {taken ? 'بازگرداندن' : 'برداشته شد'}
-    </>
-  );
-  return (
-    <CargoCard
-      head={
-        <>
-          <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-            <CargoCode code={listing.code} />
-            <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted" title={formatDate(listing.createdAt)}>
-              <Send size={14} aria-hidden /> {timeAgo(listing.createdAt)}
-            </span>
-          </div>
-          <Badge tone={taken ? 'muted' : 'orange'}>
-            {taken ? <CircleCheck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
-            {statusLabels[listing.status]}
-          </Badge>
-        </>
-      }
-      route={<RouteLine origin={listing.origin} destination={listing.destination} />}
-      specs={<Specs {...listing} priceHighlight={!taken} />}
-      notes={listing.extraNotes}
-      extra={<PhoneLinks phones={listing.contactPhones} />}
-      footer={
-        <>
-          <span className="tw-text-xs tw-text-brand-muted">{listing.takenAt ? `برداشته شد ${timeAgo(listing.takenAt)}` : 'در انتظار راننده'}</span>
-          {taken ? (
-            <SecondaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</SecondaryButton>
-          ) : (
-            <PrimaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</PrimaryButton>
-          )}
-        </>
-      }
-    />
-  );
-}
-
-// «اعلام بار»: the suggestion as an editable listing, prefilled from the message and the company's profile.
-function AnnounceDialog({ item, onClose, onPublished }: { item: CargoSuggestion; onClose: () => void; onPublished: (listing: PublishedListing) => void }) {
-  const panel = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    panel.current?.focus();
-    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = overflow;
-      document.removeEventListener('keydown', onKey);
-      previous?.focus();
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-brand-navy/40 sm:tw-items-center sm:tw-p-6"
-      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
-    >
-      <div
-        ref={panel}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="announce-title"
-        tabIndex={-1}
-        dir="rtl"
-        className="tw-flex tw-max-h-[92vh] tw-w-full tw-flex-col tw-overflow-hidden tw-rounded-t-2xl tw-bg-white tw-text-brand-navy tw-shadow-xl tw-outline-none sm:tw-max-w-2xl sm:tw-rounded-2xl"
-      >
-        <div className="tw-flex tw-items-start tw-gap-3 tw-border-b tw-border-brand-line tw-bg-brand-orange-soft/60 tw-px-5 tw-py-4">
-          <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
-            <h2 id="announce-title" className="tw-flex tw-items-center tw-gap-2 tw-text-lg tw-font-bold">
-              <Megaphone size={20} aria-hidden className="tw-text-brand-orange" /> اعلام بار
-            </h2>
-            <p className="tw-text-xs tw-leading-6 tw-text-brand-muted">اطلاعات از پیام کانال و پروفایل شما پر شده؛ قبل از ارسال بررسی و در صورت نیاز ویرایش کنید.</p>
-          </div>
-          <IconButton icon={X} label="بستن" onClick={onClose} />
-        </div>
-        <ListingForm
-          variant="dialog"
-          initial={item.cargo}
-          load={() => getSuggestionDraft(item.id)}
-          submit={(input) => publishSuggestion(item.id, input)}
-          onDone={onPublished}
-          onCancel={onClose}
-          submitLabel="اعلام برای راننده‌ها"
-        />
-      </div>
-    </div>
-  );
-}
 
 function Suggestions({ onChanged }: { onChanged: () => void }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const toast = useToast();
   const state = usePage(() => listSuggestions(page, filter === 'unread'), [page, filter]);
-  const [announcing, setAnnouncing] = useState<CargoSuggestion | null>(null);
-  const closeAnnounce = useCallback(() => setAnnouncing(null), []);
-
-  function published(item: CargoSuggestion, listing: PublishedListing) {
-    setAnnouncing(null);
-    state.setData(
-      (current) =>
-        current && {
-          ...current,
-          items: current.items.map((row) => (row.id === item.id ? { ...row, published: { id: listing.id, status: listing.status } } : row)),
-        },
-    );
-    toast.success(`بار اعلام شد و برای ${listing.recipients.toLocaleString('fa-IR')} راننده ارسال شد.`);
-    onChanged();
-  }
+  const actions = useSuggestionActions({
+    update: (item) => state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === item.id ? item : row)) }),
+    onChanged,
+  });
 
   // بار جدید از سوکت (NotificationsGateway) -- لیست و شمارنده‌ها همان لحظه به‌روز
   // می‌شوند، بدون رفرش صفحه.
@@ -382,16 +130,6 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
     state.reload();
     onChanged();
   });
-
-  async function markRead(item: CargoSuggestion) {
-    try {
-      await markSuggestionRead(item.id);
-      state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === item.id ? { ...row, isRead: true } : row)) });
-      onChanged();
-    } catch (e) {
-      toast.error(errorMessage(e));
-    }
-  }
 
   async function markAll() {
     try {
@@ -443,9 +181,9 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
           title: filter === 'unread' ? 'پیام خوانده‌نشده‌ای ندارید' : 'هنوز باری پیشنهاد نشده',
           hint: 'بارهایی که در کانال‌های ثبت‌شدهٔ شما دیده شوند و با فیلترهایتان جور باشند، اینجا نمایش داده می‌شوند.',
         }}
-        render={(item) => <SuggestionCard key={item.id} item={item} onRead={() => markRead(item)} onAnnounce={() => setAnnouncing(item)} />}
+        render={(item) => <SuggestionCard key={item.id} item={item} onRead={() => actions.markRead(item)} onAnnounce={() => actions.announce(item)} />}
       />
-      {announcing && <AnnounceDialog item={announcing} onClose={closeAnnounce} onPublished={(listing) => published(announcing, listing)} />}
+      {actions.dialog}
     </section>
   );
 }
@@ -453,25 +191,11 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
 function MyListings({ onChanged }: { onChanged: () => void }) {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<ListingStatus | 'ALL'>('ALL');
-  const [savingId, setSavingId] = useState('');
-  const toast = useToast();
   const state = usePage(() => listMyListings(page, status === 'ALL' ? undefined : status), [page, status]);
-
-  async function toggle(listing: CargoListing) {
-    const next: ListingStatus = listing.status === 'OPEN' ? 'TAKEN' : 'OPEN';
-    if (next === 'TAKEN' && !window.confirm('این بار «برداشته شد» اعلام شود؟ پیام راننده‌ها هم به‌روز می‌شود.')) return;
-    setSavingId(listing.id);
-    try {
-      const updated = await setListingStatus(listing.id, next);
-      state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === updated.id ? updated : row)) });
-      toast.success(next === 'TAKEN' ? 'بار «برداشته شد» اعلام شد و پیام راننده‌ها به‌روز شد.' : 'بار دوباره باز شد.');
-      onChanged();
-    } catch (e) {
-      toast.error(errorMessage(e));
-    } finally {
-      setSavingId('');
-    }
-  }
+  const { toggle, savingId, dialog } = useListingToggle({
+    update: (updated) => state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === updated.id ? updated : row)) }),
+    onChanged,
+  });
 
   return (
     <section className="tw-space-y-4" aria-label="بارهای من">
@@ -506,6 +230,7 @@ function MyListings({ onChanged }: { onChanged: () => void }) {
           <ListingCard key={listing.id} listing={listing} saving={savingId === listing.id} disabled={!!savingId} onToggle={() => toggle(listing)} />
         )}
       />
+      {dialog}
     </section>
   );
 }
@@ -551,6 +276,20 @@ function CargoContent() {
     },
     'account',
   );
+  // The driver confirmed or declined a load the company handed over, or the offer ran out.
+  useNotificationEvent('cargo-request-changed', () => {
+    loadSummary();
+    setRefreshKey((v) => v + 1);
+  });
+  // Same for changes made on the cargo cards in the agent chat (they call the API directly).
+  useEffect(() => {
+    const reload = () => {
+      loadSummary();
+      setRefreshKey((v) => v + 1);
+    };
+    window.addEventListener(CARGO_CHANGED_EVENT, reload);
+    return () => window.removeEventListener(CARGO_CHANGED_EVENT, reload);
+  }, [loadSummary]);
 
   function refresh() {
     setRefreshing(true);

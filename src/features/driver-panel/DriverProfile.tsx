@@ -32,6 +32,7 @@ import {
   type DriverProfileInput,
 } from './api';
 import DriverShell from './DriverShell';
+import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 
 type TextKey = 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber';
 type Plate = { left: string; letter: string; middle: string; region: string };
@@ -267,7 +268,7 @@ function completion(fields: Fields, profile: DriverProfile) {
     plateValid(fields.plate),
   ];
   const done = checks.filter(Boolean).length;
-  return { percent: Math.round((done / checks.length) * 100), photos: +!!profile.photos.vehicle + +!!profile.photos.plate };
+  return { percent: Math.round((done / checks.length) * 100), photos: +!!profile.photos.face + +!!profile.photos.vehicle + +!!profile.photos.plate };
 }
 
 function ProfileContent() {
@@ -277,6 +278,8 @@ function ProfileContent() {
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [version, setVersion] = useState(0);
+  // پروفایلی که با agent ویرایش شد همین‌جا دیده شود
+  useDomainRefresh('driver_profile', () => setVersion((v) => v + 1), 'account');
   const [touched, setTouched] = useState(false);
 
   useEffect(() => {
@@ -401,7 +404,7 @@ function ProfileContent() {
           <div className="tw-h-2 tw-overflow-hidden tw-rounded-full tw-bg-brand-line">
             <div className="tw-h-full tw-rounded-full tw-bg-brand-orange tw-transition-all" style={{ width: `${percent}%` }} />
           </div>
-          <p className="tw-m-0 tw-text-[11px] tw-text-brand-muted">{photos ? `${photos.toLocaleString('fa-IR')} عکس از ۲ عکس اختیاری` : 'عکس ماشین و پلاک اختیاری است'}</p>
+          <p className="tw-m-0 tw-text-[11px] tw-text-brand-muted">{photos ? `${photos.toLocaleString('fa-IR')} عکس از ۳ عکس اختیاری` : 'عکس خودتان، ماشین و پلاک اختیاری است'}</p>
         </div>
       </div>
 
@@ -475,13 +478,14 @@ function ProfileContent() {
             <Camera size={18} aria-hidden />
           </span>
           <div>
-            <h3 className="tw-m-0 tw-text-base tw-font-bold">عکس ماشین و پلاک</h3>
+            <h3 className="tw-m-0 tw-text-base tw-font-bold">عکس خودتان، ماشین و پلاک</h3>
             <p className="tw-m-0 tw-flex tw-items-center tw-gap-1 tw-text-xs tw-text-brand-muted">
-              <Info size={12} aria-hidden /> اختیاری؛ فقط خودتان می‌بینید. عکس بلافاصله بعد از انتخاب ذخیره می‌شود.
+              <Info size={12} aria-hidden /> اختیاری. عکس خودتان و ماشین را شرکتی می‌بیند که می‌خواهد بار را به شما بسپارد؛ عکس پلاک فقط برای خودتان است. عکس بلافاصله بعد از انتخاب ذخیره می‌شود.
             </p>
           </div>
         </div>
         <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+          <PhotoSlot kind="face" title="عکس خودتان" hint="از روبه‌رو و واضح؛ شرکت‌ها هنگام سپردن بار می‌بینند" version={profile.photos.face} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
           <PhotoSlot kind="vehicle" title="عکس ماشین" hint="از کنار، طوری که کل ماشین دیده شود" version={profile.photos.vehicle} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
           <PhotoSlot kind="plate" title="عکس پلاک" hint="از روبه‌رو و خوانا" version={profile.photos.plate} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
         </div>

@@ -46,6 +46,31 @@ export interface CargoListing {
   status: ListingStatus;
   takenAt: string | null;
   createdAt: string;
+  // The driver the load was handed to («برداشته شد»): waiting for them (OFFERED), on the trip or delivered.
+  assignment?: CargoAssignment | null;
+}
+
+// A driver as the company sees them when handing over a load (DriverProfileService.cards).
+export interface DriverCard {
+  userId: string;
+  name: string;
+  mobile: string | null;
+  vehicleType: string | null;
+  vehicleModel: string | null;
+  plate: string | null;
+  capacityTons: number | null;
+  homeCity: string | null;
+  photos: { face: boolean; vehicle: boolean };
+  // When this driver asked for the load; absent for drivers found by search.
+  requestedAt?: string | null;
+}
+
+export interface CargoAssignment {
+  requestId: string;
+  status: 'OFFERED' | 'ACCEPTED' | 'DELIVERED';
+  at: string;
+  offerExpiresAt: string | null;
+  driver: DriverCard | null;
 }
 
 export interface Page<T> {
@@ -265,4 +290,32 @@ export function updateCargoFilter(id: string, input: CargoFilterInput) {
 
 export function deleteCargoFilter(id: string) {
   return unwrap(axios.delete(`${endpoints.baseurl}cargo-alert-filters/${id}`, config()));
+}
+
+// «برداشته شد»: drivers who asked for this load, and the one currently waiting to confirm.
+export function getCandidates(listingId: string) {
+  return unwrap<{ drivers: DriverCard[]; offer: { requestId: string; expiresAt: string; driver: DriverCard | null } | null }>(
+    axios.get(`${endpoints.baseurl}cargo-listings/${listingId}/candidates`, config()),
+  );
+}
+
+// Another driver of the platform by full mobile number or plate.
+export function searchDrivers(listingId: string, query: string) {
+  return unwrap<DriverCard[]>(axios.get(`${endpoints.baseurl}cargo-listings/${listingId}/candidates/search`, config({ q: query })));
+}
+
+// Hand the load to a driver; it is taken once the driver confirms.
+export function offerLoad(listingId: string, driverUserId: string) {
+  return unwrap<{ id: string; status: string; offerExpiresAt: string }>(
+    axios.post(`${endpoints.baseurl}cargo-listings/${listingId}/offer`, { driverUserId }, config()),
+  );
+}
+
+// The photo endpoint needs the token, so it is fetched as a blob for an object URL.
+export async function fetchDriverPhoto(driverUserId: string, kind: 'face' | 'vehicle') {
+  const { data } = await axios.get<Blob>(`${endpoints.baseurl}cargo-listings/drivers/${driverUserId}/photos/${kind}`, {
+    ...config(),
+    responseType: 'blob',
+  });
+  return URL.createObjectURL(data);
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Banknote,
   CarFront,
@@ -17,6 +18,8 @@ import {
   Truck,
   Weight,
   X,
+  Square,
+  Volume2,
 } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -25,6 +28,7 @@ import {
   errorMessage,
   getLoadInsight,
   getRouteFuel,
+  getRouteFuelVoice,
   listReturnLoads,
   type CargoListing,
   type LoadInsight,
@@ -70,14 +74,21 @@ function FuelStations({ listingId, route, onStations }: { listingId: string; rou
   const toast = useToast();
   const [fuel, setFuel] = useState<RouteFuel | null>(null);
   const [loading, setLoading] = useState(false);
+  const [voice, setVoice] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setFuel(null);
+    setVoice(null);
     onStations(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route]);
 
   async function load() {
+    // Browsers allow sound only right after a click, and finding the stations can take a while: the
+    // element is unlocked now (silent clip) and the stations voice plays through it automatically later.
+    const element = new Audio(SILENT_CLIP);
+    element.play().catch(() => undefined);
+    setVoice(element);
     setLoading(true);
     try {
       const result = await getRouteFuel(listingId, route);
@@ -104,6 +115,7 @@ function FuelStations({ listingId, route, onStations }: { listingId: string; rou
         <strong className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm">
           <Fuel size={16} aria-hidden className="tw-text-emerald-600" /> {fuel.stations.length.toLocaleString('fa-IR')} جایگاه سوخت در مسیر
         </strong>
+        {voice && <StationsVoice key={`${listingId}-${route}`} listingId={listingId} route={route} element={voice} />}
         {fuel.longestGap && (
           <span className="tw-text-xs tw-text-brand-muted">
             طولانی‌ترین فاصله بی‌جایگاه: <strong className="tw-text-brand-navy">{formatKm(fuel.longestGap.toKm - fuel.longestGap.fromKm)}</strong>
@@ -125,6 +137,73 @@ function FuelStations({ listingId, route, onStations }: { listingId: string; rou
         </ol>
       )}
     </div>
+  );
+}
+
+// Tiny silent WAV: playing it during the click unlocks the element for the stations voice that follows.
+const SILENT_CLIP = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+
+// The stations read out as soon as they are listed (a driver behind the wheel need not scroll the list);
+// the button stops it or plays it again. If the browser still blocks the sound, the button starts it.
+function StationsVoice({ listingId, route, element }: { listingId: string; route: number; element: HTMLAudioElement }) {
+  const toast = useToast();
+  const [state, setState] = useState<'idle' | 'loading' | 'playing'>('loading');
+  const ready = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    element.onended = () => setState('idle');
+    getRouteFuelVoice(listingId, route)
+      .then(async (blob) => {
+        if (!active) return;
+        element.src = URL.createObjectURL(blob);
+        ready.current = true;
+        try {
+          await element.play();
+          if (active) setState('playing');
+        } catch {
+          if (active) setState('idle');
+        }
+      })
+      .catch((error) => {
+        if (!active) return;
+        setState('idle');
+        toast.error(errorMessage(error));
+      });
+    // Stop and free the audio when the dialog closes or another route is picked.
+    return () => {
+      active = false;
+      element.pause();
+      if (element.src.startsWith('blob:')) URL.revokeObjectURL(element.src);
+    };
+  }, [element, listingId, route, toast]);
+
+  async function toggle() {
+    if (state === 'playing') {
+      element.pause();
+      setState('idle');
+      return;
+    }
+    if (!ready.current) return;
+    element.currentTime = 0;
+    try {
+      await element.play();
+      setState('playing');
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={state === 'loading'}
+      className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-lg tw-border tw-border-emerald-200 tw-bg-white tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold tw-text-emerald-700 hover:tw-bg-emerald-50 disabled:tw-opacity-60"
+    >
+      {state === 'playing' ? <Square size={14} aria-hidden /> : <Volume2 size={14} aria-hidden className={state === 'loading' ? 'tw-animate-pulse' : undefined} />}
+      {state === 'playing' ? 'توقف' : state === 'loading' ? 'در حال آماده‌سازی صدا…' : 'شنیدن دوباره'}
+    </button>
   );
 }
 
@@ -176,13 +255,16 @@ function ReturnLoads({ listing, counts }: { listing: CargoListing; counts: LoadI
 }
 
 // «مسیر و جزئیات»: everything the driver needs to decide on a load, as in the bot's detail view.
+// Rendered in a portal; `layer` lifts it above the agent chat panel when opened from there.
 export default function LoadDetails({
   load,
+  layer,
   onClose,
   onRequest,
   requesting,
 }: {
   load: OpenLoad;
+  layer?: number;
   onClose: () => void;
   onRequest?: () => void;
   requesting?: boolean;
@@ -216,8 +298,9 @@ export default function LoadDetails({
   const status = load.myRequest?.status;
   const canRequest = load.status === 'OPEN' && (!status || status === 'CANCELLED');
 
-  return (
+  return createPortal(
     <div
+      style={layer ? { zIndex: layer } : undefined}
       className="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-brand-navy/40 sm:tw-items-center sm:tw-p-6"
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
     >
@@ -354,6 +437,7 @@ export default function LoadDetails({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
