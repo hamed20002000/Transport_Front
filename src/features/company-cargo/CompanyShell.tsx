@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Archive, Bell, Building2, House, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from './profileStore';
+import MarketTicker from 'src/features/market/MarketTicker';
 
 const items = [
   { to: '/account/company', label: 'خانه', icon: House, match: (path: string, tab: string | null) => path === '/account/company' && !tab },
@@ -93,7 +94,10 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
           })}
         </nav>
       </header>
-      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">{children}</main>
+      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
+        <MarketTicker />
+        {children}
+      </main>
     </div>
   );
 }

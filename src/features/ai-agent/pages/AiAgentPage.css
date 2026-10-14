@@ -1210,6 +1210,12 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
   background: #2c67c5;
 }
 
+.composer-button:disabled,
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .composer-hint {
   display: flex;
   justify-content: space-between;

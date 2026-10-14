@@ -7,7 +7,6 @@ import { StopCircleSharp as BoltIcon } from 'src/shared/components/compat/icons'
 import { Mic } from 'src/shared/components/compat/icons';
 import { Stop as StopIcon } from 'src/shared/components/compat/icons';
 import { Cancel as CancelIcon } from 'src/shared/components/compat/icons';
-import { GraphicEq as EmptyIcon } from 'src/shared/components/compat/icons';
 import { TrendingFlat as ArrowRight } from 'src/shared/components/compat/icons';
 import { ArrowUpwardOutlined as Arrow } from 'src/shared/components/compat/icons';
 import { uniqueId } from "lodash";
@@ -217,16 +216,19 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
 
     };
 
+    // Stops the running command. The server answers with a "cancelled" result when it was still
+    // running; the panel is freed right away so it never stays stuck waiting for that answer.
+    const handleCancel = useCallback(() => {
+        if (abortingref.current) return;
+        abortingref.current = true;
+        userefSocket.current?.emit('cancel-execution');
+        setLoadingButton(false);
+        resetProgress();
+    }, [resetProgress]);
+
     const handleSubmit = useCallback(async () => {
 
-        if (loadingButton) {
-            if (!abortingref.current) {
-                handleCancel();
-                abortingref.current = true;
-            }
-            return;
-        }
-        if (!voiceInput.trim()) {
+        if (loadingButton || !voiceInput.trim()) {
             return;
         }
 
@@ -242,6 +244,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         }
 
         try {
+            abortingref.current = false;
             startProgressRun();
             setLoadingButton(true);
 
@@ -269,7 +272,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         } finally {
 
         }
-    }, [alert, api, currentSessionId, ensureSession, navigate, resetProgress, selectedFile, startProgressRun, voiceInput]);
+    }, [alert, api, currentSessionId, ensureSession, loadingButton, navigate, resetProgress, selectedFile, startProgressRun, voiceInput]);
 
     // Voice: the admin backend returns text for the input box; the account backend runs it as a
     // command straight away, so the panel shows progress like after pressing send.
@@ -296,6 +299,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         }
 
         if (loadingButton) return;
+        abortingref.current = false;
         startProgressRun();
         setLoadingButton(true);
         // Local stages until the server's own ones arrive on the socket (same wording, so they merge).
@@ -317,9 +321,6 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         const key = toolName.trim();
         return resultViewLink[key as keyof typeof resultViewLink] ?? "";
     }
-    const handleCancel = useCallback(() => {
-        userefSocket.current?.emit('cancel-execution');
-    }, []);
 
     const handleDialogDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
         if ((event.target as HTMLElement).closest('button')) {
@@ -966,32 +967,50 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
 
                                     <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
                                         <button
-                                            className={`composer-button ${isListening ? "recording-button" : ""
-                                                }`}
-                                            onClick={() => { isListening ? stop() : start() }}
-                                            title={isListening ? "توقف ضبط" : "ورودی صوتی"}
-                                        >
-                                            {isListening ? (
-                                                <StopIcon style={{ fill: "#ff4d4f" }} />
-                                            ) : (
-                                                <Mic style={{ fill: "gray" }} />
-                                            )}
-                                        </button>
+                                type="button"
+                                className={`composer-button ${isListening ? "recording-button" : ""}`}
+                                onClick={() => { isListening ? stop() : start() }}
+                                disabled={loadingButton && !isListening}
+                                title={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
+                                aria-label={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
+                            >
+                                {isListening ? <StopIcon size={16} color="#ff4d4f" /> : <Mic size={18} color="#b5b8c0" />}
+                            </button>
 
-                                        {
-                                            isListening && <button
-                                                className={`composer-button`}
-                                            >
-                                                <CancelIcon style={{ fill: "#ff4d4f" }} onClick={(e) => { e.stopPropagation(); cancel() }} />
-                                            </button>
-                                        }
+                            {isListening && (
+                                <button
+                                    type="button"
+                                    className="composer-button"
+                                    onClick={cancel}
+                                    title="لغو ضبط"
+                                    aria-label="لغو ضبط"
+                                >
+                                    <CancelIcon size={18} color="#ff4d4f" />
+                                </button>
+                            )}
 
-                                        <button
-                                            className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
-                                            onClick={handleSubmit}
-                                        >
-                                            {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
-                                        </button>
+                            {loadingButton ? (
+                                <button
+                                    type="button"
+                                    className="send-button"
+                                    onClick={handleCancel}
+                                    title="لغو اجرا"
+                                    aria-label="لغو اجرا"
+                                >
+                                    <BoltIcon className="waiting-request-response" size={20} />
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
+                                    onClick={handleSubmit}
+                                    disabled={!voiceInput.trim() || isListening}
+                                    title="ارسال"
+                                    aria-label="ارسال"
+                                >
+                                    <Arrow size={19} />
+                                </button>
+                            )}
                                     </div>
                                 </div>
                             </div>
@@ -1255,34 +1274,50 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                                 <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
 
                                                     <button
-                                                        className={`composer-button ${isListening ? "recording-button" : ""
-                                                            }`}
-                                                        onClick={() => { isListening ? stop() : start() }}
-                                                        title={isListening ? "توقف ضبط" : "ورودی صوتی"}
-                                                    >
-                                                        {isListening ? (
-                                                            <StopIcon style={{ fill: "#ff4d4f" }} />
-                                                        ) : (
-                                                            <Mic style={{ fill: "gray" }} />
-                                                        )
+                                            type="button"
+                                            className={`composer-button ${isListening ? "recording-button" : ""}`}
+                                            onClick={() => { isListening ? stop() : start() }}
+                                            disabled={loadingButton && !isListening}
+                                            title={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
+                                            aria-label={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
+                                        >
+                                            {isListening ? <StopIcon size={16} color="#ff4d4f" /> : <Mic size={18} color="#b5b8c0" />}
+                                        </button>
 
-                                                        }
+                                        {isListening && (
+                                            <button
+                                                type="button"
+                                                className="composer-button"
+                                                onClick={cancel}
+                                                title="لغو ضبط"
+                                                aria-label="لغو ضبط"
+                                            >
+                                                <CancelIcon size={18} color="#ff4d4f" />
+                                            </button>
+                                        )}
 
-                                                    </button>
-
-                                                    {
-                                                        isListening && <button
-                                                            className={`composer-button`}
-                                                        >
-                                                            <CancelIcon style={{ fill: "#ff4d4f" }} onClick={(e) => { e.stopPropagation(); cancel() }} />
-                                                        </button>
-                                                    }
-                                                    <button
-                                                        className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
-                                                        onClick={handleSubmit}
-                                                    >
-                                                        {loadingButton ? <BoltIcon className="waiting-request-response" color="inherit" sx={{ mr: 1, fontSize: 20 }} /> : voiceInput.trim() ? <Arrow style={{ width: "19px", height: "19px" }} /> : <EmptyIcon />}
-                                                    </button>
+                                        {loadingButton ? (
+                                            <button
+                                                type="button"
+                                                className="send-button"
+                                                onClick={handleCancel}
+                                                title="لغو اجرا"
+                                                aria-label="لغو اجرا"
+                                            >
+                                                <BoltIcon className="waiting-request-response" size={20} />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
+                                                onClick={handleSubmit}
+                                                disabled={!voiceInput.trim() || isListening}
+                                                title="ارسال"
+                                                aria-label="ارسال"
+                                            >
+                                                <Arrow size={19} />
+                                            </button>
+                                        )}
                                                 </div>
 
 

@@ -8,6 +8,7 @@ import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from 'src/features/company-cargo/profileStore';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { unreadLoadCount } from './api';
+import MarketTicker from 'src/features/market/MarketTicker';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -111,7 +112,10 @@ function Frame({ children }: { children: ReactNode }) {
           })}
         </nav>
       </header>
-      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">{children}</main>
+      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
+        <MarketTicker />
+        {children}
+      </main>
     </div>
   );
 }
