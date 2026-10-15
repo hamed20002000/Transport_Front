@@ -21,17 +21,22 @@ import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import {
+  announceListing,
   getSummary,
   listMyListings,
   listSuggestions,
   markAllSuggestionsRead,
+  tripTypeLabels,
+  type CargoListing,
   type CargoSummary,
   type ListingStatus,
   type Page,
+  type TripType,
 } from './api';
 import CompanyShell from './CompanyShell';
 import { useListingToggle, useSuggestionActions } from './cargoActions';
 import { ListingCard, SuggestionCard } from './cargoCards';
+import AnnounceSettings from './AnnounceSettings';
 import { CARGO_CHANGED_EVENT, errorMessage, statusLabels } from './cargoText';
 import { useNotificationEvent } from './notificationSocket';
 import {
@@ -196,6 +201,21 @@ function MyListings({ onChanged }: { onChanged: () => void }) {
     update: (updated) => state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === updated.id ? updated : row)) }),
     onChanged,
   });
+  const toast = useToast();
+  const [announcingId, setAnnouncingId] = useState<string | null>(null);
+
+  async function announce(listing: CargoListing) {
+    setAnnouncingId(listing.id);
+    try {
+      const announced = await announceListing(listing.id);
+      state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === listing.id ? { ...row, announcedAt: announced.announcedAt } : row)) });
+      toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${tripTypeLabels[listing.tripType]} اعلام شد.`);
+    } catch {
+      toast.error('اعلام بار انجام نشد. دوباره تلاش کنید.');
+    } finally {
+      setAnnouncingId(null);
+    }
+  }
 
   return (
     <section className="tw-space-y-4" aria-label="بارهای من">
@@ -227,7 +247,15 @@ function MyListings({ onChanged }: { onChanged: () => void }) {
           hint: 'بارهایی که برای راننده‌ها منتشر کنید اینجا می‌آیند و می‌توانید وضعیتشان را مدیریت کنید.',
         }}
         render={(listing) => (
-          <ListingCard key={listing.id} listing={listing} saving={savingId === listing.id} disabled={!!savingId} onToggle={() => toggle(listing)} />
+          <ListingCard
+            key={listing.id}
+            listing={listing}
+            saving={savingId === listing.id}
+            disabled={!!savingId}
+            onToggle={() => toggle(listing)}
+            onAnnounce={() => announce(listing)}
+            announcing={announcingId === listing.id}
+          />
         )}
       />
       {dialog}
@@ -235,21 +263,30 @@ function MyListings({ onChanged }: { onChanged: () => void }) {
   );
 }
 
-// After registering a load, CreateCargo navigates here with the recipient count in history state.
+// After registering a load, CreateCargo navigates here with the recipient count in history state
+// (or, for an Excel upload, the number of loads published).
 function useCreatedToast() {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
   const shownFor = useRef('');
-  const recipients = (location.state as { createdRecipients?: number } | null)?.createdRecipients;
+  const { createdRecipients: recipients, createdCount, createdPending: pending, createdTripType: tripType } =
+    (location.state as { createdRecipients?: number; createdCount?: number; createdPending?: boolean; createdTripType?: TripType } | null) ?? {};
   useEffect(() => {
     // The ref keeps StrictMode's double effect from showing it twice.
-    if (recipients === undefined || shownFor.current === location.key) return;
+    if ((recipients === undefined && createdCount === undefined) || shownFor.current === location.key) return;
     shownFor.current = location.key;
-    toast.success(`بار ثبت شد و برای ${recipients.toLocaleString('fa-IR')} راننده ارسال شد.`);
+    const count = createdCount !== undefined ? `${createdCount.toLocaleString('fa-IR')} بار از فایل اکسل` : 'بار';
+    toast.success(
+      pending
+        ? `${count} ثبت شد و در نوبت بعدی اعلام خودکار برای راننده‌ها فرستاده می‌شود.`
+        : createdCount !== undefined
+          ? `${count} ثبت و برای راننده‌های هر نوع اعلام شد.`
+          : `بار ثبت شد و برای ${recipients!.toLocaleString('fa-IR')} رانندهٔ ${tripType ? tripTypeLabels[tripType] : ''} ارسال شد.`,
+    );
     // Clearing the history state keeps the toast from repeating on refresh.
     navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
-  }, [recipients, location.key, location.pathname, location.search, navigate, toast]);
+  }, [recipients, createdCount, pending, tripType, location.key, location.pathname, location.search, navigate, toast]);
 }
 
 function CargoContent() {
@@ -326,6 +363,8 @@ function CargoContent() {
             <StatTile icon={CircleDot} label="منتشرشدهٔ باز" value={summary?.open} />
             <StatTile icon={CircleCheck} label="برداشته‌شده" value={summary?.taken} />
           </div>
+
+          <AnnounceSettings />
 
           {tab === 'suggestions' ? (
             <Suggestions key={`s${refreshKey}`} onChanged={loadSummary} />

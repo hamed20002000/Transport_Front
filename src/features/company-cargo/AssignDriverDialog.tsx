@@ -10,7 +10,7 @@ import { IconButton, PrimaryButton, RouteLine, SecondaryButton, timeAgo } from '
 const clock = (value: string) => new Date(value).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 
 /** Face photo, else the vehicle, else an icon; the photo endpoint needs the token, hence the blob URL. */
-function DriverPhoto({ driver }: { driver: DriverCard }) {
+export function DriverPhoto({ driver }: { driver: DriverCard }) {
   const kind = driver.photos.face ? 'face' : driver.photos.vehicle ? 'vehicle' : null;
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {

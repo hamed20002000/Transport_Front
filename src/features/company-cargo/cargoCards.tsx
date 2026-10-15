@@ -1,26 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Banknote,
-  BellDot,
-  CheckCheck,
-  CircleCheck,
-  CircleDot,
-  Clock,
-  FileText,
-  Megaphone,
-  Package,
-  PackageCheck,
-  RefreshCw,
-  RotateCcw,
-  Send,
-  Truck,
-  Weight,
-  X,
-  Hourglass,
-} from 'lucide-react';
+import { Banknote, BellDot, CheckCheck, CircleCheck, CircleDot, Clock, FileText, Megaphone, Package, PackageCheck, RefreshCw, RotateCcw, Send, Truck, Weight, X, Hourglass, Timer, Globe2 } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
-import { getSuggestionDraft, publishSuggestion, type CargoListing, type CargoSuggestion } from './api';
+import { getSuggestionDraft, publishSuggestion, type CargoListing, type CargoSuggestion, tripTypeLabels } from './api';
 import { statusLabels } from './cargoText';
 import ListingForm, { type PublishedListing } from './ListingForm';
 import {
@@ -171,8 +153,24 @@ function AssignmentLine({ assignment }: { assignment: NonNullable<CargoListing['
   );
 }
 
-export function ListingCard({ listing, saving, disabled, onToggle }: { listing: CargoListing; saving: boolean; disabled: boolean; onToggle: () => void }) {
+export function ListingCard({
+  listing,
+  saving,
+  disabled,
+  onToggle,
+  onAnnounce,
+  announcing,
+}: {
+  listing: CargoListing;
+  saving: boolean;
+  disabled: boolean;
+  onToggle: () => void;
+  // «اعلام همین الان» for a load waiting in the automatic announcement queue.
+  onAnnounce?: () => void;
+  announcing?: boolean;
+}) {
   const taken = listing.status === 'TAKEN';
+  const queued = !taken && listing.announcedAt === null;
   const waiting = !taken && listing.assignment?.status === 'OFFERED';
   const ToggleIcon = saving ? RefreshCw : taken ? RotateCcw : waiting ? Hourglass : PackageCheck;
   const toggleContent = (
@@ -191,10 +189,24 @@ export function ListingCard({ listing, saving, disabled, onToggle }: { listing: 
               <Send size={14} aria-hidden /> {timeAgo(listing.createdAt)}
             </span>
           </div>
-          <Badge tone={taken ? 'muted' : 'orange'}>
-            {taken ? <CircleCheck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
-            {statusLabels[listing.status]}
-          </Badge>
+          <div className="tw-flex tw-shrink-0 tw-items-center tw-gap-1.5">
+            {listing.tripType && (
+              <Badge tone="muted">
+                <Globe2 size={12} aria-hidden />
+                {tripTypeLabels[listing.tripType]}
+              </Badge>
+            )}
+            {queued && (
+              <Badge tone="orange">
+                <Timer size={12} aria-hidden />
+                در صف اعلام
+              </Badge>
+            )}
+            <Badge tone={taken ? 'muted' : 'orange'}>
+              {taken ? <CircleCheck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
+              {statusLabels[listing.status]}
+            </Badge>
+          </div>
         </>
       }
       route={<RouteLine origin={listing.origin} destination={listing.destination} />}
@@ -208,7 +220,13 @@ export function ListingCard({ listing, saving, disabled, onToggle }: { listing: 
       }
       footer={
         <>
-          <span className="tw-text-xs tw-text-brand-muted">{listing.takenAt ? `برداشته شد ${timeAgo(listing.takenAt)}` : 'در انتظار راننده'}</span>
+          {/* A queued card says «در صف اعلام» in its head; the footer keeps room for both buttons. */}
+          {!queued && <span className="tw-text-xs tw-text-brand-muted">{listing.takenAt ? `برداشته شد ${timeAgo(listing.takenAt)}` : 'در انتظار راننده'}</span>}
+          {queued && onAnnounce && (
+            <SecondaryButton onClick={onAnnounce} disabled={disabled || announcing}>
+              <Megaphone size={16} aria-hidden /> {announcing ? 'در حال اعلام…' : 'اعلام همین الان'}
+            </SecondaryButton>
+          )}
           {taken || waiting ? (
             <SecondaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</SecondaryButton>
           ) : (

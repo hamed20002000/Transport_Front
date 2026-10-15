@@ -1,6 +1,6 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
-import type { CargoListing, Page } from 'src/features/company-cargo/api';
+import type { CargoListing, Page, TripType } from 'src/features/company-cargo/api';
 
 export type { CargoListing, Page };
 
@@ -222,6 +222,8 @@ export interface DriverProfile {
   plate: string | null;
   capacityTons: number | null;
   fleetCardNumber: string | null;
+  // Domestic, export or import: announced loads reach only drivers of the same type.
+  tripType: TripType;
   // Stored file name when a photo exists; it changes on every upload, so it doubles as a cache key.
   photos: { face: string | null; vehicle: string | null; plate: string | null };
 }
@@ -251,4 +253,41 @@ export function deleteDriverPhoto(kind: DriverPhotoKind) {
 export async function fetchDriverPhoto(kind: DriverPhotoKind) {
   const { data } = await axios.get<Blob>(url(`profile/photos/${kind}`), { ...config(), responseType: 'blob' });
   return URL.createObjectURL(data);
+}
+
+// Border crossings from borderpark.ir (transport_backend BorderStatusService); labels as on borderpark.
+export interface BorderQueue {
+  title: string;
+  inQueue: number;
+  // Of inQueue: online turns whose truck is not at the border yet.
+  notPresent: number;
+  empty: number;
+  called: number;
+  customsCheckedIn: number;
+  // Left the tirpark, waiting to enter customs.
+  waitingCustoms: number;
+  waitHours: number;
+}
+
+export interface BorderStatus {
+  border: {
+    id: string;
+    name: string;
+    country: string;
+    countryCode: string;
+    stats: { load: number; transit: number; export: number; unload: number; customsCheckedIn: number };
+  };
+  // Jalali «1405-07-23 20:38» as borderpark gives it.
+  lastUpdate: string | null;
+  totals: { inQueue: number; called: number; customsCheckedIn: number };
+  // Busiest first; queues with nothing in them are left out.
+  queues: BorderQueue[];
+  notices: string[];
+  tirparks: Array<{ name: string; address: string; capacity: number; accepts: string[]; lat: number; lng: number }>;
+  // borderpark did not answer; this is the last stored state.
+  stale: boolean;
+}
+
+export function listBorders() {
+  return unwrap<BorderStatus[]>(axios.get(`${endpoints.baseurl}borders`, { ...config(), timeout: 60000 }));
 }

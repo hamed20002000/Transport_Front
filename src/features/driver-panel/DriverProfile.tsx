@@ -1,3 +1,4 @@
+import { tripTypeHints, tripTypeLabels, type TripType } from 'src/features/company-cargo/api';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import {
   Camera,
@@ -408,6 +409,8 @@ function ProfileContent() {
         </div>
       </div>
 
+      <TripTypeCard value={profile.tripType} onSaved={(updated) => setProfile({ ...profile, tripType: updated.tripType })} />
+
       <div className="tw-grid tw-gap-6 lg:tw-grid-cols-2">
         <Card title="اطلاعات شخصی" hint="نام شما در درخواست بار به شرکت نمایش داده می‌شود" icon={User}>
           <Field label="نام" icon={User}>{text('firstName', 'مثلاً رضا')}</Field>
@@ -509,6 +512,53 @@ function ProfileContent() {
         </div>
       )}
     </form>
+  );
+}
+
+const tripTypes: TripType[] = ['DOMESTIC', 'EXPORT', 'IMPORT'];
+
+// Saved on its own click: it decides which announced loads reach the driver, apart from the profile form.
+function TripTypeCard({ value, onSaved }: { value: TripType; onSaved: (profile: DriverProfile) => void }) {
+  const toast = useToast();
+  const [saving, setSaving] = useState<TripType | null>(null);
+  async function choose(type: TripType) {
+    if (type === value || saving) return;
+    setSaving(type);
+    try {
+      onSaved(await updateDriverProfile({ tripType: type }));
+      toast.success(`نوع راننده «${tripTypeLabels[type]}» شد؛ از این به بعد بارهای ${tripTypeLabels[type]} برایتان فرستاده می‌شود.`);
+    } catch (error) {
+      toast.error(errorMessage(error));
+    } finally {
+      setSaving(null);
+    }
+  }
+  return (
+    <section className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm" aria-label="نوع راننده">
+      <div>
+        <h3 className="tw-m-0 tw-text-base tw-font-bold">نوع راننده</h3>
+        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">بارهای اعلام‌شده فقط برای راننده‌های همان نوع فرستاده می‌شود.</p>
+      </div>
+      <div role="radiogroup" aria-label="نوع راننده" className="tw-grid tw-gap-2 sm:tw-grid-cols-3">
+        {tripTypes.map((type) => (
+          <button
+            key={type}
+            type="button"
+            role="radio"
+            aria-checked={value === type}
+            disabled={!!saving}
+            onClick={() => choose(type)}
+            className={cn(
+              'tw-rounded-xl tw-border tw-p-3 tw-text-start tw-transition-colors',
+              value === type ? 'tw-border-brand-orange tw-bg-brand-orange-soft tw-ring-2 tw-ring-brand-orange-soft' : 'tw-border-brand-line tw-bg-white hover:tw-border-brand-orange/50',
+            )}
+          >
+            <strong className="tw-block tw-text-sm">{saving === type ? 'در حال ذخیره…' : tripTypeLabels[type]}</strong>
+            <span className="tw-block tw-text-xs tw-text-brand-muted">{tripTypeHints[type]}</span>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

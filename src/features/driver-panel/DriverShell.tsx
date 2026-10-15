@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
-import { Bell, ClipboardList, House, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
+import { Bell, ClipboardList, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -15,6 +15,7 @@ const items = [
   { to: '/account/driver/loads', label: 'بارها', icon: PackageSearch },
   { to: '/account/driver/requests', label: 'درخواست‌ها', icon: ClipboardList },
   { to: '/account/driver/trip', label: 'سفر فعال', icon: Navigation },
+  { to: '/account/driver/borders', label: 'مرزها', icon: Landmark },
   { to: '/account/driver/profile', label: 'پروفایل', icon: UserRound },
 ];
 
@@ -88,7 +89,7 @@ function Frame({ children }: { children: ReactNode }) {
             </Link>
           </div>
         </div>
-        <nav aria-label="منوی راننده" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-5 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
+        <nav aria-label="منوی راننده" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-6 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
           {items.map(({ to, label, icon: Icon }) => {
             const active = pathname === to || pathname === `${to}/`;
             return (

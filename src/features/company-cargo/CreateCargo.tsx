@@ -5,6 +5,7 @@ import Spinner from 'src/shared/components/spinner/Spinner';
 import { createListing, getListingDefaults } from './api';
 import CompanyShell from './CompanyShell';
 import { SectionTitle } from './components';
+import ExcelImport from './ExcelImport';
 import ListingForm from './ListingForm';
 
 function CreateForm() {
@@ -12,11 +13,20 @@ function CreateForm() {
   return (
     <div className="tw-space-y-6">
       <SectionTitle title="ثبت بار جدید" hint="بار به نام شرکت شما برای راننده‌های مشترک فرستاده می‌شود" />
+      <ExcelImport
+        onDone={(created) =>
+          navigate('/account/company/cargo?tab=listings', { state: { createdCount: created.length, createdPending: created.some((item) => item.pending) } })
+        }
+      />
       <ListingForm
         variant="page"
         load={getListingDefaults}
         submit={createListing}
-        onDone={(listing) => navigate('/account/company/cargo?tab=listings', { state: { createdRecipients: listing.recipients } })}
+        onDone={(listing) =>
+          navigate('/account/company/cargo?tab=listings', {
+            state: { createdRecipients: listing.recipients, createdPending: listing.pending, createdTripType: listing.tripType },
+          })
+        }
       />
     </div>
   );

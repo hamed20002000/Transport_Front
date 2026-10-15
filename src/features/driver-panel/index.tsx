@@ -8,6 +8,7 @@ const DriverRequests = Loadable(lazy(() => import('./DriverRequests')));
 const DriverTrip = Loadable(lazy(() => import('./DriverTrip')));
 const DriverFilters = Loadable(lazy(() => import('./DriverSettings')));
 const DriverProfile = Loadable(lazy(() => import('./DriverProfile')));
+const DriverBorders = Loadable(lazy(() => import('./DriverBorders')));
 
 // /account/driver itself is served by the account feature (it renders DriverHome).
 export const driverPanelRoutes: RouteObject[] = [
@@ -16,4 +17,5 @@ export const driverPanelRoutes: RouteObject[] = [
   { path: '/account/driver/trip', element: <DriverTrip /> },
   { path: '/account/driver/filters', element: <DriverFilters /> },
   { path: '/account/driver/profile', element: <DriverProfile /> },
+  { path: '/account/driver/borders', element: <DriverBorders /> },
 ];
