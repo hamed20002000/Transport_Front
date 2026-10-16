@@ -5,15 +5,8 @@ export enum AccountType {
   Broker = 'BROKER',
 }
 
-export interface RegisterRequest {
-  phoneNumber: string;
-  username: string;
-  password: string;
-  accountType: AccountType;
-}
-
-export interface RegisteredAccount {
-  id: string;
-  username: string;
-  accountType: AccountType;
-}
+/** Account types people pick for themselves at sign-up. */
+export const SELF_SERVICE_ACCOUNT_TYPES = [
+  { type: AccountType.Driver, label: 'راننده', hint: 'دیدن بارها، اعلام آمادگی و وضعیت مرزها' },
+  { type: AccountType.Company, label: 'شرکت حمل‌ونقل', hint: 'ثبت و اعلام بار به رانندگان' },
+] as const;

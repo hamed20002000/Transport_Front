@@ -2,6 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import React, { useState, useEffect } from 'react';
+import { clearSession } from 'src/core/auth/session';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Menu, Avatar, Typography, Divider, Button, IconButton, Stack, Alert } from 'src/shared/components/compat';
@@ -109,7 +110,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    clearSession();
     localStorage.removeItem('hasSeenWelcomeMessage');
     navigate('/auth/login');
   };

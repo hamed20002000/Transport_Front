@@ -288,6 +288,22 @@ export interface BorderStatus {
   stale: boolean;
 }
 
+// Display order, as in the bots (transport_backend borderOrder): Turkey, Bashmaq, Azerbaijan, Armenia, the rest; busiest first within each.
+export function borderOrder(a: BorderStatus, b: BorderStatus) {
+  const rank = ({ border }: BorderStatus) =>
+    border.countryCode === 'TR' ? 0 : border.id === 'bashmaq' ? 1 : border.countryCode === 'AZ' ? 2 : border.countryCode === 'AM' ? 3 : 4;
+  return rank(a) - rank(b) || b.totals.inQueue - a.totals.inQueue;
+}
+
 export function listBorders() {
   return unwrap<BorderStatus[]>(axios.get(`${endpoints.baseurl}borders`, { ...config(), timeout: 60000 }));
+}
+
+// A border the load's route crosses (transport_backend BorderStatusService.onRoute), in route order.
+export interface RouteBorder extends BorderStatus {
+  crossing: { atKm: number; direction: 'exit' | 'entry'; offsetKm: number };
+}
+
+export function getRouteBorders(id: string, route: number) {
+  return unwrap<RouteBorder[]>(axios.get(url(`loads/${id}/borders`), { ...config({ route }), timeout: 60000 }));
 }

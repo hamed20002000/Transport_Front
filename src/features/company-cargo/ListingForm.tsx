@@ -3,15 +3,12 @@ import axios from 'axios';
 import { Banknote, Building2, Flag, MapPin, NotebookPen, Package, Phone, Plus, Send, Truck, Weight, X } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
-import { listingLimits, phonePattern, tripTypeHints, tripTypeLabels, type CargoListing, type CargoListingInput, type TripType } from './api';
+import { listingLimits, phonePattern, type CargoListing, type CargoListingInput } from './api';
 
-type Fields = Omit<Required<CargoListingInput>, 'contactPhones' | 'tripType'>;
+type Fields = Omit<Required<CargoListingInput>, 'contactPhones'>;
 
 // What the form can be prefilled with; null/missing values stay empty.
 export type ListingDefaults = Partial<Record<keyof Fields, string | null>> & { contactPhones?: string[] | null; code?: string | null };
-
-// '' = let the server detect it from origin and destination.
-type TripChoice = TripType | '';
 
 export type PublishedListing = CargoListing & { recipients: number; pending?: boolean; nextAnnounceAt?: string | null };
 
@@ -107,7 +104,6 @@ export default function ListingForm({
   const [fields, setFields] = useState<Fields>(() => merge(empty, initial));
   const [phones, setPhones] = useState<string[]>(() => (initial?.contactPhones?.length ? initial.contactPhones.slice(0, listingLimits.phones) : ['']));
   const [saving, setSaving] = useState(false);
-  const [tripType, setTripType] = useState<TripChoice>('');
   const toast = useToast();
   // Set by the server (the channel cargo's code, or a new one for a manual cargo); shown, never sent.
   const [code, setCode] = useState(initial?.code ?? '');
@@ -158,7 +154,6 @@ export default function ListingForm({
         price: optional(fields.price),
         extraNotes: optional(fields.extraNotes),
         contactPhones,
-        ...(tripType ? { tripType } : {}),
       });
       onDone(listing);
     } catch (e) {
@@ -182,6 +177,9 @@ export default function ListingForm({
       )}
 
       <Group title="مسیر" plain={dialog}>
+        <p className="tw-m-0 tw-mb-3 tw-text-xs tw-text-brand-muted">
+          نوع حمل از مبدأ و مقصد تشخیص داده می‌شود (داخل ایران: داخلی، ایران به خارج: صادراتی، خارج به ایران: وارداتی) و بار فقط به راننده‌های همان نوع می‌رسد.
+        </p>
         <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
           <Field label="مبدأ بارگیری" icon={MapPin} required>
             <input className={inputClass} value={fields.origin} onChange={set('origin')} maxLength={listingLimits.origin} placeholder="مثلاً تهران، انبار شادآباد" required />
@@ -189,35 +187,6 @@ export default function ListingForm({
           <Field label="مقصد تخلیه" icon={Flag} required>
             <input className={inputClass} value={fields.destination} onChange={set('destination')} maxLength={listingLimits.destination} placeholder="مثلاً اصفهان" required />
           </Field>
-        </div>
-      </Group>
-
-      <Group title="نوع حمل" plain={dialog}>
-        <div className="tw-space-y-2">
-          <div role="radiogroup" aria-label="نوع حمل" className="tw-flex tw-flex-wrap tw-gap-2">
-            {([['', 'تشخیص خودکار'], ...(Object.keys(tripTypeLabels) as TripType[]).map((type) => [type, tripTypeLabels[type]])] as Array<[TripChoice, string]>).map(
-              ([value, label]) => (
-                <button
-                  key={value || 'auto'}
-                  type="button"
-                  role="radio"
-                  aria-checked={tripType === value}
-                  onClick={() => setTripType(value)}
-                  className={cn(
-                    'tw-rounded-xl tw-border tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-transition-colors',
-                    tripType === value ? 'tw-border-brand-orange tw-bg-brand-orange-soft tw-text-brand-orange-ink' : 'tw-border-brand-line tw-bg-white hover:tw-bg-brand-sky',
-                  )}
-                >
-                  {label}
-                </button>
-              ),
-            )}
-          </div>
-          <p className="tw-m-0 tw-text-xs tw-text-brand-muted">
-            {tripType
-              ? `فقط به راننده‌های ${tripTypeLabels[tripType]} (${tripTypeHints[tripType]}) فرستاده می‌شود.`
-              : 'از مبدأ و مقصد تشخیص داده می‌شود: داخل ایران داخلی، ایران به خارج صادراتی و خارج به ایران وارداتی؛ بار فقط به راننده‌های همان نوع می‌رسد.'}
-          </p>
         </div>
       </Group>
 
@@ -347,7 +316,7 @@ export default function ListingForm({
   return (
     <form onSubmit={onSubmit} noValidate className="tw-grid tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
       {inputs}
-      <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-36 lg:tw-self-start">
+      <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-48 lg:tw-self-start">
         <section className="tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">
           <h2 className="tw-mb-3 tw-text-base tw-font-bold">پیش‌نمایش پیام راننده</h2>
           {preview}

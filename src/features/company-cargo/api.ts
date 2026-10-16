@@ -140,8 +140,6 @@ export interface CargoListingInput {
   price?: string;
   extraNotes?: string;
   contactPhones: string[];
-  // Left out: the server detects it from origin and destination.
-  tripType?: TripType;
 }
 
 export const listingLimits = {

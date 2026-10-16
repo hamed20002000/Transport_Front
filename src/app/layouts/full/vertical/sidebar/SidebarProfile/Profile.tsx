@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { clearSession } from 'src/core/auth/session';
 import axios from 'axios';
 import { Box, Avatar, Typography, IconButton, useMediaQuery } from 'src/shared/components/compat';
 import { useSelector } from 'src/app/store';
@@ -92,7 +93,7 @@ export const Profile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    clearSession();
     localStorage.removeItem('hasSeenWelcomeMessage');
     navigate('/auth/login');
   };

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell as UiTableCell, MenuItem as UiMenuItem, Typography, Chip, Menu, IconButton, ListItemIcon, Box, Stack, Grid, Button, Alert, Checkbox, InputAdornment, TablePagination, TextField, FormControl, InputLabel, Select, OutlinedInput, CardMedia, FormControlLabel, ListItemText, ToggleButton as UiToggleButton, ToggleButtonGroup, TableSortLabel, CircularProgress, SelectChangeEvent } from 'src/shared/components/compat';
+import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell as UiTableCell, MenuItem as UiMenuItem, Typography, Chip, Menu, IconButton, ListItemIcon, Box, Stack, Grid, Button, Alert, Checkbox, InputAdornment, TablePagination, TextField, FormControl, InputLabel, Select, OutlinedInput, CardMedia, ListItemText, ToggleButton as UiToggleButton, ToggleButtonGroup, TableSortLabel, CircularProgress, SelectChangeEvent } from 'src/shared/components/compat';
 
 import { keyframes, styled } from 'src/shared/components/compat';
 import { Bolt as BoltIcon } from 'src/shared/components/compat/icons';
@@ -9,15 +9,13 @@ import BlankCard from 'src/shared/components/BlankCard';
 import CustomFormLabel from 'src/shared/components/form-controls/CustomFormLabel';
 import CustomTextField from 'src/shared/components/form-controls/CustomTextField';
 import {
-  IconDots, IconEdit, IconTrash, IconEye, IconEyeOff, IconKey, IconUsersGroup, IconLock, IconSearch,
-  IconCopy,
+  IconDots, IconEdit, IconTrash, IconUsersGroup, IconLock, IconSearch,
   IconX,
 } from '@tabler/icons-react';
 import { DoNotDisturbOnRounded as DoNotDisturbOnRoundedIcon } from 'src/shared/components/compat/icons';
 import { DoneRounded as DoneRoundedIcon } from 'src/shared/components/compat/icons';
 import ListUsersModal from 'src/features/access-management/pages/list-users/ListUsersRolesModal';
 import ListUserOperationsModal from 'src/features/access-management/pages/list-users/ListUserOperationsModal';
-import ChangeUserPasswordModal from 'src/features/access-management/pages/list-users/ChangeUserPasswordModal';
 import DeleteListUser from 'src/features/access-management/pages/list-users/DeleteListUser';
 import axios from 'axios';
 import server from 'src/core/config/endpoints.json';
@@ -164,8 +162,6 @@ const ListUsers = () => {
 
 
   const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [allRoles, setAllRoles] = useState<RoleType[]>([]);
 
@@ -186,17 +182,11 @@ const ListUsers = () => {
   const [userIdForRoleSelection, setUserIdForRoleSelection] = useState<string | null>(null);
   const [openOperationsModal, setOpenOperationsModal] = useState(false);
   const [userIdForOperationsSelection, setUserIdForOperationsSelection] = useState<string | null>(null);
-  const [openChangePasswordModal, setOpenChangePasswordModal] = useState(false);
-  const [userIdForPasswordChange, setUserIdForPasswordChange] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [generateRandomPassword, setGenerateRandomPassword] = useState<boolean>(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
   const usernameFieldRef = useRef<HTMLInputElement>(null);
-  const passwordFieldRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordFieldRef = useRef<HTMLInputElement>(null);
   const { isTooltipGloballyEnabled } = useTooltip();
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [selectedRoleFilterId, setSelectedRoleFilterId] = useState<string>('all');
@@ -206,10 +196,6 @@ const ListUsers = () => {
   const [usernameHelperText, setUsernameHelperText] = useState<string>('');
   const [roleError, setRoleError] = useState<boolean>(false);
   const [roleHelperText, setRoleHelperText] = useState<string>('');
-  const [passwordError, setPasswordError] = useState<boolean>(false);
-  const [passwordHelperText, setPasswordHelperText] = useState<string>('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState<boolean>(false);
-  const [confirmPasswordHelperText, setConfirmPasswordHelperText] = useState<string>('');
 
 
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -257,7 +243,6 @@ const ListUsers = () => {
   const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
   const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
 
-  const hasChangePassPermission = useMemo(() => hasPermission("Şifre Değiştirmek"), [allowedOperations, currentMenuOpIds]);
 
   const showAlert = useCallback((message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
     setAlertMessage(message);
@@ -381,20 +366,6 @@ const ListUsers = () => {
     getListUsers();
   }, [getListUsers]);
 
-  const handleClickOpenChangePasswordModal = useCallback(() => {
-    if (selectedUserForMenu) {
-      setUserIdForPasswordChange(selectedUserForMenu.username);
-      setOpenChangePasswordModal(true);
-    }
-    handleCloseMenu();
-  }, [selectedUserForMenu, handleCloseMenu]);
-
-  const handleClickCloseChangePasswordModal = useCallback(() => {
-    setOpenChangePasswordModal(false);
-    setUserIdForPasswordChange(null);
-    showAlert('Şifre değiştirme işlemi tamamlandı.', 'info');
-  }, [showAlert]);
-
   const handleClickOpenOperationsModal = useCallback(() => {
     if (selectedUserForMenu) {
       setUserIdForOperationsSelection(selectedUserForMenu.id);
@@ -408,39 +379,6 @@ const ListUsers = () => {
     setUserIdForOperationsSelection(null);
     getListUsers();
   }, [getListUsers]);
-
-  const generateRandomPass = useCallback(() => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
-    const charss = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
-    const num = '0123456789';
-    let newPass = '';
-    for (let i = 0; i < 10; i++) {
-      newPass += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    for (let i = 0; i < 5; i++) {
-      newPass += charss.charAt(Math.floor(Math.random() * charss.length));
-    }
-    for (let j = 0; j < 2; j++) {
-      newPass += num.charAt(Math.floor(Math.random() * num.length));
-    }
-    setPassword(newPass);
-    setConfirmPassword(newPass);
-  }, []);
-
-  const handleRandomPasswordCheckboxChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setGenerateRandomPassword(event.target.checked);
-    if (event.target.checked) {
-      generateRandomPass();
-      setPasswordError(false);
-      setPasswordHelperText('');
-      setConfirmPasswordError(false);
-      setConfirmPasswordHelperText('');
-    } else {
-      setPassword('');
-      setConfirmPassword('');
-    }
-  }, [generateRandomPass]);
-
 
   const uploadImage = async (file: File, authToken: string, showAlert: (m: string, s: 'success' | 'error' | 'warning' | 'info') => void): Promise<string | null> => {
 
@@ -514,27 +452,18 @@ const ListUsers = () => {
   }, []);
   const resetFormAndState = useCallback(() => {
     setUsername('');
-    setPassword('');
-    setConfirmPassword('');
     setSelectedRoles([]);
     setProfileRawFile([]);
     setProfileImageUrl(DEFAULT_IMAGE_URL);
-    setGenerateRandomPassword(false);
     setEditingUserId(null);
     setUsernameError(false);
     setUsernameHelperText('');
     setRoleError(false);
     setRoleHelperText('');
-    setPasswordError(false);
-    setPasswordHelperText('');
-    setConfirmPasswordError(false);
     setIsFormVisible(false);
-    setConfirmPasswordHelperText('');
 
     setTimeout(() => {
       if (usernameFieldRef.current) usernameFieldRef.current.value = '';
-      if (passwordFieldRef.current) passwordFieldRef.current.value = '';
-      if (confirmPasswordFieldRef.current) confirmPasswordFieldRef.current.value = '';
     }, 0);
   }, []);
 
@@ -545,9 +474,6 @@ const ListUsers = () => {
       const fullUrl = getFullImageUrl(selectedUserForMenu.imageUrl);
       setProfileImageUrl(fullUrl);
       setProfileRawFile([]);
-      setPassword('');
-      setConfirmPassword('');
-      setGenerateRandomPassword(false);
       const currentRoleIds = selectedUserForMenu.roles.map(role => role.id);
       setSelectedRoles(currentRoleIds);
       setIsFormVisible(true);
@@ -558,15 +484,9 @@ const ListUsers = () => {
     setUsernameHelperText('');
     setRoleError(false);
     setRoleHelperText('');
-    setPasswordError(false);
-    setPasswordHelperText('');
-    setConfirmPasswordError(false);
-    setConfirmPasswordHelperText('');
     setTimeout(() => {
       usernameFieldRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       usernameFieldRef.current?.focus();
-      if (passwordFieldRef.current) passwordFieldRef.current.value = '';
-      if (confirmPasswordFieldRef.current) confirmPasswordFieldRef.current.value = '';
     }, 100);
   }, [selectedUserForMenu, handleCloseMenu, clearAlert]);
 
@@ -574,11 +494,6 @@ const ListUsers = () => {
     let hasValidationError = false;
 
     if (!username.trim()) { setUsernameError(true); setUsernameHelperText('Kullanıcı adı boş bırakılamaz.'); hasValidationError = true; } else { setUsernameError(false); setUsernameHelperText(''); }
-    if (editingUserId === null) {
-      if (!password.trim()) { setPasswordError(true); setPasswordHelperText('Şifre boş bırakılamaz.'); hasValidationError = true; } else { setPasswordError(false); setPasswordHelperText(''); }
-      if (!confirmPassword.trim()) { setConfirmPasswordError(true); setConfirmPasswordHelperText('Şifre tekrarı boş bırakılamaz.'); hasValidationError = true; } else { setConfirmPasswordError(false); setConfirmPasswordHelperText(''); }
-      if (password !== confirmPassword) { setPasswordError(true); setConfirmPasswordError(true); setPasswordHelperText('Şifreler eşleşmiyor!'); setConfirmPasswordHelperText('Şifreler eşleşmiyor!'); hasValidationError = true; } else { if (passwordError || confirmPasswordError) { setPasswordError(false); setPasswordHelperText(''); setConfirmPasswordError(false); setConfirmPasswordHelperText(''); } }
-    }
     if (selectedRoles.length === 0) { setRoleError(true); setRoleHelperText('rol seçilmelidir!'); hasValidationError = true; } else { setRoleError(false); setRoleHelperText(''); }
 
     if (hasValidationError) { showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning'); return; }
@@ -610,8 +525,6 @@ const ListUsers = () => {
         server.baseurl + server.user + "create-user",
         {
           username: username,
-          password: password,
-          rePassword: confirmPassword,
           imageSrc: finalImageSrc,
           roleNames: roleNamesToSend,
         },
@@ -828,15 +741,6 @@ const ListUsers = () => {
   }, [sortedAndFilteredUsers, page, rowsPerPage]);
 
 
-  const handleCopyPassword = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(confirmPassword);
-      showAlert('Şifre panoya kopyalandı!', 'success');
-    } catch (err) {
-      showAlert('Şifre kopyalanamadı. Lütfen manuel olarak kopyalayın.', 'error');
-    }
-  }, [confirmPassword, showAlert]);
-
   const handleRemoveProfileImage = useCallback(() => {
     setProfileRawFile([]);
     setProfileImageUrl(DEFAULT_IMAGE_URL);
@@ -934,128 +838,6 @@ const ListUsers = () => {
                       />
                     </CustomTooltip>
                   </Grid>
-                  {editingUserId === null && (
-                    <>
-                      <Grid item xs={12} md={6}>
-                        <CustomFormLabel htmlFor="password" required>Şifre</CustomFormLabel>
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Şifreyi girin" : ""}>
-                          <CustomTextField
-                            id="password"
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="Şifre"
-                            fullWidth
-                            value={password}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              setPassword(e.target.value);
-                              if (!e.target.value.trim()) {
-                                setPasswordError(true);
-                                setPasswordHelperText('Şifre boş bırakılamaz.');
-                              } else {
-                                setPasswordError(false);
-                                setPasswordHelperText('');
-                              }
-                              if (e.target.value !== confirmPassword && confirmPassword.trim() !== '') {
-                                setConfirmPasswordError(true);
-                                setConfirmPasswordHelperText('Şifreler eşleşmiyor!');
-                                setPasswordError(true);
-                                setPasswordHelperText('Şifreler eşleşmiyor!');
-                              } else {
-                                if (passwordError || confirmPasswordError) {
-                                  setPasswordError(false);
-                                  setPasswordHelperText('');
-                                  setConfirmPasswordError(false);
-                                  setConfirmPasswordHelperText('');
-                                }
-                              }
-                            }}
-                            disabled={generateRandomPassword}
-                            inputProps={{ autocomplete: 'new-password' }}
-                            inputRef={passwordFieldRef}
-                            error={passwordError}
-                            helperText={passwordHelperText}
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <CustomTooltip title={isTooltipGloballyEnabled ? "Şifreyi panoya kopyala" : ""}>
-                                    <IconButton
-                                      aria-label="copy password"
-                                      onClick={handleCopyPassword}
-                                      edge="end"
-                                      size="small"
-                                      disabled={!confirmPassword}
-                                    >
-                                      <IconCopy size={20} />
-                                    </IconButton>
-                                  </CustomTooltip>
-                                  <CustomTooltip title={isTooltipGloballyEnabled ? (showPassword ? "Şifreyi gizle" : "Şifreyi göster") : ""}>
-                                    <IconButton
-                                      aria-label="toggle password visibility"
-                                      onClick={() => setShowPassword((prev) => !prev)}
-                                      edge="end"
-                                      size="small"
-                                    >
-                                      {showPassword ? <IconEye size={20} /> : <IconEyeOff size={20} />}
-                                    </IconButton>
-                                  </CustomTooltip>
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </CustomTooltip>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <CustomFormLabel htmlFor="confirm-password" required>Şifreyi Tekrarla</CustomFormLabel>
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Şifreyi tekrar girin" : ""}>
-                          <CustomTextField
-                            id="confirm-password"
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="Şifreyi Tekrarla"
-                            fullWidth
-                            value={confirmPassword}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              setConfirmPassword(e.target.value);
-                              if (!e.target.value.trim()) {
-                                setConfirmPasswordError(true);
-                                setConfirmPasswordHelperText('Şifre tekrarı boş bırakılamaz.');
-                              } else if (e.target.value !== password) {
-                                setConfirmPasswordError(true);
-                                setConfirmPasswordHelperText('Şifreler eşleşmiyor!');
-                                setPasswordError(true);
-                                setPasswordHelperText('Şifreler eşleşmiyor!');
-                              }
-                              else {
-                                setConfirmPasswordError(false);
-                                setConfirmPasswordHelperText('');
-                                setPasswordError(false);
-                                setPasswordHelperText('');
-                              }
-                            }}
-                            disabled={generateRandomPassword}
-                            error={confirmPasswordError}
-                            helperText={confirmPasswordHelperText}
-                            inputProps={{ autocomplete: 'new-password' }}
-                            inputRef={confirmPasswordFieldRef}
-                          />
-                        </CustomTooltip>
-                      </Grid>
-                      <Grid item xs={12} md={6} display="flex" alignItems="center">
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Sistem tarafından rastgele bir şifre oluşturun" : ""}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={generateRandomPassword}
-                                onChange={handleRandomPasswordCheckboxChange}
-                                name="generateRandomPassword"
-                                color="primary"
-                              />
-                            }
-                            label="Rastgele Şifre Oluştur"
-                            sx={{ mt: 3 }}
-                          />
-                        </CustomTooltip>
-                      </Grid>
-                    </>
-                  )}
                   {editingUserId === null && (
                     <Grid item xs={12} md={12}>
                       <CustomFormLabel htmlFor="select-roles" required>Roller</CustomFormLabel>
@@ -1429,14 +1211,6 @@ const ListUsers = () => {
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
-                           {(selectedUserForMenu?.username)?.toLowerCase() !== "super_admin" &&hasChangePassPermission && (
-                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcının şifresini değiştir" : ""}>
-                              <UiMenuItem onClick={handleClickOpenChangePasswordModal}>
-                                <ListItemIcon><IconKey width={18} /></ListItemIcon>
-                                Şifre Değiştir
-                              </UiMenuItem>
-                            </CustomTooltip>
-                          )}
                            {(selectedUserForMenu?.username)?.toLowerCase() !== "super_admin" &&hasChangeRoleOpPermission && (
                             <>
                               <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcının rollerini yönet" : ""}>
@@ -1511,13 +1285,6 @@ const ListUsers = () => {
         openRoleModal={openRoleModal}
         onClose={handleClickCloseRoleModal}
         userId={userIdForRoleSelection}
-        showAlert={showAlert}
-      />
-
-      <ChangeUserPasswordModal
-        openModal={openChangePasswordModal}
-        onClose={handleClickCloseChangePasswordModal}
-        userId={userIdForPasswordChange}
         showAlert={showAlert}
       />
 

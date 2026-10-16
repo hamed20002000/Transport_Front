@@ -1,6 +1,6 @@
 import { ShieldCheck, Truck } from 'lucide-react';
 import PageContainer from 'src/shared/components/container/PageContainer';
-import AuthLogin from '../../components/AuthLogin';
+import AuthOtp from '../../components/AuthOtp';
 import TransportVisual from '../../components/TransportVisual';
 import styles from '../../styles/login.module.css';
 
@@ -29,11 +29,8 @@ export default function Login() {
               <h1 id="login-title">
                 خوش آمدید<span>!</span>
               </h1>
-              <p className={styles.description}>برای مدیریت حمل‌ونقل، وارد حساب خود شوید.</p>
-              <AuthLogin />
-              <p className={styles.help}>
-                برای دریافت یا بازیابی حساب، با مدیر سامانه تماس بگیرید.
-              </p>
+              <p className={styles.description}>ورود و ثبت‌نام فقط با شماره موبایل؛ رمز عبور لازم نیست.</p>
+              <AuthOtp />
             </div>
             <footer className={styles.footer}>
               <ShieldCheck size={17} />

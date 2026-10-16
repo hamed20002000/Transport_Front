@@ -1,0 +1,58 @@
+/* Prices glide by on their own; the list is rendered twice and moved by half its width, so the loop is seamless. */
+
+.viewport {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  /* Soft edges where items enter and leave. */
+  -webkit-mask-image: linear-gradient(to left, transparent 0, #000 1.5rem, #000 calc(100% - 1.5rem), transparent 100%);
+  mask-image: linear-gradient(to left, transparent 0, #000 1.5rem, #000 calc(100% - 1.5rem), transparent 100%);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--ticker-duration, 40s) linear infinite;
+}
+
+/* Holding the pointer (or a finger) on the bar, or tabbing into it, stops it to read a price. */
+.viewport:hover .track,
+.viewport:focus-within .track,
+.viewport:active .track {
+  animation-play-state: paused;
+}
+
+/* One copy of the quotes; the end padding equals the gap so both copies are exactly the same width. */
+.copy {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  padding-inline-end: 0.5rem;
+  list-style: none;
+}
+
+/* RTL: the copies run right to left, so moving right by one copy brings the next one in from the left. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+/* Nothing moves for people who asked their system for less motion; they scroll by hand as before. */
+@media (prefers-reduced-motion: reduce) {
+  .viewport {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+    scrollbar-width: none;
+  }
+  .track {
+    animation: none;
+  }
+}

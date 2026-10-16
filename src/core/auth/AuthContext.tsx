@@ -4,6 +4,7 @@ import React, { createContext, useState, useEffect, useContext, ReactNode, useCa
 import axios from 'axios';
 import { uniqueId } from 'lodash';
 import server from 'src/core/config/endpoints.json';
+import { freshAccessToken } from './session';
 import {
   IconDashboard, IconApps, IconUserCircle, IconCircles, IconCategory, IconBuilding,
   IconPackage, IconGavel, IconPlus, IconChecklist, IconRoute, IconUserCog,
@@ -317,7 +318,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loadAuthData = useCallback(async () => {
     setIsAuthDataLoading(true);
-    const authToken = localStorage.getItem('authToken');
+    // An expired access token is renewed with the stored refresh token (automatic sign-in).
+    const authToken = await freshAccessToken();
 
     if (!authToken) {
       setUsername('Guest');

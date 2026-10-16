@@ -12,6 +12,7 @@ import {
   MapPinned,
   Package,
   RefreshCw,
+  ShieldCheck,
   Repeat,
   Route,
   TrafficCone,
@@ -27,6 +28,7 @@ import { IconButton, PhoneLinks, Spec } from 'src/features/company-cargo/compone
 import {
   errorMessage,
   getLoadInsight,
+  getRouteBorders,
   getRouteFuel,
   getRouteFuelVoice,
   listReturnLoads,
@@ -36,6 +38,7 @@ import {
   type RouteFuel,
   type TrafficLevel,
 } from './api';
+import { BorderCard } from './borderCard';
 import {
   ActionButton,
   LoadHead,
@@ -67,6 +70,44 @@ function Skeleton() {
         ))}
       </div>
     </div>
+  );
+}
+
+// Live queue of the border(s) the chosen route crosses: exit for export, entry for import, both for transit.
+function RouteBorders({ listingId, route }: { listingId: string; route: number }) {
+  const { data, loading, failed, reload } = useAsync(() => getRouteBorders(listingId, route), [listingId, route]);
+  const [open, setOpen] = useState<string | null>(null);
+  if (loading && !data) {
+    return (
+      <p className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-sm tw-text-brand-muted">
+        <ShieldCheck size={16} aria-hidden /> در حال بررسی وضعیت مرز مسیر…
+      </p>
+    );
+  }
+  if (failed && !data) {
+    return (
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-border-dashed tw-border-brand-line tw-p-3 tw-text-sm tw-text-brand-muted">
+        وضعیت مرز مسیر دریافت نشد.
+        <IconButton icon={RefreshCw} label="تلاش مجدد" onClick={reload} />
+      </div>
+    );
+  }
+  if (!data?.length) return null;
+  return (
+    <section className="tw-space-y-2" aria-label="وضعیت مرز مسیر">
+      <h3 className="tw-m-0 tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-bold">
+        <ShieldCheck size={17} aria-hidden className="tw-text-brand-orange" /> وضعیت مرز این مسیر
+      </h3>
+      {data.map((status) => (
+        <BorderCard
+          key={status.border.id}
+          status={status}
+          open={open === status.border.id}
+          onToggle={() => setOpen((current) => (current === status.border.id ? null : status.border.id))}
+          note={`${status.crossing.direction === 'exit' ? 'خروج از ایران' : 'ورود به ایران'} · کیلومتر ${Math.round(status.crossing.atKm).toLocaleString('fa-IR')} مسیر`}
+        />
+      ))}
+    </section>
   );
 }
 
@@ -420,6 +461,7 @@ export default function LoadDetails({
                 )}
               </div>
 
+              {!!insight.routes.length && load.tripType !== 'DOMESTIC' && <RouteBorders listingId={load.id} route={route} />}
               {!!insight.routes.length && <FuelStations listingId={load.id} route={route} onStations={setFuel} />}
               <ReturnLoads listing={insight.listing} counts={insight.returnLoads} />
             </>

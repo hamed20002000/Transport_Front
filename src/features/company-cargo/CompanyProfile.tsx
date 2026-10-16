@@ -264,7 +264,7 @@ function ProfileContent() {
           </Card>
         </fieldset>
 
-        <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-36 lg:tw-self-start">
+        <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-48 lg:tw-self-start">
           <section className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-text-sm tw-shadow-sm">
             <p className="tw-truncate tw-text-base tw-font-bold">{profile.companyName || fullName || profile.username}</p>
             <ReadOnly icon={User} label="نام کاربری" value={profile.username} />

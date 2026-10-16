@@ -134,7 +134,20 @@ export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSugges
 // Which driver the load went to: waiting for their confirmation, or on the trip / delivered.
 function AssignmentLine({ assignment }: { assignment: NonNullable<CargoListing['assignment']> }) {
   const driver = assignment.driver;
-  const who = [driver?.name, driver?.mobile, driver?.plate].filter(Boolean).join(' · ');
+  // The driver's mobile is a call link, like the contact numbers on the cards.
+  const who = (
+    <>
+      {[driver?.name, driver?.plate].filter(Boolean).join(' · ')}
+      {driver?.mobile && (
+        <>
+          {' · '}
+          <a href={`tel:${driver.mobile}`} dir="ltr" className="tw-font-medium tw-underline tw-underline-offset-2">
+            {driver.mobile}
+          </a>
+        </>
+      )}
+    </>
+  );
   if (assignment.status === 'OFFERED') {
     const until = assignment.offerExpiresAt
       ? new Date(assignment.offerExpiresAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })

@@ -94,9 +94,14 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
             );
           })}
         </nav>
+        {/* Prices live in the sticky header so they stay in view while lists scroll. */}
+        <div className="tw-border-t tw-border-brand-line tw-bg-brand-sky">
+          <div className="tw-mx-auto tw-max-w-5xl tw-px-3 tw-py-1.5 sm:tw-px-6">
+            <MarketTicker />
+          </div>
+        </div>
       </header>
       <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
-        <MarketTicker />
         {children}
       </main>
     </div>
