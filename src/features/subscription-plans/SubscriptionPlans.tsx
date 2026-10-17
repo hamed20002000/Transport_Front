@@ -11,6 +11,8 @@ import { createPlan, deletePlan, listPlans, type Plan, type PlanInput } from './
 import { currencies, type Currency } from './currencies';
 
 const accounts = { DRIVER: 'راننده', COMPANY: 'شرکت', BROKER: 'واسط' };
+// Broker is hidden from new plans for now; its label still names existing broker plans.
+const offeredAccounts = (['DRIVER', 'COMPANY'] as const).map((value) => [value, accounts[value]] as const);
 const digits = (value: string) =>
   value
     .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
@@ -161,7 +163,7 @@ function PlansContent() {
               <label className="tw-space-y-2">
                 نوع حساب
                 <select name="accountType" className={selectClass} defaultValue="DRIVER">
-                  {Object.entries(accounts).map(([value, label]) => (
+                  {offeredAccounts.map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
                     </option>

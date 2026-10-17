@@ -92,7 +92,7 @@ export default function AnnounceSettings({ onSaved }: { onSaved?: () => void }) 
           <label className="tw-flex tw-items-center tw-gap-2">
             <span className="tw-text-brand-muted">اعلام</span>
             <select
-              className="tw-h-10 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy focus:tw-border-brand-orange"
+              className="tw-h-10 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none focus:tw-border-brand-orange"
               value={settings.intervalMinutes}
               disabled={saving}
               onChange={(event) => save('AUTO', Number(event.target.value))}

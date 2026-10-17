@@ -2,10 +2,12 @@ import { useRef, useState } from 'react';
 import axios from 'axios';
 import { AlertTriangle, Download, FileSpreadsheet, Send, Upload, X } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { downloadExcelTemplate, excelUploadLimit, importExcelListings, type ExcelImportResult } from './api';
+import { downloadExcelTemplate, excelUploadLimit, importExcelListings, tripTypeLabels, type ExcelImportResult, type TripType } from './api';
 import { PrimaryButton, SecondaryButton } from './components';
 
 const faNumber = (value: number) => value.toLocaleString('fa-IR');
+// Preview order: domestic, then export, then import (rows keep their file order within each group).
+const tripTypeOrder: Record<TripType, number> = { DOMESTIC: 0, EXPORT: 1, IMPORT: 2 };
 
 // The server explains what is wrong with the file (missing column, too many rows…) in Persian.
 function errorMessage(error: unknown) {
@@ -83,6 +85,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
   }
 
   const rows = check?.rows ?? [];
+  const sortedRows = [...rows].sort((a, b) => (a.tripType ? tripTypeOrder[a.tripType] : 3) - (b.tripType ? tripTypeOrder[b.tripType] : 3));
   const errors = check?.errors ?? [];
 
   return (
@@ -145,7 +148,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
                 <table className="tw-w-full tw-border-collapse tw-text-sm">
                   <thead className="tw-sticky tw-top-0 tw-bg-brand-sky">
                     <tr>
-                      {['ردیف', 'مبدأ', 'مقصد', 'نوع بار', 'وزن', 'نوع خودرو', 'کرایه'].map((title) => (
+                      {['ردیف', 'مبدأ', 'مقصد', 'ارسال برای راننده‌های', 'نوع بار', 'وزن', 'نوع خودرو', 'کرایه'].map((title) => (
                         <th key={title} className="tw-whitespace-nowrap tw-px-3 tw-py-2 tw-text-right tw-font-medium">
                           {title}
                         </th>
@@ -153,11 +156,12 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((row) => (
+                    {sortedRows.map((row, index) => (
                       <tr key={row.row} className="tw-border-t tw-border-brand-line">
-                        <td className="tw-px-3 tw-py-2 tw-text-brand-muted">{faNumber(row.row)}</td>
+                        <td className="tw-px-3 tw-py-2 tw-text-brand-muted">{faNumber(index + 1)}</td>
                         <td className="tw-px-3 tw-py-2">{row.origin}</td>
                         <td className="tw-px-3 tw-py-2">{row.destination}</td>
+                        <td className="tw-whitespace-nowrap tw-px-3 tw-py-2 tw-font-medium">{row.tripType ? tripTypeLabels[row.tripType] : '—'}</td>
                         <td className="tw-px-3 tw-py-2">{row.cargoType ?? '—'}</td>
                         <td className="tw-px-3 tw-py-2">{row.weight ?? '—'}</td>
                         <td className="tw-px-3 tw-py-2">{row.vehicleType ?? '—'}</td>

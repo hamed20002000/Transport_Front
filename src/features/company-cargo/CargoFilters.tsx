@@ -92,7 +92,7 @@ function PriceInput({ label, value, onChange }: { label: string; value: string; 
   return (
     <label className="tw-block tw-min-w-0 tw-flex-1 tw-space-y-1">
       <span className="tw-text-xs tw-text-brand-muted">{label}</span>
-      <div className="tw-flex tw-h-11 tw-items-center tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 focus-within:tw-border-brand-orange focus-within:tw-ring-4 focus-within:tw-ring-brand-orange-soft">
+      <div className="tw-flex tw-h-11 tw-items-center tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 focus-within:tw-border-brand-orange">
         <input
           dir="ltr"
           inputMode="numeric"
@@ -150,7 +150,7 @@ function TagInput({ label, icon: Icon, placeholder, values, onChange }: { label:
         {label}
         {!values.length && <span className="tw-text-xs tw-font-normal tw-text-brand-muted">(همه)</span>}
       </span>
-      <div className="tw-flex tw-min-h-[2.75rem] tw-flex-wrap tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-2 tw-py-1.5 focus-within:tw-border-brand-orange focus-within:tw-ring-4 focus-within:tw-ring-brand-orange-soft">
+      <div className="tw-flex tw-min-h-[2.75rem] tw-flex-wrap tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-2 tw-py-1.5 focus-within:tw-border-brand-orange">
         {values.map((value) => (
           <span key={value} className="tw-inline-flex tw-max-w-full tw-items-center tw-gap-1 tw-rounded-lg tw-bg-brand-sky tw-py-1 tw-pe-1 tw-ps-2.5 tw-text-xs tw-font-medium">
             <span className="tw-truncate">{value}</span>

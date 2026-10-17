@@ -364,10 +364,12 @@ function CargoContent() {
             <StatTile icon={CircleCheck} label="برداشته‌شده" value={summary?.taken} />
           </div>
 
-          <AnnounceSettings />
-
           {tab === 'suggestions' ? (
-            <Suggestions key={`s${refreshKey}`} onChanged={loadSummary} />
+            <>
+              {/* اعلام خودکار پیشنهادهای کانال‌ها؛ «بارهای من» فقط بارهای اعلام‌شده است */}
+              <AnnounceSettings />
+              <Suggestions key={`s${refreshKey}`} onChanged={loadSummary} />
+            </>
           ) : (
             <MyListings key={`l${refreshKey}`} onChanged={loadSummary} />
           )}

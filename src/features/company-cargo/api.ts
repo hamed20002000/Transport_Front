@@ -210,6 +210,8 @@ export interface ExcelCargoRow {
   price: string | null;
   extraNotes: string | null;
   contactPhones: string[];
+  // Domestic/export/import from origin and destination: which drivers will receive it.
+  tripType?: TripType;
 }
 
 export interface ExcelImportResult {

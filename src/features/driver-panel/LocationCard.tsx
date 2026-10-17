@@ -155,7 +155,7 @@ export default function LocationCard({ compact, onSent }: { compact?: boolean; o
                 placeholder="مثلاً قزوین، یا تهران - میدان آزادی"
                 maxLength={200}
                 autoFocus
-                className="tw-h-10 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-pe-3 tw-ps-9 tw-text-sm tw-text-brand-navy tw-outline-none focus:tw-border-brand-orange focus:tw-ring-4 focus:tw-ring-brand-orange-soft"
+                className="tw-h-10 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-pe-3 tw-ps-9 tw-text-sm tw-text-brand-navy tw-outline-none focus:tw-border-brand-orange"
               />
             </div>
             <button

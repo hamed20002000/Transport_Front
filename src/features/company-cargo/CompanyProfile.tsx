@@ -41,7 +41,7 @@ const textFields = Object.keys(profileRules) as ProfileTextField[];
 const companyFields: ProfileTextField[] = ['companyName', 'companyNationalId', 'economicCode', 'registrationNo'];
 
 const inputClass =
-  'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange focus:tw-ring-4 focus:tw-ring-brand-orange-soft';
+  'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange';
 
 function toFields(profile: UserProfile): Fields {
   const fields = { profileType: profile.profileType } as Fields;

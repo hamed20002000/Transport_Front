@@ -57,6 +57,9 @@ interface RolePermissionsData {
   [menuId: string]: string[];
 }
 
+// Broker is not offered for now; a user who already has it keeps it.
+const HIDDEN_ROLE = 'BROKER';
+
 interface RoleType {
   id: string;
   name: string;
@@ -476,7 +479,7 @@ const ListUsersModal = ({ openRoleModal, onClose, userId, showAlert }: Props) =>
                 {allRoles.length === 0 ? (
                   <Typography color="textSecondary" sx={{ p: 2 }}>Hiç rol bulunamadı.</Typography>
                 ) : (
-                  allRoles.map(role => (
+                  allRoles.filter(role => role.name !== HIDDEN_ROLE || selectedRoleIds.includes(role.id)).map(role => (
                     <ListItem
                       key={role.id}
                       onClick={() => setActiveDisplayRoleId(role.id)}

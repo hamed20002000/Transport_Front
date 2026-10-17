@@ -97,6 +97,9 @@ interface UserType {
   }[];
 }
 
+// Broker is not offered for now; a user who already has it keeps it.
+const HIDDEN_ROLE = 'BROKER';
+
 interface RoleType {
   id: string;
   name: string;
@@ -869,7 +872,7 @@ const ListUsers = () => {
                             sx={{ width: '100%' }}
                           >
                             {allRoles
-                              .filter(role => role.recordStatus === 0)
+                              .filter(role => role.recordStatus === 0 && (role.name !== HIDDEN_ROLE || selectedRoles.includes(role.id)))
                               .map((role) => (
                                 <UiMenuItem key={role.id} value={role.id}>
                                   <Checkbox checked={selectedRoles.indexOf(role.id) > -1} />
@@ -1014,7 +1017,7 @@ const ListUsers = () => {
                   onChange={handleRoleFilterChange}
                 >
                   <UiMenuItem value="all">Tümü</UiMenuItem>
-                  {allRoles.filter(role => role.recordStatus === 0).map(role => (
+                  {allRoles.filter(role => role.recordStatus === 0 && role.name !== HIDDEN_ROLE).map(role => (
                     <UiMenuItem key={role.id} value={role.id}>
                       {role.name}
                     </UiMenuItem>

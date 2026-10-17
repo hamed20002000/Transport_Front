@@ -73,7 +73,7 @@ function toFields(profile: DriverProfile): Fields {
 const same = (a: Fields, b: Fields) => JSON.stringify(a) === JSON.stringify(b);
 
 const inputClass =
-  'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange focus:tw-ring-4 focus:tw-ring-brand-orange-soft aria-[invalid=true]:tw-border-red-400';
+  'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange aria-[invalid=true]:tw-border-red-400';
 
 function Field({ label, icon: Icon, error, hint, className, children }: { label: string; icon: LucideIcon; error?: string; hint?: string; className?: string; children: ReactNode }) {
   return (
@@ -113,8 +113,8 @@ function PlateInput({ value, onChange, invalid }: { value: Plate; onChange: (pla
     <div
       dir="ltr"
       className={cn(
-        'tw-flex tw-h-16 tw-w-full tw-max-w-sm tw-overflow-hidden tw-rounded-xl tw-border-[3px] tw-bg-white tw-shadow-sm focus-within:tw-ring-4 focus-within:tw-ring-brand-orange-soft',
-        invalid ? 'tw-border-red-400' : 'tw-border-brand-navy',
+        'tw-flex tw-h-16 tw-w-full tw-max-w-sm tw-overflow-hidden tw-rounded-xl tw-border-[3px] tw-bg-white tw-shadow-sm',
+        invalid ? 'tw-border-red-400' : 'tw-border-brand-navy focus-within:tw-border-brand-orange',
       )}
     >
       <div className="tw-flex tw-w-9 tw-shrink-0 tw-flex-col tw-items-center tw-justify-center tw-gap-1 tw-bg-[#1D4ED8] tw-text-white" aria-hidden>
