@@ -10,7 +10,7 @@ type Fields = Omit<Required<CargoListingInput>, 'contactPhones'>;
 // What the form can be prefilled with; null/missing values stay empty.
 export type ListingDefaults = Partial<Record<keyof Fields, string | null>> & { contactPhones?: string[] | null; code?: string | null };
 
-export type PublishedListing = CargoListing & { recipients: number; pending?: boolean; nextAnnounceAt?: string | null };
+export type PublishedListing = CargoListing & { recipients: number; pending?: boolean; message?: string; nextAnnounceAt?: string | null };
 
 const empty: Fields = {
   companyName: '',
@@ -69,6 +69,8 @@ function previewText(fields: Fields, phones: string[], code: string) {
 function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (!error.response) return 'ارتباط با سرور برقرار نشد. اتصال را بررسی و دوباره تلاش کنید.';
+    const response = error.response.data as { code?: string; message?: string } | undefined;
+    if (response?.code === 'noCargoRecipients' && typeof response.message === 'string') return response.message;
     const { status } = error.response;
     if (status === 400) return 'اطلاعات بار معتبر نیست. فیلدها را بررسی کنید.';
     if (status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';

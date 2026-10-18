@@ -97,7 +97,7 @@ export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSugges
             )}
             {item.published && (
               <Badge tone="sky">
-                <Send size={12} aria-hidden /> منتشر شده · {statusLabels[item.published.status]}
+                <Send size={12} aria-hidden /> {item.published.announcedAt === null && item.published.status === 'OPEN' ? 'ثبت‌شده، اعلام‌نشده' : `منتشر شده · ${statusLabels[item.published.status]}`}
               </Badge>
             )}
           </div>
@@ -115,7 +115,7 @@ export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSugges
       footer={
         <>
           <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-            {!item.published && (
+            {(!item.published || (item.published.announcedAt === null && item.published.status === 'OPEN')) && (
               <PrimaryButton onClick={onAnnounce}>
                 <Megaphone size={16} aria-hidden /> اعلام بار
               </PrimaryButton>

@@ -23,8 +23,8 @@ function CreateForm() {
         load={getListingDefaults}
         submit={createListing}
         onDone={(listing) =>
-          navigate('/account/company/cargo?tab=listings', {
-            state: { createdRecipients: listing.recipients, createdPending: listing.pending, createdTripType: listing.tripType },
+          navigate(`/account/company/cargo?tab=${listing.pending ? 'suggestions' : 'listings'}`, {
+            state: { createdRecipients: listing.recipients, createdPending: listing.pending, createdTripType: listing.tripType, createdMessage: listing.message },
           })
         }
       />

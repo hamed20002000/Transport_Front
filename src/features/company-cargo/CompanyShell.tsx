@@ -4,6 +4,8 @@ import { Archive, Bell, Building2, House, Inbox, Link2, SlidersHorizontal, Squar
 import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from './profileStore';
 import MarketTicker from 'src/features/market/MarketTicker';
+import { useNotificationEvent } from './notificationSocket';
+import { useToast } from 'src/shared/components/toast/ToastProvider';
 
 const items = [
   { to: '/account/company', label: 'خانه', icon: House, match: (path: string, tab: string | null) => path === '/account/company' && !tab },
@@ -20,6 +22,10 @@ const fa = (value: number) => value.toLocaleString('fa-IR');
 // Frame for company pages: brand bar plus an icon-over-label menu (the mobile tab-bar pattern, kept at the top).
 export default function CompanyShell({ children, unread }: { children: ReactNode; unread?: number }) {
   const name = displayName(useProfile());
+  const toast = useToast();
+  useNotificationEvent<{ type?: string; text?: string }>('cargo-request-changed', (event) => {
+    if (event.type === 'newRequest' && event.text) toast.info(event.text);
+  });
   const { pathname, search } = useLocation();
   const tab = new URLSearchParams(search).get('tab');
   return (

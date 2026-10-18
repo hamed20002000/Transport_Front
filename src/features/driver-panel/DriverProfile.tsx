@@ -26,6 +26,8 @@ import {
   errorMessage,
   fetchDriverPhoto,
   getDriverProfile,
+  getDriverCompanies,
+  type DriverCompany,
   updateDriverProfile,
   uploadDriverPhoto,
   type DriverPhotoKind,
@@ -409,7 +411,7 @@ function ProfileContent() {
         </div>
       </div>
 
-      <TripTypeCard value={profile.tripType} onSaved={(updated) => setProfile({ ...profile, tripType: updated.tripType })} />
+      <AnnouncementPreferences profile={profile} onSaved={setProfile} />
 
       <div className="tw-grid tw-gap-6 lg:tw-grid-cols-2">
         <Card title="اطلاعات شخصی" hint="نام شما در درخواست بار به شرکت نمایش داده می‌شود" icon={User}>
@@ -518,49 +520,91 @@ function ProfileContent() {
 const tripTypes: TripType[] = ['DOMESTIC', 'EXPORT', 'IMPORT'];
 
 // Saved on its own click: it decides which announced loads reach the driver, apart from the profile form.
-function TripTypeCard({ value, onSaved }: { value: TripType; onSaved: (profile: DriverProfile) => void }) {
+function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile; onSaved: (profile: DriverProfile) => void }) {
   const toast = useToast();
-  const [saving, setSaving] = useState<TripType | null>(null);
-  async function choose(type: TripType) {
-    if (type === value || saving) return;
-    setSaving(type);
+  const [types, setTypes] = useState<TripType[]>(profile.tripTypes ?? [profile.tripType]);
+  const [memberships, setMemberships] = useState<string[]>(profile.companyUserIds ?? []);
+  const [companies, setCompanies] = useState<DriverCompany[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    setTypes(profile.tripTypes ?? [profile.tripType]);
+    setMemberships(profile.companyUserIds ?? []);
+  }, [profile.tripTypes, profile.tripType, profile.companyUserIds]);
+  useEffect(() => {
+    let active = true;
+    setFailed(false);
+    getDriverCompanies().then((rows) => { if (active) setCompanies(rows); }).catch(() => { if (active) setFailed(true); });
+    return () => { active = false; };
+  }, [version]);
+  const toggleType = (type: TripType) => {
+    if (types.includes(type) && types.length === 1) {
+      toast.error('حداقل یک نوع حمل را انتخاب کنید.');
+      return;
+    }
+    setTypes(types.includes(type) ? types.filter((item) => item !== type) : [...types, type]);
+  };
+  const toggleCompany = (id: string) => setMemberships((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  async function savePreferences() {
+    setSaving(true);
     try {
-      onSaved(await updateDriverProfile({ tripType: type }));
-      toast.success(`نوع راننده «${tripTypeLabels[type]}» شد؛ از این به بعد بارهای ${tripTypeLabels[type]} برایتان فرستاده می‌شود.`);
+      onSaved(await updateDriverProfile({ tripTypes: types, companyUserIds: memberships }));
+      toast.success('شرکت‌ها و نوع‌های حمل ذخیره شدند.');
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
-      setSaving(null);
+      setSaving(false);
     }
   }
+  const visible = companies?.filter((company) => company.name.includes(search.trim())) ?? [];
+  const unavailable = memberships.filter((id) => companies && !companies.some((company) => company.userId === id));
   return (
-    <section className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm" aria-label="نوع راننده">
+    <section className="tw-space-y-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm" aria-label="تنظیمات دریافت اعلام بار">
       <div>
-        <h3 className="tw-m-0 tw-text-base tw-font-bold">نوع راننده</h3>
-        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">بارهای اعلام‌شده فقط برای راننده‌های همان نوع فرستاده می‌شود.</p>
+        <h3 className="tw-m-0 tw-text-base tw-font-bold">دریافت اعلام بار</h3>
+        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌هایی که عضو آن‌ها هستید و برای نوع‌های حمل انتخابی، اعلام بار دریافت می‌کنید.</p>
       </div>
-      <div role="radiogroup" aria-label="نوع راننده" className="tw-grid tw-gap-2 sm:tw-grid-cols-3">
-        {tripTypes.map((type) => (
-          <button
-            key={type}
-            type="button"
-            role="radio"
-            aria-checked={value === type}
-            disabled={!!saving}
-            onClick={() => choose(type)}
-            className={cn(
-              'tw-rounded-xl tw-border tw-p-3 tw-text-start tw-transition-colors',
-              value === type ? 'tw-border-brand-orange tw-bg-brand-orange-soft tw-ring-2 tw-ring-brand-orange-soft' : 'tw-border-brand-line tw-bg-white hover:tw-border-brand-orange/50',
-            )}
-          >
-            <strong className="tw-block tw-text-sm">{saving === type ? 'در حال ذخیره…' : tripTypeLabels[type]}</strong>
-            <span className="tw-block tw-text-xs tw-text-brand-muted">{tripTypeHints[type]}</span>
-          </button>
-        ))}
+      <fieldset disabled={saving} className="tw-space-y-3">
+        <legend className="tw-text-sm tw-font-bold">نوع فعالیت راننده؛ می‌توانید چند مورد را انتخاب کنید</legend>
+        <div className="tw-grid tw-gap-2 sm:tw-grid-cols-3">
+          {tripTypes.map((type) => (
+            <button key={type} type="button" role="checkbox" aria-checked={types.includes(type)} onClick={() => toggleType(type)}
+              className={cn('tw-rounded-xl tw-border tw-p-3 tw-text-start', types.includes(type) ? 'tw-border-brand-orange tw-bg-brand-orange-soft' : 'tw-border-brand-line')}>
+              <strong className="tw-block tw-text-sm">{types.includes(type) ? '✓ ' : ''}{tripTypeLabels[type]}</strong>
+              <span className="tw-block tw-text-xs tw-text-brand-muted">{tripTypeHints[type]}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <div className="tw-space-y-3">
+        <h4 className="tw-m-0 tw-text-sm tw-font-bold">عضویت در شرکت‌ها ({memberships.length.toLocaleString('fa-IR')} انتخاب)</h4>
+        <input aria-label="جستجوی شرکت" placeholder="جستجوی نام شرکت…" value={search} onChange={(event) => setSearch(event.target.value)} className={inputClass} />
+        {failed ? <div role="alert">دریافت شرکت‌ها انجام نشد. <button type="button" onClick={() => setVersion((value) => value + 1)}>تلاش دوباره</button></div>
+          : companies === null ? <p role="status">در حال دریافت شرکت‌ها…</p>
+          : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
+            {visible.map((company) => (
+              <label key={company.userId} className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-p-3">
+                <input type="checkbox" disabled={saving} checked={memberships.includes(company.userId)} onChange={() => toggleCompany(company.userId)} />
+                <span>{company.name}</span>
+              </label>
+            ))}
+            {!visible.length && <p className="tw-text-sm tw-text-brand-muted">شرکتی پیدا نشد.</p>}
+            {unavailable.map((id) => <label key={id} className="tw-flex tw-items-center tw-gap-2 tw-p-3">
+              <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت غیرفعال؛ برای حذف عضویت، تیک را بردارید
+            </label>)}
+          </div>}
+        {!memberships.length && <p className="tw-text-sm tw-text-brand-muted">هنوز عضو شرکتی نیستید و اعلام باری دریافت نمی‌کنید.</p>}
       </div>
+      <button type="button" disabled={saving || companies === null || failed || !types.length} onClick={savePreferences}
+        className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-3 tw-font-bold tw-text-white disabled:tw-opacity-50">
+        {saving ? 'در حال ذخیره…' : 'ذخیره شرکت‌ها و نوع حمل'}
+      </button>
     </section>
   );
 }
+
 
 export default function DriverProfilePage() {
   return (

@@ -14,6 +14,8 @@ const conflicts: Record<string, string> = {
 export function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (!error.response) return 'ارتباط با سرور برقرار نشد. اتصال را بررسی و دوباره تلاش کنید.';
+    const response = error.response.data as { code?: string; message?: string } | undefined;
+    if (response?.code === 'noCargoRecipients' && typeof response.message === 'string') return response.message;
     if (error.response.status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';
     const code = (error.response.data as { message?: unknown } | undefined)?.message;
     if (error.response.status === 409 && typeof code === 'string' && conflicts[code]) return conflicts[code];

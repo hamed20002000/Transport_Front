@@ -210,8 +210,8 @@ function MyListings({ onChanged }: { onChanged: () => void }) {
       const announced = await announceListing(listing.id);
       state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === listing.id ? { ...row, announcedAt: announced.announcedAt } : row)) });
       toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${tripTypeLabels[listing.tripType]} اعلام شد.`);
-    } catch {
-      toast.error('اعلام بار انجام نشد. دوباره تلاش کنید.');
+    } catch (error) {
+      toast.error(errorMessage(error));
     } finally {
       setAnnouncingId(null);
     }
@@ -270,23 +270,23 @@ function useCreatedToast() {
   const navigate = useNavigate();
   const toast = useToast();
   const shownFor = useRef('');
-  const { createdRecipients: recipients, createdCount, createdPending: pending, createdTripType: tripType } =
-    (location.state as { createdRecipients?: number; createdCount?: number; createdPending?: boolean; createdTripType?: TripType } | null) ?? {};
+  const { createdRecipients: recipients, createdCount, createdPending: pending, createdTripType: tripType, createdMessage } =
+    (location.state as { createdRecipients?: number; createdCount?: number; createdPending?: boolean; createdTripType?: TripType; createdMessage?: string } | null) ?? {};
   useEffect(() => {
     // The ref keeps StrictMode's double effect from showing it twice.
     if ((recipients === undefined && createdCount === undefined) || shownFor.current === location.key) return;
     shownFor.current = location.key;
     const count = createdCount !== undefined ? `${createdCount.toLocaleString('fa-IR')} بار از فایل اکسل` : 'بار';
     toast.success(
-      pending
+      createdMessage ?? (pending
         ? `${count} ثبت شد و در نوبت بعدی اعلام خودکار برای راننده‌ها فرستاده می‌شود.`
         : createdCount !== undefined
           ? `${count} ثبت و برای راننده‌های هر نوع اعلام شد.`
-          : `بار ثبت شد و برای ${recipients!.toLocaleString('fa-IR')} رانندهٔ ${tripType ? tripTypeLabels[tripType] : ''} ارسال شد.`,
+          : `بار ثبت شد و برای ${recipients!.toLocaleString('fa-IR')} رانندهٔ ${tripType ? tripTypeLabels[tripType] : ''} ارسال شد.`),
     );
     // Clearing the history state keeps the toast from repeating on refresh.
     navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
-  }, [recipients, createdCount, pending, tripType, location.key, location.pathname, location.search, navigate, toast]);
+  }, [recipients, createdCount, pending, tripType, createdMessage, location.key, location.pathname, location.search, navigate, toast]);
 }
 
 function CargoContent() {

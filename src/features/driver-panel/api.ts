@@ -224,6 +224,8 @@ export interface DriverProfile {
   fleetCardNumber: string | null;
   // Domestic, export or import: announced loads reach only drivers of the same type.
   tripType: TripType;
+  tripTypes: TripType[];
+  companyUserIds: string[];
   // Stored file name when a photo exists; it changes on every upload, so it doubles as a cache key.
   photos: { face: string | null; vehicle: string | null; plate: string | null };
 }
@@ -306,4 +308,9 @@ export interface RouteBorder extends BorderStatus {
 
 export function getRouteBorders(id: string, route: number) {
   return unwrap<RouteBorder[]>(axios.get(url(`loads/${id}/borders`), { ...config({ route }), timeout: 60000 }));
+}
+
+export interface DriverCompany { userId: string; name: string }
+export function getDriverCompanies() {
+  return unwrap<DriverCompany[]>(axios.get(url('profile/companies'), config()));
 }

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { markSuggestionRead, setListingStatus, type CargoListing, type CargoSuggestion, type DriverCard } from './api';
+import { announceListing, markSuggestionRead, setListingStatus, type CargoListing, type CargoSuggestion, type DriverCard } from './api';
 import AssignDriverDialog from './AssignDriverDialog';
 import { AnnounceDialog } from './cargoCards';
 import { errorMessage } from './cargoText';
@@ -50,15 +50,26 @@ export function useSuggestionActions({
 
   function published(item: CargoSuggestion, listing: PublishedListing) {
     setAnnouncing(null);
-    update({ ...item, published: { id: listing.id, status: listing.status } });
-    say.success(`بار اعلام شد و برای ${listing.recipients.toLocaleString('fa-IR')} راننده ارسال شد.`);
+    update({ ...item, published: { id: listing.id, status: listing.status, announcedAt: listing.announcedAt } });
+    say.success(listing.message ?? (listing.pending ? 'بار ثبت شد و هنوز اعلام نشده است.' : `بار اعلام شد و برای ${listing.recipients.toLocaleString('fa-IR')} راننده ارسال شد.`));
     onChanged?.();
   }
 
   const dialog = announcing && (
     <AnnounceDialog item={announcing} layer={dialogLayer} onClose={close} onPublished={(listing) => published(announcing, listing)} />
   );
-  return { markRead, announce: setAnnouncing, dialog };
+  async function announce(item: CargoSuggestion) {
+    if (item.published?.announcedAt === null && item.published.status === 'OPEN') {
+      try {
+        published(item, await announceListing(item.published.id));
+      } catch (error) {
+        say.error(errorMessage(error));
+      }
+      return;
+    }
+    setAnnouncing(item);
+  }
+  return { markRead, announce, dialog };
 }
 
 /**

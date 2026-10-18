@@ -34,7 +34,7 @@ export interface CargoSuggestion {
   text: string;
   cargo: CargoDetails;
   // The copy of this cargo that the company has already published, if any.
-  published: { id: string; status: ListingStatus } | null;
+  published: { id: string; status: ListingStatus; announcedAt?: string | null } | null;
   isRead: boolean;
   createdAt: string;
 }
