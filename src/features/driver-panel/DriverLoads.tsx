@@ -161,23 +161,31 @@ export function patchPage(setData: (fn: (current: Page<OpenLoad> | null) => Page
     setData((current) => current && { ...current, items: current.items.map((item) => (item.id === id ? { ...item, ...patch } : item)) });
 }
 
+/** Drops a load from an open-loads page (it was taken), as the next fetch would. */
+export function removeFromPage(setData: (fn: (current: Page<OpenLoad> | null) => Page<OpenLoad> | null) => void) {
+  return (id: string) =>
+    setData((current) => current && { ...current, items: current.items.filter((item) => item.id !== id), total: Math.max(0, current.total - 1) });
+}
+
 export interface ListingChangedEvent {
   listingId: string;
   status: 'OPEN' | 'TAKEN';
   takenAt: string | null;
 }
 
-// Keeps load cards in step with the company. The event goes to every driver, not only the ones the
-// listing was announced to, so a load that missed this driver's filters (or that they published
-// themselves) still shows up or flips to «برداشته شد». `onOpened` gets loads that are not on screen yet.
+// Keeps the open-loads lists in step with the companies. The event goes to every driver, not only the ones
+// the listing was announced to. A taken load leaves the list at once (as on the next fetch: the list only has
+// open loads); `onOpened` gets loads that are not on screen yet.
 export function useLoadStatusEvents(
-  update: (id: string, patch: Partial<OpenLoad>) => void,
+  remove: (id: string) => void,
   items: OpenLoad[] | undefined,
   onOpened: () => void,
 ) {
   useNotificationEvent<ListingChangedEvent>('cargo-listing-changed', (event) => {
-    if (items?.some((item) => item.id === event.listingId)) update(event.listingId, { status: event.status, takenAt: event.takenAt });
-    else if (event.status === 'OPEN') onOpened();
+    const shown = items?.some((item) => item.id === event.listingId);
+    if (event.status === 'TAKEN') {
+      if (shown) remove(event.listingId);
+    } else if (!shown) onOpened();
   });
 }
 
@@ -196,7 +204,7 @@ function LoadsContent() {
   const state = useAsync(() => listLoads({ page, origin, destination, matchFilters: scope === 'mine' }), [page, origin, destination, scope]);
   const update = patchPage(state.setData);
   const actions = useLoadActions(update);
-  useLoadStatusEvents(update, state.data?.items, () => page === 1 && state.reload());
+  useLoadStatusEvents(removeFromPage(state.setData), state.data?.items, () => page === 1 && state.reload());
   useLoadsChangedEvent(state.reload);
   // درخواست یا جستجویی که با agent انجام شد
   useDomainRefresh('driver_loads', state.reload, 'account');

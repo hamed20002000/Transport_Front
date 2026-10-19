@@ -47,7 +47,13 @@ function updatedAt(value: string | null) {
 const mapUrl = (lat: number, lng: number) =>
   `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(5)},${lng.toFixed(5)}&travelmode=driving`;
 
-// Queue size as a colour: the crowded borders stand out in the list.
+// Queue size as a colour: the crowded borders stand out in the list (and on the map, crowdFill).
+export function crowdFill(inQueue: number) {
+  if (inQueue >= 3000) return '#DC2626';
+  if (inQueue >= 1000) return '#D97706';
+  return '#059669';
+}
+
 function crowdTone(inQueue: number) {
   if (inQueue >= 3000) return 'tw-bg-red-50 tw-text-red-700';
   if (inQueue >= 1000) return 'tw-bg-amber-50 tw-text-amber-800';

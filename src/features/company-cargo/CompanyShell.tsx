@@ -1,6 +1,8 @@
-import type { ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Archive, Bell, Building2, House, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
+import { getOverdueTrips } from './api';
+import { SignOutButton } from './components';
 import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from './profileStore';
 import MarketTicker from 'src/features/market/MarketTicker';
@@ -12,6 +14,7 @@ const items = [
   { to: '/account/company/cargo', label: 'پیشنهادها', icon: Inbox, match: (path: string, tab: string | null) => path === '/account/company/cargo' && tab !== 'listings' },
   { to: '/account/company/cargo/new', label: 'ثبت بار', icon: SquarePlus, match: (path: string) => path === '/account/company/cargo/new' },
   { to: '/account/company/cargo?tab=listings', label: 'بارهای من', icon: Archive, match: (path: string, tab: string | null) => path === '/account/company/cargo' && tab === 'listings' },
+  { to: '/account/company/trips', label: 'سفرها', icon: Truck, match: (path: string) => path === '/account/company/trips' },
   { to: '/account/company/drivers', label: 'رانندگان', icon: Users, match: (path: string) => path === '/account/company/drivers' },
   { to: '/account/company/channels', label: 'کانال‌ها', icon: Link2, match: (path: string) => path === '/account/company/channels' },
   { to: '/account/company/profile', label: 'پروفایل', icon: Building2, match: (path: string) => path === '/account/company/profile' },
@@ -23,8 +26,18 @@ const fa = (value: number) => value.toLocaleString('fa-IR');
 export default function CompanyShell({ children, unread }: { children: ReactNode; unread?: number }) {
   const name = displayName(useProfile());
   const toast = useToast();
+  // Trips with no delivery registered for days: a count on the «سفرها» tab, so a reminder missed while offline still shows.
+  const [overdue, setOverdue] = useState<{ count: number; days: number } | null>(null);
+  const loadOverdue = useCallback(() => {
+    getOverdueTrips()
+      .then(setOverdue)
+      .catch(() => setOverdue(null));
+  }, []);
+  useEffect(loadOverdue, [loadOverdue]);
   useNotificationEvent<{ type?: string; text?: string }>('cargo-request-changed', (event) => {
-    if (event.type === 'newRequest' && event.text) toast.info(event.text);
+    // The same reminder the messengers get («تحویل داده شد؟»), live while the panel is open.
+    if ((event.type === 'newRequest' || event.type === 'deliveryReminder') && event.text) toast.info(event.text);
+    loadOverdue();
   });
   const { pathname, search } = useLocation();
   const tab = new URLSearchParams(search).get('tab');
@@ -72,9 +85,10 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
             >
               <Truck size={20} aria-hidden />
             </Link>
+            <SignOutButton />
           </div>
         </div>
-        <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-7 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
+        <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-8 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
           {items.map(({ to, label, icon: Icon, match }) => {
             const active = match(pathname, tab);
             return (
@@ -87,7 +101,17 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
                   active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
                 )}
               >
-                <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
+                <span className="tw-relative">
+                  <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
+                  {to === '/account/company/trips' && !!overdue?.count && (
+                    <span
+                      title={`${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`}
+                      className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
+                    >
+                      {overdue.count > 99 ? '۹۹+' : fa(overdue.count)}
+                    </span>
+                  )}
+                </span>
                 {label}
                 <span
                   aria-hidden

@@ -9,6 +9,8 @@ const conflicts: Record<string, string> = {
   taken: 'این بار دیگر باز نیست.',
   own: 'نمی‌توانید بار را به خودتان بسپارید.',
   notDriver: 'این کاربر راننده‌ی سامانه نیست.',
+  activeTrip: 'این بار سفر فعال دارد و دوباره باز نمی‌شود؛ اول تحویلش را از «سفرهای فعال» ثبت کنید.',
+  notActive: 'این سفر دیگر فعال نیست (تحویلش قبلاً ثبت شده).',
 };
 
 export function errorMessage(error: unknown) {

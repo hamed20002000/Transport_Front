@@ -47,6 +47,16 @@ export function clearSession() {
   }
 }
 
+/**
+ * «خروج» from the company/driver panels: ends the session (refresh token revoked) and reloads at the login page, so
+ * nothing of this account stays in memory (auth context, sockets, cached lists) for whoever signs in next.
+ */
+export function signOut() {
+  clearSession();
+  for (const key of ['activeUserRoleName', 'activeUserRoleId', 'hasSeenWelcomeMessage']) localStorage.removeItem(key);
+  window.location.assign('/auth/login');
+}
+
 function expiresAt(token: string | null): number {
   if (!token) return 0;
   try {

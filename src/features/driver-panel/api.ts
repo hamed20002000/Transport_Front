@@ -278,6 +278,8 @@ export interface BorderStatus {
     country: string;
     countryCode: string;
     stats: { load: number; transit: number; export: number; unload: number; customsCheckedIn: number };
+    // The Iranian terminal of the crossing, for the borders map; null for a crossing not mapped yet.
+    location?: { lat: number; lng: number } | null;
   };
   // Jalali «1405-07-23 20:38» as borderpark gives it.
   lastUpdate: string | null;
@@ -295,6 +297,18 @@ export function borderOrder(a: BorderStatus, b: BorderStatus) {
   const rank = ({ border }: BorderStatus) =>
     border.countryCode === 'TR' ? 0 : border.id === 'bashmaq' ? 1 : border.countryCode === 'AZ' ? 2 : border.countryCode === 'AM' ? 3 : 4;
   return rank(a) - rank(b) || b.totals.inQueue - a.totals.inQueue;
+}
+
+// Iran's simplified outline as [lng, lat] rings (transport_backend iranBorder), to dim the map outside Iran; fixed.
+let outline: Promise<[number, number][][]> | null = null;
+export function getIranOutline() {
+  outline ??= unwrap<{ rings: [number, number][][] }>(axios.get(`${endpoints.baseurl}borders/outline`, config()))
+    .then((r) => r.rings)
+    .catch((error) => {
+      outline = null;
+      throw error;
+    });
+  return outline;
 }
 
 export function listBorders() {

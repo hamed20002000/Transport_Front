@@ -9,6 +9,7 @@ import { displayName, useProfile } from 'src/features/company-cargo/profileStore
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { unreadLoadCount } from './api';
 import MarketTicker from 'src/features/market/MarketTicker';
+import { SignOutButton } from 'src/features/company-cargo/components';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -87,6 +88,7 @@ function Frame({ children }: { children: ReactNode }) {
             >
               <Truck size={20} aria-hidden />
             </Link>
+            <SignOutButton />
           </div>
         </div>
         <nav aria-label="منوی راننده" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-6 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">

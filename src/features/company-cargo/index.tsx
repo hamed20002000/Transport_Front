@@ -9,6 +9,7 @@ const ChannelLinks = Loadable(lazy(() => import('./ChannelLinks')));
 const CompanyProfile = Loadable(lazy(() => import('./CompanyProfile')));
 const CargoFilters = Loadable(lazy(() => import('./CargoFilters')));
 const CompanyDrivers = Loadable(lazy(() => import('./CompanyDrivers')));
+const CompanyTrips = Loadable(lazy(() => import('./CompanyTrips')));
 export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/cargo', element: <CompanyCargo /> },
   { path: '/account/company/cargo/new', element: <CreateCargo /> },
@@ -16,4 +17,5 @@ export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/profile', element: <CompanyProfile /> },
   { path: '/account/company/filters', element: <CargoFilters /> },
   { path: '/account/company/drivers', element: <CompanyDrivers /> },
+  { path: '/account/company/trips', element: <CompanyTrips /> },
 ];

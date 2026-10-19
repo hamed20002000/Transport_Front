@@ -16,7 +16,7 @@ import { CardSkeleton, EmptyState, SectionTitle, StatTile } from 'src/features/c
 import { displayName, useProfile } from 'src/features/company-cargo/profileStore';
 import { listActiveTrips, listLoads, listMyRequests, unreadLoadCount, type CargoRequest } from './api';
 import { Hero, useAsync } from './components';
-import { LoadCard, patchPage, useLoadActions, useLoadStatusEvents } from './DriverLoads';
+import { LoadCard, patchPage, removeFromPage, useLoadActions, useLoadStatusEvents } from './DriverLoads';
 import { useLoadsChangedEvent } from './loadEvents';
 import DriverShell from './DriverShell';
 import { TripCard } from './DriverTrip';
@@ -55,7 +55,7 @@ function HomeContent() {
   const update = patchPage(latest.setData);
   useLoadsChangedEvent(latest.reload);
   const actions = useLoadActions(update);
-  useLoadStatusEvents(update, latest.data?.items, latest.reload);
+  useLoadStatusEvents(removeFromPage(latest.setData), latest.data?.items, latest.reload);
 
   const activeTrips = trips.data ?? [];
   const today = new Date().toLocaleDateString('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' });

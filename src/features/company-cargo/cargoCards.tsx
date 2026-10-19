@@ -185,6 +185,7 @@ export function ListingCard({
   const taken = listing.status === 'TAKEN';
   const queued = !taken && listing.announcedAt === null;
   const waiting = !taken && listing.assignment?.status === 'OFFERED';
+  const inTrip = taken && listing.assignment?.status === 'ACCEPTED';
   const ToggleIcon = saving ? RefreshCw : taken ? RotateCcw : waiting ? Hourglass : PackageCheck;
   const toggleContent = (
     <>
@@ -240,7 +241,8 @@ export function ListingCard({
               <Megaphone size={16} aria-hidden /> {announcing ? 'در حال اعلام…' : 'اعلام همین الان'}
             </SecondaryButton>
           )}
-          {taken || waiting ? (
+          {/* A load on an active trip cannot be reopened; delivery is registered from «سفرهای فعال». */}
+          {inTrip ? null : taken || waiting ? (
             <SecondaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</SecondaryButton>
           ) : (
             <PrimaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</PrimaryButton>

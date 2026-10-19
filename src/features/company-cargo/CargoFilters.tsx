@@ -11,6 +11,7 @@ import {
   Plus,
   Save,
   SlidersHorizontal,
+  Tag,
   Trash2,
   Truck,
   X,
@@ -225,18 +226,28 @@ function FilterCard({
   return (
     <li className={cn('tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm', draft.isActive ? 'tw-border-brand-line' : 'tw-border-dashed tw-border-brand-line tw-opacity-80')}>
       <div className="tw-flex tw-items-center tw-gap-3 tw-border-b tw-border-brand-line tw-px-5 tw-py-3">
-        <input
-          aria-label="نام فیلتر"
-          value={draft.label}
-          maxLength={filterLimits.label}
-          placeholder="نام فیلتر (اختیاری)، مثلاً مسیر تهران–مشهد"
-          onChange={(e) => set({ label: e.target.value })}
-          className="tw-h-9 tw-min-w-0 tw-flex-1 tw-rounded-lg tw-border-0 tw-bg-transparent tw-px-0 tw-text-base tw-font-bold tw-text-brand-navy tw-outline-none placeholder:tw-font-normal placeholder:tw-text-brand-muted/70"
-        />
+        <h3 className="tw-m-0 tw-min-w-0 tw-flex-1 tw-truncate tw-text-base tw-font-bold tw-text-brand-navy">
+          {draft.label.trim() || (saved ? 'فیلتر بدون عنوان' : 'فیلتر جدید')}
+        </h3>
         {/* A saved filter switches on/off at once; a new one keeps the choice until it is saved. */}
         <Toggle label="فعال بودن فیلتر" checked={draft.isActive} disabled={busy} onChange={(value) => (saved ? onToggle(value) : set({ isActive: value }))} />
       </div>
       <fieldset disabled={busy} className="tw-m-0 tw-grid tw-min-w-0 tw-gap-4 tw-border-0 tw-p-5 sm:tw-grid-cols-2">
+        {/* A real labelled field (it used to be the bare card heading, which nobody recognised as editable). */}
+        <label className="tw-block tw-space-y-1.5 sm:tw-col-span-2">
+          <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
+            <Tag size={15} aria-hidden className="tw-text-brand-muted" />
+            عنوان فیلتر
+            <span className="tw-text-xs tw-font-normal tw-text-brand-muted">(اختیاری)</span>
+          </span>
+          <input
+            value={draft.label}
+            maxLength={filterLimits.label}
+            placeholder="مثلاً مسیر تهران به مشهد"
+            onChange={(e) => set({ label: e.target.value })}
+            className="tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-text-brand-navy tw-outline-none placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange"
+          />
+        </label>
         {listsFor(audience).map(({ key, label, icon, placeholder }) => (
           <TagInput key={key} label={label} icon={icon} placeholder={placeholder} values={draft[key]} onChange={(values) => set({ [key]: values })} />
         ))}
@@ -309,6 +320,17 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
   }, [version, toast]);
 
   const replace = (key: string, next: Row | null) => setRows((current) => current && current.flatMap((row) => (row.key === key ? (next ? [next] : []) : [row])));
+  // Only one filter is active at a time: when this one is saved as active the server switched the others off.
+  const settle = (key: string, next: Row) =>
+    setRows(
+      (current) =>
+        current &&
+        current.map((row) => {
+          if (row.key === key) return next;
+          if (!next.saved?.isActive || !row.saved?.isActive) return row;
+          return { ...row, saved: { ...row.saved, isActive: false }, draft: { ...row.draft, isActive: false } };
+        }),
+    );
 
   async function run(key: string, action: () => Promise<void>) {
     setBusyKey(key);
@@ -329,15 +351,15 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
       const input: CargoFilterInput = { label: row.draft.label.trim() || null, isActive: row.draft.isActive, minPrice, maxPrice };
       for (const { key } of lists) input[key] = row.draft[key];
       const saved = row.saved ? await updateCargoFilter(row.saved.id, input) : await createCargoFilter(input);
-      replace(row.key, { key: row.key, saved, draft: toDraft(saved) });
-      toast.success('فیلتر ذخیره شد؛ از بارهای بعدی اعمال می‌شود.');
+      settle(row.key, { key: row.key, saved, draft: toDraft(saved) });
+      toast.success(saved.isActive ? 'فیلتر ذخیره شد و همین فیلتر فعال است؛ از بارهای بعدی اعمال می‌شود.' : 'فیلتر ذخیره شد.');
     });
 
   const toggle = (row: Row, isActive: boolean) =>
     run(row.key, async () => {
       const saved = await updateCargoFilter(row.saved!.id, { isActive });
       // Only the switch is saved here; unsaved edits to the lists stay in the draft.
-      replace(row.key, { key: row.key, saved, draft: { ...row.draft, isActive: saved.isActive } });
+      settle(row.key, { key: row.key, saved, draft: { ...row.draft, isActive: saved.isActive } });
     });
 
   const remove = (row: Row) => {
@@ -352,7 +374,7 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
 
   const add = () => setRows((current) => [...(current ?? []), { key: `new-${++newKey.current}`, saved: null, draft: toDraft(null) }]);
 
-  const activeCount = rows?.filter((row) => row.saved?.isActive).length ?? 0;
+  const active = rows?.find((row) => row.saved?.isActive)?.saved ?? null;
 
   return (
     <div className="tw-space-y-6">
@@ -376,9 +398,9 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
         <Info size={20} aria-hidden className="tw-mt-1 tw-shrink-0 tw-text-brand-navy" />
         <ul className="tw-m-0 tw-list-disc tw-space-y-0.5 tw-ps-4">
           <li>
-            {activeCount ? (
+            {active ? (
               <>
-                <strong>{activeCount.toLocaleString('fa-IR')} فیلتر فعال</strong> دارید؛ باری نمایش داده می‌شود که دست‌کم با یکی از آن‌ها جور باشد.
+                فیلتر فعال: <strong>«{active.label || 'فیلتر بدون عنوان'}»</strong>؛ فقط بارهایی که با همین فیلتر جور باشند نمایش داده می‌شوند.
               </>
             ) : (
               <>
@@ -386,6 +408,7 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
               </>
             )}
           </li>
+          <li>در هر لحظه فقط یک فیلتر فعال است؛ با روشن کردن یک فیلتر، بقیه خاموش می‌شوند (ذخیره می‌مانند).</li>
           <li>در هر فیلتر، خانه خالی یعنی «همه». چند مقدار در یک خانه یعنی «هر کدام».</li>
           <li>جست‌وجو «شامل بودن» است؛ مثلاً «تهران» با «تهران - میدان آزادی» هم جور می‌شود.</li>
           <li>تغییرات روی بارهایی اعمال می‌شود که از این به بعد می‌رسند.</li>

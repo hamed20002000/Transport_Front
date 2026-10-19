@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Hash, MapPin, Phone, RotateCcw, type LucideIcon as Icon } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Hash, LogOut, MapPin, Phone, RotateCcw, type LucideIcon as Icon } from 'lucide-react';
+import { signOut } from 'src/core/auth/session';
 import { cn } from 'src/shared/utils/utils';
 import { toLatinDigits } from './api';
 
@@ -314,5 +315,20 @@ export function SectionTitle({ title, hint, side }: { title: string; hint?: stri
       </div>
       {side}
     </div>
+  );
+}
+
+/** «خروج» in the company and driver panel headers (asks first: one tap should not end the session). */
+export function SignOutButton() {
+  return (
+    <button
+      type="button"
+      onClick={() => window.confirm('از حساب خارج شوید؟') && signOut()}
+      aria-label="خروج از حساب"
+      title="خروج از حساب"
+      className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-transparent tw-text-brand-navy hover:tw-bg-red-50 hover:tw-text-red-600"
+    >
+      <LogOut size={20} aria-hidden />
+    </button>
   );
 }

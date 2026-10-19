@@ -280,6 +280,31 @@ export async function getSummary(): Promise<CargoSummary> {
   return { suggestions, unread, open, taken };
 }
 
+// An active trip of the company (transport_backend CargoTripService.companyTripViews), newest first.
+export interface CompanyTrip {
+  requestId: string;
+  startedAt: string;
+  deliveryRemindedAt: string | null;
+  cargo: Pick<CargoDetails, 'code' | 'origin' | 'destination' | 'cargoType' | 'weight' | 'vehicleType' | 'price'> & { id: string } | null;
+  driver: DriverCard | null;
+  location: { latitude: number; longitude: number; receivedAt: string; liveUntil: string | null } | null;
+}
+
+export function listCompanyTrips(page: number) {
+  return unwrap<Page<CompanyTrip>>(axios.get(`${endpoints.baseurl}cargo-listings/trips`, config({ page, pageSize: 20 })));
+}
+
+// Active trips with no delivery registered for `days` days (the panel's reminder banner).
+export function getOverdueTrips() {
+  return unwrap<{ count: number; days: number }>(axios.get(`${endpoints.baseurl}cargo-listings/trips/overdue`, config()));
+}
+
+export function deliverTrip(requestId: string) {
+  return unwrap<{ requestId: string; status: string; deliveredAt: string }>(
+    axios.patch(`${endpoints.baseurl}cargo-listings/trips/${requestId}/deliver`, {}, config()),
+  );
+}
+
 export function setListingStatus(id: string, status: ListingStatus) {
   return unwrap<CargoListing>(
     axios.patch(`${endpoints.baseurl}cargo-listings/${id}/status`, { status }, config()),
