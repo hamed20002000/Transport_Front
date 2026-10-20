@@ -8,6 +8,7 @@ import { ActionButton, Hero, useAsync } from './components';
 import DriverShell from './DriverShell';
 import { LoadSpecs, useLoadActions } from './DriverLoads';
 import LocationCard from './LocationCard';
+import { useLoadsChangedEvent } from './loadEvents';
 
 // Big card for an accepted request: who to call, where to go, and «تحویل دادم».
 export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivered: (trip: CargoRequest) => void }) {
@@ -101,6 +102,8 @@ export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivere
 
 function TripContent() {
   const state = useAsync(listActiveTrips, []);
+  // the company handed over a load or recorded a delivery while this page is open
+  useLoadsChangedEvent(state.reload);
   const trips = state.data ?? [];
   const delivered = (trip: CargoRequest) => state.setData((current) => current && current.filter((t) => t.id !== trip.id));
 

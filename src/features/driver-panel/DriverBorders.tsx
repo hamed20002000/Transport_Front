@@ -17,6 +17,8 @@ function Borders() {
   }, []);
   const [open, setOpen] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // The border the map last finished flying to; its details open then.
+  const [arrivedId, setArrivedId] = useState<string | null>(null);
   const borders = [...(data ?? [])].sort(borderOrder);
   const stale = borders.some((status) => status.stale);
   const selected = borders.find((status) => status.border.id === selectedId) ?? null;
@@ -51,12 +53,25 @@ function Borders() {
                 borders={borders}
                 outline={outline}
                 selected={selected}
-                onSelect={setSelectedId}
-                // key: a new border opens with its details closed
-                overlay={selected && <SelectedBorder key={selected.border.id} status={selected} onExit={() => setSelectedId(null)} />}
+                onSelect={(id) => {
+                  setArrivedId(null);
+                  setSelectedId(id);
+                }}
+                onArrive={setArrivedId}
+                // key: each newly selected border starts with its details closed, until the map gets there
+                overlay={
+                  selected && (
+                    <SelectedBorder
+                      key={selected.border.id}
+                      status={selected}
+                      arrived={arrivedId === selected.border.id}
+                      onExit={() => setSelectedId(null)}
+                    />
+                  )
+                }
               />
               <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-1 tw-text-xs tw-text-brand-muted">
-                <span>رنگ دور پرچم، شلوغی صف:</span>
+                <span>دایره‌ی کنار پرچم، شلوغی صف:</span>
                 <span className="tw-inline-flex tw-items-center tw-gap-1">
                   <span className="tw-h-2.5 tw-w-2.5 tw-rounded-full tw-bg-[#059669]" aria-hidden /> کمتر از ۱٬۰۰۰ در صف
                 </span>

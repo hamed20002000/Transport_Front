@@ -60,6 +60,7 @@ export interface FuelStation {
   lng: number;
   diesel: boolean | null;
   cng: boolean | null;
+  petrol: boolean | null;
   atKm: number;
 }
 
@@ -113,13 +114,20 @@ export function getLoadInsight(id: string) {
   return unwrap<LoadInsight>(axios.get(url(`loads/${id}/insight`), config()));
 }
 
-export function getRouteFuel(id: string, route: number) {
-  return unwrap<RouteFuel>(axios.get(url(`loads/${id}/fuel`), { ...config({ route }), timeout: 60000 }));
+export type FuelKind = 'diesel' | 'petrol' | 'cng';
+
+// Only stations selling one of `fuels` (the server defaults to diesel).
+export function getRouteFuel(id: string, route: number, fuels: FuelKind[]) {
+  return unwrap<RouteFuel>(axios.get(url(`loads/${id}/fuel`), { ...config({ route, fuel: fuels.join(',') }), timeout: 60000 }));
 }
 
 // The same stations read out (mp3) for a driver behind the wheel.
-export async function getRouteFuelVoice(id: string, route: number): Promise<Blob> {
-  const { data } = await axios.get<Blob>(url(`loads/${id}/fuel/voice`), { ...config({ route }), responseType: 'blob', timeout: 60000 });
+export async function getRouteFuelVoice(id: string, route: number, fuels: FuelKind[]): Promise<Blob> {
+  const { data } = await axios.get<Blob>(url(`loads/${id}/fuel/voice`), {
+    ...config({ route, fuel: fuels.join(',') }),
+    responseType: 'blob',
+    timeout: 60000,
+  });
   return data;
 }
 
@@ -197,7 +205,7 @@ export function errorMessage(error: unknown) {
     if (status === 409 && conflicts[key]) return conflicts[key];
     if (status === 404 && key === 'placeNotFound') return 'این شهر یا آدرس پیدا نشد. نام شهر را دقیق‌تر بنویسید.';
     if (status === 400) return 'اطلاعات واردشده معتبر نیست. فیلدها را بررسی کنید.';
-    if (status === 413) return 'حجم عکس زیاد است (حداکثر ۸ مگابایت).';
+    if (status === 413) return 'حجم عکس زیاد است (حداکثر ۳ مگابایت).';
     if (status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';
     if (status === 403) return 'این بخش فقط برای حساب راننده است.';
     if (status === 404) return 'مورد پیدا نشد یا دیگر در دسترس نیست.';

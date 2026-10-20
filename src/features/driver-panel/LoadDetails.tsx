@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   Banknote,
   CarFront,
+  Check,
   Clock,
   ExternalLink,
   Fuel,
@@ -33,6 +34,7 @@ import {
   getRouteFuelVoice,
   listReturnLoads,
   type CargoListing,
+  type FuelKind,
   type LoadInsight,
   type OpenLoad,
   type RouteFuel,
@@ -111,18 +113,49 @@ function RouteBorders({ listingId, route }: { listingId: string; route: number }
   );
 }
 
+const fuelKinds: { value: FuelKind; label: string }[] = [
+  { value: 'diesel', label: 'گازوئیل' },
+  { value: 'petrol', label: 'بنزین' },
+  { value: 'cng', label: 'CNG' },
+];
+
+// The fuels last picked, kept on this device; diesel by default (the drivers here drive trucks).
+const FUELS_KEY = 'driverFuelKinds';
+function savedFuels(): FuelKind[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FUELS_KEY) ?? '[]') as unknown;
+    const kinds = fuelKinds.map((kind) => kind.value).filter((kind) => Array.isArray(saved) && saved.includes(kind));
+    return kinds.length ? kinds : ['diesel'];
+  } catch {
+    return ['diesel'];
+  }
+}
+
 function FuelStations({ listingId, route, onStations }: { listingId: string; route: number; onStations: (fuel: RouteFuel | null) => void }) {
   const toast = useToast();
+  const [fuels, setFuels] = useState<FuelKind[]>(savedFuels);
   const [fuel, setFuel] = useState<RouteFuel | null>(null);
   const [loading, setLoading] = useState(false);
   const [voice, setVoice] = useState<HTMLAudioElement | null>(null);
 
+  // Another route or other fuels: the stations shown no longer apply; the driver asks again.
   useEffect(() => {
     setFuel(null);
     setVoice(null);
     onStations(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route]);
+  }, [route, fuels]);
+
+  function toggle(kind: FuelKind) {
+    const next = fuels.includes(kind) ? fuels.filter((value) => value !== kind) : fuelKinds.map((k) => k.value).filter((k) => k === kind || fuels.includes(k));
+    if (!next.length) return; // at least one fuel stays picked
+    setFuels(next);
+    try {
+      localStorage.setItem(FUELS_KEY, JSON.stringify(next));
+    } catch {
+      // not remembered on this device; the choice still applies now
+    }
+  }
 
   async function load() {
     // Browsers allow sound only right after a click, and finding the stations can take a while: the
@@ -132,7 +165,7 @@ function FuelStations({ listingId, route, onStations }: { listingId: string; rou
     setVoice(element);
     setLoading(true);
     try {
-      const result = await getRouteFuel(listingId, route);
+      const result = await getRouteFuel(listingId, route, fuels);
       setFuel(result);
       onStations(result);
     } catch (error) {
@@ -142,21 +175,48 @@ function FuelStations({ listingId, route, onStations }: { listingId: string; rou
     }
   }
 
+  const picker = (
+    <div role="group" aria-label="نوع سوخت" className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+      <span className="tw-text-xs tw-text-brand-muted">نوع سوخت:</span>
+      {fuelKinds.map(({ value, label }) => {
+        const on = fuels.includes(value);
+        return (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={on}
+            disabled={loading}
+            onClick={() => toggle(value)}
+            className={cn(
+              'tw-flex tw-items-center tw-gap-1 tw-rounded-full tw-border tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-transition-colors',
+              on ? 'tw-border-emerald-600 tw-bg-emerald-600 tw-text-white' : 'tw-border-brand-line tw-bg-white tw-text-brand-navy hover:tw-border-emerald-400',
+            )}
+          >
+            {on && <Check size={13} aria-hidden />} {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   if (!fuel)
     return (
-      <ActionButton variant="secondary" onClick={load} busy={loading}>
-        <Fuel size={16} aria-hidden /> {loading ? 'در حال یافتن جایگاه‌ها…' : 'جایگاه‌های سوخت این مسیر'}
-      </ActionButton>
+      <div className="tw-space-y-2">
+        {picker}
+        <ActionButton variant="secondary" onClick={load} busy={loading}>
+          <Fuel size={16} aria-hidden /> {loading ? 'در حال یافتن جایگاه‌ها…' : 'جایگاه‌های سوخت این مسیر'}
+        </ActionButton>
+      </div>
     );
 
-  const diesel = fuel.stations.filter((s) => s.diesel !== false);
   return (
     <div className="tw-space-y-3 tw-rounded-xl tw-border tw-border-emerald-200 tw-bg-emerald-50/50 tw-p-4">
+      {picker}
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
         <strong className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm">
           <Fuel size={16} aria-hidden className="tw-text-emerald-600" /> {fuel.stations.length.toLocaleString('fa-IR')} جایگاه سوخت در مسیر
         </strong>
-        {voice && <StationsVoice key={`${listingId}-${route}`} listingId={listingId} route={route} element={voice} />}
+        {voice && <StationsVoice key={`${listingId}-${route}`} listingId={listingId} route={route} fuels={fuels} element={voice} />}
         {fuel.longestGap && (
           <span className="tw-text-xs tw-text-brand-muted">
             طولانی‌ترین فاصله بی‌جایگاه: <strong className="tw-text-brand-navy">{formatKm(fuel.longestGap.toKm - fuel.longestGap.fromKm)}</strong>
@@ -164,12 +224,14 @@ function FuelStations({ listingId, route, onStations }: { listingId: string; rou
         )}
       </div>
       {fuel.coverage !== 'complete' && <p className="tw-m-0 tw-text-xs tw-text-amber-700">اطلاعات جایگاه‌های بخشی از مسیر هنوز کامل نیست.</p>}
-      {!!diesel.length && (
+      {!!fuel.stations.length && (
         <ol className="tw-m-0 tw-max-h-48 tw-list-none tw-space-y-1.5 tw-overflow-y-auto tw-p-0">
-          {diesel.map((station) => (
+          {fuel.stations.map((station) => (
             <li key={station.id} className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-rounded-lg tw-bg-white tw-px-3 tw-py-2 tw-text-xs">
               <span className="tw-min-w-0 tw-truncate tw-font-medium">{station.name || 'جایگاه بدون نام'}</span>
               <span className="tw-flex tw-shrink-0 tw-items-center tw-gap-2 tw-text-brand-muted">
+                {station.diesel && <span className="tw-rounded tw-bg-slate-100 tw-px-1.5 tw-text-slate-700">گازوئیل</span>}
+                {station.petrol && <span className="tw-rounded tw-bg-amber-50 tw-px-1.5 tw-text-amber-700">بنزین</span>}
                 {station.cng && <span className="tw-rounded tw-bg-sky-50 tw-px-1.5 tw-text-sky-700">CNG</span>}
                 کیلومتر {Math.round(station.atKm).toLocaleString('fa-IR')}
               </span>
@@ -186,7 +248,7 @@ const SILENT_CLIP = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AA
 
 // The stations read out as soon as they are listed (a driver behind the wheel need not scroll the list);
 // the button stops it or plays it again. If the browser still blocks the sound, the button starts it.
-function StationsVoice({ listingId, route, element }: { listingId: string; route: number; element: HTMLAudioElement }) {
+function StationsVoice({ listingId, route, fuels, element }: { listingId: string; route: number; fuels: FuelKind[]; element: HTMLAudioElement }) {
   const toast = useToast();
   const [state, setState] = useState<'idle' | 'loading' | 'playing'>('loading');
   const ready = useRef(false);
@@ -194,7 +256,7 @@ function StationsVoice({ listingId, route, element }: { listingId: string; route
   useEffect(() => {
     let active = true;
     element.onended = () => setState('idle');
-    getRouteFuelVoice(listingId, route)
+    getRouteFuelVoice(listingId, route, fuels)
       .then(async (blob) => {
         if (!active) return;
         element.src = URL.createObjectURL(blob);
@@ -217,7 +279,7 @@ function StationsVoice({ listingId, route, element }: { listingId: string; route
       element.pause();
       if (element.src.startsWith('blob:')) URL.revokeObjectURL(element.src);
     };
-  }, [element, listingId, route, toast]);
+  }, [element, listingId, route, fuels, toast]);
 
   async function toggle() {
     if (state === 'playing') {

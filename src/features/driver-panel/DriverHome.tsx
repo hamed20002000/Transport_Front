@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -53,7 +54,17 @@ function HomeContent() {
   const trips = useAsync(listActiveTrips, []);
   const latest = useAsync(() => listLoads({ page: 1, pageSize: 4, matchFilters: true }), []);
   const update = patchPage(latest.setData);
-  useLoadsChangedEvent(latest.reload);
+  // A request changed (delivered here, or handed over / delivered / ended by the company): the counts, the active
+  // trips and the loads all depend on it.
+  const { reload: reloadSummary } = summary;
+  const { reload: reloadTrips } = trips;
+  const { reload: reloadLatest } = latest;
+  const refresh = useCallback(() => {
+    reloadSummary();
+    reloadTrips();
+    reloadLatest();
+  }, [reloadSummary, reloadTrips, reloadLatest]);
+  useLoadsChangedEvent(refresh);
   const actions = useLoadActions(update);
   useLoadStatusEvents(removeFromPage(latest.setData), latest.data?.items, latest.reload);
 
@@ -68,7 +79,7 @@ function HomeContent() {
             {greeting()}، <bdi className="tw-font-bold tw-text-brand-navy">{name || username}</bdi> · {today}
           </p>
           {activeTrips.map((trip) => (
-            <TripCard key={trip.id} trip={trip} onDelivered={() => trips.reload()} />
+            <TripCard key={trip.id} trip={trip} onDelivered={refresh} />
           ))}
         </div>
       ) : (

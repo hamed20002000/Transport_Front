@@ -18,7 +18,7 @@ function getSharedSocket(backend: DomainRefreshBackend): Socket {
     if (existing) return existing;
 
     const socket = backend === "account"
-        ? io(`${new URL(endpoints.baseurl).origin}/agent`, {
+        ? io(`${new URL(endpoints.baseurl, window.location.origin).origin}/agent`, {
             path: "/socket.io",
             transports: ["websocket", "polling"],
             // هر بار اتصال (یا اتصال دوباره) token فعلی خوانده می‌شود.

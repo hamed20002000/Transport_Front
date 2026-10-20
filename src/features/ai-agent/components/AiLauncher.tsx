@@ -25,7 +25,7 @@ export default function AiLauncher() {
           onClick={() => setOpen(true)}
           aria-label="دستیار هوشمند"
           title="دستیار هوشمند"
-          className="tw-fixed tw-bottom-5 tw-left-5 tw-z-40 tw-flex tw-h-14 tw-w-14 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-white/40 tw-text-white tw-shadow-[0_12px_24px_rgba(99,102,241,0.38)] tw-transition-transform hover:tw-scale-105 focus-visible:tw-outline-none focus-visible:tw-ring-4 focus-visible:tw-ring-indigo-300"
+          className="tw-fixed tw-bottom-[calc(1.25rem+env(safe-area-inset-bottom))] tw-left-5 tw-z-40 tw-flex tw-h-14 tw-w-14 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-white/40 tw-text-white tw-shadow-[0_12px_24px_rgba(99,102,241,0.38)] tw-transition-transform hover:tw-scale-105 focus-visible:tw-outline-none focus-visible:tw-ring-4 focus-visible:tw-ring-indigo-300"
           style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%)' }}
         >
           <Sparkles size={24} aria-hidden />

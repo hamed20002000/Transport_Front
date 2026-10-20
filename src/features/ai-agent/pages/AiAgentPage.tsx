@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "src/features/ai-agent/pages/AiAgentPage.css";
 import { AlertType } from "src/shared/components/Alert/alert.type.ts";
 import { useNavigate } from "react-router";
@@ -102,6 +102,21 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
     }));
     const debounceRef = useRef<number | null>(null);
     const shellRef = useRef<HTMLDivElement | null>(null);
+    // Measure the compact content so mobile can animate to a numeric height, including new answers.
+    useLayoutEffect(() => {
+        if (!isMinimized) return;
+        const shell = shellRef.current;
+        const content = shell?.querySelector<HTMLElement>('.minimized-view');
+        if (!shell || !content) return;
+        const measure = () => {
+            shell.style.setProperty('--compact-panel-height', `${content.getBoundingClientRect().height + 56}px`);
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(content);
+        return () => observer.disconnect();
+    }, [isMinimized]);
+
     const dragStateRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
     const progressStagesRef = useRef<string[]>([]);
     const progressResetTimerRef = useRef<number | null>(null);

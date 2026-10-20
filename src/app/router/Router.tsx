@@ -17,10 +17,10 @@ import { educationRoutes } from 'src/features/education';
 import { reportsRoutes } from 'src/features/reports';
 import { aiAgentRoutes } from 'src/features/ai-agent';
 import { authRoutes } from 'src/features/auth';
-import { accountRoutes } from 'src/features/account';
+import { accountRoutes, companyHomeRoute } from 'src/features/account';
 import { subscriptionPlanRoutes } from 'src/features/subscription-plans';
 import { landingRoutes } from 'src/features/landing';
-import { companyCargoRoutes } from 'src/features/company-cargo';
+import { CompanyLayout, companyCargoRoutes } from 'src/features/company-cargo';
 import { driverPanelRoutes } from 'src/features/driver-panel';
 
 const FullLayout = Loadable(lazy(() => import('src/app/layouts/full/FullLayout')));
@@ -57,7 +57,7 @@ const Router: RouteObject[] = [
     children: [
       ...authRoutes,
       ...accountRoutes,
-      ...companyCargoRoutes,
+      { element: <CompanyLayout />, children: [companyHomeRoute, ...companyCargoRoutes] },
       ...driverPanelRoutes,
       ...landingRoutes,
       { path: '*', element: <Navigate to="/auth/404" /> },

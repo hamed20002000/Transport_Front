@@ -209,6 +209,16 @@ export function Badge({ children, tone }: { children: ReactNode; tone: 'orange' 
   );
 }
 
+// Stand-in while a page's code loads, under a frame that stays in place.
+export function PageSkeleton() {
+  return (
+    <div className="tw-space-y-3">
+      <CardSkeleton />
+      <CardSkeleton />
+    </div>
+  );
+}
+
 export function CardSkeleton() {
   return (
     <div className="tw-animate-pulse tw-overflow-hidden tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white" aria-hidden>

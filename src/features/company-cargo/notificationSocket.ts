@@ -4,7 +4,7 @@ import endpoints from 'src/core/config/endpoints.json';
 
 // NotificationsGateway در transport_backend (namespace /notifications). کاربر از روی
 // JWT شناخته می‌شود؛ یک اتصال مشترک برای کل پنل.
-const origin = new URL(endpoints.baseurl).origin;
+const origin = new URL(endpoints.baseurl, window.location.origin).origin;
 let socket: Socket | null = null;
 
 function getSocket(): Socket {

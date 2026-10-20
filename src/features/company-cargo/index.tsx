@@ -1,15 +1,8 @@
-import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import Loadable from 'src/shared/components/loadable/Loadable';
-export { default as CompanyShell } from './CompanyShell';
+export { default as CompanyShell, CompanyLayout } from './CompanyShell';
 export { displayName, useProfile } from './profileStore';
-const CompanyCargo = Loadable(lazy(() => import('./CompanyCargo')));
-const CreateCargo = Loadable(lazy(() => import('./CreateCargo')));
-const ChannelLinks = Loadable(lazy(() => import('./ChannelLinks')));
-const CompanyProfile = Loadable(lazy(() => import('./CompanyProfile')));
-const CargoFilters = Loadable(lazy(() => import('./CargoFilters')));
-const CompanyDrivers = Loadable(lazy(() => import('./CompanyDrivers')));
-const CompanyTrips = Loadable(lazy(() => import('./CompanyTrips')));
+import { CargoFilters, ChannelLinks, CompanyCargo, CompanyDrivers, CompanyProfile, CompanyTrips, CreateCargo } from './pages';
+// These render under CompanyLayout (see the app router, which also puts the account home there).
 export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/cargo', element: <CompanyCargo /> },
   { path: '/account/company/cargo/new', element: <CreateCargo /> },

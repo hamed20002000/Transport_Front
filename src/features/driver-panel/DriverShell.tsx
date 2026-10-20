@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
+import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Bell, ClipboardList, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
@@ -9,7 +10,9 @@ import { displayName, useProfile } from 'src/features/company-cargo/profileStore
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { unreadLoadCount } from './api';
 import MarketTicker from 'src/features/market/MarketTicker';
-import { SignOutButton } from 'src/features/company-cargo/components';
+import { PageSkeleton, SignOutButton } from 'src/features/company-cargo/components';
+import { preloadDriverPages } from './pages';
+import SmoothScroll from 'src/shared/components/SmoothScroll';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -44,11 +47,12 @@ function useUnread() {
 // Frame for driver pages, matching CompanyShell: brand bar plus an icon-over-label menu.
 function Frame({ children }: { children: ReactNode }) {
   const name = displayName(useProfile());
+  const reduceMotion = useReducedMotion();
   const unread = useUnread();
   const { pathname } = useLocation();
   return (
-    <div dir="rtl" lang="fa" className="tw-min-h-screen tw-bg-brand-bg tw-text-brand-navy">
-      <header className="tw-sticky tw-top-0 tw-z-20 tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
+    <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-text-brand-navy">
+      <header className="tw-sticky tw-top-0 tw-z-20 tw-pt-[env(safe-area-inset-top)] tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
         <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-4 tw-px-4 sm:tw-px-6">
           <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
             <strong className="tw-truncate tw-text-lg tw-font-bold tw-leading-none">{name || 'پنل راننده'}</strong>
@@ -91,29 +95,35 @@ function Frame({ children }: { children: ReactNode }) {
             <SignOutButton />
           </div>
         </div>
-        <nav aria-label="منوی راننده" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-6 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
-          {items.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || pathname === `${to}/`;
-            return (
-              <Link
-                key={to}
-                to={to}
-                aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1 tw-whitespace-nowrap tw-px-1 tw-pb-2.5 tw-pt-1 tw-text-xs tw-transition-colors sm:tw-px-4',
-                  active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
-                )}
-              >
-                <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
-                {label}
-                <span
-                  aria-hidden
-                  className={cn('tw-absolute tw-inset-x-4 tw-bottom-0 tw-h-[3px] tw-rounded-t-full tw-transition-colors', active ? 'tw-bg-brand-orange' : 'tw-bg-transparent')}
-                />
-              </Link>
-            );
-          })}
-        </nav>
+        <LayoutGroup id="driver-navigation">
+          <nav aria-label="منوی راننده" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-6 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
+            {items.map(({ to, label, icon: Icon }) => {
+              const active = pathname === to || pathname === `${to}/`;
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1 tw-whitespace-nowrap tw-px-1 tw-pb-2.5 tw-pt-1 tw-text-xs tw-transition-colors sm:tw-px-4',
+                    active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
+                  )}
+                >
+                  <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
+                  {label}
+                  {active && (
+                    <motion.span
+                      aria-hidden
+                      layoutId="active-tab-underline"
+                      className="tw-absolute tw-inset-x-4 tw-bottom-0 tw-h-[3px] tw-rounded-t-full tw-bg-brand-orange"
+                      transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </LayoutGroup>
         {/* Prices live in the sticky header so they stay in view while lists scroll. */}
         <div className="tw-border-t tw-border-brand-line tw-bg-brand-sky">
           <div className="tw-mx-auto tw-max-w-5xl tw-px-3 tw-py-1.5 sm:tw-px-6">
@@ -121,25 +131,42 @@ function Frame({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
+      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-[calc(4rem+env(safe-area-inset-bottom))] tw-pt-6 sm:tw-px-6">
         {children}
       </main>
     </div>
   );
 }
 
-// Page wrapper: only DRIVER accounts get in; others go to their own home.
-export default function DriverShell({ title, children }: { title: string; children: ReactNode }) {
+// Layout route for every driver page: the frame mounts once and only the page under it swaps on a tab change.
+// Only DRIVER accounts get in; others go to their own home.
+export function DriverLayout() {
   const { isAuth, isAuthDataLoading, userRoles } = useAuth();
+  const allowed = isAuth && userRoles.some((role) => role.name === 'DRIVER');
+  useEffect(() => {
+    if (allowed) preloadDriverPages();
+  }, [allowed]);
   if (isAuthDataLoading) return <Spinner />;
   if (!isAuth) return <Navigate to="/auth/login" replace />;
-  if (!userRoles.some((role) => role.name === 'DRIVER')) {
+  if (!allowed) {
     const other = userRoles.find((role) => role.name === 'COMPANY' || role.name === 'BROKER');
     return <Navigate to={other ? `/account/${other.name.toLowerCase()}` : '/dashboards/dashboard'} replace />;
   }
   return (
+    <Frame>
+      <SmoothScroll />
+      <Suspense fallback={<PageSkeleton />}>
+        <Outlet />
+      </Suspense>
+    </Frame>
+  );
+}
+
+// Page wrapper: sets the tab title; the frame comes from DriverLayout.
+export default function DriverShell({ title, children }: { title: string; children: ReactNode }) {
+  return (
     <PageContainer title={`${title} | Setaş Transport`} description="پنل راننده">
-      <Frame>{children}</Frame>
+      <>{children}</>
     </PageContainer>
   );
 }

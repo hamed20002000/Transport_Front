@@ -1,5 +1,6 @@
 import { tripTypeHints, tripTypeLabels, type TripType } from 'src/features/company-cargo/api';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Camera,
   CreditCard,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
+import { shrinkImage } from 'src/shared/utils/image';
 import { getUserProfile, toLatinDigits } from 'src/features/company-cargo/api';
 import { setCachedProfile } from 'src/features/company-cargo/profileStore';
 import { CardSkeleton, LoadFailed, SectionTitle } from 'src/features/company-cargo/components';
@@ -144,6 +146,9 @@ function PlateInput({ value, onChange, invalid }: { value: Plate; onChange: (pla
   );
 }
 
+// The server's limit too (driverProfile.service MAX_PHOTO_BYTES); checked after the photo is scaled down.
+const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
+
 function PhotoSlot({ kind, title, hint, version, onChange }: { kind: DriverPhotoKind; title: string; hint: string; version: string | null; onChange: (profile: DriverProfile) => void }) {
   const toast = useToast();
   const input = useRef<HTMLInputElement>(null);
@@ -182,8 +187,12 @@ function PhotoSlot({ kind, title, hint, version, onChange }: { kind: DriverPhoto
   function pick(file: File | undefined) {
     if (!file) return;
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return toast.error('فقط عکس JPG، PNG یا WebP قابل قبول است.');
-    if (file.size > 8 * 1024 * 1024) return toast.error('حجم عکس زیاد است (حداکثر ۸ مگابایت).');
-    run(() => uploadDriverPhoto(kind, file), 'عکس ذخیره شد.');
+    // scaled down on the phone first (shrinkImage): a camera photo of several MB uploads as a few hundred KB
+    run(async () => {
+      const photo = await shrinkImage(file);
+      if (photo.size > MAX_PHOTO_BYTES) throw new Error('حجم عکس زیاد است (حداکثر ۳ مگابایت). عکس دیگری انتخاب کنید.');
+      return uploadDriverPhoto(kind, photo);
+    }, 'عکس ذخیره شد.');
   }
 
   return (
@@ -528,6 +537,12 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+  // opened at #announcements (right after signing in): bring this section into view
+  const section = useRef<HTMLElement>(null);
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash === '#announcements') section.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [hash]);
   const [version, setVersion] = useState(0);
   useEffect(() => {
     setTypes(profile.tripTypes ?? [profile.tripType]);
@@ -561,7 +576,13 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
   const visible = companies?.filter((company) => company.name.includes(search.trim())) ?? [];
   const unavailable = memberships.filter((id) => companies && !companies.some((company) => company.userId === id));
   return (
-    <section className="tw-space-y-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm" aria-label="تنظیمات دریافت اعلام بار">
+    // scroll-mt: clear of the sticky header when opened at #announcements (right after signing in)
+    <section
+      ref={section}
+      id="announcements"
+      className="tw-scroll-mt-48 tw-space-y-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm"
+      aria-label="تنظیمات دریافت اعلام بار"
+    >
       <div>
         <h3 className="tw-m-0 tw-text-base tw-font-bold">دریافت اعلام بار</h3>
         <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌هایی که عضو آن‌ها هستید و برای نوع‌های حمل انتخابی، اعلام بار دریافت می‌کنید.</p>

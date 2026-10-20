@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
+import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Archive, Bell, Building2, House, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
 import { getOverdueTrips } from './api';
-import { SignOutButton } from './components';
+import { PageSkeleton, SignOutButton } from './components';
+import { preloadCompanyPages } from './pages';
+import SmoothScroll from 'src/shared/components/SmoothScroll';
 import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from './profileStore';
 import MarketTicker from 'src/features/market/MarketTicker';
@@ -22,9 +25,13 @@ const items = [
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 
+// Lets the page under the layout put its unread count on the bell.
+const UnreadContext = createContext<(count: number | undefined) => void>(() => undefined);
+
 // Frame for company pages: brand bar plus an icon-over-label menu (the mobile tab-bar pattern, kept at the top).
-export default function CompanyShell({ children, unread }: { children: ReactNode; unread?: number }) {
+function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
   const name = displayName(useProfile());
+  const reduceMotion = useReducedMotion();
   const toast = useToast();
   // Trips with no delivery registered for days: a count on the «سفرها» tab, so a reminder missed while offline still shows.
   const [overdue, setOverdue] = useState<{ count: number; days: number } | null>(null);
@@ -42,8 +49,8 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
   const { pathname, search } = useLocation();
   const tab = new URLSearchParams(search).get('tab');
   return (
-    <div dir="rtl" lang="fa" className="tw-min-h-screen tw-bg-brand-bg tw-text-brand-navy">
-      <header className="tw-sticky tw-top-0 tw-z-20 tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
+    <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-text-brand-navy">
+      <header className="tw-sticky tw-top-0 tw-z-20 tw-pt-[env(safe-area-inset-top)] tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
         <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-4 tw-px-4 sm:tw-px-6">
           <div className="tw-min-w-0">
             <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
@@ -88,42 +95,45 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
             <SignOutButton />
           </div>
         </div>
-        <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-8 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
-          {items.map(({ to, label, icon: Icon, match }) => {
-            const active = match(pathname, tab);
-            return (
-              <Link
-                key={to}
-                to={to}
-                aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1 tw-whitespace-nowrap tw-px-1 tw-pb-2.5 tw-pt-1 tw-text-xs tw-transition-colors sm:tw-px-4',
-                  active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
-                )}
-              >
-                <span className="tw-relative">
-                  <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
-                  {to === '/account/company/trips' && !!overdue?.count && (
-                    <span
-                      title={`${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`}
-                      className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
-                    >
-                      {overdue.count > 99 ? '۹۹+' : fa(overdue.count)}
-                    </span>
-                  )}
-                </span>
-                {label}
-                <span
-                  aria-hidden
+        <LayoutGroup id="company-navigation">
+          <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-8 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
+            {items.map(({ to, label, icon: Icon, match }) => {
+              const active = match(pathname, tab);
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'tw-absolute tw-inset-x-4 tw-bottom-0 tw-h-[3px] tw-rounded-t-full tw-transition-colors',
-                    active ? 'tw-bg-brand-orange' : 'tw-bg-transparent',
+                    'tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1 tw-whitespace-nowrap tw-px-1 tw-pb-2.5 tw-pt-1 tw-text-xs tw-transition-colors sm:tw-px-4',
+                    active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
                   )}
-                />
-              </Link>
-            );
-          })}
-        </nav>
+                >
+                  <span className="tw-relative">
+                    <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
+                    {to === '/account/company/trips' && !!overdue?.count && (
+                      <span
+                        title={`${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`}
+                        className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
+                      >
+                        {overdue.count > 99 ? '۹۹+' : fa(overdue.count)}
+                      </span>
+                    )}
+                  </span>
+                  {label}
+                  {active && (
+                    <motion.span
+                      aria-hidden
+                      layoutId="active-tab-underline"
+                      className="tw-absolute tw-inset-x-4 tw-bottom-0 tw-h-[3px] tw-rounded-t-full tw-bg-brand-orange"
+                      transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </LayoutGroup>
         {/* Prices live in the sticky header so they stay in view while lists scroll. */}
         <div className="tw-border-t tw-border-brand-line tw-bg-brand-sky">
           <div className="tw-mx-auto tw-max-w-5xl tw-px-3 tw-py-1.5 sm:tw-px-6">
@@ -131,9 +141,35 @@ export default function CompanyShell({ children, unread }: { children: ReactNode
           </div>
         </div>
       </header>
-      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
+      <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-[calc(4rem+env(safe-area-inset-bottom))] tw-pt-6 sm:tw-px-6">
         {children}
       </main>
     </div>
   );
+}
+
+// Layout route for every company page: the frame mounts once and only the page under it swaps on a tab change.
+export function CompanyLayout() {
+  const [unread, setUnread] = useState<number | undefined>();
+  useEffect(preloadCompanyPages, []);
+  return (
+    <UnreadContext.Provider value={setUnread}>
+      <Frame unread={unread}>
+        <SmoothScroll />
+        <Suspense fallback={<PageSkeleton />}>
+          <Outlet />
+        </Suspense>
+      </Frame>
+    </UnreadContext.Provider>
+  );
+}
+
+// Page wrapper: the frame comes from CompanyLayout; a page that knows the unread count hands it up.
+export default function CompanyShell({ children, unread }: { children: ReactNode; unread?: number }) {
+  const setUnread = useContext(UnreadContext);
+  useEffect(() => {
+    setUnread(unread);
+    return () => setUnread(undefined);
+  }, [setUnread, unread]);
+  return <>{children}</>;
 }

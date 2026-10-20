@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { decodeJwtToken, useAuth } from 'src/core/auth/AuthContext';
 import { saveSession, type SessionTokens } from 'src/core/auth/session';
-import { accountHome } from 'src/features/account';
+import { accountHome, signInPage } from 'src/features/account';
 
 export function returnPath(search: string, fallback = '/dashboards/dashboard') {
   const requested = new URLSearchParams(search).get('url');
@@ -22,11 +22,12 @@ export function useEnterSession() {
   const { search } = useLocation();
   const { loadAuthData } = useAuth();
 
+  // firstStop: the account page to open (its home, or right after signing in with a code its profile)
   const open = useCallback(
-    (accessToken: string) => {
+    async (accessToken: string, firstStop: (role: string | undefined) => string | undefined | Promise<string | undefined>) => {
       const identity = decodeJwtToken(accessToken);
       const roles = identity?.roles ?? (Array.isArray(identity?.role) ? identity.role : [identity?.role]);
-      const home = roles.map((role) => accountHome(role)).find(Boolean);
+      const home = (await Promise.all(roles.map((role) => firstStop(role)))).find(Boolean);
       navigate(home || returnPath(search), { replace: true });
     },
     [navigate, search],
@@ -38,7 +39,9 @@ export function useEnterSession() {
       localStorage.removeItem('activeUserRoleName');
       localStorage.removeItem('activeUserRoleId');
       if (!(await loadAuthData())) throw new Error('دریافت اطلاعات حساب انجام نشد. دوباره تلاش کنید.');
-      open(tokens.accessToken);
+      // signed in with a code: the profile first, so the user sees what it controls (a driver in no company: why no
+      // loads arrive)
+      await open(tokens.accessToken, signInPage);
     },
     [loadAuthData, open],
   );
@@ -48,7 +51,7 @@ export function useEnterSession() {
     if (!(await loadAuthData())) return false;
     const token = localStorage.getItem('authToken');
     if (!token) return false;
-    open(token);
+    await open(token, accountHome);
     return true;
   }, [loadAuthData, open]);
 

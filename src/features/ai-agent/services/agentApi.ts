@@ -53,7 +53,7 @@ const audioForm = (audio: Blob, fields: Record<string, string> = {}) => {
 };
 
 // "http://localhost:3006/api/" → "http://localhost:3006"
-const origin = (apiUrl: string) => new URL(apiUrl).origin;
+const origin = (apiUrl: string) => new URL(apiUrl, window.location.origin).origin;
 
 function adminApi(): AgentApi {
   const base = `${server.tarabariurl}agent/`;

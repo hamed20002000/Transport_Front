@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, LogOut } from 'lucide-react';
 import { SecondaryButton } from 'src/features/company-cargo/components';
 import type { BorderStatus } from './api';
 import { BorderCard } from './borderCard';
 
 // The border chosen on the map, shown on the map itself: basic info, «جزئیات» for the rest, «خروج» back to all of Iran.
-export function SelectedBorder({ status, onExit }: { status: BorderStatus; onExit: () => void }) {
+// The details open by themselves once the map has `arrived` at the border (opening them mid-fly hides the zoom).
+export function SelectedBorder({ status, arrived, onExit }: { status: BorderStatus; arrived: boolean; onExit: () => void }) {
   const [details, setDetails] = useState(false);
+  useEffect(() => {
+    if (arrived) setDetails(true);
+  }, [arrived]);
   return (
     // Only the card scrolls (long details); the buttons stay at the bottom of the panel, always in view.
     <div className="tw-flex tw-min-h-0 tw-flex-col tw-gap-2 tw-rounded-2xl tw-bg-white/95 tw-p-2 tw-shadow-xl tw-backdrop-blur">

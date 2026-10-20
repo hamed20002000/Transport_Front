@@ -4,12 +4,13 @@ import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { CompanyShell, displayName, useProfile } from 'src/features/company-cargo';
-import { DriverHome } from 'src/features/driver-panel';
+import { driverHasNoCompany } from 'src/features/driver-panel';
 
 const accounts = {
-  COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2 },
-  DRIVER: { path: '/account/driver', title: 'راننده', icon: Truck },
-  BROKER: { path: '/account/broker', title: 'واسط', icon: Handshake },
+  COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2, profile: '/account/company/profile' },
+  // straight to «دریافت اعلام بار» (only while the driver is in no company: until then no load reaches them)
+  DRIVER: { path: '/account/driver', title: 'راننده', icon: Truck, profile: '/account/driver/profile#announcements' },
+  BROKER: { path: '/account/broker', title: 'واسط', icon: Handshake, profile: undefined },
 };
 
 const companyTiles = [
@@ -23,6 +24,16 @@ const companyTiles = [
 
 export function accountHome(role: string | null | undefined) {
   return role && role in accounts ? accounts[role as keyof typeof accounts].path : undefined;
+}
+
+/**
+ * Where a sign-in with a code lands: the profile first, so the user sees what it controls; the home page when there
+ * is none, and for a driver who is already in a company (they already get loads).
+ */
+export async function signInPage(role: string | null | undefined): Promise<string | undefined> {
+  if (!role || !(role in accounts)) return undefined;
+  if (role === 'DRIVER' && !(await driverHasNoCompany())) return accounts.DRIVER.path;
+  return accounts[role as keyof typeof accounts].profile ?? accountHome(role);
 }
 
 function Welcome({ title, username }: { title: string; username: string }) {
@@ -71,15 +82,13 @@ function AccountHome({ type }: { type: keyof typeof accounts }) {
     const ownHome = userRoles.map((role) => accountHome(role.name)).find(Boolean);
     return <Navigate to={ownHome || '/dashboards/dashboard'} replace />;
   }
-  // The driver panel brings its own frame and page title.
-  if (type === 'DRIVER') return <DriverHome />;
   const { title, icon: Icon } = accounts[type];
   return (
     <PageContainer title={`پنل ${title} | Setaş Transport`} description={`صفحه اصلی حساب ${title}`}>
       {type === 'COMPANY' ? (
         <CompanyHome username={username} />
       ) : (
-        <main dir="rtl" lang="fa" className="tw-min-h-screen tw-bg-brand-bg tw-p-6 tw-text-brand-navy sm:tw-p-12">
+        <main dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-p-6 tw-text-brand-navy sm:tw-p-12">
           <div className="tw-mx-auto tw-max-w-4xl tw-space-y-8">
             <header className="tw-flex tw-items-center tw-gap-3">
               <span className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-brand-orange">
@@ -100,6 +109,6 @@ function AccountHome({ type }: { type: keyof typeof accounts }) {
   );
 }
 
-export const accountRoutes: RouteObject[] = (
-  Object.keys(accounts) as Array<keyof typeof accounts>
-).map((type) => ({ path: accounts[type].path, element: <AccountHome type={type} /> }));
+// The driver home lives in the driver panel's routes; the company home goes under CompanyLayout (see the app router).
+export const companyHomeRoute: RouteObject = { path: accounts.COMPANY.path, element: <AccountHome type="COMPANY" /> };
+export const accountRoutes: RouteObject[] = [{ path: accounts.BROKER.path, element: <AccountHome type="BROKER" /> }];
