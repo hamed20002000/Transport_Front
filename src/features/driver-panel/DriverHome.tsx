@@ -32,13 +32,15 @@ function greeting() {
 }
 
 async function loadSummary() {
-  const [matching, unread, requests] = await Promise.all([
+  // counts from the server's totals, not from one page of requests (a busy driver has more than a page)
+  const count = (status: CargoRequest['status']) => listMyRequests(1, 1, status).then((page) => page.total);
+  const [matching, unread, pending, delivered] = await Promise.all([
     listLoads({ page: 1, pageSize: 1, matchFilters: true }).then((page) => page.total),
     unreadLoadCount(),
-    listMyRequests(1, 50),
+    count('PENDING'),
+    count('DELIVERED'),
   ]);
-  const count = (status: CargoRequest['status']) => requests.items.filter((r) => r.status === status).length;
-  return { matching, unread, pending: count('PENDING'), delivered: count('DELIVERED') };
+  return { matching, unread, pending, delivered };
 }
 
 const shortcuts: Array<{ to: string; title: string; hint: string; icon: LucideIcon }> = [

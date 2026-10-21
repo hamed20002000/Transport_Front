@@ -21,6 +21,8 @@ export interface CargoRequest {
   createdAt: string;
   decidedAt: string | null;
   deliveredAt: string | null;
+  // the driver reported delivery; the trip stays ACCEPTED until the company confirms it
+  deliveryReportedAt?: string | null;
   offerExpiresAt?: string | null;
   listing: CargoListing | null;
 }
@@ -135,8 +137,8 @@ export function listReturnLoads(id: string, page = 1) {
   return unwrap<Page<CargoListing & { toOrigin: boolean }>>(axios.get(url(`loads/${id}/return-loads`), config({ page, pageSize: 5 })));
 }
 
-export function listMyRequests(page: number, pageSize = 20) {
-  return unwrap<Page<CargoRequest>>(axios.get(url('requests'), config({ page, pageSize })));
+export function listMyRequests(page: number, pageSize = 20, status?: RequestStatus) {
+  return unwrap<Page<CargoRequest>>(axios.get(url('requests'), config({ page, pageSize, status })));
 }
 
 export function requestLoad(listingId: string) {

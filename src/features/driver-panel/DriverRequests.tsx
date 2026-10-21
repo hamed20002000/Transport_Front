@@ -15,6 +15,8 @@ import OfferAnswer from './OfferAnswer';
 // What happened last, in the card footer: «فرستاده شد ۲ ساعت پیش» / «قبول شد …».
 function lastEvent(request: CargoRequest) {
   if (request.status === 'DELIVERED' && request.deliveredAt) return `تحویل ${timeAgo(request.deliveredAt)}`;
+  // reported by the driver, not yet confirmed by the company
+  if (request.status === 'ACCEPTED' && request.deliveryReportedAt) return `تحویل اعلام شد ${timeAgo(request.deliveryReportedAt)}؛ منتظر تأیید شرکت`;
   if (request.decidedAt && (request.status === 'ACCEPTED' || request.status === 'REJECTED'))
     return `${request.status === 'ACCEPTED' ? 'قبول' : 'رد'} ${timeAgo(request.decidedAt)}`;
   return `درخواست ${timeAgo(request.createdAt)}`;

@@ -18,12 +18,13 @@ export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivere
   const listing = trip.listing;
   if (!listing) return null;
 
+  // the driver reports it; the load becomes «تحویل‌شده» once the company confirms
   async function deliver() {
-    if (!window.confirm('تحویل این بار ثبت شود؟ شرکت هم خبردار می‌شود.')) return;
+    if (!window.confirm('تحویل این بار را اعلام می‌کنید؟ شرکت خبردار می‌شود و بعد از تأیید شرکت، بار تحویل‌شده می‌شود.')) return;
     setSaving(true);
     try {
       onDelivered(await markDelivered(trip.id));
-      toast.success('تحویل بار ثبت شد. خسته نباشید!');
+      toast.success('اعلام تحویل ثبت شد و به شرکت خبر دادیم. بعد از تأیید شرکت، بار تحویل‌شده می‌شود.');
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -84,9 +85,15 @@ export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivere
       </div>
 
       <div className="tw-mt-5 tw-flex tw-flex-wrap tw-gap-2">
-        <ActionButton variant="success" onClick={deliver} busy={saving}>
-          <CircleCheckBig size={16} aria-hidden /> بار را تحویل دادم
-        </ActionButton>
+        {trip.deliveryReportedAt ? (
+          <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-white/15 tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white">
+            <Timer size={16} aria-hidden /> تحویل را {timeAgo(trip.deliveryReportedAt)} اعلام کردید؛ منتظر تأیید شرکت
+          </span>
+        ) : (
+          <ActionButton variant="success" onClick={deliver} busy={saving}>
+            <CircleCheckBig size={16} aria-hidden /> بار را تحویل دادم
+          </ActionButton>
+        )}
         <button
           type="button"
           onClick={() => actions.openDetails({ ...listing, myRequest: { id: trip.id, status: trip.status } })}
@@ -105,7 +112,11 @@ function TripContent() {
   // the company handed over a load or recorded a delivery while this page is open
   useLoadsChangedEvent(state.reload);
   const trips = state.data ?? [];
-  const delivered = (trip: CargoRequest) => state.setData((current) => current && current.filter((t) => t.id !== trip.id));
+  // reported: the card stays, waiting for the company; delivered (confirmed): it leaves the list
+  const delivered = (trip: CargoRequest) =>
+    state.setData(
+      (current) => current && (trip.status === 'DELIVERED' ? current.filter((t) => t.id !== trip.id) : current.map((t) => (t.id === trip.id ? { ...t, ...trip } : t))),
+    );
 
   return (
     <div className="tw-space-y-6">

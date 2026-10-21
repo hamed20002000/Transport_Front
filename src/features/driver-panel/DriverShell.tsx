@@ -13,6 +13,7 @@ import MarketTicker from 'src/features/market/MarketTicker';
 import { PageSkeleton, SignOutButton } from 'src/features/company-cargo/components';
 import { preloadDriverPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
+import PushPrompt from 'src/shared/components/pwa/PushPrompt';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -132,6 +133,7 @@ function Frame({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-[calc(4rem+env(safe-area-inset-bottom))] tw-pt-6 sm:tw-px-6">
+        <PushPrompt />
         {children}
       </main>
     </div>

@@ -11,6 +11,8 @@ const conflicts: Record<string, string> = {
   notDriver: 'این کاربر راننده‌ی سامانه نیست.',
   activeTrip: 'این بار سفر فعال دارد و دوباره باز نمی‌شود؛ اول تحویلش را از «سفرهای فعال» ثبت کنید.',
   notActive: 'این سفر دیگر فعال نیست (تحویلش قبلاً ثبت شده).',
+  notReported: 'راننده تحویل این بار را اعلام نکرده است.',
+  delivered: 'این بار تحویل داده شده و دیگر باز نمی‌شود.',
 };
 
 export function errorMessage(error: unknown) {

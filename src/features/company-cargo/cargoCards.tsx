@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Banknote, BellDot, CheckCheck, CircleCheck, CircleDot, Clock, FileText, Megaphone, Package, PackageCheck, RefreshCw, RotateCcw, Send, Truck, Weight, X, Hourglass, Timer, Globe2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Banknote, BellDot, CheckCheck, CircleCheck, CircleDot, Clock, FileText, Megaphone, Package, PackageCheck, RefreshCw, RotateCcw, Send, Truck, Weight, X, Hourglass, Timer, Globe2, ClipboardList } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { getSuggestionDraft, publishSuggestion, type CargoListing, type CargoSuggestion, tripTypeLabels } from './api';
 import { statusLabels } from './cargoText';
@@ -186,6 +187,7 @@ export function ListingCard({
   const queued = !taken && listing.announcedAt === null;
   const waiting = !taken && listing.assignment?.status === 'OFFERED';
   const inTrip = taken && listing.assignment?.status === 'ACCEPTED';
+  const delivered = taken && listing.assignment?.status === 'DELIVERED';
   const ToggleIcon = saving ? RefreshCw : taken ? RotateCcw : waiting ? Hourglass : PackageCheck;
   const toggleContent = (
     <>
@@ -216,6 +218,15 @@ export function ListingCard({
                 در صف اعلام
               </Badge>
             )}
+            {/* drivers asked for this load and wait for an answer: straight to «درخواست رانندگان» */}
+            {!taken && !!listing.pendingRequests && (
+              <Link to="/account/company/requests" className="tw-no-underline">
+                <Badge tone="orange">
+                  <ClipboardList size={12} aria-hidden />
+                  {listing.pendingRequests.toLocaleString('fa-IR')} درخواست
+                </Badge>
+              </Link>
+            )}
             <Badge tone={taken ? 'muted' : 'orange'}>
               {taken ? <CircleCheck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
               {statusLabels[listing.status]}
@@ -241,8 +252,8 @@ export function ListingCard({
               <Megaphone size={16} aria-hidden /> {announcing ? 'در حال اعلام…' : 'اعلام همین الان'}
             </SecondaryButton>
           )}
-          {/* A load on an active trip cannot be reopened; delivery is registered from «سفرهای فعال». */}
-          {inTrip ? null : taken || waiting ? (
+          {/* A load on an active trip cannot be reopened (delivery is registered from «سفرهای فعال»), nor a delivered one. */}
+          {inTrip || delivered ? null : taken || waiting ? (
             <SecondaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</SecondaryButton>
           ) : (
             <PrimaryButton onClick={onToggle} disabled={disabled}>{toggleContent}</PrimaryButton>

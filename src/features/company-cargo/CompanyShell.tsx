@@ -1,11 +1,12 @@
 import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Archive, Bell, Building2, House, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
-import { getOverdueTrips } from './api';
+import { Archive, Bell, Building2, ClipboardList, House, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
+import { countCompanyRequests, getOverdueTrips } from './api';
 import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
+import PushPrompt from 'src/shared/components/pwa/PushPrompt';
 import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from './profileStore';
 import MarketTicker from 'src/features/market/MarketTicker';
@@ -17,6 +18,7 @@ const items = [
   { to: '/account/company/cargo', label: 'پیشنهادها', icon: Inbox, match: (path: string, tab: string | null) => path === '/account/company/cargo' && tab !== 'listings' },
   { to: '/account/company/cargo/new', label: 'ثبت بار', icon: SquarePlus, match: (path: string) => path === '/account/company/cargo/new' },
   { to: '/account/company/cargo?tab=listings', label: 'بارهای من', icon: Archive, match: (path: string, tab: string | null) => path === '/account/company/cargo' && tab === 'listings' },
+  { to: '/account/company/requests', label: 'درخواست‌ها', icon: ClipboardList, match: (path: string) => path === '/account/company/requests' },
   { to: '/account/company/trips', label: 'سفرها', icon: Truck, match: (path: string) => path === '/account/company/trips' },
   { to: '/account/company/drivers', label: 'رانندگان', icon: Users, match: (path: string) => path === '/account/company/drivers' },
   { to: '/account/company/channels', label: 'کانال‌ها', icon: Link2, match: (path: string) => path === '/account/company/channels' },
@@ -41,10 +43,19 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
       .catch(() => setOverdue(null));
   }, []);
   useEffect(loadOverdue, [loadOverdue]);
+  // drivers' requests waiting for an answer: a count on «درخواست‌ها», kept even after the toast is gone
+  const [requests, setRequests] = useState(0);
+  const loadRequests = useCallback(() => {
+    countCompanyRequests()
+      .then(setRequests)
+      .catch(() => setRequests(0));
+  }, []);
+  useEffect(loadRequests, [loadRequests]);
   useNotificationEvent<{ type?: string; text?: string }>('cargo-request-changed', (event) => {
     // The same reminder the messengers get («تحویل داده شد؟»), live while the panel is open.
-    if ((event.type === 'newRequest' || event.type === 'deliveryReminder') && event.text) toast.info(event.text);
+    if ((event.type === 'newRequest' || event.type === 'deliveryReminder' || event.type === 'deliveryReported') && event.text) toast.info(event.text);
     loadOverdue();
+    loadRequests();
   });
   const { pathname, search } = useLocation();
   const tab = new URLSearchParams(search).get('tab');
@@ -96,7 +107,7 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
           </div>
         </div>
         <LayoutGroup id="company-navigation">
-          <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-8 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
+          <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-9 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
             {items.map(({ to, label, icon: Icon, match }) => {
               const active = match(pathname, tab);
               return (
@@ -111,7 +122,15 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
                 >
                   <span className="tw-relative">
                     <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
-                    {to === '/account/company/trips' && !!overdue?.count && (
+                    {to === '/account/company/requests' && !!requests && (
+                    <span
+                      title={`${fa(requests)} درخواست منتظر جواب`}
+                      className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
+                    >
+                      {requests > 99 ? '۹۹+' : fa(requests)}
+                    </span>
+                  )}
+                  {to === '/account/company/trips' && !!overdue?.count && (
                       <span
                         title={`${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`}
                         className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
@@ -142,6 +161,7 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
         </div>
       </header>
       <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-[calc(4rem+env(safe-area-inset-bottom))] tw-pt-6 sm:tw-px-6">
+        <PushPrompt />
         {children}
       </main>
     </div>

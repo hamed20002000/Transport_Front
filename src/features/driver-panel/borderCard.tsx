@@ -152,9 +152,7 @@ function BorderDetails({ status }: { status: BorderStatus }) {
         </div>
       )}
 
-      <p className="tw-m-0 tw-text-xs tw-text-brand-muted">
-        {status.lastUpdate && `آخرین به‌روزرسانی: ${updatedAt(status.lastUpdate)} · `}منبع: borderpark.ir
-      </p>
+      {status.lastUpdate && <p className="tw-m-0 tw-text-xs tw-text-brand-muted">آخرین به‌روزرسانی: {updatedAt(status.lastUpdate)}</p>}
     </div>
   );
 }

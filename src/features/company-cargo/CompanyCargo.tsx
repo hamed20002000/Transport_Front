@@ -22,6 +22,7 @@ import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import {
   announceListing,
+  listUnannounced,
   getSummary,
   listMyListings,
   listSuggestions,
@@ -117,15 +118,73 @@ function ListBody<T>({
 }
 
 
+// The company's own loads that were registered but not announced: kept apart from the suggestions so the
+// suggestion filters apply only to loads seen in the channels, and these are never lost.
+function UnannouncedListings({ onChanged, version }: { onChanged: () => void; version: number }) {
+  const toast = useToast();
+  const [items, setItems] = useState<CargoListing[]>([]);
+  const [announcingId, setAnnouncingId] = useState<string | null>(null);
+  const reload = useCallback(() => {
+    listUnannounced()
+      .then(setItems)
+      .catch(() => setItems([]));
+  }, []);
+  useEffect(reload, [reload, version]);
+  const { toggle, savingId, dialog } = useListingToggle({
+    // «برداشته شد» from here: it is no longer waiting to be announced
+    update: () => reload(),
+    onChanged,
+  });
+
+  async function announce(listing: CargoListing) {
+    setAnnouncingId(listing.id);
+    try {
+      const announced = await announceListing(listing.id);
+      setItems((current) => current.filter((row) => row.id !== listing.id));
+      onChanged();
+      toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${tripTypeLabels[listing.tripType]} اعلام شد و به «بارهای من» رفت.`);
+    } catch (error) {
+      toast.error(errorMessage(error));
+    } finally {
+      setAnnouncingId(null);
+    }
+  }
+
+  if (!items.length) return null;
+  return (
+    <section className="tw-space-y-3" aria-label="بارهای من که اعلام نشده‌اند">
+      <SectionTitle
+        title={`بارهای من که اعلام نشده‌اند (${items.length.toLocaleString('fa-IR')})`}
+        hint="ثبت شده‌اند ولی هنوز راننده‌ی مناسبی نبود (عضو شرکت شما، با همین نوع حمل و فیلتر جور)، یا در صف اعلام خودکارند"
+      />
+      {items.map((listing) => (
+        <ListingCard
+          key={listing.id}
+          listing={listing}
+          saving={savingId === listing.id}
+          disabled={!!savingId}
+          onToggle={() => toggle(listing)}
+          onAnnounce={() => announce(listing)}
+          announcing={announcingId === listing.id}
+        />
+      ))}
+      {dialog}
+    </section>
+  );
+}
+
 function Suggestions({ onChanged }: { onChanged: () => void }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const toast = useToast();
   const state = usePage(() => listSuggestions(page, filter === 'unread'), [page, filter]);
+  // a load registered or announced elsewhere (the form, the assistant, a bot) changes the unannounced list too
+  const [unannouncedVersion, setUnannouncedVersion] = useState(0);
   const actions = useSuggestionActions({
     update: (item) => state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === item.id ? item : row)) }),
     onChanged,
   });
+  useNotificationEvent('cargo-listing-changed', () => setUnannouncedVersion((value) => value + 1));
 
   // بار جدید از سوکت (NotificationsGateway) -- لیست و شمارنده‌ها همان لحظه به‌روز
   // می‌شوند، بدون رفرش صفحه.
@@ -148,48 +207,51 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
   }
 
   return (
-    <section className="tw-space-y-4" aria-label="بارهای پیشنهادی">
-      <SectionTitle
-        title="بارهای پیشنهادی"
-        hint="بارهایی که در کانال‌های شما دیده شده‌اند"
-        side={
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <Segmented
-              label="فیلتر"
-              value={filter}
-              onChange={(value) => {
-                setFilter(value);
-                setPage(1);
-              }}
-              options={[
-                { value: 'all', label: 'همه', icon: Layers },
-                { value: 'unread', label: 'خوانده‌نشده', icon: Mail },
-              ]}
-            />
-            <IconButton icon={CheckCheck} label="همه خوانده شد" onClick={markAll} />
-            <Link
-              to="/account/company/filters"
-              title="تنظیمات نمایش بار"
-              aria-label="تنظیمات نمایش بار"
-              className="tw-inline-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-brand-line tw-bg-white tw-text-brand-navy tw-shadow-sm tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange"
-            >
-              <SlidersHorizontal size={18} aria-hidden />
-            </Link>
-          </div>
-        }
-      />
-      <ListBody
-        state={state}
-        onPage={setPage}
-        empty={{
-          icon: Inbox,
-          title: filter === 'unread' ? 'پیام خوانده‌نشده‌ای ندارید' : 'هنوز باری پیشنهاد نشده',
-          hint: 'بارهایی که در کانال‌های ثبت‌شدهٔ شما دیده شوند و با فیلترهایتان جور باشند، اینجا نمایش داده می‌شوند.',
-        }}
-        render={(item) => <SuggestionCard key={item.id} item={item} onRead={() => actions.markRead(item)} onAnnounce={() => actions.announce(item)} />}
-      />
-      {actions.dialog}
-    </section>
+    <div className="tw-space-y-8">
+      <UnannouncedListings onChanged={onChanged} version={unannouncedVersion} />
+      <section className="tw-space-y-4" aria-label="بارهای پیشنهادی">
+        <SectionTitle
+          title="بارهای پیشنهادی"
+          hint="بارهایی که در کانال‌های شما دیده شده‌اند"
+          side={
+            <div className="tw-flex tw-items-center tw-gap-2">
+              <Segmented
+                label="فیلتر"
+                value={filter}
+                onChange={(value) => {
+                  setFilter(value);
+                  setPage(1);
+                }}
+                options={[
+                  { value: 'all', label: 'همه', icon: Layers },
+                  { value: 'unread', label: 'خوانده‌نشده', icon: Mail },
+                ]}
+              />
+              <IconButton icon={CheckCheck} label="همه خوانده شد" onClick={markAll} />
+              <Link
+                to="/account/company/filters"
+                title="تنظیمات نمایش بار"
+                aria-label="تنظیمات نمایش بار"
+                className="tw-inline-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-brand-line tw-bg-white tw-text-brand-navy tw-shadow-sm tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange"
+              >
+                <SlidersHorizontal size={18} aria-hidden />
+              </Link>
+            </div>
+          }
+        />
+        <ListBody
+          state={state}
+          onPage={setPage}
+          empty={{
+            icon: Inbox,
+            title: filter === 'unread' ? 'پیام خوانده‌نشده‌ای ندارید' : 'هنوز باری پیشنهاد نشده',
+            hint: 'بارهایی که در کانال‌های ثبت‌شدهٔ شما دیده شوند و با فیلترهایتان جور باشند، اینجا نمایش داده می‌شوند.',
+          }}
+          render={(item) => <SuggestionCard key={item.id} item={item} onRead={() => actions.markRead(item)} onAnnounce={() => actions.announce(item)} />}
+        />
+        {actions.dialog}
+      </section>
+    </div>
   );
 }
 

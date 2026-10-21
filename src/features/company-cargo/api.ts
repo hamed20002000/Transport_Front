@@ -61,6 +61,8 @@ export interface CargoListing {
   createdAt: string;
   // The driver the load was handed to («برداشته شد»): waiting for them (OFFERED), on the trip or delivered.
   assignment?: CargoAssignment | null;
+  // drivers' requests still waiting for an answer («بارهای من» card)
+  pendingRequests?: number;
 }
 
 // A driver as the company sees them when handing over a load (DriverProfileService.cards).
@@ -121,6 +123,11 @@ export function markSuggestionRead(id: string) {
 
 export function markAllSuggestionsRead() {
   return unwrap(axios.patch(`${endpoints.baseurl}cargo-notifications/read-all`, {}, config()));
+}
+
+// The company's own open loads not announced yet (no matching driver, or waiting for the automatic round).
+export function listUnannounced() {
+  return unwrap<CargoListing[]>(axios.get(`${endpoints.baseurl}cargo-listings/unannounced`, config()));
 }
 
 export function listMyListings(page: number, status?: ListingStatus) {
@@ -285,9 +292,34 @@ export interface CompanyTrip {
   requestId: string;
   startedAt: string;
   deliveryRemindedAt: string | null;
+  // the driver reported delivery; «تأیید تحویل» makes it delivered
+  deliveryReportedAt: string | null;
   cargo: Pick<CargoDetails, 'code' | 'origin' | 'destination' | 'cargoType' | 'weight' | 'vehicleType' | 'price'> & { id: string } | null;
   driver: DriverCard | null;
   location: { latitude: number; longitude: number; receivedAt: string; liveUntil: string | null } | null;
+}
+
+// A driver's pending request for one of the company's loads (CargoTripService.companyRequestViews), oldest first.
+export interface CompanyRequest {
+  requestId: string;
+  requestedAt: string;
+  cargo: CompanyTrip['cargo'];
+  driver: DriverCard | null;
+}
+
+export function listCompanyRequests(page: number) {
+  return unwrap<Page<CompanyRequest>>(axios.get(`${endpoints.baseurl}cargo-listings/requests`, config({ page, pageSize: 20 })));
+}
+
+export function countCompanyRequests() {
+  return unwrap<{ count: number }>(axios.get(`${endpoints.baseurl}cargo-listings/requests/count`, config())).then((r) => r.count);
+}
+
+// accept: the driver's trip starts and the load is taken (the other requests are turned down); reject: the driver is told
+export function decideCompanyRequest(requestId: string, decision: 'accept' | 'reject') {
+  return unwrap<{ requestId: string; status: string }>(
+    axios.patch(`${endpoints.baseurl}cargo-listings/requests/${requestId}/${decision}`, {}, config()),
+  );
 }
 
 export function listCompanyTrips(page: number) {
@@ -297,6 +329,13 @@ export function listCompanyTrips(page: number) {
 // Active trips with no delivery registered for `days` days (the panel's reminder banner).
 export function getOverdueTrips() {
   return unwrap<{ count: number; days: number }>(axios.get(`${endpoints.baseurl}cargo-listings/trips/overdue`, config()));
+}
+
+// «تحویل نشده»: turns the driver's delivery report down; the trip stays active.
+export function rejectTripDelivery(requestId: string) {
+  return unwrap<{ requestId: string; status: string; deliveryReportedAt: null }>(
+    axios.patch(`${endpoints.baseurl}cargo-listings/trips/${requestId}/reject-delivery`, {}, config()),
+  );
 }
 
 export function deliverTrip(requestId: string) {

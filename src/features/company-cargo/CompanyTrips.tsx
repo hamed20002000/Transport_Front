@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AlarmClock, CheckCircle2, Clock, MapPinned, Package, Scale, Truck } from 'lucide-react';
+import { AlarmClock, CheckCircle2, Clock, MapPinned, Package, Scale, Truck, XCircle } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { deliverTrip, listCompanyTrips, type CompanyTrip, type Page } from './api';
+import { deliverTrip, listCompanyTrips, rejectTripDelivery, type CompanyTrip, type Page } from './api';
 import { DriverPhoto } from './AssignDriverDialog';
 import { errorMessage } from './cargoText';
 import CompanyShell from './CompanyShell';
-import { Badge, CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, PrimaryButton, RouteLine, SectionTitle, Spec, timeAgo } from './components';
+import { Badge, CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, PrimaryButton, RouteLine, SecondaryButton, SectionTitle, Spec, timeAgo } from './components';
 import { useNotificationEvent } from './notificationSocket';
 
 const PAGE_SIZE = 20;
@@ -17,7 +17,7 @@ const PAGE_SIZE = 20;
 const REMINDER_DAYS = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function TripCard({ trip, busy, onDeliver }: { trip: CompanyTrip; busy: boolean; onDeliver: () => void }) {
+function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy: boolean; onDeliver: () => void; onReject: () => void }) {
   const { cargo, driver, location } = trip;
   const overdue = Date.now() - new Date(trip.startedAt).getTime() > REMINDER_DAYS * DAY_MS;
   const live = location?.liveUntil && new Date(location.liveUntil).getTime() > Date.now();
@@ -26,10 +26,16 @@ function TripCard({ trip, busy, onDeliver }: { trip: CompanyTrip; busy: boolean;
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
         <CargoCode code={cargo?.code} />
         <div className="tw-flex tw-items-center tw-gap-2">
-          {overdue && (
+          {trip.deliveryReportedAt ? (
             <Badge tone="orange">
-              <AlarmClock size={13} aria-hidden /> تحویل ثبت نشده
+              <CheckCircle2 size={13} aria-hidden /> راننده تحویل را {timeAgo(trip.deliveryReportedAt)} اعلام کرد
             </Badge>
+          ) : (
+            overdue && (
+              <Badge tone="orange">
+                <AlarmClock size={13} aria-hidden /> تحویل ثبت نشده
+              </Badge>
+            )
           )}
           <span className="tw-inline-flex tw-items-center tw-gap-1 tw-text-xs tw-text-brand-muted">
             <Clock size={13} aria-hidden /> شروع {timeAgo(trip.startedAt)}
@@ -69,8 +75,13 @@ function TripCard({ trip, busy, onDeliver }: { trip: CompanyTrip; busy: boolean;
         ) : (
           <span className="tw-text-sm tw-text-brand-muted">راننده هنوز موقعیتی نفرستاده</span>
         )}
+        {trip.deliveryReportedAt && (
+          <SecondaryButton onClick={onReject} disabled={busy}>
+            <XCircle size={16} aria-hidden /> تحویل نشده
+          </SecondaryButton>
+        )}
         <PrimaryButton onClick={onDeliver} disabled={busy}>
-          <CheckCircle2 size={16} aria-hidden /> {busy ? 'در حال ثبت…' : 'تحویل شد'}
+          <CheckCircle2 size={16} aria-hidden /> {busy ? 'در حال ثبت…' : trip.deliveryReportedAt ? 'تأیید تحویل' : 'تحویل شد'}
         </PrimaryButton>
       </div>
     </li>
@@ -105,11 +116,29 @@ function Trips() {
 
   async function deliver(trip: CompanyTrip) {
     const route = trip.cargo ? `${trip.cargo.origin} به ${trip.cargo.destination}` : 'این بار';
-    if (!window.confirm(`تحویل بار ${route} ثبت شود؟ راننده هم خبردار می‌شود.`)) return;
+    const question = trip.deliveryReportedAt
+      ? `راننده تحویل بار ${route} را اعلام کرده. تأیید می‌کنید؟ راننده هم خبردار می‌شود.`
+      : `تحویل بار ${route} ثبت شود؟ راننده هم خبردار می‌شود.`;
+    if (!window.confirm(question)) return;
     setBusyId(trip.requestId);
     try {
       await deliverTrip(trip.requestId);
-      toast.success('تحویل بار ثبت شد و به راننده خبر دادیم.');
+      toast.success(trip.deliveryReportedAt ? 'تحویل تأیید شد و به راننده خبر دادیم.' : 'تحویل بار ثبت شد و به راننده خبر دادیم.');
+      setVersion((value) => value + 1);
+    } catch (e) {
+      toast.error(errorMessage(e));
+    } finally {
+      setBusyId('');
+    }
+  }
+
+  // «تحویل نشده»: the driver's report is turned down; the trip stays here and the driver is told
+  async function reject(trip: CompanyTrip) {
+    if (!window.confirm('اعلام تحویل راننده رد شود؟ سفر فعال می‌ماند و راننده خبردار می‌شود.')) return;
+    setBusyId(trip.requestId);
+    try {
+      await rejectTripDelivery(trip.requestId);
+      toast.success('اعلام تحویل رد شد و به راننده خبر دادیم.');
       setVersion((value) => value + 1);
     } catch (e) {
       toast.error(errorMessage(e));
@@ -134,7 +163,7 @@ function Trips() {
         <>
           <ul className="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
             {data.items.map((trip) => (
-              <TripCard key={trip.requestId} trip={trip} busy={busyId === trip.requestId} onDeliver={() => void deliver(trip)} />
+              <TripCard key={trip.requestId} trip={trip} busy={busyId === trip.requestId} onDeliver={() => void deliver(trip)} onReject={() => void reject(trip)} />
             ))}
           </ul>
           <Pager page={page} total={data.total} pageSize={PAGE_SIZE} onChange={setPage} />

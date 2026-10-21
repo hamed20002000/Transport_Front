@@ -10,6 +10,7 @@ const loaders = {
   filters: () => import('./CargoFilters'),
   drivers: () => import('./CompanyDrivers'),
   trips: () => import('./CompanyTrips'),
+  requests: () => import('./CompanyRequests'),
 };
 
 export const CompanyCargo = lazy(loaders.cargo);
@@ -19,6 +20,7 @@ export const CompanyProfile = lazy(loaders.profile);
 export const CargoFilters = lazy(loaders.filters);
 export const CompanyDrivers = lazy(loaders.drivers);
 export const CompanyTrips = lazy(loaders.trips);
+export const CompanyRequests = lazy(loaders.requests);
 
 // The other tabs, fetched in the background so switching to them doesn't wait on the network.
 export function preloadCompanyPages() {

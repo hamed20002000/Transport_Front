@@ -22,6 +22,14 @@ export default defineConfig({
                 target: 'http://127.0.0.1:3006',
                 changeOrigin: true,
             },
+            // The second backend (company channels, AI agent). Through the dev server rather than straight to
+            // localhost:3001: same origin (no CORS), and it works from a phone or ngrok too. A production server
+            // needs the same /tarabari-api route to that backend (endpoints.json tarabariurl).
+            '/tarabari-api': {
+                target: 'http://127.0.0.1:3001',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/tarabari-api/, '/api'),
+            },
         },
     },
     plugins: [
@@ -59,11 +67,13 @@ export default defineConfig({
                 ],
             },
             workbox: {
+                // phone notifications: the push and notification-click handlers (public/push-sw.js)
+                importScripts: ['push-sw.js'],
                 // App shell only; API calls and sockets always go to the network.
                 globPatterns: ['**/*.{js,css,html,woff,woff2}', 'pwa/*.png', '*.{svg,png}'],
                 maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
                 navigateFallback: '/index.html',
-                navigateFallbackDenylist: [/^\/api\//, /^\/socket\.io\//],
+                navigateFallbackDenylist: [/^\/api\//, /^\/tarabari-api\//, /^\/socket\.io\//],
                 cleanupOutdatedCaches: true,
                 clientsClaim: true,
                 skipWaiting: true,
