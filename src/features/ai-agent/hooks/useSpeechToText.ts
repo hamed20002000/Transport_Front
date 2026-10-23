@@ -4,7 +4,15 @@ import { useRef, useState, useCallback } from "react";
  * ضبط صدا از میکروفون. فایل ضبط‌شده به onRecorded داده می‌شود و خود پنل تصمیم
  * می‌گیرد کجا بفرستدش (agentApi: تبدیل به متن، یا اجرای مستقیم به‌عنوان دستور).
  */
-export function useSpeechToText(onRecorded: (audio: Blob) => void | Promise<void>) {
+// اولین فرمتی که مرورگر پشتیبانی می‌کند؛ سافاری iOS فقط mp4 می‌دهد و گاهی mimeType را خالی برمی‌گرداند
+const RECORDING_TYPES = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
+const pickRecordingType = () =>
+    RECORDING_TYPES.find((type) => typeof MediaRecorder.isTypeSupported === "function" && MediaRecorder.isTypeSupported(type));
+
+export function useSpeechToText(
+    onRecorded: (audio: Blob) => void | Promise<void>,
+    onError?: (message: string) => void,
+) {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
     const streamRef = useRef<MediaStream | null>(null);
@@ -20,11 +28,21 @@ export function useSpeechToText(onRecorded: (audio: Blob) => void | Promise<void
     };
 
     const start = useCallback(async () => {
+        // روی HTTP (مثلاً باز کردن با IP شبکه روی گوشی) مرورگر اصلاً mediaDevices را نمی‌دهد
+        if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+            onError?.("ضبط صدا فقط روی اتصال امن (HTTPS) کار می‌کند.");
+            return;
+        }
+        if (typeof MediaRecorder === "undefined") {
+            onError?.("مرورگر شما از ضبط صدا پشتیبانی نمی‌کند.");
+            return;
+        }
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             streamRef.current = stream;
 
-            const mediaRecorder = new MediaRecorder(stream);
+            const mimeType = pickRecordingType();
+            const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
             mediaRecorderRef.current = mediaRecorder;
             audioChunksRef.current = [];
             cancelledRef.current = false;
@@ -36,12 +54,18 @@ export function useSpeechToText(onRecorded: (audio: Blob) => void | Promise<void
                 }
             };
 
-            mediaRecorder.start();
+            // با timeslice تکه‌ها مرتب می‌رسند؛ بعضی مرورگرهای موبایل بدون آن در stop داده‌ی خالی می‌دهند
+            mediaRecorder.start(1000);
             setIsListening(true);
         } catch (error) {
             console.error("دسترسی به میکروفون رد شد یا خطا رخ داد:", error);
+            releaseMicrophone();
+            const denied = (error as DOMException)?.name === "NotAllowedError";
+            onError?.(denied
+                ? "دسترسی به میکروفون داده نشده است؛ از تنظیمات مرورگر اجازه دهید."
+                : "شروع ضبط صدا با خطا روبه‌رو شد.");
         }
-    }, []);
+    }, [onError]);
 
     const stop = useCallback(() => {
         const mediaRecorder = mediaRecorderRef.current;
@@ -54,7 +78,8 @@ export function useSpeechToText(onRecorded: (audio: Blob) => void | Promise<void
             if (cancelledRef.current || !audioChunksRef.current.length) return;
 
             // نوع واقعی ضبط (webm در کروم، mp4 در سافاری) تا سرور درست تشخیصش بده
-            const audio = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || "audio/webm" });
+            const type = mediaRecorder.mimeType || audioChunksRef.current[0]?.type || pickRecordingType() || "audio/webm";
+            const audio = new Blob(audioChunksRef.current, { type });
             setIsTranscribing(true);
             try {
                 await onRecorded(audio);

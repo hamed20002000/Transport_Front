@@ -1,4 +1,3 @@
-import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Archive, Bell, Building2, ClipboardList, House, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
@@ -7,6 +6,7 @@ import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
 import PushPrompt from 'src/shared/components/pwa/PushPrompt';
+import FloatingPanelNav from 'src/shared/components/FloatingPanelNav';
 import { cn } from 'src/shared/utils/utils';
 import { displayName, useProfile } from './profileStore';
 import MarketTicker from 'src/features/market/MarketTicker';
@@ -30,10 +30,9 @@ const fa = (value: number) => value.toLocaleString('fa-IR');
 // Lets the page under the layout put its unread count on the bell.
 const UnreadContext = createContext<(count: number | undefined) => void>(() => undefined);
 
-// Frame for company pages: brand bar plus an icon-over-label menu (the mobile tab-bar pattern, kept at the top).
+// Company frame with a shared floating navigation drawer.
 function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
   const name = displayName(useProfile());
-  const reduceMotion = useReducedMotion();
   const toast = useToast();
   // Trips with no delivery registered for days: a count on the «سفرها» tab, so a reminder missed while offline still shows.
   const [overdue, setOverdue] = useState<{ count: number; days: number } | null>(null);
@@ -62,14 +61,27 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
   return (
     <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-text-brand-navy">
       <header className="tw-sticky tw-top-0 tw-z-20 tw-pt-[env(safe-area-inset-top)] tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
-        <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-4 tw-px-4 sm:tw-px-6">
-          <div className="tw-min-w-0">
+        <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-2 tw-px-3 sm:tw-px-6">
+          <FloatingPanelNav
+            title="منوی شرکت"
+            items={items.map((item) => ({
+              ...item,
+              active: item.match(pathname, tab),
+              count: item.to === '/account/company/requests' ? requests : item.to === '/account/company/trips' ? overdue?.count : undefined,
+              countLabel: item.to === '/account/company/requests'
+                ? `${fa(requests)} درخواست منتظر جواب`
+                : item.to === '/account/company/trips' && overdue
+                  ? `${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`
+                  : undefined,
+            }))}
+          />
+          <div className="tw-min-w-0 tw-flex-1">
             <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
               <strong className="tw-truncate tw-text-lg tw-font-bold tw-leading-none">{name || 'پنل شرکت'}</strong>
               {name && <span className="tw-shrink-0 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">شرکت</span>}
             </div>
           </div>
-          <div className="tw-flex tw-items-center tw-gap-1.5">
+          <div className="tw-flex tw-shrink-0 tw-items-center tw-gap-1 sm:tw-gap-1.5">
             <Link
               to="/account/company/filters"
               aria-label="تنظیمات نمایش بار"
@@ -106,53 +118,6 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
             <SignOutButton />
           </div>
         </div>
-        <LayoutGroup id="company-navigation">
-          <nav aria-label="منوی شرکت" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-9 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
-            {items.map(({ to, label, icon: Icon, match }) => {
-              const active = match(pathname, tab);
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  aria-current={active ? 'page' : undefined}
-                  className={cn(
-                    'tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1 tw-whitespace-nowrap tw-px-1 tw-pb-2.5 tw-pt-1 tw-text-xs tw-transition-colors sm:tw-px-4',
-                    active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
-                  )}
-                >
-                  <span className="tw-relative">
-                    <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
-                    {to === '/account/company/requests' && !!requests && (
-                    <span
-                      title={`${fa(requests)} درخواست منتظر جواب`}
-                      className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
-                    >
-                      {requests > 99 ? '۹۹+' : fa(requests)}
-                    </span>
-                  )}
-                  {to === '/account/company/trips' && !!overdue?.count && (
-                      <span
-                        title={`${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`}
-                        className="tw-absolute -tw-right-2.5 -tw-top-1.5 tw-min-w-[1.1rem] tw-rounded-full tw-bg-brand-orange tw-px-1 tw-text-center tw-text-[10px] tw-font-bold tw-leading-[1.1rem] tw-text-white"
-                      >
-                        {overdue.count > 99 ? '۹۹+' : fa(overdue.count)}
-                      </span>
-                    )}
-                  </span>
-                  {label}
-                  {active && (
-                    <motion.span
-                      aria-hidden
-                      layoutId="active-tab-underline"
-                      className="tw-absolute tw-inset-x-4 tw-bottom-0 tw-h-[3px] tw-rounded-t-full tw-bg-brand-orange"
-                      transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-        </LayoutGroup>
         {/* Prices live in the sticky header so they stay in view while lists scroll. */}
         <div className="tw-border-t tw-border-brand-line tw-bg-brand-sky">
           <div className="tw-mx-auto tw-max-w-5xl tw-px-3 tw-py-1.5 sm:tw-px-6">

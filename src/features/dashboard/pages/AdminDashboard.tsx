@@ -83,7 +83,7 @@ function DashboardContent() {
     },
   ];
   return (
-    <PageContainer title="پنل مدیریت | Setaş" description="نمای کلی دسترسی‌ها و بخش‌های سامانه">
+    <PageContainer title="پنل مدیریت | ترابوت" description="نمای کلی دسترسی‌ها و بخش‌های سامانه">
       <div className={styles.page} dir="rtl" lang="fa">
         <div className={styles.eyebrow}>
           <LayoutDashboard size={14} />
@@ -303,7 +303,7 @@ function DashboardContent() {
             <ShieldCheck size={14} />
             اطلاعات این صفحه مطابق دسترسی‌های حساب شماست.
           </span>
-          <span dir="ltr">SETAŞ · Management workspace</span>
+          <span dir="ltr">ترابوت · Management workspace</span>
         </footer>
       </div>
     </PageContainer>

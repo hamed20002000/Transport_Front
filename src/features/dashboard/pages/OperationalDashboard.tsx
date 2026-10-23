@@ -115,7 +115,7 @@ const Modern = () => {
 
   if (!hasDashboardPermission) {
     return (
-      <PageContainer title="Setaş Portal" description="Access Info">
+      <PageContainer title="ترابوت" description="Access Info">
         <Box
           display="flex"
           justifyContent="center"
@@ -140,11 +140,11 @@ const Modern = () => {
                 <Box
                   component="img"
                   src={Logo}
-                  alt="Setas Logo"
+                  alt="ترابوت Logo"
                   sx={{ height: 80, mb: 2, objectFit: 'contain' }}
                 />
                 <Typography variant="h5" fontWeight="bold" color="textPrimary" gutterBottom>
-                  Setaş Sistem Bilişim San.Tic.A.Ş
+                  ترابوت، دستیار هوشمند حمل‌ونقل
                 </Typography>
               </Box>
 
@@ -234,11 +234,11 @@ const Modern = () => {
                 <Box display="flex" alignItems="flex-start" gap={2}>
                   <LanguageIcon color="action" />
                   <Box>
-                    <Link href="http://www.setasbilisim.com.tr" target="_blank" underline="hover" color="primary">
-                      http://www.setasbilisim.com.tr
+                    <Link href="/" target="_blank" underline="hover" color="primary">
+                      ترابوت
                     </Link>
                     <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
-                      e-mail: setas@setasbilisim.com.tr
+                      دستیار هوشمند حمل‌ونقل
                     </Typography>
                   </Box>
                 </Box>
@@ -252,7 +252,7 @@ const Modern = () => {
   }
 
   return (
-    <PageContainer title="Setaş Portal" description="Dashboard">
+    <PageContainer title="ترابوت" description="Dashboard">
       <Box>
         <Grid container spacing={3}>
           <Grid item xs={12}><DashboardStats /></Grid>

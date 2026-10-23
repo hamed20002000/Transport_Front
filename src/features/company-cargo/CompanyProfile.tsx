@@ -300,7 +300,7 @@ export default function CompanyProfile() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="پروفایل | Setaş Transport" description="ویرایش اطلاعات شخصی و شرکتی">
+    <PageContainer title="پروفایل | ترابوت" description="ویرایش اطلاعات شخصی و شرکتی">
       <CompanyShell>
         <ProfileContent />
       </CompanyShell>

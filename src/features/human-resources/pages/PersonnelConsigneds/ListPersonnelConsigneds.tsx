@@ -814,7 +814,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                 docAny.line(15, 48, pageWidth - 15, 48);
 
                 docAny.setFont('NotoSans', 'normal'); docAny.setFontSize(8); docAny.setTextColor(0);
-                const companyInfo = ['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'];
+                const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'دستیار هوشمند حمل‌ونقل'];
                 let footerY = pageHeight - 20;
                 companyInfo.forEach(line => {
                     docAny.text(line, pageWidth / 2, footerY, { align: 'center' });
@@ -899,7 +899,7 @@ const ListPersonnelConsigneds: React.FC = () => {
             });
 
             worksheet.addRow([]);
-            const companyInfo = ['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'];
+            const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'دستیار هوشمند حمل‌ونقل'];
             companyInfo.forEach(line => {
                 const lastRow = worksheet.addRow([line]);
                 lastRow.getCell(1).alignment = { horizontal: 'center' };
@@ -984,9 +984,9 @@ const ListPersonnelConsigneds: React.FC = () => {
                 docAny.setFont('NotoSans', 'normal');
                 docAny.setFontSize(8);
                 const companyInfo = [
-                    'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.',
+                    'ترابوت',
                     'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
-                    'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'
+                    'دستیار هوشمند حمل‌ونقل'
                 ];
                 let footerY = pageHeight - 40;
                 companyInfo.forEach(line => {

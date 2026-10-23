@@ -600,7 +600,7 @@ const ListPersonnelWorkPlacesByWorkhouse: React.FC = () => {
 
                 docAny.setFont('NotoSans', 'normal');
                 docAny.setFontSize(8);
-                const companyInfo = ['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'];
+                const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'دستیار هوشمند حمل‌ونقل'];
                 let footerY = pageHeight - 20;
                 companyInfo.forEach(line => {
                     docAny.text(line, pageWidth / 2, footerY, { align: 'center' });
@@ -647,7 +647,7 @@ const ListPersonnelWorkPlacesByWorkhouse: React.FC = () => {
 
             const addCompanyInfo = (ws: Excel.Worksheet, maxCol: number) => {
                 ws.addRow([]);
-                const companyInfo = ['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'];
+                const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'دستیار هوشمند حمل‌ونقل'];
                 companyInfo.forEach(line => {
                     ws.addRow([line]);
                     const lastRow = ws.lastRow;

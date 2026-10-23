@@ -823,7 +823,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             doc.setFont('NotoSans', 'normal').setFontSize(8).setTextColor(0);
-            const companyInfo = ['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR', 'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'];
+            const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR', 'دستیار هوشمند حمل‌ونقل'];
             let footerY = pageHeight - 20;
             companyInfo.forEach(line => {
                 doc.text(line, pageWidth / 2, footerY, { align: 'center' });

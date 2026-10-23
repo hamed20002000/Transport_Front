@@ -69,6 +69,7 @@ if (!self.define) {
 }
 define(['./workbox-25613826'], (function (workbox) { 'use strict';
 
+  importScripts("push-sw.js");
   self.skipWaiting();
   workbox.clientsClaim();
   /**
@@ -81,12 +82,12 @@ define(['./workbox-25613826'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "/index.html",
-    "revision": "0.4jouqu2pbdo"
+    "revision": "0.ca3r97cfl4o"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
     allowlist: [/^\/$/, /^\/auth\//, /^\/driver(?:\/|$)/],
-    denylist: [/^\/api\//, /^\/socket\.io\//]
+    denylist: [/^\/api\//, /^\/tarabari-api\//, /^\/socket\.io\//]
   }));
   workbox.registerRoute(({
     request,

@@ -398,7 +398,7 @@ function CargoContent() {
   }
 
   return (
-    <PageContainer title="لیست بارها | Setaş Transport" description="بارهای پیشنهادی و منتشرشده شرکت">
+    <PageContainer title="لیست بارها | ترابوت" description="بارهای پیشنهادی و منتشرشده شرکت">
       <CompanyShell unread={summary?.unread}>
         <div className="tw-space-y-8">
           <div className="tw-flex tw-items-end tw-justify-between tw-gap-4">

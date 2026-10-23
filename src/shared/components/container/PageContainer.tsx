@@ -10,7 +10,7 @@ type Props = {
   title?: string;
 };
 
-const PageContainer = ({ title, description, children }: Props) => (
+const PageContainer = ({ title = 'ترابوت | دستیار هوشمند حمل‌ونقل', description, children }: Props) => (
   <div>
     <Helmet>
       <title>{title}</title>

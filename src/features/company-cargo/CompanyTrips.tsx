@@ -179,7 +179,7 @@ export default function CompanyTrips() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="سفرهای فعال | Setaş Transport" description="سفرهای فعال شرکت">
+    <PageContainer title="سفرهای فعال | ترابوت" description="سفرهای فعال شرکت">
       <CompanyShell>
         <Trips />
       </CompanyShell>

@@ -41,6 +41,20 @@ export default function AnnounceSettings({ onSaved }: { onSaved?: () => void }) 
       .catch(() => setSettings(null));
   }, []);
 
+  // The server runs a due turn within a minute of nextRunAt; refetch after that (and keep retrying while it
+  // is still in the past) so «نوبت بعدی» moves on without reloading the page.
+  const nextRunAt = settings?.mode === 'AUTO' ? settings.nextRunAt : null;
+  useEffect(() => {
+    if (!nextRunAt) return;
+    const wait = Math.max(new Date(nextRunAt).getTime() - Date.now(), 0) + 70_000;
+    const timer = setTimeout(() => {
+      getAnnounceSettings()
+        .then((fresh) => setSettings(fresh.nextRunAt === nextRunAt ? { ...fresh } : fresh))
+        .catch(() => undefined);
+    }, wait);
+    return () => clearTimeout(timer);
+  }, [nextRunAt, settings]);
+
   async function save(mode: AnnounceMode, intervalMinutes: number) {
     setSaving(true);
     try {
@@ -107,6 +121,14 @@ export default function AnnounceSettings({ onSaved }: { onSaved?: () => void }) 
               ))}
             </select>
           </label>
+          {settings.lastRunAnnounced !== null && settings.lastRunAt && (
+            <span className="tw-text-brand-muted">
+              آخرین نوبت: {formatDate(settings.lastRunAt)} —{' '}
+              {settings.lastRunAnnounced
+                ? `${settings.lastRunAnnounced.toLocaleString('fa-IR')} بار اعلام شد`
+                : 'بار تازه‌ای برای اعلام نبود'}
+            </span>
+          )}
           {settings.nextRunAt && <span className="tw-text-brand-muted">نوبت بعدی: {formatDate(settings.nextRunAt)}</span>}
         </div>
       )}

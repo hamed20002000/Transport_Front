@@ -5,6 +5,7 @@ import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { CompanyShell, displayName, useProfile } from 'src/features/company-cargo';
 import { driverHasNoCompany } from 'src/features/driver-panel';
+import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 
 const accounts = {
   COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2, profile: '/account/company/profile' },
@@ -84,17 +85,15 @@ function AccountHome({ type }: { type: keyof typeof accounts }) {
   }
   const { title, icon: Icon } = accounts[type];
   return (
-    <PageContainer title={`پنل ${title} | Setaş Transport`} description={`صفحه اصلی حساب ${title}`}>
+    <PageContainer title={`پنل ${title} | ترابوت`} description={`صفحه اصلی حساب ${title}`}>
       {type === 'COMPANY' ? (
         <CompanyHome username={username} />
       ) : (
         <main dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-p-6 tw-text-brand-navy sm:tw-p-12">
           <div className="tw-mx-auto tw-max-w-4xl tw-space-y-8">
             <header className="tw-flex tw-items-center tw-gap-3">
-              <span className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-brand-orange">
-                <Truck size={20} aria-hidden="true" />
-              </span>
-              <strong dir="ltr">SETAŞ TRANSPORT</strong>
+              <img src={trabotIcon} alt="" className="tw-h-10 tw-w-10 tw-rounded-xl tw-object-cover" />
+              <strong>ترابوت</strong>
             </header>
             <div className="tw-flex tw-items-center tw-gap-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-6 tw-shadow-sm sm:tw-p-8">
               <span className="tw-flex tw-h-14 tw-w-14 tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky">

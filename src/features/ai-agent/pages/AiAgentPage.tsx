@@ -55,7 +55,10 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         stop,
         cancel,
         isListening,
-    } = useSpeechToText((audio: Blob) => handleVoiceRef.current(audio));
+    } = useSpeechToText(
+        (audio: Blob) => handleVoiceRef.current(audio),
+        (message: string) => setAlert({ alertMessage: message, severity: "error", onClose: () => setAlert((current) => ({ ...current, alertMessage: "" })) }),
+    );
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const userefSocket = useRef<Socket>();
     const abortingref = useRef(false);
@@ -116,6 +119,45 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         observer.observe(content);
         return () => observer.disconnect();
     }, [isMinimized]);
+
+    // Scrolls inside the panel never reach the page: when nothing under the pointer can scroll further
+    // that way (or it starts on the header), the event is cancelled instead of scrolling the page behind.
+    useEffect(() => {
+        const shell = shellRef.current;
+        if (!shell) return;
+        const canScroll = (target: EventTarget | null, deltaY: number) => {
+            for (let el = target as HTMLElement | null; el && el !== shell; el = el.parentElement) {
+                if (!/(auto|scroll)/.test(getComputedStyle(el).overflowY) || el.scrollHeight <= el.clientHeight) continue;
+                if (deltaY < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1) return true;
+            }
+            return false;
+        };
+        const onWheel = (event: WheelEvent) => {
+            // Sideways scrolls (wide tables) are left to the browser.
+            if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+            if (!canScroll(event.target, event.deltaY)) event.preventDefault();
+        };
+        let lastTouch = { x: 0, y: 0 };
+        const onTouchStart = (event: TouchEvent) => {
+            lastTouch = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+        };
+        const onTouchMove = (event: TouchEvent) => {
+            const touch = event.touches[0];
+            const deltaX = lastTouch.x - touch.clientX;
+            const deltaY = lastTouch.y - touch.clientY;
+            lastTouch = { x: touch.clientX, y: touch.clientY };
+            if (event.touches.length > 1 || Math.abs(deltaX) > Math.abs(deltaY)) return;
+            if (event.cancelable && !canScroll(event.target, deltaY)) event.preventDefault();
+        };
+        shell.addEventListener('wheel', onWheel, { passive: false });
+        shell.addEventListener('touchstart', onTouchStart, { passive: true });
+        shell.addEventListener('touchmove', onTouchMove, { passive: false });
+        return () => {
+            shell.removeEventListener('wheel', onWheel);
+            shell.removeEventListener('touchstart', onTouchStart);
+            shell.removeEventListener('touchmove', onTouchMove);
+        };
+    }, []);
 
     const dragStateRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
     const progressStagesRef = useRef<string[]>([]);
@@ -932,11 +974,25 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                             </div>
 
                             <div className="composer">
+                                <button
+                                    className="composer-button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    title="پیوست فایل"
+                                >
+                                    📎
+                                </button>
+
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    hidden
+                                    onChange={handleFileChange}
+                                />
+
                                 <textarea
                                     ref={textareaRef}
                                     dir="auto"
                                     value={isListening ? `` : voiceInput}
-                                    style={{ width: "100%" }}
                                     onChange={(event) => {
                                         setVoiceInput(event.target.value)
                                         const ta = textareaRef.current;
@@ -964,24 +1020,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                     }}
                                 />
 
-                                <div style={{ display: "flex", width: "100%" }}>
-                                    <button
-                                        className="composer-button"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        title="پیوست فایل"
-                                    >
-                                        📎
-                                    </button>
-
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        hidden
-                                        onChange={handleFileChange}
-                                    />
-
-                                    <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
-                                        <button
+                                <button
                                 type="button"
                                 className={`composer-button ${isListening ? "recording-button" : ""}`}
                                 onClick={() => { isListening ? stop() : start() }}
@@ -1026,8 +1065,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                     <Arrow size={19} />
                                 </button>
                             )}
-                                    </div>
-                                </div>
+
                             </div>
 
                             <div className="composer-hint">
@@ -1235,13 +1273,25 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                         </div>
 
                                         <div className="composer">
+                                            <button
+                                                className="composer-button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                title="پیوست فایل"
+                                            >
+                                                📎
+                                            </button>
 
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                hidden
+                                                onChange={handleFileChange}
+                                            />
 
                                             <textarea
                                                 ref={textareaRef}
                                                 dir="auto"
                                                 value={isListening ? `` : voiceInput}
-                                                style={{ width: "100%" }}
                                                 onChange={(event) => {
                                                     setVoiceInput(event.target.value)
                                                     const ta = textareaRef.current;
@@ -1269,26 +1319,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                                 }}
                                             />
 
-                                            <div style={{ display: "flex", width: "100%" }}>
-                                                <button
-                                                    className="composer-button"
-                                                    onClick={() => fileInputRef.current?.click()}
-                                                    title="پیوست فایل"
-                                                >
-                                                    📎
-                                                </button>
-
-                                                <input
-                                                    ref={fileInputRef}
-                                                    type="file"
-                                                    hidden
-                                                    onChange={handleFileChange}
-                                                />
-
-
-                                                <div style={{ display: "flex", width: "100%", justifyContent: "end" }}>
-
-                                                    <button
+                                            <button
                                             type="button"
                                             className={`composer-button ${isListening ? "recording-button" : ""}`}
                                             onClick={() => { isListening ? stop() : start() }}
@@ -1333,11 +1364,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                                 <Arrow size={19} />
                                             </button>
                                         )}
-                                                </div>
 
-
-
-                                            </div>
 
 
                                         </div>

@@ -38,7 +38,7 @@ export default function CreateCargo() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="ثبت بار | Setaş Transport" description="ثبت بار جدید برای راننده‌ها">
+    <PageContainer title="ثبت بار | ترابوت" description="ثبت بار جدید برای راننده‌ها">
       <CompanyShell>
         <CreateForm />
       </CompanyShell>

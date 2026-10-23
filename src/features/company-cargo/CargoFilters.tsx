@@ -450,7 +450,7 @@ export default function CargoFilters() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="تنظیمات نمایش بار | Setaş Transport" description="فیلتر بارهای پیشنهادی">
+    <PageContainer title="تنظیمات نمایش بار | ترابوت" description="فیلتر بارهای پیشنهادی">
       <CompanyShell>
         <FiltersContent />
       </CompanyShell>

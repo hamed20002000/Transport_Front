@@ -94,7 +94,7 @@ const addPdfFooter = (doc: jsPDF) => {
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.setFontSize(8);
     doc.text(
-        "SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.",
+        "ترابوت",
         pageWidth / 2, pageHeight - 30, { align: "center" }
     );
     doc.text(
@@ -102,7 +102,7 @@ const addPdfFooter = (doc: jsPDF) => {
         pageWidth / 2, pageHeight - 26, { align: "center" }
     );
     doc.text(
-        "http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr",
+        "دستیار هوشمند حمل‌ونقل",
         pageWidth / 2, pageHeight - 22, { align: "center" }
     );
     const docAny = doc as any;

@@ -1,4 +1,3 @@
-import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Bell, ClipboardList, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
@@ -14,6 +13,7 @@ import { PageSkeleton, SignOutButton } from 'src/features/company-cargo/componen
 import { preloadDriverPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
 import PushPrompt from 'src/shared/components/pwa/PushPrompt';
+import FloatingPanelNav from 'src/shared/components/FloatingPanelNav';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -45,21 +45,24 @@ function useUnread() {
   return count;
 }
 
-// Frame for driver pages, matching CompanyShell: brand bar plus an icon-over-label menu.
+// Driver frame, sharing the floating navigation drawer with the company panel.
 function Frame({ children }: { children: ReactNode }) {
   const name = displayName(useProfile());
-  const reduceMotion = useReducedMotion();
   const unread = useUnread();
   const { pathname } = useLocation();
   return (
     <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-text-brand-navy">
       <header className="tw-sticky tw-top-0 tw-z-20 tw-pt-[env(safe-area-inset-top)] tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
-        <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-4 tw-px-4 sm:tw-px-6">
-          <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+        <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-2 tw-px-3 sm:tw-px-6">
+          <FloatingPanelNav
+            title="منوی راننده"
+            items={items.map((item) => ({ ...item, active: pathname === item.to || pathname === `${item.to}/` }))}
+          />
+          <div className="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
             <strong className="tw-truncate tw-text-lg tw-font-bold tw-leading-none">{name || 'پنل راننده'}</strong>
             {name && <span className="tw-shrink-0 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">راننده</span>}
           </div>
-          <div className="tw-flex tw-items-center tw-gap-1.5">
+          <div className="tw-flex tw-shrink-0 tw-items-center tw-gap-1 sm:tw-gap-1.5">
             <Link
               to="/account/driver/filters"
               aria-label="تنظیمات نمایش بار"
@@ -96,35 +99,6 @@ function Frame({ children }: { children: ReactNode }) {
             <SignOutButton />
           </div>
         </div>
-        <LayoutGroup id="driver-navigation">
-          <nav aria-label="منوی راننده" className="tw-mx-auto tw-grid tw-max-w-5xl tw-grid-cols-6 tw-px-1 sm:tw-flex sm:tw-justify-start sm:tw-gap-2 sm:tw-px-4">
-            {items.map(({ to, label, icon: Icon }) => {
-              const active = pathname === to || pathname === `${to}/`;
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  aria-current={active ? 'page' : undefined}
-                  className={cn(
-                    'tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1 tw-whitespace-nowrap tw-px-1 tw-pb-2.5 tw-pt-1 tw-text-xs tw-transition-colors sm:tw-px-4',
-                    active ? 'tw-font-bold tw-text-brand-orange' : 'tw-text-brand-navy/70 hover:tw-text-brand-navy',
-                  )}
-                >
-                  <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
-                  {label}
-                  {active && (
-                    <motion.span
-                      aria-hidden
-                      layoutId="active-tab-underline"
-                      className="tw-absolute tw-inset-x-4 tw-bottom-0 tw-h-[3px] tw-rounded-t-full tw-bg-brand-orange"
-                      transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-        </LayoutGroup>
         {/* Prices live in the sticky header so they stay in view while lists scroll. */}
         <div className="tw-border-t tw-border-brand-line tw-bg-brand-sky">
           <div className="tw-mx-auto tw-max-w-5xl tw-px-3 tw-py-1.5 sm:tw-px-6">
@@ -167,7 +141,7 @@ export function DriverLayout() {
 // Page wrapper: sets the tab title; the frame comes from DriverLayout.
 export default function DriverShell({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <PageContainer title={`${title} | Setaş Transport`} description="پنل راننده">
+    <PageContainer title={`${title} | ترابوت`} description="پنل راننده">
       <>{children}</>
     </PageContainer>
   );

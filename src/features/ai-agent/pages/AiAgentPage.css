@@ -59,6 +59,12 @@
   pointer-events: none;
 }
 
+/* A scroll area that reaches its end must not hand the scroll on to the page (see the guard in AiAgentPage). */
+.agent-modal-shell,
+.agent-modal-shell * {
+  overscroll-behavior: contain;
+}
+
 .agent-modal-shell {
   position: fixed;
   width: min(75vw, 1520px);
@@ -1119,9 +1125,10 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
   min-height: 0;
 
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 7px;
+  flex-direction: row;
+  /* Buttons stay on the last line while the textarea grows. */
+  align-items: flex-end;
+  gap: 4px;
 
   padding: 7px;
 
@@ -1139,7 +1146,9 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
 }
 
 .composer textarea {
+  flex: 1;
   min-width: 0;
+  align-self: center;
   max-height: 200px;
   /* allow growth up to ~10 lines; JS still limits visible lines to 4 before internal scroll */
   line-height: 20px;

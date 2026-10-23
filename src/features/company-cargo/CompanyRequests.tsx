@@ -133,7 +133,7 @@ export default function CompanyRequests() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="درخواست رانندگان | Setaş Transport" description="درخواست رانندگان برای بارهای شرکت">
+    <PageContainer title="درخواست رانندگان | ترابوت" description="درخواست رانندگان برای بارهای شرکت">
       <CompanyShell>
         <Requests />
       </CompanyShell>

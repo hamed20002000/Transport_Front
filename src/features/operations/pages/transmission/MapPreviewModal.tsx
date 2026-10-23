@@ -1080,9 +1080,9 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         doc.setTextColor(100);
 
         const companyInfo = [
-            'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.',
+            'ترابوت',
             'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
-            'http://www.setasbilisim.com.tr | e-mail:setas@setasbilisim.com.tr'
+            'دستیار هوشمند حمل‌ونقل'
         ];
 
         let footerY = pageHeight - 25;
@@ -1195,7 +1195,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
         worksheet.mergeCells('A1:D1');
         const titleCell = worksheet.getCell('A1');
-        titleCell.value = 'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.';
+        titleCell.value = 'ترابوت';
         titleCell.alignment = { horizontal: 'center' };
         titleCell.font = { bold: true, size: 12 };
 
@@ -1262,7 +1262,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         const lastRowIdx = worksheet.rowCount + 1;
         worksheet.mergeCells(`A${lastRowIdx}:D${lastRowIdx}`);
         const footerCell = worksheet.getCell(`A${lastRowIdx}`);
-        footerCell.value = 'http://www.setasbilisim.com.tr | e-mail:setas@setasbilisim.com.tr';
+        footerCell.value = 'دستیار هوشمند حمل‌ونقل';
         footerCell.alignment = { horizontal: 'center' };
         footerCell.font = { size: 9, italic: true, color: { argb: 'FF808080' } };
 

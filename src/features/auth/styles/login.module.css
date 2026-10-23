@@ -28,10 +28,7 @@
 .brandIcon {
   width: 44px;
   height: 44px;
-  display: grid;
-  place-items: center;
-  background: #155344;
-  color: #d9f4cc;
+  object-fit: cover;
   border-radius: 14px;
 }
 .brand strong {

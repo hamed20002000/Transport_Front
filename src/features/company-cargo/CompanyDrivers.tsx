@@ -144,7 +144,7 @@ export default function CompanyDrivers() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="رانندگان | Setaş Transport" description="رانندگان داخلی، صادراتی و وارداتی">
+    <PageContainer title="رانندگان | ترابوت" description="رانندگان داخلی، صادراتی و وارداتی">
       <CompanyShell>
         <Drivers />
       </CompanyShell>

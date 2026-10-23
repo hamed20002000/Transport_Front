@@ -69,13 +69,20 @@ export default function InstallPrompt() {
     setHidden(true);
   };
 
+  // The event works only once and can go stale (a hot reload of this module drops it while the button stays,
+  // or Chrome rejects it after the manifest changed); then the button hides instead of doing nothing.
   const install = async () => {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    const event = deferredPrompt;
     deferredPrompt = null;
     setCanPrompt(false);
-    if (outcome === 'dismissed') dismiss();
+    if (!event) return;
+    try {
+      await event.prompt();
+      const { outcome } = await event.userChoice;
+      if (outcome === 'dismissed') dismiss();
+    } catch {
+      // Chrome fires beforeinstallprompt again when installing becomes possible.
+    }
   };
 
   return (
@@ -87,9 +94,9 @@ export default function InstallPrompt() {
       style={{ bottom: 'calc(12px + env(safe-area-inset-bottom))' }}
     >
       <div className="tw-flex tw-items-start tw-gap-3">
-        <img src="/pwa/icon-192.png" alt="" className="tw-h-12 tw-w-12 tw-shrink-0 tw-rounded-lg" />
+        <img src="/pwa/trabot-icon-192.png" alt="" className="tw-h-12 tw-w-12 tw-shrink-0 tw-rounded-lg" />
         <div className="tw-min-w-0 tw-flex-1">
-          <p className="tw-m-0 tw-text-sm tw-font-semibold">نصب اپلیکیشن Setaş</p>
+          <p className="tw-m-0 tw-text-sm tw-font-semibold">نصب اپلیکیشن ترابوت</p>
           {ios && !canPrompt ? (
             <p className="tw-m-0 tw-mt-1 tw-text-xs tw-leading-6 tw-text-muted-foreground">
               در Safari دکمه‌ی اشتراک‌گذاری

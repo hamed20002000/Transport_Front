@@ -12,6 +12,8 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 3002,
+        // Vite rejects the HMR websocket from unknown hosts; through ngrok the client then reloads the page in a loop.
+        allowedHosts: ['.ngrok-free.app', '.ngrok.app', '.trycloudflare.com'],
         proxy: {
             '/socket.io': {
                 target: 'http://127.0.0.1:3006',
@@ -32,6 +34,9 @@ export default defineConfig({
             },
         },
     },
+    preview: {
+        allowedHosts: ['.ngrok-free.app', '.ngrok.app', '.trycloudflare.com'],
+    },
     plugins: [
         basicSsl(),
         svgr(),
@@ -46,31 +51,34 @@ export default defineConfig({
             injectRegister: 'auto',
             // Send cookies with the manifest request; tunnels like ngrok-free gate requests behind a cookie.
             useCredentials: true,
-            includeAssets: ['logo.png', 'pwa/apple-touch-icon.png', 'pwa/favicon-32.png'],
+            includeAssets: ['favicon.ico', 'pwa/trabot-apple-touch-icon.png', 'pwa/trabot-favicon-64.png', 'pwa/logo-horizontal.png'],
             manifest: {
                 id: '/',
-                name: 'Setaş Portal',
-                short_name: 'Setaş',
-                description: 'Setaş Portal',
+                name: 'ترابوت | دستیار هوشمند حمل‌ونقل',
+                short_name: 'ترابوت',
+                description: 'ترابوت، دستیار هوشمند حمل‌ونقل',
+                lang: 'fa',
+                dir: 'rtl',
                 start_url: '/',
                 scope: '/',
                 // Hides Android's status and navigation bars too; iOS falls back to standalone.
                 display: 'fullscreen',
                 display_override: ['fullscreen', 'standalone'],
                 orientation: 'any',
-                background_color: '#F4F7FC',
-                theme_color: '#ffffff',
+                background_color: '#ffffff',
+                theme_color: '#F5761A',
                 icons: [
-                    { src: '/pwa/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-                    { src: '/pwa/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-                    { src: '/pwa/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+                    { src: '/pwa/trabot-icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+                    { src: '/pwa/trabot-icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+                    { src: '/pwa/trabot-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
                 ],
             },
             workbox: {
                 // phone notifications: the push and notification-click handlers (public/push-sw.js)
                 importScripts: ['push-sw.js'],
                 // App shell only; API calls and sockets always go to the network.
-                globPatterns: ['**/*.{js,css,html,woff,woff2}', 'pwa/*.png', '*.{svg,png}'],
+                // Install the shell first; load and cache other routes when they are visited.
+                globPatterns: ['**/*.{css,html,woff2}', 'assets/index-*.js', 'pwa/*.png', '*.{svg,png}'],
                 maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
                 navigateFallback: '/index.html',
                 navigateFallbackDenylist: [/^\/api\//, /^\/tarabari-api\//, /^\/socket\.io\//],
@@ -78,6 +86,15 @@ export default defineConfig({
                 clientsClaim: true,
                 skipWaiting: true,
                 runtimeCaching: [
+                    {
+                        urlPattern: ({ request, sameOrigin, url }) =>
+                            sameOrigin && request.destination === 'script' && url.pathname.startsWith('/assets/'),
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'app-scripts',
+                            expiration: { maxEntries: 250, maxAgeSeconds: 30 * 24 * 60 * 60 },
+                        },
+                    },
                     {
                         urlPattern: ({ request, sameOrigin }) => sameOrigin && request.destination === 'image',
                         handler: 'CacheFirst',

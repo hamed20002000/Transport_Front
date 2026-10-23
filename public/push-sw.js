@@ -8,10 +8,10 @@ self.addEventListener('push', (event) => {
     data = { body: event.data ? event.data.text() : '' };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Setaş', {
+    self.registration.showNotification(data.title || 'ترابوت', {
       body: data.body || '',
-      icon: '/pwa/icon-192.png',
-      badge: '/pwa/icon-192.png',
+      icon: '/pwa/trabot-icon-192.png',
+      badge: '/pwa/trabot-icon-192.png',
       dir: 'rtl',
       lang: 'fa',
       data: { url: data.url || '/' },

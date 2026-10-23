@@ -177,9 +177,9 @@ const addPdfFooter = (doc: jsPDF) => {
     doc.setTextColor(100);
 
     const companyInfo = [
-        'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.',
+        'ترابوت',
         'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
-        'http://www.setasbilisim.com.tr | e-mail:setas@setasbilisim.com.tr'
+        'دستیار هوشمند حمل‌ونقل'
     ];
 
     let footerY = pageHeight - 20;
@@ -517,7 +517,7 @@ const RequestTabs: React.FC = () => {
         const worksheet = workbook.addWorksheet(title);
         worksheet.views = [{ rightToLeft: false }];
 
-        worksheet.addRow(['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.']).font = { bold: true, size: 12 };
+        worksheet.addRow(['ترابوت']).font = { bold: true, size: 12 };
         worksheet.addRow(['Rapor Başlığı:', title]).font = { bold: true };
         worksheet.addRow(['Rapor Tarihi:', new Date().toLocaleDateString('tr-TR')]);
         worksheet.addRow([]);
@@ -631,7 +631,7 @@ const RequestTabs: React.FC = () => {
         const worksheet = workbook.addWorksheet(title);
         worksheet.views = [{ rightToLeft: false }];
 
-        worksheet.addRow(['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.']).font = { bold: true, size: 12 };
+        worksheet.addRow(['ترابوت']).font = { bold: true, size: 12 };
         worksheet.addRow(['Rapor Başlığı:', title]).font = { bold: true };
         worksheet.addRow(['Rapor Tarihi:', new Date().toLocaleDateString('tr-TR')]);
         worksheet.addRow([]);

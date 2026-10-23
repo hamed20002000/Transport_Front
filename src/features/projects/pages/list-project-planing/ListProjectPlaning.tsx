@@ -573,9 +573,9 @@ const ListProjectPlanning = () => {
         const drawFooter = (pageIndex: number, total: number) => {
             doc.setFont('NotoSans', 'normal').setFontSize(8).setTextColor(0);
             const company = [
-                'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.',
+                'ترابوت',
                 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR',
-                'http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr'
+                'دستیار هوشمند حمل‌ونقل'
             ];
             const ph = doc.internal.pageSize.getHeight();
             const pw = doc.internal.pageSize.getWidth();

@@ -123,9 +123,9 @@ const addPdfFooter = (doc: jsPDF) => {
     doc.setTextColor(100);
 
     const companyInfo = [
-        'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.',
+        'ترابوت',
         'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
-        'http://www.setasbilisim.com.tr | e-mail:setas@setasbilisim.com.tr'
+        'دستیار هوشمند حمل‌ونقل'
     ];
 
     let footerY = pageHeight - 40;
@@ -158,7 +158,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     worksheet.addRow([]);
 };
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
-    const companyInfo = ['SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR'];
+    const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR'];
     let rowNum = startRow;
     companyInfo.forEach(line => {
         const row = worksheet.getRow(rowNum);

@@ -39,7 +39,7 @@ const Welcome = () => {
           variant="filled"
           sx={{ width: '100%', color: 'white' }}
         >
-          <AlertTitle>Setaş portalına hoş geldiniz.</AlertTitle>
+          <AlertTitle>به ترابوت خوش آمدید.</AlertTitle>
 
         </Alert>
       </Snackbar>

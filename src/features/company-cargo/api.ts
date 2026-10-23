@@ -188,6 +188,8 @@ export interface AnnounceSettings {
   intervalMinutes: number;
   nextRunAt: string | null;
   lastRunAt: string | null;
+  /** Loads announced in the last automatic turn; null until the first turn has run. */
+  lastRunAnnounced: number | null;
 }
 
 export function getAnnounceSettings() {

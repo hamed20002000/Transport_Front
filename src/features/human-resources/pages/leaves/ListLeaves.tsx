@@ -221,9 +221,9 @@ const drawFooter = (doc: jsPDF) => {
     doc.setTextColor(100);
 
     const companyInfo = [
-        'SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.',
+        'ترابوت',
         'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
-        'http://www.setasbilisim.com.tr | e-mail:setas@setasbilisim.com.tr'
+        'دستیار هوشمند حمل‌ونقل'
     ];
 
     let footerY = pageHeight - 40;
@@ -302,9 +302,9 @@ const exportExcel = async (rows: LeaveType[], filename: string) => {
     ws.addRow([]);
     const ft = ws.addRow(["Şirket Bilgisi"]); ft.font = { bold: true }; ws.mergeCells(`A${ft.number}:D${ft.number}`);
     [
-        "SETAŞ SİSTEM BİLİŞİM İNŞAAT TAAHHÜT TİCARET LTD. ŞTİ.",
+        "ترابوت",
         "Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11",
-        "http://www.setasbilisim.com.tr e-mail:setas@setasbilisim.com.tr",
+        "دستیار هوشمند حمل‌ونقل",
     ].forEach((line) => {
         const r = ws.addRow([line]);
         ws.mergeCells(`A${r.number}:D${r.number}`);
@@ -373,7 +373,7 @@ const generateLeavePDFSubHeader = (doc: jsPDF, row: LeaveType) => {
     doc.setFont("Arial", "normal");
     doc.setFontSize(8);
     doc.text("ÜNVANI:", 40, subHeaderYPosition + 40);
-    doc.text("SETAŞ SİSTEM BİLİŞİM SAN. TİC. A.Ş.", 320, subHeaderYPosition + 40);
+    doc.text("ترابوت", 320, subHeaderYPosition + 40);
 
     doc.text("ADRESİ:", 40, subHeaderYPosition + 55);
     doc.text("Mansuroğlu Mah. 283/6 Sk. No:2 BAYRAKLI/ İZMİR", 320, subHeaderYPosition + 55);
@@ -561,7 +561,7 @@ const generateLeaveExcelSubHeaderAndPersonnelInfo = (ws: ExcelWorksheet, row: Le
     ws.addRow(["İŞ YERİNİN"]); ws.mergeCells(`A${nextRow}:H${nextRow}`);
     ws.getCell(`A${nextRow}`).style = { font: { bold: true, size: 12, name: 'Arial' } };
 
-    nextRow++; ws.addRow(["ÜNVANI:", "SETAŞ SİSTEM BİLİŞİM SAN. TİC. A.Ş."]);
+    nextRow++; ws.addRow(["ÜNVANI:", "ترابوت"]);
     ws.mergeCells(`A${nextRow}:C${nextRow}`); ws.mergeCells(`D${nextRow}:H${nextRow}`);
 
     nextRow++; ws.addRow(["ADRESİ:", "Mansuroğlu Mah. 283/6 Sk. No:2 BAYRAKLI/ İZMİR"]);
