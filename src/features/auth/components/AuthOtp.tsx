@@ -95,7 +95,7 @@ export default function AuthOtp() {
               onChange={(event) => form.setPhone(event.target.value)}
               placeholder="09121234567"
               aria-describedby={form.error ? 'otp-error phone-hint' : 'phone-hint'}
-              className="tw-h-12 tw-rounded-xl tw-text-base tw-pr-11 tw-pl-3"
+              className="tw-h-12 tw-rounded-xl tw-border-brand-orange tw-text-base tw-pr-11 tw-pl-3 focus-visible:tw-ring-brand-orange/30"
             />
           </div>
           <p id="phone-hint" className={styles.description}>
@@ -143,7 +143,7 @@ export default function AuthOtp() {
       <Button
         type="submit"
         disabled={form.loading || (form.step === 'code' && form.remaining === 0)}
-        className="tw-h-12 tw-w-full tw-gap-3 tw-rounded-xl tw-bg-emerald-800 tw-text-base tw-text-white hover:tw-bg-emerald-900"
+        className="tw-h-12 tw-w-full tw-gap-3 tw-rounded-xl tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
       >
         {form.loading ? (
           <>

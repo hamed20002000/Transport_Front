@@ -1,4 +1,4 @@
-import { ShieldCheck, Truck } from 'lucide-react';
+import { Truck } from 'lucide-react';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import AuthOtp from '../../components/AuthOtp';
 import TransportVisual from '../../components/TransportVisual';
@@ -23,17 +23,10 @@ export default function Login() {
                 <Truck size={25} />
               </div>
               <span className={styles.formEyebrow}>مسیر کارتان از اینجا شروع می‌شود</span>
-              <h1 id="login-title">
-                خوش آمدید<span>!</span>
-              </h1>
+              <h1 id="login-title">خوش آمدید</h1>
               <p className={styles.description}>ورود و ثبت‌نام فقط با شماره موبایل؛ رمز عبور لازم نیست.</p>
               <AuthOtp />
             </div>
-            <footer className={styles.footer}>
-              <ShieldCheck size={17} />
-              <span>دسترسی ویژه کاربران سامانه</span>
-              <span>© ترابوت</span>
-            </footer>
           </section>
           <TransportVisual />
         </div>

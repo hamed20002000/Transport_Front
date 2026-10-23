@@ -71,9 +71,6 @@
   line-height: 1.7;
   letter-spacing: -1px;
 }
-.formContent h1 span {
-  color: #43986d;
-}
 .description {
   font-size: 13px;
   color: #687b6e;
@@ -145,19 +142,6 @@
   color: #7a847d;
   margin-top: 20px !important;
 }
-.footer {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #7a847d;
-  font-size: 10px;
-  max-width: 400px;
-  margin: 28px auto 0;
-}
-.footer > :last-child {
-  margin-inline-start: auto;
-  letter-spacing: 1px;
-}
 .visual {
   display: none;
 }
@@ -211,9 +195,6 @@
   }
   .formContent h1 {
     font-size: 38px;
-  }
-  .footer {
-    margin-top: 42px;
   }
   .visual {
     display: flex;
