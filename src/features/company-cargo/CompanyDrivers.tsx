@@ -8,6 +8,7 @@ import { listDrivers, tripTypeHints, tripTypeLabels, type DriverCard, type Page,
 import { DriverPhoto } from './AssignDriverDialog';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, Pager, PhoneLinks, SectionTitle, Segmented } from './components';
+import { useNotificationEvent } from './notificationSocket';
 
 const PAGE_SIZE = 20;
 const fa = (value: number) => value.toLocaleString('fa-IR');
@@ -64,6 +65,9 @@ function Drivers() {
       active = false;
     };
   }, [type, page, search, version]);
+
+  // راننده‌ای پروفایلش را (در پنل یا ربات) عوض کرد؛ لیست بی‌صدا دوباره گرفته می‌شود (اسکلت فقط وقتی داده‌ای نیست).
+  useNotificationEvent('drivers-changed', () => setVersion((value) => value + 1));
 
   function submit(event: FormEvent) {
     event.preventDefault();

@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Bell, ClipboardList, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
+import { Bell, ClipboardList, History, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -14,12 +14,14 @@ import { preloadDriverPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
 import PushPrompt from 'src/shared/components/pwa/PushPrompt';
 import FloatingPanelNav from 'src/shared/components/FloatingPanelNav';
+import { useToast } from 'src/shared/components/toast/ToastProvider';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
   { to: '/account/driver/loads', label: 'بارها', icon: PackageSearch },
   { to: '/account/driver/requests', label: 'درخواست‌ها', icon: ClipboardList },
   { to: '/account/driver/trip', label: 'سفر فعال', icon: Navigation },
+  { to: '/account/driver/history', label: 'سفرهای رفته', icon: History },
   { to: '/account/driver/borders', label: 'مرزها', icon: Landmark },
   { to: '/account/driver/profile', label: 'پروفایل', icon: UserRound },
 ];
@@ -50,6 +52,11 @@ function Frame({ children }: { children: ReactNode }) {
   const name = displayName(useProfile());
   const unread = useUnread();
   const { pathname } = useLocation();
+  const toast = useToast();
+  // A company's answer (accepted, delivery confirmed, …): the same news the messengers get, live while the panel is open.
+  useNotificationEvent<{ type?: string; text?: string }>('cargo-request-changed', (event) => {
+    if (event.type === 'driverNotice' && event.text) toast.info(event.text);
+  });
   return (
     <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-text-brand-navy">
       <header className="tw-sticky tw-top-0 tw-z-20 tw-pt-[env(safe-area-inset-top)] tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">

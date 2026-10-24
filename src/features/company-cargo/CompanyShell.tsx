@@ -15,9 +15,9 @@ import { useToast } from 'src/shared/components/toast/ToastProvider';
 
 const items = [
   { to: '/account/company', label: 'خانه', icon: House, match: (path: string, tab: string | null) => path === '/account/company' && !tab },
-  { to: '/account/company/cargo', label: 'پیشنهادها', icon: Inbox, match: (path: string, tab: string | null) => path === '/account/company/cargo' && tab !== 'listings' },
+  { to: '/account/company/cargo', label: 'پیشنهادها', icon: Inbox, match: (path: string) => path === '/account/company/cargo' },
   { to: '/account/company/cargo/new', label: 'ثبت بار', icon: SquarePlus, match: (path: string) => path === '/account/company/cargo/new' },
-  { to: '/account/company/cargo?tab=listings', label: 'بارهای من', icon: Archive, match: (path: string, tab: string | null) => path === '/account/company/cargo' && tab === 'listings' },
+  { to: '/account/company/published', label: 'بارهای منتشرشده', icon: Archive, match: (path: string) => path === '/account/company/published' },
   { to: '/account/company/requests', label: 'درخواست‌ها', icon: ClipboardList, match: (path: string) => path === '/account/company/requests' },
   { to: '/account/company/trips', label: 'سفرها', icon: Truck, match: (path: string) => path === '/account/company/trips' },
   { to: '/account/company/drivers', label: 'رانندگان', icon: Users, match: (path: string) => path === '/account/company/drivers' },
@@ -52,7 +52,7 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
   useEffect(loadRequests, [loadRequests]);
   useNotificationEvent<{ type?: string; text?: string }>('cargo-request-changed', (event) => {
     // The same reminder the messengers get («تحویل داده شد؟»), live while the panel is open.
-    if ((event.type === 'newRequest' || event.type === 'deliveryReminder' || event.type === 'deliveryReported') && event.text) toast.info(event.text);
+    if ((event.type === 'newRequest' || event.type === 'requestCancelled' || event.type === 'deliveryReminder' || event.type === 'deliveryReported') && event.text) toast.info(event.text);
     loadOverdue();
     loadRequests();
   });

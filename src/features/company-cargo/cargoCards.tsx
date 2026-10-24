@@ -3,12 +3,14 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Banknote, BellDot, CheckCheck, CircleCheck, CircleDot, Clock, FileText, Megaphone, Package, PackageCheck, RefreshCw, RotateCcw, Send, Truck, Weight, X, Hourglass, Timer, Globe2, ClipboardList } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
-import { getSuggestionDraft, publishSuggestion, type CargoListing, type CargoSuggestion, tripTypeLabels } from './api';
-import { statusLabels } from './cargoText';
+import { getSuggestionDraft, listingStage, publishSuggestion, type CargoListing, type CargoSuggestion, tripTypeLabels } from './api';
+import { stageLabels, statusLabels } from './cargoText';
 import ListingForm, { type PublishedListing } from './ListingForm';
 import {
   Badge,
   CargoCode,
+  cargoTones,
+  type CargoTone,
   IconButton,
   PhoneLinks,
   PrimaryButton,
@@ -25,8 +27,9 @@ import {
  * agent returns gets the same buttons as the tab, so the user does not have to go and filter there).
  */
 
-// Card layout from the design: tinted header strip, route, spec chips, action footer.
+// Card layout from the design: header strip tinted by the load's state, route, spec chips, action footer.
 function CargoCard({
+  tone,
   highlighted,
   head,
   route,
@@ -35,6 +38,8 @@ function CargoCard({
   extra,
   footer,
 }: {
+  tone: CargoTone;
+  // an unread suggestion: a stronger border in the same colour
   highlighted?: boolean;
   head: JSX.Element;
   route: JSX.Element;
@@ -47,10 +52,11 @@ function CargoCard({
     <li
       className={cn(
         'tw-flex tw-flex-col tw-overflow-hidden tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm tw-transition-shadow hover:tw-shadow-md',
-        highlighted ? 'tw-border-brand-orange/50' : 'tw-border-brand-line',
+        cargoTones[tone].border,
+        highlighted && 'tw-ring-1 tw-ring-sky-300',
       )}
     >
-      <div className={cn('tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3', highlighted ? 'tw-bg-brand-orange-soft/60' : 'tw-bg-brand-sky/60')}>
+      <div className={cn('tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3', cargoTones[tone].head)}>
         {head}
       </div>
       <div className="tw-flex-1 tw-space-y-4 tw-p-5">
@@ -81,6 +87,7 @@ export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSugges
   const receivedAt = cargo.receivedAt || item.createdAt;
   return (
     <CargoCard
+      tone="suggestion"
       highlighted={!item.isRead}
       head={
         <>
@@ -91,6 +98,12 @@ export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSugges
             </time>
           </div>
           <div className="tw-flex tw-gap-1.5">
+            {cargo.tripType && (
+              <Badge tone="muted">
+                <Globe2 size={12} aria-hidden />
+                {tripTypeLabels[cargo.tripType]}
+              </Badge>
+            )}
             {!item.isRead && (
               <Badge tone="orange">
                 <BellDot size={12} aria-hidden /> جدید
@@ -188,6 +201,7 @@ export function ListingCard({
   const waiting = !taken && listing.assignment?.status === 'OFFERED';
   const inTrip = taken && listing.assignment?.status === 'ACCEPTED';
   const delivered = taken && listing.assignment?.status === 'DELIVERED';
+  const stage = listingStage(listing);
   const ToggleIcon = saving ? RefreshCw : taken ? RotateCcw : waiting ? Hourglass : PackageCheck;
   const toggleContent = (
     <>
@@ -197,6 +211,7 @@ export function ListingCard({
   );
   return (
     <CargoCard
+      tone={queued ? 'queued' : stage}
       head={
         <>
           <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
@@ -227,10 +242,12 @@ export function ListingCard({
                 </Badge>
               </Link>
             )}
-            <Badge tone={taken ? 'muted' : 'orange'}>
-              {taken ? <CircleCheck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
-              {statusLabels[listing.status]}
-            </Badge>
+            {!queued && (
+              <Badge tone={stage}>
+                {stage === 'delivered' ? <CircleCheck size={12} aria-hidden /> : stage === 'inTransit' ? <Truck size={12} aria-hidden /> : <CircleDot size={12} aria-hidden />}
+                {taken && stage === 'published' ? 'برداشته شد' : stageLabels[stage]}
+              </Badge>
+            )}
           </div>
         </>
       }

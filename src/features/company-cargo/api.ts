@@ -26,6 +26,8 @@ export interface CargoDetails {
   vehicleType?: string | null;
   price?: string | null;
   extraNotes?: string | null;
+  // Worked out from origin and destination when the cargo arrived; missing when it could not be.
+  tripType?: TripType | null;
 }
 
 export interface CargoSuggestion {
@@ -130,9 +132,18 @@ export function listUnannounced() {
   return unwrap<CargoListing[]>(axios.get(`${endpoints.baseurl}cargo-listings/unannounced`, config()));
 }
 
-export function listMyListings(page: number, status?: ListingStatus) {
+// Where a published load is (transport_backend ListingStage): open for drivers, on a driver's trip, or delivered.
+export type ListingStage = 'published' | 'inTransit' | 'delivered';
+
+export function listingStage(listing: Pick<CargoListing, 'assignment'>): ListingStage {
+  if (listing.assignment?.status === 'DELIVERED') return 'delivered';
+  if (listing.assignment?.status === 'ACCEPTED') return 'inTransit';
+  return 'published';
+}
+
+export function listMyListings(page: number, stage?: ListingStage) {
   return unwrap<Page<CargoListing>>(
-    axios.get(`${endpoints.baseurl}cargo-listings`, config({ status, page, pageSize: 20 })),
+    axios.get(`${endpoints.baseurl}cargo-listings`, config({ stage, page, pageSize: 20 })),
   );
 }
 
@@ -225,7 +236,7 @@ export interface ExcelCargoRow {
 
 export interface ExcelImportResult {
   // Published loads; empty on dryRun or when any row has an error (then nothing is published).
-  created: Array<{ row: number; id: string; code: string | null; origin: string; destination: string; recipients: number; tripType: TripType; pending: boolean }>;
+  created: Array<{ row: number; id: string; code: string | null; origin: string; destination: string; recipients: number; tripType: TripType; pending: boolean; pendingReason: 'automatic' | 'noDrivers' | null }>;
   rows: ExcelCargoRow[];
   errors: Array<{ row: number; column?: string; message: string }>;
   dryRun: boolean;
@@ -270,8 +281,9 @@ export function publishSuggestion(notificationId: string, input: CargoListingInp
 export interface CargoSummary {
   suggestions: number;
   unread: number;
-  open: number;
-  taken: number;
+  published: number;
+  inTransit: number;
+  delivered: number;
 }
 
 // Totals for the header tiles; each list request asks for a single row and only reads `total`.
@@ -280,13 +292,14 @@ export async function getSummary(): Promise<CargoSummary> {
     unwrap<Page<unknown>>(axios.get(`${endpoints.baseurl}${path}`, config({ ...params, page: 1, pageSize: 1 }))).then(
       (page) => page.total,
     );
-  const [suggestions, unread, open, taken] = await Promise.all([
+  const [suggestions, unread, published, inTransit, delivered] = await Promise.all([
     total('cargo-notifications', { kind: 'suggestion' }),
     total('cargo-notifications', { kind: 'suggestion', unreadOnly: true }),
-    total('cargo-listings', { status: 'OPEN' }),
-    total('cargo-listings', { status: 'TAKEN' }),
+    total('cargo-listings', { stage: 'published' }),
+    total('cargo-listings', { stage: 'inTransit' }),
+    total('cargo-listings', { stage: 'delivered' }),
   ]);
-  return { suggestions, unread, open, taken };
+  return { suggestions, unread, published, inTransit, delivered };
 }
 
 // An active trip of the company (transport_backend CargoTripService.companyTripViews), newest first.

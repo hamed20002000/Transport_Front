@@ -32,9 +32,15 @@ export default function MarketPicker({ onClose, onSaved }: { onClose: () => void
   }, []);
 
   useEffect(() => {
+    // the page behind stays put while the picker is open (wheel/touch on the backdrop or at the list's end)
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener('keydown', onKey);
+    };
   }, [onClose]);
 
   const max = catalog?.max ?? 6;
@@ -84,7 +90,7 @@ export default function MarketPicker({ onClose, onSaved }: { onClose: () => void
           </button>
         </div>
 
-        <ul className="tw-m-0 tw-grid tw-list-none tw-grid-cols-1 tw-gap-2 tw-overflow-y-auto tw-p-4 sm:tw-grid-cols-2">
+        <ul className="tw-m-0 tw-grid tw-list-none tw-grid-cols-1 tw-gap-2 tw-overflow-y-auto tw-overscroll-contain tw-p-4 sm:tw-grid-cols-2">
           {!catalog
             ? Array.from({ length: 8 }, (_, i) => <li key={i} className="tw-h-12 tw-animate-pulse tw-rounded-xl tw-bg-brand-bg" />)
             : catalog.items.map((item) => {

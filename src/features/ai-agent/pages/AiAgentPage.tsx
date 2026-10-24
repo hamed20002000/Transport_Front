@@ -340,6 +340,9 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
             setAlert({
                 alertMessage: response?.status === 400 && /speech/i.test(serverMessage)
                     ? "صدایی تشخیص داده نشد؛ دوباره و واضح‌تر بگویید."
+                    // 503: مدل تبدیل صدا فعلاً در دسترس نیست؛ پیام فارسی سرور همان است که ربات‌ها هم می‌فرستند
+                    : response?.status === 503 && serverMessage
+                    ? serverMessage
                     : "پردازش صدا با خطا روبه‌رو شد.",
                 severity: "error",
                 onClose: () => { setAlert({ ...alert, alertMessage: "" }) }

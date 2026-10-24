@@ -141,6 +141,26 @@ export function listMyRequests(page: number, pageSize = 20, status?: RequestStat
   return unwrap<Page<CargoRequest>>(axios.get(url('requests'), config({ page, pageSize, status })));
 }
 
+// «سفرهای رفته»: delivered loads. days: delivered in the last N days; q: code, origin, destination or company.
+export interface TripHistoryFilters {
+  q?: string;
+  tripType?: TripType;
+  companyId?: string;
+  days?: number;
+  order?: 'newest' | 'oldest';
+}
+
+export interface TripHistory extends Page<CargoRequest> {
+  // with the same filters except the trip type, so the type chips show what each would leave
+  byTripType: Record<TripType, number>;
+  // every company the driver has delivered for, for the company filter
+  companies: Array<{ id: string; name: string | null; trips: number }>;
+}
+
+export function tripHistory(page: number, filters: TripHistoryFilters, pageSize = 20) {
+  return unwrap<TripHistory>(axios.get(url('trips/history'), config({ page, pageSize, ...filters, q: filters.q?.trim() || undefined })));
+}
+
 export function requestLoad(listingId: string) {
   return unwrap<CargoRequest>(axios.post(url('requests'), { listingId }, config()));
 }

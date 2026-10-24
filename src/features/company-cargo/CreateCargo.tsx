@@ -2,11 +2,22 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
-import { createListing, getListingDefaults } from './api';
+import { createListing, getListingDefaults, type ExcelImportResult } from './api';
 import CompanyShell from './CompanyShell';
 import { SectionTitle } from './components';
 import ExcelImport from './ExcelImport';
 import ListingForm from './ListingForm';
+
+const fa = (value: number) => value.toLocaleString('fa-IR');
+
+// Manual mode with no matching drivers is not the automatic queue, so the Excel toast says which loads waited and why.
+function excelMessage(created: ExcelImportResult['created']): string | undefined {
+  const noDrivers = created.filter((item) => item.pendingReason === 'noDrivers').length;
+  if (!noDrivers) return undefined;
+  const announced = created.filter((item) => !item.pending).length;
+  const waiting = `${fa(noDrivers)} بار به‌دلیل نبود راننده مناسب اعلام نشد و در «پیشنهادها» زیر «بارهای من که اعلام نشده‌اند» است.`;
+  return announced ? `${fa(created.length)} بار از فایل اکسل ثبت شد؛ ${fa(announced)} بار اعلام شد و ${waiting}` : `${fa(created.length)} بار از فایل اکسل ثبت شد، اما ${waiting}`;
+}
 
 function CreateForm() {
   const navigate = useNavigate();
@@ -15,7 +26,9 @@ function CreateForm() {
       <SectionTitle title="ثبت بار جدید" hint="بار به نام شرکت شما برای راننده‌های مشترک فرستاده می‌شود" />
       <ExcelImport
         onDone={(created) =>
-          navigate('/account/company/cargo?tab=listings', { state: { createdCount: created.length, createdPending: created.some((item) => item.pending) } })
+          navigate(created.some((item) => item.pending) ? '/account/company/cargo' : '/account/company/published', {
+            state: { createdCount: created.length, createdPending: created.some((item) => item.pending), createdMessage: excelMessage(created) },
+          })
         }
       />
       <ListingForm
@@ -23,7 +36,7 @@ function CreateForm() {
         load={getListingDefaults}
         submit={createListing}
         onDone={(listing) =>
-          navigate(`/account/company/cargo?tab=${listing.pending ? 'suggestions' : 'listings'}`, {
+          navigate(listing.pending ? '/account/company/cargo' : '/account/company/published', {
             state: { createdRecipients: listing.recipients, createdPending: listing.pending, createdTripType: listing.tripType, createdMessage: listing.message },
           })
         }

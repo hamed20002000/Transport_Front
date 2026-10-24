@@ -7,6 +7,20 @@ import { toLatinDigits } from './api';
 
 const faNumber = (value: number) => value.toLocaleString('fa-IR');
 
+/*
+ * One soft colour per state of a load, so a card, its badge and its stat tile read the same:
+ * channel suggestion (sky), published and open (amber), on a driver's trip (violet), delivered (emerald).
+ * queued: registered but not announced yet (stone). Literal class names, so Tailwind keeps them.
+ */
+export type CargoTone = 'suggestion' | 'published' | 'inTransit' | 'delivered' | 'queued';
+export const cargoTones: Record<CargoTone, { head: string; border: string; badge: string; tile: string }> = {
+  suggestion: { head: 'tw-bg-sky-50', border: 'tw-border-sky-200', badge: 'tw-bg-sky-100 tw-text-sky-800', tile: 'tw-bg-sky-100 tw-text-sky-700' },
+  published: { head: 'tw-bg-amber-50', border: 'tw-border-amber-200', badge: 'tw-bg-amber-100 tw-text-amber-800', tile: 'tw-bg-amber-100 tw-text-amber-700' },
+  inTransit: { head: 'tw-bg-violet-50', border: 'tw-border-violet-200', badge: 'tw-bg-violet-100 tw-text-violet-800', tile: 'tw-bg-violet-100 tw-text-violet-700' },
+  delivered: { head: 'tw-bg-emerald-50', border: 'tw-border-emerald-200', badge: 'tw-bg-emerald-100 tw-text-emerald-800', tile: 'tw-bg-emerald-100 tw-text-emerald-700' },
+  queued: { head: 'tw-bg-stone-50', border: 'tw-border-stone-200', badge: 'tw-bg-stone-100 tw-text-stone-700', tile: 'tw-bg-stone-100 tw-text-stone-600' },
+};
+
 export function formatDate(value?: string | null) {
   return value ? new Date(value).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' }) : '';
 }
@@ -137,11 +151,12 @@ export function SecondaryButton({ children, onClick, disabled }: { children: Rea
 }
 
 // Light-blue icon square, as on the vehicle cards of the design.
-export function IconTile({ icon: IconComponent, size = 'md' }: { icon: Icon; size?: 'md' | 'lg' }) {
+export function IconTile({ icon: IconComponent, size = 'md', tone }: { icon: Icon; size?: 'md' | 'lg'; tone?: CargoTone }) {
   return (
     <span
       className={cn(
-        'tw-flex tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky tw-text-brand-navy',
+        'tw-flex tw-items-center tw-justify-center tw-rounded-xl',
+        tone ? cargoTones[tone].tile : 'tw-bg-brand-sky tw-text-brand-navy',
         size === 'lg' ? 'tw-h-14 tw-w-14' : 'tw-h-11 tw-w-11',
       )}
     >
@@ -150,10 +165,10 @@ export function IconTile({ icon: IconComponent, size = 'md' }: { icon: Icon; siz
   );
 }
 
-export function StatTile({ icon, label, value, accent }: { icon: Icon; label: string; value?: number; accent?: boolean }) {
+export function StatTile({ icon, label, value, accent, tone }: { icon: Icon; label: string; value?: number; accent?: boolean; tone?: CargoTone }) {
   return (
-    <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
-      <IconTile icon={icon} />
+    <div className={cn('tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-bg-white tw-p-4 tw-shadow-sm', tone ? cargoTones[tone].border : 'tw-border-brand-line')}>
+      <IconTile icon={icon} tone={tone} />
       <div className="tw-min-w-0">
         <div className={cn('tw-text-xl tw-font-bold tw-leading-tight', accent ? 'tw-text-brand-orange' : 'tw-text-brand-navy')}>
           {value === undefined ? <span className="tw-inline-block tw-h-5 tw-w-8 tw-animate-pulse tw-rounded tw-bg-brand-sky" /> : faNumber(value)}
@@ -196,14 +211,19 @@ export function Spec({ icon: IconComponent, label, value, highlight }: { icon: I
   );
 }
 
-export function Badge({ children, tone }: { children: ReactNode; tone: 'orange' | 'sky' | 'muted' }) {
+export function Badge({ children, tone }: { children: ReactNode; tone: 'orange' | 'sky' | 'muted' | CargoTone }) {
   const tones = {
     orange: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink',
     sky: 'tw-bg-brand-sky tw-text-brand-navy',
     muted: 'tw-bg-stone-100 tw-text-brand-muted',
   };
   return (
-    <span className={cn('tw-inline-flex tw-items-center tw-gap-1 tw-whitespace-nowrap tw-rounded-full tw-px-3 tw-py-1 tw-text-xs tw-font-bold', tones[tone])}>
+    <span
+      className={cn(
+        'tw-inline-flex tw-items-center tw-gap-1 tw-whitespace-nowrap tw-rounded-full tw-px-3 tw-py-1 tw-text-xs tw-font-bold',
+        tone in tones ? tones[tone as keyof typeof tones] : cargoTones[tone as CargoTone].badge,
+      )}
+    >
       {children}
     </span>
   );

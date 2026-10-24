@@ -1,7 +1,8 @@
 import axios from 'axios';
-import type { ListingStatus } from './api';
+import type { ListingStage, ListingStatus } from './api';
 
 export const statusLabels: Record<ListingStatus, string> = { OPEN: 'باز', TAKEN: 'برداشته شد' };
+export const stageLabels: Record<ListingStage, string> = { published: 'منتشرشده', inTransit: 'در حال انتقال', delivered: 'تحویل‌شده' };
 
 // ConflictException codes of CargoTripService (handing a load to a driver)
 const conflicts: Record<string, string> = {

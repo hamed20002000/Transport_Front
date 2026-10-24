@@ -17,7 +17,7 @@ const accounts = {
 const companyTiles = [
   { to: '/account/company/cargo', title: 'بارهای پیشنهادی', icon: Inbox },
   { to: '/account/company/cargo/new', title: 'ثبت بار', icon: SquarePlus },
-  { to: '/account/company/cargo?tab=listings', title: 'بارهای من', icon: Archive },
+  { to: '/account/company/published', title: 'بارهای منتشرشده', icon: Archive },
   { to: '/account/company/channels', title: 'گروه‌ها و کانال‌ها', icon: Link2 },
   { to: '/account/company/filters', title: 'تنظیمات نمایش بار', icon: SlidersHorizontal },
   { to: '/account/company/profile', title: 'پروفایل', icon: UserRound },

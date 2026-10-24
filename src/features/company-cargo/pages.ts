@@ -4,6 +4,7 @@ import { preloadWhenIdle } from 'src/shared/utils/preload';
 // Page chunks, shared by the routes and by the preload that runs once the company frame is up.
 const loaders = {
   cargo: () => import('./CompanyCargo'),
+  published: () => import('./CompanyPublished'),
   create: () => import('./CreateCargo'),
   channels: () => import('./ChannelLinks'),
   profile: () => import('./CompanyProfile'),
@@ -14,6 +15,7 @@ const loaders = {
 };
 
 export const CompanyCargo = lazy(loaders.cargo);
+export const CompanyPublished = lazy(loaders.published);
 export const CreateCargo = lazy(loaders.create);
 export const ChannelLinks = lazy(loaders.channels);
 export const CompanyProfile = lazy(loaders.profile);
