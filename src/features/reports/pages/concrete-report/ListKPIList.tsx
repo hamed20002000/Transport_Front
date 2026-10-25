@@ -97,7 +97,7 @@ const ListKPIList = () => {
             doc.setFontSize(14);
             doc.text("Yönetici Performans Raporu", pageWidth / 2, 25, { align: 'center' });
             doc.setFontSize(10);
-            doc.text(`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`, 15, 35);
+            doc.text(`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`, 15, 35);
             doc.line(15, 40, pageWidth - 15, 40);
         };
 
@@ -106,19 +106,19 @@ const ListKPIList = () => {
             doc.setTextColor(100);
             const companyInfo = [
                 'ترابوت',
-                'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                'ترابوت، دستیار هوشمند حمل‌ونقل',
                 'دستیار هوشمند حمل‌ونقل'
             ];
             let footerY = pageHeight - 40;
             companyInfo.forEach(line => { doc.text(line, pageWidth / 2, footerY, { align: 'center' }); footerY += 10; });
             doc.setTextColor(0);
-            doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+            doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
             doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
         };
 
         const managerInfo = [
-            ["Ad Soyad", `${kpiReport.Manager.Name} ${kpiReport.Manager.Family}`],
-            ["TC Kimlik No", kpiReport.Manager.IdentityNumber || "-"],
+            ["نام و نام خانوادگی", `${kpiReport.Manager.Name} ${kpiReport.Manager.Family}`],
+            ["کد ملی", kpiReport.Manager.IdentityNumber || "-"],
             ["Pozisyon", kpiReport.Manager.PositionTitle],
             ["Toplam Proje Sayısı", kpiReport.ProjectCount.toString()],
             ["Genel KPI Skoru", kpiReport.AverageKpi.toString()]
@@ -134,7 +134,7 @@ const ListKPIList = () => {
         addHeader(doc);
         autoTable(doc, {
             startY: 50,
-            head: [["Açıklama", "Detay Bilgi"]],
+            head: [["توضیحات", "Detay Bilgi"]],
             body: managerInfo,
             styles: { font: 'NotoSans', fontStyle: "normal", fontSize: 10 },
             headStyles: { fillColor: [33, 150, 243] },
@@ -142,7 +142,7 @@ const ListKPIList = () => {
 
         autoTable(doc, {
             startY: (doc as any).lastAutoTable.finalY + 20,
-            head: [["Proje Kodu", "Proje Adı", "Şantiye", "KPI"]],
+            head: [["کد پروژه", "نام پروژه", "کارگاه", "KPI"]],
             body: projectBody,
             styles: { font: 'NotoSans', fontStyle: "normal", fontSize: 9 },
             headStyles: { fillColor: [75, 85, 99] },
@@ -157,12 +157,12 @@ const ListKPIList = () => {
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet('Performans Raporu');
         worksheet.addRow(['Yönetici Performans Raporu']).font = { bold: true, size: 14 };
-        worksheet.addRow(['Ad Soyad', `${kpiReport.Manager.Name} ${kpiReport.Manager.Family}`]);
-        worksheet.addRow(['TC Kimlik No', kpiReport.Manager.IdentityNumber]);
-        worksheet.addRow(['Proje Sayısı', kpiReport.ProjectCount]);
+        worksheet.addRow(['نام و نام خانوادگی', `${kpiReport.Manager.Name} ${kpiReport.Manager.Family}`]);
+        worksheet.addRow(['کد ملی', kpiReport.Manager.IdentityNumber]);
+        worksheet.addRow(['تعداد پروژه‌ها', kpiReport.ProjectCount]);
         worksheet.addRow(['Genel Skor', kpiReport.AverageKpi]);
         worksheet.addRow([]);
-        const headerRow = worksheet.addRow(['Proje Kodu', 'Proje Başlığı', 'Şantiye', 'KPI Skoru']);
+        const headerRow = worksheet.addRow(['کد پروژه', 'عنوان پروژه', 'کارگاه', 'KPI Skoru']);
         headerRow.font = { bold: true };
         kpiReport.Projects.forEach((p: any) => {
             worksheet.addRow([p.ProjectCode, p.ProjectTitle, p.WorkhouseName, p.ProjectKpi]);

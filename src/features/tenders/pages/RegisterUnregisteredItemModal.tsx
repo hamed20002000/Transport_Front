@@ -299,7 +299,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingUnits(false);
             return;
         }
@@ -316,7 +316,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert('Ölçüler sunucudan alınamadı.', 'error');
             }
@@ -330,7 +330,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingCategories(false);
             return;
         }
@@ -348,7 +348,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert('Kategoriler sunucudan alınamadı.', 'error');
             }
@@ -397,7 +397,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
         }
 
         if (hasError) {
-            showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را درست پر کنید!', 'warning');
             return;
         }
 
@@ -405,7 +405,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -441,7 +441,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(e.response?.data?.message || 'Ürün eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
             }
@@ -464,10 +464,10 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                     <Grid container spacing={2}>
 
                         <Grid item xs={12} md={8}>
-                            <CustomFormLabel htmlFor="item-name" required>Ürün Adı</CustomFormLabel>
+                            <CustomFormLabel htmlFor="item-name" required>نام کالا</CustomFormLabel>
                             <CustomTextField
                                 id="item-name"
-                                placeholder="Ürün Adı"
+                                placeholder="نام کالا"
                                 fullWidth
                                 value={name}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -484,7 +484,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                         </Grid>
 
                         <Grid item xs={12} md={4}>
-                            <CustomFormLabel htmlFor="item-code" required>Ürün Kodu</CustomFormLabel>
+                            <CustomFormLabel htmlFor="item-code" required>کد کالا</CustomFormLabel>
                             <CustomTextField
                                 id="item-code"
                                 placeholder="Kodu"
@@ -503,7 +503,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                         </Grid>
 
                         <Grid item xs={12} md={6}>
-                            <CustomFormLabel htmlFor="select-category" required>Kategori</CustomFormLabel>
+                            <CustomFormLabel htmlFor="select-category" required>دسته‌بندی</CustomFormLabel>
                             <Stack direction="row" spacing={1} alignItems="flex-start">
                                 <FormControl fullWidth error={categoryIdError} sx={{ flexGrow: 1 }}>
                                     <InputLabel id="select-category-label">Kategori Seçin</InputLabel>
@@ -537,7 +537,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                                             InputProps={{ startAdornment: (<InputAdornment position="start"><IconSearch size={20} /></InputAdornment>), }}
                                         />
                                         {loadingCategories ? (
-                                            <UiMenuItem disabled><CircularProgress size={20} /> Yükleniyor...</UiMenuItem>
+                                            <UiMenuItem disabled><CircularProgress size={20} /> در حال بارگذاری...</UiMenuItem>
                                         ) : categoryTreeForSelect.length > 0 ? (
                                             categoryTreeForSelect.map((node) => (
                                                 <CategoryTreeSelectMenuItem
@@ -577,14 +577,14 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                         </Grid>
 
                         <Grid item xs={12} md={6}>
-                            <CustomFormLabel htmlFor="select-unit" required>Ölçü</CustomFormLabel>
+                            <CustomFormLabel htmlFor="select-unit" required>واحد اندازه‌گیری</CustomFormLabel>
                             <FormControl fullWidth error={unitIdError}>
-                                <InputLabel id="select-unit-label">Ölçü Seçin</InputLabel>
+                                <InputLabel id="select-unit-label">واحد را انتخاب کنید</InputLabel>
                                 <Select
                                     labelId="select-unit-label"
                                     id="select-unit"
                                     value={selectedUnitId || ''}
-                                    label="Ölçü Seçin"
+                                    label="واحد را انتخاب کنید"
                                     onChange={(e) => {
                                         setSelectedUnitId(e.target.value as string);
                                         if (unitIdError) {
@@ -607,7 +607,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                                         InputProps={{ startAdornment: (<InputAdornment position="start"><IconSearch size={20} /></InputAdornment>), }}
                                     />
                                     {loadingUnits ? (
-                                        <UiMenuItem disabled><CircularProgress size={20} /> Yükleniyor...</UiMenuItem>
+                                        <UiMenuItem disabled><CircularProgress size={20} /> در حال بارگذاری...</UiMenuItem>
                                     ) : unitOptions.length > 0 ? (
                                         unitOptions.filter(unit => unit.title.toLowerCase().includes(unitSearchTerm.toLowerCase())).map((unit) => (
                                             <UiMenuItem key={unit.id} value={unit.id}>{unit.title}</UiMenuItem>
@@ -624,7 +624,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                             <CustomFormLabel htmlFor="abbreviation">Kısaltma (4 Karakter)</CustomFormLabel>
                             <CustomTextField
                                 id="abbreviation"
-                                placeholder="Kısaltma"
+                                placeholder="اختصار"
                                 fullWidth
                                 value={abbreviation}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -644,7 +644,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                             <CustomFormLabel htmlFor="weight">Ürün Birim Ağırlığı</CustomFormLabel>
                             <CustomTextField
                                 id="weight"
-                                placeholder="Ağırlık"
+                                placeholder="وزن"
                                 fullWidth
                                 type="number"
                                 value={weight}
@@ -665,7 +665,7 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                         </Grid>
 
                         <Grid item xs={12}>
-                            <CustomFormLabel htmlFor="description">Açıklama</CustomFormLabel>
+                            <CustomFormLabel htmlFor="description">توضیحات</CustomFormLabel>
                             <ReactQuill
                                 theme="snow"
                                 value={description}
@@ -697,11 +697,11 @@ const RegisterUnregisteredItemModal: React.FC<RegisterUnregisteredItemModalProps
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose} color="secondary" variant="outlined">İptal Et</Button>
+                    <Button onClick={onClose} color="secondary" variant="outlined">لغو</Button>
                     <Button onClick={insertItem} color="success" variant="contained" disabled={loadingButton}>
                         {loadingButton ? <>
                             <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Bekleyiniz...
-                        </> : 'Kaydet'}
+                        </> : 'ذخیره'}
                     </Button>
                 </DialogActions>
             </Dialog>

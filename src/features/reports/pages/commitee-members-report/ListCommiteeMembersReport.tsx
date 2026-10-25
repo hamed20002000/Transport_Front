@@ -23,7 +23,7 @@ import { tr } from "date-fns/locale";
 
 export enum CommiteMemberPosition { Baskan = 0, Uye = 1 }
 const getCommiteMemberPositionText = (position: number): string => {
-    switch (position) { case CommiteMemberPosition.Baskan: return 'Başkan'; case CommiteMemberPosition.Uye: return 'Üye'; default: return 'Bilinmiyor'; }
+    switch (position) { case CommiteMemberPosition.Baskan: return 'Başkan'; case CommiteMemberPosition.Uye: return 'عضو'; default: return 'Bilinmiyor'; }
 };
 
 export enum CommiteAnswer { ONAYLANAN_KABUL_TUTANAKLARI = 0, KABUL_YAPILMAYANLAR = 1, GDZ_DE_BEKLEYENLER = 2, ISLETMEDE_IMZADA_BEKLEYENLER = 3, IMZADA = 4, IMZALANDI = 5 }
@@ -167,7 +167,7 @@ const AnswersListModal: React.FC<AnswersListModalProps> = ({ open, onClose, repo
                                     <UiTableCell>Pozisyon</UiTableCell>
                                     <UiTableCell>Tutanak Tipi</UiTableCell>
                                     <UiTableCell>Cevap</UiTableCell>
-                                    <UiTableCell>Tarih</UiTableCell>
+                                    <UiTableCell>تاریخ</UiTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -180,7 +180,7 @@ const AnswersListModal: React.FC<AnswersListModalProps> = ({ open, onClose, repo
                                             <UiTableCell>{getCommiteMemberPositionText(item.confirmationReportCommiteMember.commiteMember.position)}</UiTableCell>
                                             <UiTableCell>
                                                 <Box component="span" sx={{ color: item.confirmationReportCommiteMember.memberStatus ? 'success.main' : 'warning.main', fontWeight: 'bold' }}>
-                                                    {item.confirmationReportCommiteMember.memberStatus ? 'Kesin' : 'Geçici'}
+                                                    {item.confirmationReportCommiteMember.memberStatus ? 'Kesin' : 'موقت'}
                                                 </Box>
                                             </UiTableCell>
                                             <UiTableCell>{getCommiteAnswerText(item.answer)}</UiTableCell>
@@ -193,7 +193,7 @@ const AnswersListModal: React.FC<AnswersListModalProps> = ({ open, onClose, repo
                     </TableContainer>
                 )}
             </DialogContent>
-            <DialogActions><Button onClick={onClose} color="primary">Kapat</Button></DialogActions>
+            <DialogActions><Button onClick={onClose} color="primary">بستن</Button></DialogActions>
         </Dialog>
     );
 };
@@ -217,14 +217,14 @@ const DownloadRowModal: React.FC<DownloadRowModalProps> = ({
                 <Typography variant="body1" mb={2}>Seçilen onaylanmış proje raporunun detaylarını hangi formatta indirmek istediğinizi seçin.</Typography>
                 <Stack direction="column" spacing={2}>
                     <Button variant="contained" color="primary" fullWidth startIcon={<IconFileDownload />} onClick={() => onExportExcel(report)} disabled={loading}>
-                        {loading ? <CircularProgress size={20} color="inherit" /> : 'Excel Olarak İndir'}
+                        {loading ? <CircularProgress size={20} color="inherit" /> : 'دانلود Excel'}
                     </Button>
                     <Button variant="contained" color="success" fullWidth startIcon={<IconFileDownload />} onClick={() => onExportPdf(report)} disabled={loading}>
-                        {loading ? <CircularProgress size={20} color="inherit" /> : 'PDF Olarak İndir'}
+                        {loading ? <CircularProgress size={20} color="inherit" /> : 'دانلود PDF'}
                     </Button>
                 </Stack>
             </DialogContent>
-            <DialogActions><Button onClick={onClose} color="secondary" disabled={loading}>Kapat</Button></DialogActions>
+            <DialogActions><Button onClick={onClose} color="secondary" disabled={loading}>بستن</Button></DialogActions>
         </Dialog>
     );
 };
@@ -285,12 +285,12 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({
                         <Grid item xs={12} md={6}>
                             <Typography variant="h6" mb={2} color="primary">🔍 Temel Bilgiler</Typography>
                             <Stack spacing={1}>
-                                <CustomTextField label="Yıl" size="small" fullWidth value={report.year} disabled />
-                                <CustomTextField label="Şehir" size="small" fullWidth value={report.city} disabled />
-                                <CustomTextField label="İlçe" size="small" fullWidth value={report.town || '-'} disabled />
-                                <CustomTextField label="Bölge" size="small" fullWidth value={report.region || '-'} disabled />
+                                <CustomTextField label="سال" size="small" fullWidth value={report.year} disabled />
+                                <CustomTextField label="شهر" size="small" fullWidth value={report.city} disabled />
+                                <CustomTextField label="شهرستان" size="small" fullWidth value={report.town || '-'} disabled />
+                                <CustomTextField label="منطقه" size="small" fullWidth value={report.region || '-'} disabled />
                                 <CustomTextField label="Tesis Tipi" size="small" fullWidth value={getTesisTypeText(report.tesistype)} disabled />
-                                <CustomTextField label="Proje Sayısı" size="small" fullWidth value={report.projectcount} disabled />
+                                <CustomTextField label="تعداد پروژه‌ها" size="small" fullWidth value={report.projectcount} disabled />
                             </Stack>
                             <Box mt={3}>
                                 <Typography variant="h6" mb={1} color="info">Tutanak Durumu</Typography>
@@ -311,10 +311,10 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({
                                             <Typography variant="subtitle1" fontWeight="bold">{item.member.commiteMember.name} {item.member.commiteMember.family}</Typography>
                                             <Typography variant="body2" color="textSecondary">
                                                 Pozisyon: {getCommiteMemberPositionText(item.member.commiteMember.position)} |
-                                                Tutanak Tipi: <Box component="span" fontWeight="bold" color={item.member.memberStatus ? 'success.main' : 'warning.main'}>{item.member.memberStatus ? 'Kesin' : 'Geçici'}</Box>
+                                                Tutanak Tipi: <Box component="span" fontWeight="bold" color={item.member.memberStatus ? 'success.main' : 'warning.main'}>{item.member.memberStatus ? 'Kesin' : 'موقت'}</Box>
                                             </Typography>
                                             <Typography variant="body2" mt={0.5}>
-                                                Cevap Durumu:  {item.latestAnswer ? getCommiteAnswerText(Number(item.latestAnswer.answer)) : 'Cevaplanmadı'}
+                                                Cevap Durumu:  {item.latestAnswer ? getCommiteAnswerText(Number(item.latestAnswer.answer)) : 'بی‌پاسخ'}
                                             </Typography>
                                         </Box>
                                     ))}
@@ -322,23 +322,23 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({
                             )}
                         </Grid>
                         <Grid item xs={12} mt={2}>
-                            <Typography variant="h6" mb={1} color="secondary">📥 Raporu İndir</Typography>
+                            <Typography variant="h6" mb={1} color="secondary">📥 دانلود گزارش</Typography>
                             <Stack direction="row" spacing={2}>
-                                <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => onExportPdf(report)} disabled={loading} fullWidth>PDF Olarak İndir</Button>
-                                <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => onExportExcel(report)} disabled={loading} fullWidth>Excel Olarak İndir</Button>
+                                <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => onExportPdf(report)} disabled={loading} fullWidth>دانلود PDF</Button>
+                                <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => onExportExcel(report)} disabled={loading} fullWidth>دانلود Excel</Button>
                             </Stack>
                         </Grid>
                     </Grid>
                 )}
             </DialogContent>
-            <DialogActions><Button onClick={onClose} color="secondary">Kapat</Button></DialogActions>
+            <DialogActions><Button onClick={onClose} color="secondary">بستن</Button></DialogActions>
         </Dialog>
     );
 };
 
 const getPositionText = (position: CommiteMemberPosition | number | string): string => {
     const posId = Number(position);
-    switch (posId) { case CommiteMemberPosition.Baskan: return 'Başkan'; case CommiteMemberPosition.Uye: return 'Üye'; default: return 'Bilinmiyor'; }
+    switch (posId) { case CommiteMemberPosition.Baskan: return 'Başkan'; case CommiteMemberPosition.Uye: return 'عضو'; default: return 'Bilinmiyor'; }
 };
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ open, onClose, report, onConfirm, loading }) => {
@@ -372,12 +372,12 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ open, onClose, re
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={2} gutterBottom color="primary">🔍 Proje Temel Bilgileri</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Yıl" size="small" fullWidth value={formValues.year} disabled />
-                            <CustomTextField label="Şehir" size="small" fullWidth value={formValues.city} disabled />
-                            <CustomTextField label="İlçe" size="small" fullWidth value={formValues.town} disabled />
-                            <CustomTextField label="Bölge" size="small" fullWidth value={formValues.region} disabled />
+                            <CustomTextField label="سال" size="small" fullWidth value={formValues.year} disabled />
+                            <CustomTextField label="شهر" size="small" fullWidth value={formValues.city} disabled />
+                            <CustomTextField label="شهرستان" size="small" fullWidth value={formValues.town} disabled />
+                            <CustomTextField label="منطقه" size="small" fullWidth value={formValues.region} disabled />
                             <CustomTextField label="Tesis Tipi" size="small" fullWidth value={getTesisTypeText(formValues.tesisType)} disabled />
-                            <CustomTextField label="Proje Sayısı" size="small" fullWidth value={formValues.projectCount} disabled />
+                            <CustomTextField label="تعداد پروژه‌ها" size="small" fullWidth value={formValues.projectCount} disabled />
                         </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -405,7 +405,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ open, onClose, re
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" disabled={loading}>İptal Et</Button>
+                <Button onClick={onClose} color="secondary" disabled={loading}>لغو</Button>
                 <Button onClick={handleAction} color={isEditingTutanak ? 'info' : 'success'} variant="contained" disabled={loading}
                     startIcon={loading ? <CircularProgress size={20} color="inherit" /> : (isEditingTutanak ? <IconEdit size={20} /> : <IconCheck size={20} />)}>
                     {loading ? 'Bekleniyor...' : (isEditingTutanak ? 'Tutanakları Güncelle' : 'Onayla ve Başlat')}
@@ -512,23 +512,23 @@ const CommiteeMembersModal: React.FC<CommiteeMembersModalProps> = ({
                             <MenuItem disabled value="">
                                 <TextField fullWidth size="small" placeholder="Üye adı veya pozisyonu ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} InputProps={{ startAdornment: <IconSearch size={18} style={{ marginRight: 8 }} /> }} />
                             </MenuItem>
-                            {loadingDropdown ? (<MenuItem disabled>Yükleniyor...</MenuItem>) : availableMembers.length === 0 && searchTerm === '' ? (<MenuItem disabled>Tüm üyeler eklenmiş.</MenuItem>) : availableMembers.length === 0 && searchTerm !== '' ? (<MenuItem disabled>Arama sonucu bulunamadı.</MenuItem>) : (availableMembers.map(member => (<MenuItem key={member.id} value={member.id}>{member.title}</MenuItem>)))}
+                            {loadingDropdown ? (<MenuItem disabled>در حال بارگذاری...</MenuItem>) : availableMembers.length === 0 && searchTerm === '' ? (<MenuItem disabled>Tüm üyeler eklenmiş.</MenuItem>) : availableMembers.length === 0 && searchTerm !== '' ? (<MenuItem disabled>Arama sonucu bulunamadı.</MenuItem>) : (availableMembers.map(member => (<MenuItem key={member.id} value={member.id}>{member.title}</MenuItem>)))}
                         </Select>
                     </FormControl>
-                    <Button variant="contained" color="primary" onClick={handleRegisterMember} disabled={!selectedMemberId || loadingRegistration || loadingDropdown} startIcon={loadingRegistration ? <CircularProgress size={20} color="inherit" /> : <IconPlus size={20} />} sx={{ minWidth: 120 }}>Ekle</Button>
+                    <Button variant="contained" color="primary" onClick={handleRegisterMember} disabled={!selectedMemberId || loadingRegistration || loadingDropdown} startIcon={loadingRegistration ? <CircularProgress size={20} color="inherit" /> : <IconPlus size={20} />} sx={{ minWidth: 120 }}>افزودن</Button>
                 </Stack>
                 <Typography variant="subtitle1" mt={4} mb={2}>Kayıtlı Üyeler:</Typography>
                 <TableContainer>
                     <Table size="small">
                         <TableHead>
-                            <TableRow style={{ background: "#e0e0e0" }}><UiTableCell>Üye Adı Soyadı</UiTableCell><UiTableCell>Pozisyon</UiTableCell><UiTableCell>Tutanak Tipi</UiTableCell><UiTableCell align="right">İşlemler</UiTableCell></TableRow>
+                            <TableRow style={{ background: "#e0e0e0" }}><UiTableCell>Üye Adı Soyadı</UiTableCell><UiTableCell>Pozisyon</UiTableCell><UiTableCell>Tutanak Tipi</UiTableCell><UiTableCell align="right">عملیات</UiTableCell></TableRow>
                         </TableHead>
                         <TableBody>
                             {loadingList ? (<TableRow><UiTableCell colSpan={4} align="center"><CircularProgress size={20} /></UiTableCell></TableRow>) : registeredMembers.length === 0 ? (<TableRow><UiTableCell colSpan={4} align="center">Henüz üye eklenmedi.</UiTableCell></TableRow>) : (registeredMembers.map((reg) => (
                                 <TableRow key={reg.id}>
                                     <UiTableCell>{reg.commiteMember.name} {reg.commiteMember.family}</UiTableCell>
                                     <UiTableCell>{getCommiteMemberPositionText(reg.commiteMember.position)}</UiTableCell>
-                                    <UiTableCell><Typography variant="body2" color={reg.memberStatus ? 'success.main' : 'warning.main'} fontWeight="bold">{reg.memberStatus ? 'Kesin' : 'Geçici'}</Typography></UiTableCell>
+                                    <UiTableCell><Typography variant="body2" color={reg.memberStatus ? 'success.main' : 'warning.main'} fontWeight="bold">{reg.memberStatus ? 'Kesin' : 'موقت'}</Typography></UiTableCell>
                                     <UiTableCell align="right">
                                         <Tooltip title="Üyeyi sil"><IconButton size="small" color="error" onClick={() => handleDeleteMember(reg.id)} disabled={deletingId === reg.id}>{deletingId === reg.id ? <CircularProgress size={16} color="inherit" /> : <IconTrash size={16} />}</IconButton></Tooltip>
                                     </UiTableCell>
@@ -538,7 +538,7 @@ const CommiteeMembersModal: React.FC<CommiteeMembersModalProps> = ({
                     </Table>
                 </TableContainer>
             </DialogContent>
-            <DialogActions><Button onClick={onClose} color="primary" variant="contained">Kapat</Button></DialogActions>
+            <DialogActions><Button onClick={onClose} color="primary" variant="contained">بستن</Button></DialogActions>
         </Dialog>
     );
 };
@@ -567,7 +567,7 @@ const MemberAnswerModal: React.FC<MemberAnswerModalProps> = ({
     const selectedMemberTutanakType = useMemo(() => {
         const member = membersList.find(m => m.id === selectedMemberReportId);
         if (member?.memberStatus === true) return 'Kesin';
-        if (member?.memberStatus === false) return 'Geçici';
+        if (member?.memberStatus === false) return 'موقت';
         return 'Belirtilmemiş';
     }, [membersList, selectedMemberReportId]);
 
@@ -667,13 +667,13 @@ const MemberAnswerModal: React.FC<MemberAnswerModalProps> = ({
                         <InputLabel id="member-report-id-label">Komite Üyesi Rapor Kaydı</InputLabel>
                         <Select labelId="member-report-id-label" label="Komite Üyesi Rapor Kaydı" value={selectedMemberReportId} onChange={(e) => handleMemberSelectChange(e.target.value as string)} MenuProps={{ style: { maxHeight: 300 } }}>
                             <MenuItem disabled value=""><TextField fullWidth size="small" placeholder="Üye adı veya pozisyonu ara..." value={memberSearchTerm} onChange={(e) => setMemberSearchTerm(e.target.value)} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} InputProps={{ startAdornment: <IconSearch size={18} style={{ marginRight: 8 }} /> }} /></MenuItem>
-                            {loadingList && membersList.length === 0 ? (<MenuItem disabled>Yükleniyor...</MenuItem>) : filteredMembersList.length === 0 ? (<MenuItem disabled>Kayıt bulunamadı.</MenuItem>) : (filteredMembersList.map(member => {
+                            {loadingList && membersList.length === 0 ? (<MenuItem disabled>در حال بارگذاری...</MenuItem>) : filteredMembersList.length === 0 ? (<MenuItem disabled>رکوردی پیدا نشد.</MenuItem>) : (filteredMembersList.map(member => {
                                 const isAnswered = answeredMemberIds.includes(String(member.id));
                                 return (
                                     <MenuItem key={member.id} value={member.id}>
                                         <Stack direction="row" alignItems="center" width="100%" justifyContent="space-between">
                                             <Box>{member.commiteMember.name} {member.commiteMember.family} ({getCommiteMemberPositionText(member.commiteMember.position)})
-                                                <Box component="span" sx={{ ml: 1, color: member.memberStatus ? 'success.main' : 'warning.main', fontWeight: 'bold', fontSize: '0.75rem' }}>[{member.memberStatus ? 'Kesin' : 'Geçici'}]</Box>
+                                                <Box component="span" sx={{ ml: 1, color: member.memberStatus ? 'success.main' : 'warning.main', fontWeight: 'bold', fontSize: '0.75rem' }}>[{member.memberStatus ? 'Kesin' : 'موقت'}]</Box>
                                             </Box>
                                             {isAnswered ? (<Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main', ml: 1 }}><IconCheck size={16} /><Typography variant="caption" sx={{ ml: 0.5, fontWeight: 'bold' }}>Cevapladı</Typography></Box>) : (<Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>- Bekliyor</Typography>)}
                                         </Stack>
@@ -690,12 +690,12 @@ const MemberAnswerModal: React.FC<MemberAnswerModalProps> = ({
                     </FormControl>
                 </Stack>
                 <DialogActions sx={{ p: 0, pt: 2, justifyContent: 'flex-end' }}>
-                    <Tooltip title={hasAnswered ? "Bu üye zaten cevap kaydetmiştir." : "Cevabı kaydet"}><span><Button onClick={handleAnswerSubmission} color="success" variant="contained" disabled={loadingSubmission || selectedAnswer === '' || selectedMemberReportId === '' || hasAnswered} startIcon={loadingSubmission ? <CircularProgress size={20} color="inherit" /> : <IconCheck size={20} />}>Kaydet</Button></span></Tooltip>
+                    <Tooltip title={hasAnswered ? "Bu üye zaten cevap kaydetmiştir." : "Cevabı kaydet"}><span><Button onClick={handleAnswerSubmission} color="success" variant="contained" disabled={loadingSubmission || selectedAnswer === '' || selectedMemberReportId === '' || hasAnswered} startIcon={loadingSubmission ? <CircularProgress size={20} color="inherit" /> : <IconCheck size={20} />}>ذخیره</Button></span></Tooltip>
                 </DialogActions>
                 <Typography variant="h6" mt={4} mb={2}>{selectedMemberReportId ? `Kayıtlı Cevaplar (${memberAnswers.length})` : "Lütfen üye seçimi yapın."}</Typography>
                 <TableContainer>
                     <Table size="small">
-                        <TableHead><TableRow style={{ background: "#e0e0e0" }}><UiTableCell>Üye</UiTableCell><UiTableCell>Cevap Durumu</UiTableCell><UiTableCell align="right">İşlemler</UiTableCell></TableRow></TableHead>
+                        <TableHead><TableRow style={{ background: "#e0e0e0" }}><UiTableCell>عضو</UiTableCell><UiTableCell>Cevap Durumu</UiTableCell><UiTableCell align="right">عملیات</UiTableCell></TableRow></TableHead>
                         <TableBody>
                             {isTableLoading ? (<TableRow><UiTableCell colSpan={3} align="center"><CircularProgress size={20} /></UiTableCell></TableRow>) : memberAnswers.length === 0 ? (<TableRow><UiTableCell colSpan={3} align="center">Hiç cevap bulunamadı.</UiTableCell></TableRow>) : (memberAnswers.map((answer) => (
                                 <TableRow key={answer.id}>
@@ -710,7 +710,7 @@ const MemberAnswerModal: React.FC<MemberAnswerModalProps> = ({
                     </Table>
                 </TableContainer>
             </DialogContent>
-            <DialogActions><Button onClick={onClose} color="primary" variant="contained">Kapat</Button></DialogActions>
+            <DialogActions><Button onClick={onClose} color="primary" variant="contained">بستن</Button></DialogActions>
         </Dialog>
     );
 };
@@ -718,9 +718,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 
@@ -740,7 +740,7 @@ const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -749,7 +749,7 @@ const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -768,7 +768,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -780,12 +780,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -834,8 +834,8 @@ const ListCommiteeMembersReport = () => {
 
     const showAlert = useCallback((message: string, severity: 'success' | 'error' | 'warning' | 'info') => { setAlertMessage(message); setAlertSeverity(severity); }, []);
     const clearAlert = () => { setAlertMessage(null); };
-    const handleApiError = useCallback((e: any) => { if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); } else { console.error("API Error:", e); showAlert(e.response?.data?.message || 'Bir hata oluştu.', 'error'); } }, [navigate, showAlert]);
-    const formatDateDisplay = (dateString: string | null): string => { if (!dateString || dateString === 'null') return "N/A"; try { const date = new Date(dateString); return date.toLocaleDateString('tr-TR'); } catch (e) { return "Geçersiz Tarih"; } };
+    const handleApiError = useCallback((e: any) => { if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); } else { console.error("API Error:", e); showAlert(e.response?.data?.message || 'خطایی رخ داد.', 'error'); } }, [navigate, showAlert]);
+    const formatDateDisplay = (dateString: string | null): string => { if (!dateString || dateString === 'null') return "N/A"; try { const date = new Date(dateString); return date.toLocaleDateString('tr-TR'); } catch (e) { return "تاریخ نامعتبر"; } };
     const isFlexibleMatch = (value1: string | number | null | undefined, value2: string | number | null | undefined): boolean => { const normalize = (val: any) => { if (val === null || val === undefined || (typeof val === 'string' && val.trim() === '')) { return null; } if (typeof val === 'string' && !isNaN(Number(val))) { return Number(val); } return val; }; const n1 = normalize(value1); const n2 = normalize(value2); return n1 === n2; };
 
     const fetchConfirmationData = useCallback(async () => {
@@ -913,7 +913,7 @@ const ListCommiteeMembersReport = () => {
 
     const handleExportExcelDynamic = async (reportType: 'all' | 'confirmed') => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
         setOpenDownloadModal(false); setDownloadLoading(true); showAlert('Excel dosyası oluşturuluyor, lütfen bekleyin...', 'info');
         try {
             let confirmationReports: any[] = []; let mainReportsData: any[] = []; const memberNameMap: MemberNameMap = {};
@@ -929,12 +929,12 @@ const ListCommiteeMembersReport = () => {
                     return { ...mainReport, isConfirmed: !!confirmationMatch, confirmationDetails: confirmationMatch || null };
                 });
             }
-            if (!finalData || finalData.length === 0) { showAlert('Dışa aktarılacak veri bulunamadı.', 'warning'); setDownloadLoading(false); return; }
+            if (!finalData || finalData.length === 0) { showAlert('داده‌ای برای خروجی پیدا نشد.', 'warning'); setDownloadLoading(false); return; }
             let maxGeciciMemberCount = 0; let maxKesinMemberCount = 0;
             finalData.forEach((report) => { const details = report.confirmationDetails; if (details && details.confirmationReportCommiteMembers) { const members: any[] = details.confirmationReportCommiteMembers; const geciciMembers = members.filter((m: any) => m.memberStatus === false); const kesinMembers = members.filter((m: any) => m.memberStatus === true); if (geciciMembers.length > maxGeciciMemberCount) maxGeciciMemberCount = geciciMembers.length; if (kesinMembers.length > maxKesinMemberCount) maxKesinMemberCount = kesinMembers.length; } });
 
             const getMemberAndAnswerDetails = async (memberRegistrationRecord: any) => {
-                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'Cevaplanmadı'; let commiteMemberId: string | undefined;
+                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'بی‌پاسخ'; let commiteMemberId: string | undefined;
                 try { const memberDetailResult = await axios.get(server.baseurl + server.report + `get-confirmation-report-commite-member-by-id/${memberRegistrationRecord.id}`, { headers: { "Authorization": `Bearer ${authToken}` } }); commiteMemberId = memberDetailResult.data.data?.commiteMember?.id; } catch (error) { }
                 if (commiteMemberId) { const memberDetails = memberNameMap[String(commiteMemberId)]; if (memberDetails) { memberName = `${memberDetails.name} ${memberDetails.family} (${getPositionText(memberDetails.position)})`; } }
                 const latestAnswer = memberRegistrationRecord.confirmationReportCommiteMemberAnswers?.[0]; if (latestAnswer) { answerText = getCommiteAnswerText(Number(latestAnswer.answer)); }
@@ -943,31 +943,31 @@ const ListCommiteeMembersReport = () => {
 
             const workbook = new Excel.Workbook(); const sheetName = reportType === 'confirmed' ? 'Onaylanan Raporlar' : 'Tüm Proje Raporları'; const worksheet = workbook.addWorksheet(sheetName, { views: [{ rightToLeft: false }] });
             const thinBorder = { style: 'thin', color: { argb: 'FFD3D3D3' } }; const border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder }; const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; const headerFont = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF000000' } }; const font = { name: 'Calibri', size: 11, bold: false, color: { argb: 'FF000000' } }; const centerAlignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; const leftAlignment = { vertical: 'middle', horizontal: 'left', wrapText: true }; const fullHeaderStyle = { border: border, alignment: centerAlignment, font: headerFont, fill: headerFill } as Partial<Excel.Style>; const bodyStyle = { border: border, alignment: leftAlignment, font: font } as Partial<Excel.Style>;
-            let tableHeaders = ['Yıl', 'Şehir', 'İlçe', 'Bölge', 'Tesis Türü', 'Tradi', 'Proje Sayısı', 'Geçici Tutanak Teslim Durumu'];
-            for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Üye ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Cevap ${i}`); } tableHeaders.push('Kesin Tutanak Teslim Durumu'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Üye ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
-            const titleText = reportType === 'confirmed' ? 'Onaylanan Proje Raporları Detaylı Rapor' : 'Tüm Proje Raporları Özet Rapor'; const titleRow = worksheet.addRow([titleText]); if (titleRow) { titleRow.font = { name: 'Times New Roman', size: 12, bold: true }; titleRow.getCell(1).alignment = { horizontal: 'center' }; worksheet.mergeCells(`A${titleRow.number}:${String.fromCharCode(65 + tableHeaders.length - 1)}${titleRow.number}`); } worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]); worksheet.addRow([]);
+            let tableHeaders = ['سال', 'شهر', 'شهرستان', 'منطقه', 'نوع تأسیسات', 'Tradi', 'تعداد پروژه‌ها', 'وضعیت تحویل صورت‌جلسه‌ی موقت'];
+            for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`عضو موقت ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`پاسخ موقت ${i}`); } tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی قطعی'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`عضو قطعی ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
+            const titleText = reportType === 'confirmed' ? 'Onaylanan Proje Raporları Detaylı Rapor' : 'Tüm Proje Raporları Özet Rapor'; const titleRow = worksheet.addRow([titleText]); if (titleRow) { titleRow.font = { name: 'Times New Roman', size: 12, bold: true }; titleRow.getCell(1).alignment = { horizontal: 'center' }; worksheet.mergeCells(`A${titleRow.number}:${String.fromCharCode(65 + tableHeaders.length - 1)}${titleRow.number}`); } worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]); worksheet.addRow([]);
             const headerRow = worksheet.addRow(tableHeaders); headerRow.eachCell(cell => { cell.style = fullHeaderStyle; });
 
             const rowPromises = finalData.map(async (report) => {
                 const confirmedDetails = report.confirmationDetails; const isConfirmed = !!confirmedDetails;
                 let rowData: (string | number | null)[] = [report.year, report.city, report.town || '-', report.region || '-', getTesisTypeText(report.tesistype || report.tesistype), report.trAdi || report.tradi || '-', report.projectCount || report.projectcount,];
                 const allMembers: any[] = confirmedDetails?.confirmationReportCommiteMembers || []; const geciciMembers = allMembers.filter((m: any) => m.memberStatus === false); const kesinMembers = allMembers.filter((m: any) => m.memberStatus === true);
-                const geciciDurum = isConfirmed && confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(geciciDurum);
+                const geciciDurum = isConfirmed && confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(geciciDurum);
                 const geciciDetails = await Promise.all(geciciMembers.map(getMemberAndAnswerDetails)); const geciciMemberNames = geciciDetails.map(d => d.memberName); const geciciAnswers = geciciDetails.map(d => d.answerText);
                 rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
-                const kesinDurum = isConfirmed && confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(kesinDurum);
+                const kesinDurum = isConfirmed && confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(kesinDurum);
                 const kesinDetails = await Promise.all(kesinMembers.map(getMemberAndAnswerDetails)); const kesinMemberNames = kesinDetails.map(d => d.memberName); const kesinAnswers = kesinDetails.map(d => d.answerText);
                 rowData.push(...kesinMemberNames); for (let i = 0; i < maxKesinMemberCount - kesinMemberNames.length; i++) { rowData.push(''); } rowData.push(...kesinAnswers); for (let i = 0; i < maxKesinMemberCount - kesinAnswers.length; i++) { rowData.push(''); }
                 return rowData;
             });
             const allRowData = await Promise.all(rowPromises); allRowData.forEach((rowData) => { const row = worksheet.addRow(rowData); row.eachCell(cell => { cell.style = bodyStyle; }); });
             worksheet.columns.forEach((column) => { let maxLength = 0; if (column.eachCell) { column.eachCell({ includeEmpty: true }, (cell) => { const columnLength = cell.value ? String(cell.value).length : 10; if (columnLength > maxLength) { maxLength = columnLength; } }); } column.width = Math.min(Math.max(maxLength + 2, 12), 50); });
-            const buffer = await workbook.xlsx.writeBuffer(); const fileName = `${sheetName.replace(/\s/g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`; saveAs(new Blob([buffer]), fileName); showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            const buffer = await workbook.xlsx.writeBuffer(); const fileName = `${sheetName.replace(/\s/g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`; saveAs(new Blob([buffer]), fileName); showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) { handleApiError(e); } finally { setDownloadLoading(false); }
     };
 
     const handleExportPdfDetailConsolidated = async () => {
-        const authToken = localStorage.getItem('authToken'); if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; } setOpenDownloadModal(false); setDownloadLoading(true); showAlert('PDF raporu oluşturuluyor, lütfen bekleyin (Bu işlem uzun sürebilir)...', 'info');
+        const authToken = localStorage.getItem('authToken'); if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; } setOpenDownloadModal(false); setDownloadLoading(true); showAlert('PDF raporu oluşturuluyor, lütfen bekleyin (Bu işlem uzun sürebilir)...', 'info');
         try {
             let confirmationReports: any[] = []; let mainReportsData: any[] = []; const memberNameMap: MemberNameMap = {};
             const confirmedResult = await axios.get(server.baseurl + server.report + "get-all-confirmation-project-reports", { headers: { "Authorization": `Bearer ${authToken}` } }); confirmationReports = confirmedResult.data.data || [];
@@ -982,21 +982,21 @@ const ListCommiteeMembersReport = () => {
             let maxGeciciMemberCount = 0; let maxKesinMemberCount = 0;
             finalData.forEach((report) => { const details = report.confirmationDetails; if (details && details.confirmationReportCommiteMembers) { const members: any[] = details.confirmationReportCommiteMembers; const geciciMembers = members.filter((m: any) => m.memberStatus === false); const kesinMembers = members.filter((m: any) => m.memberStatus === true); if (geciciMembers.length > maxGeciciMemberCount) maxGeciciMemberCount = geciciMembers.length; if (kesinMembers.length > maxKesinMemberCount) maxKesinMemberCount = kesinMembers.length; } });
             const getMemberAndAnswerDetails = async (memberRegistrationRecord: any) => {
-                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'Cevaplanmadı'; let commiteMemberId: string | undefined;
+                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'بی‌پاسخ'; let commiteMemberId: string | undefined;
                 try { const memberDetailResult = await axios.get(server.baseurl + server.report + `get-confirmation-report-commite-member-by-id/${memberRegistrationRecord.id}`, { headers: { "Authorization": `Bearer ${authToken}` } }); commiteMemberId = memberDetailResult.data.data?.commiteMember?.id; } catch (error) { }
                 if (commiteMemberId) { const memberDetails = memberNameMap[String(commiteMemberId)]; if (memberDetails) { memberName = `${memberDetails.name} ${memberDetails.family} (${getPositionText(memberDetails.position)})`; } }
                 const latestAnswer = memberRegistrationRecord.confirmationReportCommiteMemberAnswers?.[0]; if (latestAnswer) { answerText = getCommiteAnswerText(Number(latestAnswer.answer)); }
                 return { memberName, answerText };
             };
             const doc = new jsPDF('landscape', 'pt', 'a4'); (doc as any).addFileToVFS("NotoSans-Regular.ttf", NotoSansRegular); (doc as any).addFont("NotoSans-Regular.ttf", "NotoSans", "normal"); doc.setFont("NotoSans", "normal");
-            let tableHeaders = ['Yıl', 'Şehir', 'İlçe', 'Bölge', 'Tesis Türü', 'Tradi', 'Proje Sayısı',]; tableHeaders.push('Geçici Tutanak Teslim Durumu'); for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Üye ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Cevap ${i}`); } tableHeaders.push('Kesin Tutanak Teslim Durumu'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Üye ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
+            let tableHeaders = ['سال', 'شهر', 'شهرستان', 'منطقه', 'نوع تأسیسات', 'Tradi', 'تعداد پروژه‌ها',]; tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی موقت'); for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`عضو موقت ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`پاسخ موقت ${i}`); } tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی قطعی'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`عضو قطعی ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
             const rowPromises = finalData.map(async (report) => {
                 const confirmedDetails = report.confirmationDetails; const isConfirmed = !!confirmedDetails;
                 let rowData: (string | number | null)[] = [report.year, report.city, report.town || '-', report.region || '-', getTesisTypeText(report.tesistype || report.tesistype), report.trAdi || report.tradi || '-', report.projectCount || report.projectcount,];
                 const allMembers: any[] = confirmedDetails?.confirmationReportCommiteMembers || []; const geciciMembers = allMembers.filter((m: any) => m.memberStatus === false); const kesinMembers = allMembers.filter((m: any) => m.memberStatus === true);
                 const geciciDetails = await Promise.all(geciciMembers.map(getMemberAndAnswerDetails)); const geciciMemberNames = geciciDetails.map(d => d.memberName); const geciciAnswers = geciciDetails.map(d => d.answerText);
-                const geciciDurum = isConfirmed && confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(geciciDurum); rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
-                const kesinDurum = isConfirmed && confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(kesinDurum);
+                const geciciDurum = isConfirmed && confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(geciciDurum); rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
+                const kesinDurum = isConfirmed && confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(kesinDurum);
                 const kesinDetails = await Promise.all(kesinMembers.map(getMemberAndAnswerDetails)); const kesinMemberNames = kesinDetails.map(d => d.memberName); const kesinAnswers = kesinDetails.map(d => d.answerText);
                 rowData.push(...kesinMemberNames); for (let i = 0; i < maxKesinMemberCount - kesinMemberNames.length; i++) { rowData.push(''); } rowData.push(...kesinAnswers); for (let i = 0; i < maxKesinMemberCount - kesinAnswers.length; i++) { rowData.push(''); }
                 return rowData;
@@ -1009,7 +1009,7 @@ const ListCommiteeMembersReport = () => {
     };
 
     const handleExportPdfTable = async () => {
-        const authToken = localStorage.getItem('authToken'); if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; } setOpenDownloadModal(false); setDownloadLoading(true); showAlert('PDF raporu oluşturuluyor, lütfen bekleyin (Bu işlem uzun sürebilir)...', 'info');
+        const authToken = localStorage.getItem('authToken'); if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; } setOpenDownloadModal(false); setDownloadLoading(true); showAlert('PDF raporu oluşturuluyor, lütfen bekleyin (Bu işlem uzun sürebilir)...', 'info');
         try {
             let confirmationReports: any[] = []; let mainReportsData: any[] = []; const memberNameMap: MemberNameMap = {};
             const doc = new jsPDF('landscape', 'pt', 'a4'); (doc as any).addFileToVFS("NotoSans-Regular.ttf", NotoSansRegular); (doc as any).addFont("NotoSans-Regular.ttf", "NotoSans", "normal"); doc.setFont("NotoSans", "normal");
@@ -1020,24 +1020,24 @@ const ListCommiteeMembersReport = () => {
                 const confirmationMatch = confirmationReports.find((confReport: any) => isFlexibleMatch(confReport.year, mainReport.year) && isFlexibleMatch(confReport.city, mainReport.city) && isFlexibleMatch(confReport.town, mainReport.town) && isFlexibleMatch(confReport.region, mainReport.region) && isFlexibleMatch(confReport.tesisType, mainReport.tesistype) && isFlexibleMatch(confReport.trAdi, mainReport.tradi) && isFlexibleMatch(confReport.projectCount, mainReport.projectcount));
                 return { ...mainReport, isConfirmed: !!confirmationMatch, confirmationDetails: confirmationMatch || null };
             });
-            if (!finalData || finalData.length === 0) { showAlert('PDF oluşturulacak veri bulunamadı.', 'warning'); setDownloadLoading(false); return; }
+            if (!finalData || finalData.length === 0) { showAlert('داده‌ای برای ساخت PDF پیدا نشد.', 'warning'); setDownloadLoading(false); return; }
             let maxGeciciMemberCount = 0; let maxKesinMemberCount = 0;
             finalData.forEach((report) => { const details = report.confirmationDetails; if (details && details.confirmationReportCommiteMembers) { const members: any[] = details.confirmationReportCommiteMembers; const geciciMembers = members.filter((m: any) => m.memberStatus === false); const kesinMembers = members.filter((m: any) => m.memberStatus === true); if (geciciMembers.length > maxGeciciMemberCount) maxGeciciMemberCount = geciciMembers.length; if (kesinMembers.length > maxKesinMemberCount) maxKesinMemberCount = kesinMembers.length; } });
             const getMemberAndAnswerDetails = async (memberRegistrationRecord: any) => {
-                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'Cevaplanmadı'; let commiteMemberId: string | undefined;
+                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'بی‌پاسخ'; let commiteMemberId: string | undefined;
                 try { const memberDetailResult = await axios.get(server.baseurl + server.report + `get-confirmation-report-commite-member-by-id/${memberRegistrationRecord.id}`, { headers: { "Authorization": `Bearer ${authToken}` } }); commiteMemberId = memberDetailResult.data.data?.commiteMember?.id; } catch (error) { }
                 if (commiteMemberId) { const memberDetails = memberNameMap[String(commiteMemberId)]; if (memberDetails) { memberName = `${memberDetails.name} ${memberDetails.family} (${getPositionText(memberDetails.position)})`; } }
                 const latestAnswer = memberRegistrationRecord.confirmationReportCommiteMemberAnswers?.[0]; if (latestAnswer) { answerText = getCommiteAnswerText(Number(latestAnswer.answer)); }
                 return { memberName, answerText };
             };
-            let tableHeaders = ['Yıl', 'Şehir', 'İlçe', 'Bölge', 'Tesis Türü', 'Tradi', 'Proje Sayısı',]; tableHeaders.push('Geçici Tutanak Teslim Durumu'); for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Üye ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Cevap ${i}`); } tableHeaders.push('Kesin Tutanak Teslim Durumu'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Üye ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
+            let tableHeaders = ['سال', 'شهر', 'شهرستان', 'منطقه', 'نوع تأسیسات', 'Tradi', 'تعداد پروژه‌ها',]; tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی موقت'); for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`عضو موقت ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`پاسخ موقت ${i}`); } tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی قطعی'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`عضو قطعی ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
             const rowPromises = finalData.map(async (report) => {
                 const confirmedDetails = report.confirmationDetails; const isConfirmed = !!confirmedDetails;
                 let rowData: (string | number | null)[] = [report.year, report.city, report.town || '-', report.region || '-', getTesisTypeText(report.tesistype || report.tesistype), report.trAdi || report.tradi || '-', report.projectCount || report.projectcount,];
                 const allMembers: any[] = confirmedDetails?.confirmationReportCommiteMembers || []; const geciciMembers = allMembers.filter((m: any) => m.memberStatus === false); const kesinMembers = allMembers.filter((m: any) => m.memberStatus === true);
                 const geciciDetails = await Promise.all(geciciMembers.map(getMemberAndAnswerDetails)); const geciciMemberNames = geciciDetails.map(d => d.memberName); const geciciAnswers = geciciDetails.map(d => d.answerText);
-                const geciciDurum = isConfirmed && confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(geciciDurum); rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
-                const kesinDurum = isConfirmed && confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(kesinDurum);
+                const geciciDurum = isConfirmed && confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(geciciDurum); rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
+                const kesinDurum = isConfirmed && confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(kesinDurum);
                 const kesinDetails = await Promise.all(kesinMembers.map(getMemberAndAnswerDetails)); const kesinMemberNames = kesinDetails.map(d => d.memberName); const kesinAnswers = kesinDetails.map(d => d.answerText);
                 rowData.push(...kesinMemberNames); for (let i = 0; i < maxKesinMemberCount - kesinMemberNames.length; i++) { rowData.push(''); } rowData.push(...kesinAnswers); for (let i = 0; i < maxKesinMemberCount - kesinAnswers.length; i++) { rowData.push(''); }
                 return rowData;
@@ -1045,7 +1045,7 @@ const ListCommiteeMembersReport = () => {
             const allRowData = await Promise.all(rowPromises);
             const topMargin = 70; const sideMargin = 20; const bottomMargin = 50;
             autoTable(doc, { startY: topMargin, head: [tableHeaders], body: allRowData, theme: 'grid', styles: { font: 'NotoSans', fontStyle: "normal", fontSize: 6, cellPadding: 3, overflow: 'linebreak' }, headStyles: { fillColor: [149, 147, 125], textColor: [0, 0, 0] }, margin: { top: topMargin, bottom: bottomMargin, left: sideMargin, right: sideMargin }, didDrawPage: (_data: any) => { addPdfHeader(doc, "Tüm Proje Raporları Özet Rapor"); addPdfFooter(doc); }, showHead: 'everyPage', });
-            doc.save(`Tüm_Proje_Raporları_Ozet_${format(new Date(), 'yyyyMMdd')}.pdf`); showAlert('PDF raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
+            doc.save(`Tüm_Proje_Raporları_Ozet_${format(new Date(), 'yyyyMMdd')}.pdf`); showAlert('گزارش PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) { handleApiError(e); } finally { setDownloadLoading(false); }
     };
 
@@ -1057,7 +1057,7 @@ const ListCommiteeMembersReport = () => {
             const confirmedDetails = confirmationData.find(conf => conf.id === report.confirmationId) || null; if (!confirmedDetails) { showAlert('Onaylanmış rapor detayı bulunamadı.', 'error'); setDownloadLoading(false); return; } confirmedDetails.confirmationReportCommiteMembers = registeredMembers; const finalData = [{ ...report, isConfirmed: true, confirmationDetails: confirmedDetails }];
             const allMembers: any[] = confirmedDetails.confirmationReportCommiteMembers || []; const maxGeciciMemberCount = allMembers.filter((m: any) => m.memberStatus === false).length; const maxKesinMemberCount = allMembers.filter((m: any) => m.memberStatus === true).length;
             const getMemberAndAnswerDetails = async (memberRegistrationRecord: any) => {
-                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'Cevaplanmadı'; let commiteMemberId: string | undefined;
+                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'بی‌پاسخ'; let commiteMemberId: string | undefined;
                 try { const memberDetailResult = await axios.get(server.baseurl + server.report + `get-confirmation-report-commite-member-by-id/${memberRegistrationRecord.id}`, { headers: { "Authorization": `Bearer ${authToken}` } }); commiteMemberId = memberDetailResult.data.data?.commiteMember?.id; } catch (error) { }
                 if (commiteMemberId) { const memberDetails = memberNameMap[String(commiteMemberId)]; if (memberDetails) { memberName = `${memberDetails.name} ${memberDetails.family} (${getPositionText(memberDetails.position)})`; } }
                 const latestAnswer = memberRegistrationRecord.confirmationReportCommiteMemberAnswers?.[0]; if (latestAnswer) { answerText = getCommiteAnswerText(Number(latestAnswer.answer)); }
@@ -1065,20 +1065,20 @@ const ListCommiteeMembersReport = () => {
             };
             const workbook = new Excel.Workbook(); const sheetName = 'Tekil Proje Raporu Detay'; const worksheet = workbook.addWorksheet(sheetName, { views: [{ rightToLeft: false }] });
             const thinBorder = { style: 'thin', color: { argb: 'FFD3D3D3' } }; const border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder }; const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; const headerFont = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF000000' } }; const font = { name: 'Calibri', size: 11, bold: false, color: { argb: 'FF000000' } }; const centerAlignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; const leftAlignment = { vertical: 'middle', horizontal: 'left', wrapText: true }; const fullHeaderStyle = { border: border, alignment: centerAlignment, font: headerFont, fill: headerFill } as Partial<Excel.Style>; const bodyStyle = { border: border, alignment: leftAlignment, font: font } as Partial<Excel.Style>;
-            let tableHeaders = ['Yıl', 'Şehir', 'İlçe', 'Bölge', 'Tesis Türü', 'Tradi', 'Proje Sayısı', 'Geçici Tutanak Teslim Durumu']; for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Üye ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Cevap ${i}`); } tableHeaders.push('Kesin Tutanak Teslim Durumu'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Üye ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
-            const titleText = `${reportTitle} Detaylı Rapor`; const titleRow = worksheet.addRow([titleText]); if (titleRow) { titleRow.font = { name: 'Times New Roman', size: 12, bold: true }; titleRow.getCell(1).alignment = { horizontal: 'center' }; worksheet.mergeCells(`A${titleRow.number}:${String.fromCharCode(65 + tableHeaders.length - 1)}${titleRow.number}`); } worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]); worksheet.addRow([]);
+            let tableHeaders = ['سال', 'شهر', 'شهرستان', 'منطقه', 'نوع تأسیسات', 'Tradi', 'تعداد پروژه‌ها', 'وضعیت تحویل صورت‌جلسه‌ی موقت']; for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`عضو موقت ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`پاسخ موقت ${i}`); } tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی قطعی'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`عضو قطعی ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
+            const titleText = `${reportTitle} Detaylı Rapor`; const titleRow = worksheet.addRow([titleText]); if (titleRow) { titleRow.font = { name: 'Times New Roman', size: 12, bold: true }; titleRow.getCell(1).alignment = { horizontal: 'center' }; worksheet.mergeCells(`A${titleRow.number}:${String.fromCharCode(65 + tableHeaders.length - 1)}${titleRow.number}`); } worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]); worksheet.addRow([]);
             const headerRow = worksheet.addRow(tableHeaders); headerRow.eachCell(cell => { cell.style = fullHeaderStyle; });
             const singleReport = finalData[0]; let rowData: (string | number | null)[] = [singleReport.year, singleReport.city, singleReport.town || '-', singleReport.region || '-', getTesisTypeText(singleReport.tesistype), singleReport.tradi || '-', singleReport.projectcount,];
             const allMembersData: any[] = singleReport.confirmationDetails?.confirmationReportCommiteMembers || []; const geciciMembers = allMembersData.filter((m: any) => m.memberStatus === false); const kesinMembers = allMembersData.filter((m: any) => m.memberStatus === true);
-            const geciciDurum = confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(geciciDurum);
+            const geciciDurum = confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(geciciDurum);
             const geciciDetails = await Promise.all(geciciMembers.map(getMemberAndAnswerDetails)); const geciciMemberNames = geciciDetails.map(d => d.memberName); const geciciAnswers = geciciDetails.map(d => d.answerText);
             rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
-            const kesinDurum = confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(kesinDurum);
+            const kesinDurum = confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(kesinDurum);
             const kesinDetailsPromises = kesinMembers.map(getMemberAndAnswerDetails); const kesinDetails = await Promise.all(kesinDetailsPromises); const kesinMemberNames = kesinDetails.map(d => d.memberName); const kesinAnswers = kesinDetails.map(d => d.answerText);
             rowData.push(...kesinMemberNames); for (let i = 0; i < maxKesinMemberCount - kesinMemberNames.length; i++) { rowData.push(''); } rowData.push(...kesinAnswers); for (let i = 0; i < maxKesinMemberCount - kesinAnswers.length; i++) { rowData.push(''); }
             const row = worksheet.addRow(rowData); row.eachCell(cell => { cell.style = bodyStyle; });
             worksheet.columns.forEach((column) => { let maxLength = 0; if (column.eachCell) { column.eachCell({ includeEmpty: true }, (cell) => { const columnLength = cell.value ? String(cell.value).length : 10; if (columnLength > maxLength) { maxLength = columnLength; } }); } column.width = Math.min(Math.max(maxLength + 2, 12), 50); });
-            const buffer = await workbook.xlsx.writeBuffer(); const fileName = `${sheetName.replace(/\s/g, '_')}_${report.city}_${report.year}_${format(new Date(), 'yyyyMMdd')}.xlsx`; saveAs(new Blob([buffer]), fileName); showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            const buffer = await workbook.xlsx.writeBuffer(); const fileName = `${sheetName.replace(/\s/g, '_')}_${report.city}_${report.year}_${format(new Date(), 'yyyyMMdd')}.xlsx`; saveAs(new Blob([buffer]), fileName); showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) { handleApiError(e); } finally { setDownloadLoading(false); }
     };
 
@@ -1091,7 +1091,7 @@ const ListCommiteeMembersReport = () => {
             const confirmedDetails = confirmationData.find(conf => conf.id === report.confirmationId) || null; if (!confirmedDetails) { showAlert('Onaylanmış rapor detayı bulunamadı.', 'error'); setDownloadLoading(false); return; }
             const allMembers: any[] = registeredMembers; const maxGeciciMemberCount = allMembers.filter((m: any) => m.memberStatus === false).length; const maxKesinMemberCount = allMembers.filter((m: any) => m.memberStatus === true).length;
             const getMemberAndAnswerDetails = async (memberRegistrationRecord: any) => {
-                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'Cevaplanmadı'; let commiteMemberId: string | undefined;
+                let memberName = `ID: ${memberRegistrationRecord.id} (Bilinmiyor)`; let answerText = 'بی‌پاسخ'; let commiteMemberId: string | undefined;
                 try { const memberDetailResult = await axios.get(server.baseurl + server.report + `get-confirmation-report-commite-member-by-id/${memberRegistrationRecord.id}`, { headers: { "Authorization": `Bearer ${authToken}` } }); commiteMemberId = memberDetailResult.data.data?.commiteMember?.id; } catch (error) { }
                 if (commiteMemberId) { const memberDetails = memberNameMap[String(commiteMemberId)]; if (memberDetails) { memberName = `${memberDetails.name} ${memberDetails.family} (${getPositionText(memberDetails.position)})`; } }
                 const latestAnswer = memberRegistrationRecord.confirmationReportCommiteMemberAnswers?.[0]; if (latestAnswer) { answerText = getCommiteAnswerText(Number(latestAnswer.answer)); }
@@ -1100,11 +1100,11 @@ const ListCommiteeMembersReport = () => {
             const geciciMembers = allMembers.filter((m: any) => m.memberStatus === false); const kesinMembers = allMembers.filter((m: any) => m.memberStatus === true);
             let rowData: (string | number | null)[] = [report.year, report.city, report.town || '-', report.region || '-', getTesisTypeText(report.tesistype), report.tradi || '-', report.projectcount,];
             const geciciDetailsPromises = geciciMembers.map(getMemberAndAnswerDetails); const geciciDetails = await Promise.all(geciciDetailsPromises); const geciciMemberNames = geciciDetails.map(d => d.memberName); const geciciAnswers = geciciDetails.map(d => d.answerText);
-            const geciciDurum = confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(geciciDurum); rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
-            const kesinDurum = confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'Arşivde' : ''; rowData.push(kesinDurum);
+            const geciciDurum = confirmedDetails.Gecici_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(geciciDurum); rowData.push(...geciciMemberNames); for (let i = 0; i < maxGeciciMemberCount - geciciMemberNames.length; i++) { rowData.push(''); } rowData.push(...geciciAnswers); for (let i = 0; i < maxGeciciMemberCount - geciciAnswers.length; i++) { rowData.push(''); }
+            const kesinDurum = confirmedDetails.Kesin_tutanak_teslim_alma_durumu ? 'در بایگانی' : ''; rowData.push(kesinDurum);
             const kesinDetailsPromises = kesinMembers.map(getMemberAndAnswerDetails); const kesinDetails = await Promise.all(kesinDetailsPromises); const kesinMemberNames = kesinDetails.map(d => d.memberName); const kesinAnswers = kesinDetails.map(d => d.answerText);
             rowData.push(...kesinMemberNames); for (let i = 0; i < maxKesinMemberCount - kesinMemberNames.length; i++) { rowData.push(''); } rowData.push(...kesinAnswers); for (let i = 0; i < maxKesinMemberCount - kesinAnswers.length; i++) { rowData.push(''); }
-            let tableHeaders = ['Yıl', 'Şehir', 'İlçe', 'Bölge', 'Tesis Türü', 'Tradi', 'Proje Sayısı',]; tableHeaders.push('Geçici Tutanak Teslim Durumu'); for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Üye ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`Geçici Cevap ${i}`); } tableHeaders.push('Kesin Tutanak Teslim Durumu'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Üye ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
+            let tableHeaders = ['سال', 'شهر', 'شهرستان', 'منطقه', 'نوع تأسیسات', 'Tradi', 'تعداد پروژه‌ها',]; tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی موقت'); for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`عضو موقت ${i}`); } for (let i = 1; i <= maxGeciciMemberCount; i++) { tableHeaders.push(`پاسخ موقت ${i}`); } tableHeaders.push('وضعیت تحویل صورت‌جلسه‌ی قطعی'); for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`عضو قطعی ${i}`); } for (let i = 1; i <= maxKesinMemberCount; i++) { tableHeaders.push(`Kesin Cevap ${i}`); }
             const topMargin = 70; const sideMargin = 20; const bottomMargin = 50;
             autoTable(doc, { startY: topMargin, head: [tableHeaders], body: [rowData], theme: 'grid', styles: { font: 'NotoSans', fontStyle: "normal", fontSize: 6, cellPadding: 3, overflow: 'linebreak' }, headStyles: { fillColor: [149, 147, 125], textColor: [0, 0, 0] }, margin: { top: topMargin, bottom: bottomMargin, left: sideMargin, right: sideMargin }, didDrawPage: (_data: any) => { addPdfHeader(doc, `${report.city} / ${report.year} Projesi Detay Raporu`); addPdfFooter(doc); }, showHead: 'everyPage', });
             doc.save(`Rapor_${report.city}_${report.year}_${format(new Date(), 'yyyyMMdd')}.pdf`); showAlert('PDF raporu başarıyla oluşturuldu و indiriliyor.', 'success');
@@ -1112,13 +1112,13 @@ const ListCommiteeMembersReport = () => {
     };
 
     const headers = [
-        { label: 'Yıl', key: 'year' },
-        { label: 'Şehir', key: 'city' },
-        { label: 'İlçe', key: 'town' },
-        { label: 'Bölge', key: 'region' },
+        { label: 'سال', key: 'year' },
+        { label: 'شهر', key: 'city' },
+        { label: 'شهرستان', key: 'town' },
+        { label: 'منطقه', key: 'region' },
         { label: 'Tesis', key: 'tesistype' },
         { label: 'TrAdi', key: 'tradi' },
-        { label: 'Proje', key: 'projectcount' },
+        { label: 'پروژه', key: 'projectcount' },
         { label: 'Komite Üyeleri', key: 'memberCount' },
         { label: 'Üye Cevabı', key: 'memberAnswer' },
         { label: '', key: 'actions' },
@@ -1127,7 +1127,7 @@ const ListCommiteeMembersReport = () => {
         <Box>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                 <Typography variant="h4">Proje Raporları Özeti</Typography>
-                <Button variant="contained" color="primary" onClick={() => setOpenDownloadModal(true)} startIcon={<IconFileDownload />}>Rapor İndir</Button>
+                <Button variant="contained" color="primary" onClick={() => setOpenDownloadModal(true)} startIcon={<IconFileDownload />}>دانلود گزارش</Button>
             </Stack>
             {alertMessage && (<Stack sx={{ width: '100%', mb: 3 }} spacing={2}><Alert severity={alertSeverity} onClose={clearAlert}>{alertMessage}</Alert></Stack>)}
             <BlankCard>
@@ -1179,11 +1179,11 @@ const ListCommiteeMembersReport = () => {
                                             <StyledTableCell>
                                                 {row.isConfirmed ? (
                                                     <Box>
-                                                        <Tooltip title="Daha fazla seçenek"><IconButton id={`basic-button-${row.confirmationId}`} aria-controls={openMenu ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={openMenu && selectedRowForMenu?.confirmationId === row.confirmationId ? 'true' : undefined} onClick={(event) => handleClickMenu(event, row)} color="info" size="small" disabled={isRowLoading || downloadLoading}>{isRowLoading ? <CircularProgress size={20} color="inherit" /> : <IconDots width={20} />}</IconButton></Tooltip>
+                                                        <Tooltip title="گزینه‌های بیشتر"><IconButton id={`basic-button-${row.confirmationId}`} aria-controls={openMenu ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={openMenu && selectedRowForMenu?.confirmationId === row.confirmationId ? 'true' : undefined} onClick={(event) => handleClickMenu(event, row)} color="info" size="small" disabled={isRowLoading || downloadLoading}>{isRowLoading ? <CircularProgress size={20} color="inherit" /> : <IconDots width={20} />}</IconButton></Tooltip>
                                                         <Menu id="basic-menu" anchorEl={anchorEl} open={openMenu && selectedRowForMenu?.confirmationId === row.confirmationId} onClose={handleCloseMenu} MenuListProps={{ 'aria-labelledby': `basic-button-${row.confirmationId}`, }}>
                                                             <UiMenuItem onClick={handleEditTutanakFromMenu}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Tutanak Durumunu Düzenle</UiMenuItem>
                                                             <UiMenuItem onClick={handleDownloadFromMenu}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon>Raporu İndir (Excel/PDF)</UiMenuItem>
-                                                            <UiMenuItem onClick={handleViewDetailsFromMenu}><ListItemIcon><IconFileText width={18} /></ListItemIcon>Detayları Görüntüle</UiMenuItem>
+                                                            <UiMenuItem onClick={handleViewDetailsFromMenu}><ListItemIcon><IconFileText width={18} /></ListItemIcon>مشاهده‌ی جزئیات</UiMenuItem>
                                                         </Menu>
                                                     </Box>
                                                 ) : (<Tooltip title="Raporu Onayla"><Button variant="contained" color="success" size="small" onClick={() => handleConfirmReport(row)} disabled={isRowLoading || false}><IconCheck size={20} /></Button></Tooltip>)}
@@ -1214,7 +1214,7 @@ const ListCommiteeMembersReport = () => {
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleExportExcelDynamic('all')} disabled={downloadLoading}>Tüm Proje Raporları (Excel Özet)</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary" disabled={downloadLoading}>İptal</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary" disabled={downloadLoading}>انصراف</Button></DialogActions>
             </Dialog>
         </Box>
     );

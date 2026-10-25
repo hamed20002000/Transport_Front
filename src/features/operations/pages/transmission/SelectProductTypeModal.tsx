@@ -46,7 +46,7 @@ const SelectProductTypeModal: React.FC<SelectProductTypeModalProps> = ({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="error" variant="outlined">İptal</Button>
+                <Button onClick={onClose} color="error" variant="outlined">انصراف</Button>
                 <Button
                     onClick={() => selectedOption && onSelectProductType(selectedOption)}
                     color="primary"

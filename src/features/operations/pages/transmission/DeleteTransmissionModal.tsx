@@ -21,7 +21,7 @@ const DeleteTransmissionModal = ({ openModal, onClose, onConfirm, loading, depen
             aria-describedby="delete-dialog-description"
         >
             <DialogTitle id="delete-dialog-title">
-                {"Bu kaydı silmek istediğinizden emin misiniz?"}
+                {"آیا از حذف این رکورد مطمئن هستید؟"}
             </DialogTitle>
             <DialogContent>
                 {dependentRows.length > 0 ? (
@@ -45,7 +45,7 @@ const DeleteTransmissionModal = ({ openModal, onClose, onConfirm, loading, depen
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} disabled={loading}>
-                    İptal
+                    انصراف
                 </Button>
                 <Button
                     color="error"

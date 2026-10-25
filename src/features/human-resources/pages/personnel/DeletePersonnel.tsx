@@ -37,7 +37,7 @@ const DeletePersonnel = ({
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return;
         }
 
@@ -66,7 +66,7 @@ const DeletePersonnel = ({
                 setOpenInUseModal(true);
             } else if (e?.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate('/');
             } else {
                 const msg =
@@ -103,13 +103,13 @@ const DeletePersonnel = ({
                         >
                             Silmek
                         </span>
-                        düğmesine tıklayın.
+                        را بزنید.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? 'Silme işlemini iptal et' : ''}>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? 'لغو حذف' : ''}>
                         <Button onClick={onClose} disabled={loading}>
-                            İptal et
+                            لغو
                         </Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? 'Seçilen personeli sil' : ''}>
@@ -153,7 +153,7 @@ const DeletePersonnel = ({
                         }}
                         autoFocus
                     >
-                        Tamam
+                        باشه
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -81,9 +81,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString.length === 10 ? dateString : String(dateString));
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 const descendingComparator = <T, Key extends keyof T>(a: T, b: T, orderBy: Key): number => {
@@ -122,7 +122,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -131,7 +131,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
     doc.setLineWidth(0.5);
@@ -148,7 +148,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -160,28 +160,28 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
 const exportToPdf = (data: TeacherRecord[], title: string, showAlert: (m: string, s: any) => void, setLoadingData: (l: boolean) => void) => {
-    if (!data || data.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-    setLoadingData(true); showAlert('Rapor oluşturuluyor...', 'info');
+    if (!data || data.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
+    setLoadingData(true); showAlert('در حال ساخت گزارش...', 'info');
 
     const doc = new jsPDF();
     const docAny = doc as any;
 
-    const columns = ['Adı', 'Soyadı', 'Alan', 'Durum', 'Kayıt Tarihi'];
+    const columns = ['نام', 'نام خانوادگی', 'فیلد', 'وضعیت', 'تاریخ ثبت'];
     const body = data.map(r => [
         r.name || '-',
         r.surname || '-',
         r.field || '-',
-        r.recordStatus === 0 ? 'Aktif' : 'Pasif',
+        r.recordStatus === 0 ? 'فعال' : 'غیرفعال',
         formatDateDisplay(r.createAt || null),
     ]);
 
@@ -198,10 +198,10 @@ const exportToPdf = (data: TeacherRecord[], title: string, showAlert: (m: string
 
         const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.pdf`;
         docAny.save(fileName);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
     } catch (error) {
-        console.error("PDF dışa aktarılırken hata:", error);
-        showAlert('PDF dışا aktarılırken bir hata oluştu.', 'error');
+        console.error("خطا در خروجی PDF:", error);
+        showAlert('هنگام خروجی PDF خطایی رخ داد.', 'error');
     } finally {
         setLoadingData(false);
     }
@@ -213,7 +213,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     titleRow.font = { name: 'NotoSans', size: 14, bold: true };
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -223,7 +223,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
     let rowNum = startRow;
@@ -238,14 +238,14 @@ const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, colum
 };
 
 const exportToExcel = (data: TeacherRecord[], title: string, showAlert: (m: string, s: any) => void, setLoadingData: (l: boolean) => void) => {
-    if (!data || data.length === 0) { showAlert('Excel oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-    setLoadingData(true); showAlert('Excel dosyası oluşturuluyor...', 'info');
+    if (!data || data.length === 0) { showAlert('رکوردی برای ساخت Excel پیدا نشد.', 'warning'); return; }
+    setLoadingData(true); showAlert('در حال ساخت فایل Excel...', 'info');
 
     try {
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet(title.substring(0, 31));
 
-        const columns = ['ID', 'Adı', 'Soyadı', 'Alan', 'Durum', 'Kayıt Tarihi'];
+        const columns = ['ID', 'نام', 'نام خانوادگی', 'فیلد', 'وضعیت', 'تاریخ ثبت'];
         addExcelHeader(worksheet, title, columns.length);
 
         const headerRow = worksheet.addRow(columns);
@@ -258,7 +258,7 @@ const exportToExcel = (data: TeacherRecord[], title: string, showAlert: (m: stri
                 r.name || '-',
                 r.surname || '-',
                 r.field || '-',
-                r.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                r.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                 formatDateDisplay(r.createAt || null),
             ]);
         });
@@ -278,11 +278,11 @@ const exportToExcel = (data: TeacherRecord[], title: string, showAlert: (m: stri
         const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`;
         workbook.xlsx.writeBuffer().then(buffer => {
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         });
     } catch (error) {
         console.error("Excel dışا aktarılırken hata:", error);
-        showAlert('Excel dışا aktarılırken bir hata oluştu.', 'error');
+        showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
     } finally {
         setLoadingData(false);
     }
@@ -331,9 +331,9 @@ const ListTeachers: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -400,12 +400,12 @@ const ListTeachers: React.FC = () => {
                 setTeachers(res.data.data as TeacherRecord[]);
             } else { showAlert(res.data.message || 'Öğretmen kayıtları yüklenemedi.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
         finally { setLoadingData(false); }
     }, [navigate, showAlert]);
@@ -421,7 +421,7 @@ const ListTeachers: React.FC = () => {
         if (!surname.trim()) { setSurnameError(true); ok = false; }
         if (!field.trim()) { setFieldError(true); ok = false; }
 
-        if (!ok) { showAlert('Lütfen tüm zorunlu alanları doldurun.', 'warning'); }
+        if (!ok) { showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید.', 'warning'); }
         return ok;
     };
 
@@ -452,7 +452,7 @@ const ListTeachers: React.FC = () => {
         if (!validateForm()) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت.', 'error'); setLoadingButton(false); return; }
 
         const isEditing = editingId !== null;
 
@@ -474,17 +474,17 @@ const ListTeachers: React.FC = () => {
             const successStatus = isEditing ? 200 : 201;
 
             if (res.data.httpStatusCode === successStatus || res.data.httpStatusCode === 200) {
-                showAlert(`Öğretmen kaydı başarıyla ${isEditing ? 'güncellendi' : 'eklendi'}!`, 'success');
+                showAlert(`Öğretmen kaydı başarıyla ${isEditing ? 'به‌روزرسانی شد' : 'eklendi'}!`, 'success');
                 resetForm();
                 fetchTeachers();
-            } else { showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -492,7 +492,7 @@ const ListTeachers: React.FC = () => {
     const sendStatusUpdate = async (id: number, statusValue: number) => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); navigate("/"); return; }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); navigate("/"); return; }
 
         try {
             const response = await axios.put(
@@ -501,20 +501,20 @@ const ListTeachers: React.FC = () => {
                 { headers: { "Accept": "application/json", "Authorization": `Bearer ${authToken}`, 'Content-Type': 'application/json' } }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Kurs başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`دوره با موفقیت ${statusText} تنظیم شد!`, 'success');
                 resetForm();
                 fetchTeachers();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -620,33 +620,33 @@ const ListTeachers: React.FC = () => {
                         <Grid container spacing={2}>
 
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Adı</CustomFormLabel>
-                                <TextField placeholder="Adı" size="small" fullWidth value={name}
+                                <CustomFormLabel required>نام</CustomFormLabel>
+                                <TextField placeholder="نام" size="small" fullWidth value={name}
 
                                     inputRef={nameInputRef}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setName(e.target.value); setNameError(false); }}
-                                    error={nameError} helperText={nameError ? 'Zorunlu alan.' : ''} />
+                                    error={nameError} helperText={nameError ? 'فیلد الزامی.' : ''} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Soyadı</CustomFormLabel>
-                                <TextField placeholder="Soyadı" size="small" fullWidth value={surname}
+                                <CustomFormLabel required>نام خانوادگی</CustomFormLabel>
+                                <TextField placeholder="نام خانوادگی" size="small" fullWidth value={surname}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setSurname(e.target.value); setSurnameError(false); }}
-                                    error={surnameError} helperText={surnameError ? 'Zorunlu alan.' : ''} />
+                                    error={surnameError} helperText={surnameError ? 'فیلد الزامی.' : ''} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Alan</CustomFormLabel>
+                                <CustomFormLabel required>فیلد</CustomFormLabel>
                                 <TextField placeholder="Öğretilen Alan" size="small" fullWidth value={field}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setField(e.target.value); setFieldError(false); }}
-                                    error={fieldError} helperText={fieldError ? 'Zorunlu alan.' : ''} />
+                                    error={fieldError} helperText={fieldError ? 'فیلد الزامی.' : ''} />
                             </Grid>
 
                             <Grid item xs={12}>
                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                                     <Button variant="contained" color={editingId ? "info" : "success"} onClick={handleSubmit} disabled={loadingButton} size="small">
-                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'Güncelle' : 'Kaydet'}
+                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'به‌روزرسانی' : 'ذخیره'}
                                     </Button>
                                     {editingId ? (
-                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">İptal Et</Button>
+                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">لغو</Button>
 
                                     ) : (
                                         <></>
@@ -675,7 +675,7 @@ const ListTeachers: React.FC = () => {
                                     startIcon={<IconFileDownload />}
                                     size="small"
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </Button>
                             )}
                             {hasDownloadPermission && (
@@ -687,7 +687,7 @@ const ListTeachers: React.FC = () => {
                                     startIcon={<IconFileDownload />}
                                     size="small"
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             )}
                         </Stack>
@@ -708,7 +708,7 @@ const ListTeachers: React.FC = () => {
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <DatePicker
-                                    label="Kayıt Başlangıç"
+                                    label="شروع ثبت‌نام"
                                     value={startFilter}
                                     onChange={(v) => { setStartFilter(v); setPage(0); }}
                                     inputFormat="dd/MM/yyyy"
@@ -721,7 +721,7 @@ const ListTeachers: React.FC = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Kayıt Bitiş"
+                                        label="پایان ثبت‌نام"
                                         value={endFilter}
                                         inputFormat="dd/MM/yyyy"
                                         minDate={startFilter || undefined}
@@ -740,12 +740,12 @@ const ListTeachers: React.FC = () => {
                                 value={statusFilter}
                                 exclusive
                                 onChange={handleStatusFilterChange}
-                                aria-label="Durum filtresi"
+                                aria-label="فیلتر وضعیت"
                                 sx={{ flexGrow: 1 }}
                             >
-                                <StyledToggleButton value="all" data-value="all" size="small">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" data-value="active" size="small">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" data-value="inactive" size="small">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all" data-value="all" size="small">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" data-value="active" size="small">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" data-value="inactive" size="small">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -753,15 +753,15 @@ const ListTeachers: React.FC = () => {
 
                 <TableContainer>
                     {loadingData ? (<Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                        <CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>Kayıtlar yükleniyor...</Typography>
+                        <CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری رکوردها...</Typography>
                     </Box>) : (
                         <Table aria-label="teachers table">
                             <TableHead sx={{ background: "#f0f0f0" }}>
                                 <TableRow>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'asc'} onClick={() => handleRequestSort('name')}><Typography variant="h6">Adı Soyadı</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'field'} direction={orderBy === 'field' ? order : 'asc'} onClick={() => handleRequestSort('field')}><Typography variant="h6">Alan</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'createAt'} direction={orderBy === 'createAt' ? order : 'asc'} onClick={() => handleRequestSort('createAt')}><Typography variant="h6">Kayıt Tarihi</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'asc'} onClick={() => handleRequestSort('name')}><Typography variant="h6">نام و نام خانوادگی</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'field'} direction={orderBy === 'field' ? order : 'asc'} onClick={() => handleRequestSort('field')}><Typography variant="h6">فیلد</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'createAt'} direction={orderBy === 'createAt' ? order : 'asc'} onClick={() => handleRequestSort('createAt')}><Typography variant="h6">تاریخ ثبت</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6"></Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -773,52 +773,52 @@ const ListTeachers: React.FC = () => {
                                             <StyledTableCell>{row.field || '-'}</StyledTableCell>
                                             <StyledTableCell>{formatDateDisplay(row.createAt || null)}</StyledTableCell>
                                             <StyledTableCell>
-                                                <Chip label={row.recordStatus === 0 ? 'Aktif' : 'Pasif'} color={row.recordStatus === 0 ? 'success' : 'error'} size="small" />
+                                                <Chip label={row.recordStatus === 0 ? 'فعال' : 'غیرفعال'} color={row.recordStatus === 0 ? 'success' : 'error'} size="small" />
                                             </StyledTableCell>
                                             <StyledTableCell>
                                                 <IconButton onClick={(e) => handleClickMenu(e, row)} size="small"><IconDots width={18} /></IconButton>
                                                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
-                                                    {hasEditPermission && (<UiMenuItem onClick={() => handleEditClick(row)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</UiMenuItem>)}
+                                                    {hasEditPermission && (<UiMenuItem onClick={() => handleEditClick(row)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>)}
                                                     {hasEditPermission && (
                                                         selectedRowForMenu?.recordStatus === 0 ? (
                                                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kursu pasif yap" : ""}>
-                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}><ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap</UiMenuItem>
+                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}><ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن</UiMenuItem>
                                                             </CustomTooltip>
                                                         ) : (
                                                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kursu aktif yap" : ""}>
-                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}><ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap</UiMenuItem>
+                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}><ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن</UiMenuItem>
                                                             </CustomTooltip>
                                                         )
                                                     )}
                                                     {hasDeletePermission && (<UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>)}
-                                                    {hasDownloadPermission && (<UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon>Bu satırı indir</UiMenuItem>)}
+                                                    {hasDownloadPermission && (<UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon>دانلود این ردیف</UiMenuItem>)}
                                                 </Menu>
                                             </StyledTableCell>
                                         </TableRow>
                                     ))
-                                ) : (<TableRow><StyledTableCell colSpan={5} align="center"><Typography variant="subtitle1" color="textSecondary">Hiç kayıt bulunamadı.</Typography></StyledTableCell></TableRow>)}
+                                ) : (<TableRow><StyledTableCell colSpan={5} align="center"><Typography variant="subtitle1" color="textSecondary">هیچ رکوردی پیدا نشد.</Typography></StyledTableCell></TableRow>)}
                             </TableBody>
                         </Table>
                     )}
                 </TableContainer>
 
-                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredTeachers.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
+                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredTeachers.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
             </BlankCard>
 
             <Dialog open={openDownloadAllModal} onClose={() => setOpenDownloadAllModal(false)} maxWidth="xs">
-                <DialogTitle>Tüm Kayıtları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAllAction('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAllAction('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>دانلود همه‌ی رکوردها</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAllAction('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAllAction('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
-                <DialogTitle>Filtrelenmiş Kayıtları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFilteredAction('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFilteredAction('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>دانلود رکوردهای فیلترشده</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFilteredAction('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFilteredAction('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openRowDownloadModal} onClose={() => setOpenRowDownloadModal(false)} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
 

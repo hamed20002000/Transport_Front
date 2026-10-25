@@ -78,7 +78,7 @@ const DashboardStats = () => {
                 <Grid item xs={12} sm={6} md={2.4}>
                     <Box onClick={() => navigate('/hr/personnal/')} sx={{ cursor: 'pointer' }}>
                         <StatCard
-                            title="Personel"
+                            title="پرسنل"
                             total={stats.all_personnel}
                             active={stats.active_personnel}
                             activeLabel="Çalışanlar"

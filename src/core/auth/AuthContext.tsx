@@ -17,7 +17,7 @@ import {
   IconInbox, IconClockHour3, IconTag, IconUserX, IconBarcode, IconTruck, IconParking, IconHandGrab,
   IconSchool, IconNotebook, IconBooks, IconFileCertificate, IconFileImport, IconCrown, IconFileReport,
   IconFileText, IconListDetails, IconCarOff, IconFileSpreadsheet, IconClipboardData, IconCurrencyTaka,
-  IconLayoutDashboard, IconChartInfographic,IconNotification,IconBellRinging
+  IconLayoutDashboard, IconChartInfographic,IconNotification,IconBellRinging, IconSettings
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 interface UserRole {
@@ -79,6 +79,13 @@ interface ApiMenuItem {
     };
   }>;
 }
+
+// The subscription section of the admin panel; added for ADMIN accounts on top of the menus from the server.
+const ADMIN_SUBSCRIPTION_MENU = [
+  { id: 'subscription-plans', title: 'پلن‌های اشتراک', href: '/admin/subscription-plans', icon: IconCrown },
+  { id: 'subscription-orders', title: 'رسیدهای پرداخت', href: '/admin/subscription-orders', icon: IconReceipt },
+  { id: 'subscription-policy', title: 'تنظیمات اشتراک', href: '/admin/subscription-policy', icon: IconSettings },
+];
 
 export interface MenuitemsType {
   id?: string;
@@ -523,7 +530,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const authContextValue: AuthContextType = {
     username, userRoles, activeRoleName, activeRoleId, allowedOperations,
     menuItems: isAuth && userRoles.some(role => role.name === 'ADMIN')
-      ? [...menuItems.filter(item => item.href !== '/admin/subscription-plans'), { id: 'subscription-plans', title: 'پلن‌های اشتراک', href: '/admin/subscription-plans', icon: IconCrown }]
+      ? [
+        ...menuItems.filter(item => !ADMIN_SUBSCRIPTION_MENU.some(extra => extra.href === item.href)),
+        ...ADMIN_SUBSCRIPTION_MENU,
+      ]
       : menuItems, isAuthDataLoading, updateActiveRole, loadAuthData, isAuth,
   };
 

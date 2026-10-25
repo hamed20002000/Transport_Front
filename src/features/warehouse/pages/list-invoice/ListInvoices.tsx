@@ -348,9 +348,9 @@ const ListInvoices = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const hasStatusPermission = useMemo(() => hasPermission("Onaylamak"), [allowedOperations, currentMenuOpIds]);
 
@@ -368,8 +368,8 @@ const ListInvoices = () => {
             const date = new Date(dateString);
             return format(date, 'dd MMMM yyyy', { locale: tr });
         } catch (e) {
-            console.log("Tarih biçimlendirilirken hata oluştu:", e);
-            return "Geçersiz Tarih";
+            console.log("خطا در قالب‌بندی تاریخ:", e);
+            return "تاریخ نامعتبر";
         }
     };
 
@@ -383,7 +383,7 @@ const ListInvoices = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -392,7 +392,7 @@ const ListInvoices = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -410,7 +410,7 @@ const ListInvoices = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -422,12 +422,12 @@ const ListInvoices = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
@@ -467,7 +467,7 @@ const ListInvoices = () => {
         });
         autoTable(doc, {
             startY: 90,
-            head: [['Tedarikçi', 'Ürün', 'Miktar', 'Birim', 'Fiyat', 'Indirimsiz', 'İndirim %', 'İnd. Miktarı', 'Top. İndirim', 'Top. Fiyat', 'Açıklama']],
+            head: [['تأمین‌کننده', 'کالا', 'مقدار', 'واحد', 'قیمت', 'Indirimsiz', 'تخفیف ٪', 'İnd. Miktarı', 'Top. İndirim', 'Top. Fiyat', 'توضیحات']],
             body: rows,
             theme: 'grid',
             styles: { font: 'Arial', fontStyle: 'normal', fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
@@ -479,17 +479,17 @@ const ListInvoices = () => {
                 9: { cellWidth: 25 }, 10: { cellWidth: 'auto' },
             },
             didDrawPage: () => {
-                addPdfHeader(doc, `Fatura Detayları`);
+                addPdfHeader(doc, `جزئیات فاکتور`);
                 doc.setFont('Arial');
                 doc.setFontSize(10);
-                doc.text(`Fatura No: ${invoice.invoiceNo || '-'}`, 15, 47);
+                doc.text(`شماره فاکتور: ${invoice.invoiceNo || '-'}`, 15, 47);
                 const hasOrder = invoice.invoiceDetails.some(detail => detail.orderDetail);
-                const supplyType = hasOrder ? 'Siparişli Fatura' : 'Siparişsiz Fatura';
+                const supplyType = hasOrder ? 'فاکتور با سفارش' : 'فاکتور بدون سفارش';
                 doc.text(`Tedarik Tipi: ${supplyType}`, 15, 54);
-                doc.text(`Sürücü: ${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`, 15, 61);
-                doc.text(`Depo: ${invoice.warehouse?.name || '-'}`, 15, 68);
-                doc.text(`Tarih: ${formatDateDisplay(invoice.docDate)}`, 15, 75);
-                doc.text(`Genel Açıklama: ${invoice.description || '-'}`, 15, 82);
+                doc.text(`راننده: ${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`, 15, 61);
+                doc.text(`انبار: ${invoice.warehouse?.name || '-'}`, 15, 68);
+                doc.text(`تاریخ: ${formatDateDisplay(invoice.docDate)}`, 15, 75);
+                doc.text(`توضیحات کلی: ${invoice.description || '-'}`, 15, 82);
                 addPdfFooter(doc);
             },
             showHead: 'everyPage',
@@ -502,7 +502,7 @@ const ListInvoices = () => {
         let grandTotalPdf = 0;
 
         invoice.invoiceDetails.forEach(detail => {
-            const unitTitle = detail.item?.unit?.title || "Diğer";
+            const unitTitle = detail.item?.unit?.title || "سایر";
             const qty = cleanAndConvertNumber(detail.quantity);
             const price = cleanAndConvertNumber(detail.price);
             const discAmount = cleanAndConvertNumber(detail.discountAmount);
@@ -522,7 +522,7 @@ const ListInvoices = () => {
 
             autoTable(doc, {
                 startY: finalY + 5,
-                head: [['Birim', 'Toplam Tutar (Net)']],
+                head: [['واحد', 'Toplam Tutar (Net)']],
                 body: summaryRows,
                 theme: 'grid',
                 styles: { font: 'Arial', fontSize: 10 },
@@ -533,13 +533,13 @@ const ListInvoices = () => {
         }
 
         doc.save(`Fatura_${invoice.id}.pdf`);
-        showAlert('PDF başarıyla oluşturuldu.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
     };
 
     const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number) => {
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل',
         ];
         let rowNum = startRow;
@@ -558,21 +558,21 @@ const ListInvoices = () => {
         const worksheet = workbook.addWorksheet(`Fatura_${invoice.id}`);
         worksheet.views = [{ rightToLeft: false }];
 
-        worksheet.addRow(['Fatura Detayları']).font = { name: 'Arial', size: 12, bold: true };
+        worksheet.addRow(['جزئیات فاکتور']).font = { name: 'Arial', size: 12, bold: true };
         worksheet.mergeCells('A1:I1');
         worksheet.getCell('A1').alignment = { horizontal: 'center' };
-        worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+        worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
         worksheet.getCell('A2').font = { name: 'Arial', size: 10, bold: false };
         worksheet.getCell('A2').alignment = { horizontal: 'left' };
         worksheet.addRow([]);
 
-        worksheet.addRow(['Fatura No', invoice.invoiceNo || '-']);
-        worksheet.addRow(['Sürücü', `${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`]);
-        worksheet.addRow(['Depo', invoice.warehouse?.name || '-']);
-        worksheet.addRow(['Tarih', formatDateDisplay(invoice.docDate)]);
-        worksheet.addRow(['Genel Açıklama', invoice.description || '-']);
+        worksheet.addRow(['شماره فاکتور', invoice.invoiceNo || '-']);
+        worksheet.addRow(['راننده', `${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`]);
+        worksheet.addRow(['انبار', invoice.warehouse?.name || '-']);
+        worksheet.addRow(['تاریخ', formatDateDisplay(invoice.docDate)]);
+        worksheet.addRow(['توضیحات کلی', invoice.description || '-']);
         worksheet.addRow([]);
-        const tableHeaders = ['Tedarikçi', 'Ürün Adı', 'Miktar', 'Birim', 'Birim Fiyat', 'Indirimsiz Fiyat', 'İndirim %', 'İndirim Miktarı', 'Toplam İndirim', 'Toplam Fiyat', 'Açıklama'];
+        const tableHeaders = ['تأمین‌کننده', 'نام کالا', 'مقدار', 'واحد', 'قیمت واحد', 'قیمت بدون تخفیف', 'تخفیف ٪', 'مقدار تخفیف', 'تخفیف کل', 'قیمت کل', 'توضیحات'];
 
         const headerRow = worksheet.addRow(tableHeaders);
         headerRow.font = { name: 'Arial', bold: true };
@@ -606,7 +606,7 @@ const ListInvoices = () => {
         let grandTotalExcel = 0;
 
         invoice.invoiceDetails.forEach(detail => {
-            const unitTitle = detail.item?.unit?.title || "Diğer";
+            const unitTitle = detail.item?.unit?.title || "سایر";
             const qty = cleanAndConvertNumber(detail.quantity);
             const price = cleanAndConvertNumber(detail.price);
             const discAmount = cleanAndConvertNumber(detail.discountAmount);
@@ -636,7 +636,7 @@ const ListInvoices = () => {
 
         workbook.xlsx.writeBuffer().then((buffer: any) => {
             saveAs(new Blob([buffer]), `Fatura_${invoice.id}.xlsx`);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         });
     };
 
@@ -659,15 +659,15 @@ const ListInvoices = () => {
         const header = (invoice: InvoiceType) => {
             addPdfHeader(doc, 'Fatura Raporu');
             const hasOrder = invoice.invoiceDetails.some(detail => detail.orderDetail);
-            const supplyType = hasOrder ? 'Siparişli Fatura' : 'Siparişsiz Fatura';
+            const supplyType = hasOrder ? 'فاکتور با سفارش' : 'فاکتور بدون سفارش';
 
             doc.setFontSize(10);
-            doc.text(`Fatura No: ${invoice.invoiceNo || '-'}`, 15, 47);
+            doc.text(`شماره فاکتور: ${invoice.invoiceNo || '-'}`, 15, 47);
             doc.text(`Tedarik Tipi: ${supplyType}`, 15, 54);
-            doc.text(`Sürücü: ${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`, 15, 61);
-            doc.text(`Depo: ${invoice.warehouse?.name || '-'}`, 15, 68);
-            doc.text(`Tarih: ${formatDateDisplay(invoice.docDate)}`, 15, 75);
-            doc.text(`Genel Açıklama: ${invoice.description || '-'}`, 15, 82);
+            doc.text(`راننده: ${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`, 15, 61);
+            doc.text(`انبار: ${invoice.warehouse?.name || '-'}`, 15, 68);
+            doc.text(`تاریخ: ${formatDateDisplay(invoice.docDate)}`, 15, 75);
+            doc.text(`توضیحات کلی: ${invoice.description || '-'}`, 15, 82);
         };
 
         const footer = () => addPdfFooter(doc);
@@ -678,7 +678,7 @@ const ListInvoices = () => {
 
                 const rows = invoice.invoiceDetails.map(detail => [
                     detail.provider?.name || invoice.provider?.name || '-',
-                    detail.firm ? 'Şirket İçi' : 'Şirket Dışı',
+                    detail.firm ? 'داخل شرکت' : 'خارج از شرکت',
                     detail.item?.name || '-',
                     Number(detail.quantity).toFixed(2) || '-',
                     detail.item?.unit?.title || '-',
@@ -690,7 +690,7 @@ const ListInvoices = () => {
 
                 autoTable(doc, {
                     startY: 90,
-                    head: [['Tedarikçi', 'Firm', 'Ürün Adı', 'Miktar', 'Birim', 'Fiyat', 'İndirim %', 'İndirim Miktarı', 'Açıklama']],
+                    head: [['تأمین‌کننده', 'Firm', 'نام کالا', 'مقدار', 'واحد', 'قیمت', 'تخفیف ٪', 'مقدار تخفیف', 'توضیحات']],
                     body: rows,
                     theme: 'grid',
                     styles: { font: 'Arial', fontStyle: 'normal', fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
@@ -711,7 +711,7 @@ const ListInvoices = () => {
                 let grandTotalPdf = 0;
 
                 invoice.invoiceDetails.forEach(detail => {
-                    const unitTitle = detail.item?.unit?.title || "Diğer";
+                    const unitTitle = detail.item?.unit?.title || "سایر";
 
                     const qty = cleanAndConvertNumber(detail.quantity);
                     const price = cleanAndConvertNumber(detail.price);
@@ -736,7 +736,7 @@ const ListInvoices = () => {
 
                     autoTable(doc, {
                         startY: finalY + 10,
-                        head: [['Birim', 'Toplam Tutar ((Miktar x Fiyat) - İndirim)']],
+                        head: [['واحد', 'Toplam Tutar ((Miktar x Fiyat) - İndirim)']],
                         body: summaryRows,
                         theme: 'grid',
                         styles: { font: 'Arial', fontSize: 10, fontStyle: 'normal' },
@@ -755,10 +755,10 @@ const ListInvoices = () => {
                 }
             });
             doc.save(isFiltered ? `Filtrelenmis_Faturalar.pdf` : `Tum_Faturalar.pdf`);
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("PDF oluşturulurken bir hata oluştu: ", error);
-            showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+            console.error("هنگام ساخت PDF خطایی رخ داد: ", error);
+            showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
         }
     };
 
@@ -775,22 +775,22 @@ const ListInvoices = () => {
             const worksheet = workbook.addWorksheet(`Fatura_${invoice.id}`);
             worksheet.views = [{ rightToLeft: false }];
 
-            worksheet.addRow(['Fatura Detayları']).font = { name: 'Arial', size: 12, bold: true };
+            worksheet.addRow(['جزئیات فاکتور']).font = { name: 'Arial', size: 12, bold: true };
             worksheet.mergeCells('A1:I1');
             worksheet.getCell('A1').alignment = { horizontal: 'center' };
-            worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
             worksheet.getCell('A2').font = { name: 'Arial', size: 10, bold: false };
             worksheet.getCell('A2').alignment = { horizontal: 'left' };
             worksheet.addRow([]);
 
-            worksheet.addRow(['Fatura No', invoice.invoiceNo || '-']);
-            worksheet.addRow(['Sürücü', `${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`]);
-            worksheet.addRow(['Depo', invoice.warehouse?.name || '-']);
-            worksheet.addRow(['Tarih', formatDateDisplay(invoice.docDate)]);
-            worksheet.addRow(['Genel Açıklama', invoice.description || '-']);
+            worksheet.addRow(['شماره فاکتور', invoice.invoiceNo || '-']);
+            worksheet.addRow(['راننده', `${invoice.driver?.name || ''} ${invoice.driver?.family || ''}`]);
+            worksheet.addRow(['انبار', invoice.warehouse?.name || '-']);
+            worksheet.addRow(['تاریخ', formatDateDisplay(invoice.docDate)]);
+            worksheet.addRow(['توضیحات کلی', invoice.description || '-']);
             worksheet.addRow([]);
 
-            const tableHeaders = ['Tedarikçi', 'Firm', 'Ürün Adı', 'Miktar', 'Birim', 'Fiyat', 'İndirim %', 'İndirim Miktarı', 'Açıklama'];
+            const tableHeaders = ['تأمین‌کننده', 'Firm', 'نام کالا', 'مقدار', 'واحد', 'قیمت', 'تخفیف ٪', 'مقدار تخفیف', 'توضیحات'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.font = { name: 'Arial', bold: true };
             headerRow.eachCell(cell => {
@@ -801,7 +801,7 @@ const ListInvoices = () => {
             invoice.invoiceDetails.forEach(detail => {
                 worksheet.addRow([
                     detail.provider?.name || invoice.provider?.name || '-',
-                    detail.firm ? 'Şirket İçi' : 'Şirket Dışı',
+                    detail.firm ? 'داخل شرکت' : 'خارج از شرکت',
                     detail.item?.name || '-',
                     Number(detail.quantity),
                     detail.item?.unit?.title || '-',
@@ -830,7 +830,7 @@ const ListInvoices = () => {
             let grandTotalExcel = 0;
 
             invoice.invoiceDetails.forEach(detail => {
-                const unitTitle = detail.item?.unit?.title || "Diğer";
+                const unitTitle = detail.item?.unit?.title || "سایر";
 
                 const qty = cleanAndConvertNumber(detail.quantity);
                 const price = cleanAndConvertNumber(detail.price);
@@ -848,7 +848,7 @@ const ListInvoices = () => {
                 worksheet.addRow([]);
                 worksheet.addRow(['Birim Bazlı Toplamlar ((Miktar x Fiyat) - İndirim)']).font = { name: 'Arial', size: 12, bold: true };
 
-                const summaryHeaderRow = worksheet.addRow(['Birim', 'Toplam Tutar']);
+                const summaryHeaderRow = worksheet.addRow(['واحد', 'مبلغ کل']);
                 summaryHeaderRow.font = { name: 'Arial', bold: true };
                 summaryHeaderRow.eachCell(cell => {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } };
@@ -870,7 +870,7 @@ const ListInvoices = () => {
         workbook.xlsx.writeBuffer().then((buffer: any) => {
             const fileName = isFiltered ? `Filtrelenmis_Faturalar.xlsx` : `Tum_Faturalar.xlsx`;
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         });
     };
     const handleCloseDriverModal = () => {
@@ -915,7 +915,7 @@ const ListInvoices = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             setLoadingData(false);
             return;
         }
@@ -949,15 +949,15 @@ const ListInvoices = () => {
                 setVehiclesList([]);
                 setSelectedVehicle(null);
                 setSelectedVehicleName(null);
-                showAlert('Araç bilgileri yüklenirken bir hata oluştu.', 'error');
+                showAlert('هنگام بارگذاری اطلاعات خودرو خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -986,21 +986,21 @@ const ListInvoices = () => {
                     firm: item.firm ? '1' : '0',
                     recordStatus: item.recordStatus,
                     createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     region: item.region
                 }));
                 setProviders(providersWithStatus);
             } else {
-                showAlert(response.data.message || 'Sağlayıcılar yüklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام بارگذاری تأمین‌کنندگان خطایی رخ داد.', 'error');
                 setProviders([]);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -1026,7 +1026,7 @@ const ListInvoices = () => {
                     name: item.name || '',
                     family: item.family || '',
                     recordStatus: item.recordStatus,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     internal: item.internal ? '1' : '0'
                 }));
                 setDrivers(driversWithStatus);
@@ -1035,12 +1035,12 @@ const ListInvoices = () => {
                 setDrivers([]);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -1063,14 +1063,14 @@ const ListInvoices = () => {
                 const filtered = fetchedInvoices.filter(inv => inv?.warehouse !== null && inv?.workhouse === null);
 
                 setInvoicesList(filtered);
-            } else { showAlert(response.data.message || 'Faturalar yüklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام بارگذاری فاکتورها خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingData(false); }
     }, [navigate]);
 
@@ -1085,14 +1085,14 @@ const ListInvoices = () => {
             const response = await axios.get(server.baseurl + server.baseinfo + "get-item", { headers: { "Authorization": `Bearer ${authToken}` } });
             if (response.data && response.data.success) {
                 setItemsList(response.data.data.filter((item: ItemType) => item.recordStatus === 0));
-            } else { showAlert('Ürünler yüklenmedi.', 'error'); }
+            } else { showAlert('کالاها بارگذاری نشدند.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -1127,12 +1127,12 @@ const ListInvoices = () => {
             }
         }
         catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
             setWarehousesList([]);
         } finally {
             setLoadingData(false);
@@ -1189,7 +1189,7 @@ const ListInvoices = () => {
         if (!shouldEnd) { setOpenIsEndModal(false); return; }
         try {
             const authToken = localStorage.getItem('authToken');
-            if (!authToken) { navigate("/"); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); return; }
+            if (!authToken) { navigate("/"); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); return; }
             if (!selectedOrderIdFromChild || isNaN(Number(selectedOrderIdFromChild))) { setOpenIsEndModal(false); return; }
 
             await axios.put(
@@ -1199,12 +1199,12 @@ const ListInvoices = () => {
             );
             showAlert('Sipariş başarıyla sonlandırıldı.', 'success');
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setOpenIsEndModal(false);
         }
@@ -1251,12 +1251,12 @@ const ListInvoices = () => {
                 showAlert('Fatura başarıyla kaydedildi!', 'success');
             } else { showAlert(response.data.message || 'Fatura kaydedilirken bir hata oluştu.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -1294,16 +1294,16 @@ const ListInvoices = () => {
                 resetForm();
                 getInvoices();
                 showAlert('Fatura başarıyla güncellendi!', 'success');
-            } else { showAlert(response.data.message || 'Fatura güncellenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام به‌روزرسانی فاکتور خطایی رخ داد.', 'error'); }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert('Fatura güncellenirken bir hata oluştu.', 'error');
+                showAlert('هنگام به‌روزرسانی فاکتور خطایی رخ داد.', 'error');
             }
         }
     };
@@ -1321,7 +1321,7 @@ const ListInvoices = () => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 navigate("/");
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 return;
             }
 
@@ -1354,14 +1354,14 @@ const ListInvoices = () => {
                     setVehiclesList([]);
                     setSelectedVehicle(null);
                     setSelectedVehicleName(null);
-                    showAlert('Araç bilgileri yüklenirken bir hata oluştu.', 'error');
+                    showAlert('هنگام بارگذاری اطلاعات خودرو خطایی رخ داد.', 'error');
                 }
             } catch (e: any) {
                 console.error("Failed to fetch vehicles:", e);
                 setVehiclesList([]);
                 setSelectedVehicle(null);
                 setSelectedVehicleName(null);
-                showAlert('Araç bilgileri yüklenirken bir hata oluştu.', 'error');
+                showAlert('هنگام بارگذاری اطلاعات خودرو خطایی رخ داد.', 'error');
             }
         } else {
             setDriver('');
@@ -1467,18 +1467,18 @@ const ListInvoices = () => {
                 { headers: { "Authorization": `Bearer ${authToken}` } }
             );
             if (response.data.httpStatusCode === 200) {
-                showAlert('Sipariş durumu başarıyla güncellendi!', 'success');
+                showAlert('وضعیت سفارش با موفقیت به‌روزرسانی شد!', 'success');
                 getInvoices();
             } else {
-                showAlert(response.data.message || 'Sipariş durumu güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت سفارش خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseStatusModal();
             getInvoices();
@@ -1570,7 +1570,7 @@ const ListInvoices = () => {
         let grandTotal = 0;
 
         modalDetails.forEach((detail) => {
-            const unitTitle = detail.item?.unit?.title || "Diğer";
+            const unitTitle = detail.item?.unit?.title || "سایر";
             const qty = cleanAndConvertNumber(detail.quantity);
             const price = cleanAndConvertNumber(detail.price);
             const discAmount = cleanAndConvertNumber(detail.discountAmount);
@@ -1587,7 +1587,7 @@ const ListInvoices = () => {
     return (
         <Box mt={2}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-                <Typography variant="h6" mb={2}>Fatura Detayları</Typography>
+                <Typography variant="h6" mb={2}>جزئیات فاکتور</Typography>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="stretch" flexGrow={1} justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}>
                     {!isFormVisible && hasCreatePermission && (
                         <CustomTooltip title={isTooltipGloballyEnabled ? "Yeni Fatura Belgesi kaydetmek için tıklayınız" : ""}>
@@ -1597,7 +1597,7 @@ const ListInvoices = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button variant="contained" color="error" onClick={resetForm} fullWidth={false} startIcon={<IconX size={20} />}>
                                 Gizle
                             </Button>
@@ -1611,7 +1611,7 @@ const ListInvoices = () => {
                     <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={4}>
-                                <CustomFormLabel htmlFor="driver-autocomplete" required>Sürücü</CustomFormLabel>
+                                <CustomFormLabel htmlFor="driver-autocomplete" required>راننده</CustomFormLabel>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Autocomplete<DriverType>
                                         id="driver-autocomplete"
@@ -1646,14 +1646,14 @@ const ListInvoices = () => {
                             </Grid>
 
                             <Grid item xs={12} md={4}>
-                                <CustomFormLabel htmlFor="warehouse-autocomplete" required>Depo</CustomFormLabel>
+                                <CustomFormLabel htmlFor="warehouse-autocomplete" required>انبار</CustomFormLabel>
                                 <Autocomplete<WarehouseType>
                                     id="warehouse-autocomplete"
                                     options={warehousesList}
                                     getOptionLabel={(option) => option.name}
                                     value={warehousesList.find(w => w.id === warehouse) || null}
                                     onChange={(_event, newValue) => setWarehouse(newValue ? newValue.id : null)}
-                                    renderInput={(params) => <TextField {...params} label="Depo Seçin" variant="outlined" size="small" />}
+                                    renderInput={(params) => <TextField {...params} label="انبار را انتخاب کنید" variant="outlined" size="small" />}
                                 />
                             </Grid>
 
@@ -1673,7 +1673,7 @@ const ListInvoices = () => {
                             </Grid>
 
                             <Grid item xs={12}>
-                                <CustomFormLabel htmlFor="invoice-general-description">Açıklama</CustomFormLabel>
+                                <CustomFormLabel htmlFor="invoice-general-description">توضیحات</CustomFormLabel>
                                 <TextField
                                     id="invoice-general-description"
                                     label="Fatura için genel açıklama giriniz"
@@ -1706,8 +1706,8 @@ const ListInvoices = () => {
                         <Box mt={3} textAlign="right">
                             {editingId ? (
                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                    <Button variant="contained" color="info" onClick={handleUpdateInvoice}>Düzenle</Button>
-                                    <Button variant="outlined" color="secondary" onClick={resetForm}>İptal Et</Button>
+                                    <Button variant="contained" color="info" onClick={handleUpdateInvoice}>ویرایش</Button>
+                                    <Button variant="outlined" color="secondary" onClick={resetForm}>لغو</Button>
                                 </Stack>
                             ) : (
                                 <>
@@ -1750,14 +1750,14 @@ const ListInvoices = () => {
                                     disabled={loadingData}
                                     startIcon={<IconFileDownload />}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
                         {hasDownloadPermission && (
                             <CustomTooltip title={isTooltipGloballyEnabled ? "Tümünü Fatura indirin" : ""}>
                                 <Button variant="contained" color="primary" onClick={handleOpenDownloadAllModal} startIcon={<IconFileDownload />} disabled={loadingData}>
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         )}
@@ -1798,7 +1798,7 @@ const ListInvoices = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={startDate}
                                         onChange={(newValue) => setStartDate(newValue)}
                                         inputFormat="dd/MM/yyyy"
@@ -1808,7 +1808,7 @@ const ListInvoices = () => {
                                     />
 
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={endDate}
                                         onChange={(newValue) => setEndDate(newValue)}
                                         inputFormat="dd/MM/yyyy"
@@ -1826,9 +1826,9 @@ const ListInvoices = () => {
 
                         <Grid item xs={12} sm={6} md={5}>
                             <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="Status filter" fullWidth>
-                                <StyledToggleButton value="all" aria-label="all invoices">Tümü</StyledToggleButton>
+                                <StyledToggleButton value="all" aria-label="all invoices">همه</StyledToggleButton>
                                 <StyledToggleButton value="pending" aria-label="pending invoices">Beklemede</StyledToggleButton>
-                                <StyledToggleButton value="approved" aria-label="approved invoices">Onaylandı</StyledToggleButton>
+                                <StyledToggleButton value="approved" aria-label="approved invoices">تأیید شد</StyledToggleButton>
                                 <StyledToggleButton value="rejected" aria-label="rejected invoices">Reddedildi</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1841,29 +1841,29 @@ const ListInvoices = () => {
                             <TableRow>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'invoiceNo'} direction={orderBy === 'invoiceNo' ? order : 'asc'} onClick={() => handleRequestSort('invoiceNo')}>
-                                        <Typography variant="h6">Fatura No</Typography>
+                                        <Typography variant="h6">شماره فاکتور</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'driver.name'} direction={orderBy === 'driver.name' ? order : 'asc'} onClick={() => handleRequestSort('driver.name')}>
-                                        <Typography variant="h6">Sürücü</Typography>
+                                        <Typography variant="h6">راننده</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Depo</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">انبار</Typography></StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'docDate'} direction={orderBy === 'docDate' ? order : 'asc'} onClick={() => handleRequestSort('docDate')}>
                                         <Typography variant="h6">Tarihi</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
 
-                                <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'status'} direction={orderBy === 'status' ? order : 'asc'} onClick={() => handleRequestSort('status')}>
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Ürün Detayları</Typography></StyledTableCell>
-                                <StyledTableCell align="right"><Typography variant="h6">İşlemler</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">جزئیات کالا</Typography></StyledTableCell>
+                                <StyledTableCell align="right"><Typography variant="h6">عملیات</Typography></StyledTableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -1879,14 +1879,14 @@ const ListInvoices = () => {
                                             <StyledTableCell><Typography variant="body1">{formatDateDisplay(row.docDate)}</Typography></StyledTableCell>
                                             <StyledTableCell sx={{ maxWidth: 150 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
 
                                                             variant="outlined"
                                                             style={{ fontSize: "10px", }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamayı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1900,7 +1900,7 @@ const ListInvoices = () => {
                                                 <Stack direction="row" spacing={1} alignItems="center">
 
                                                     <Chip
-                                                        label={row.status === 0 ? "Beklemede" : row.status === 1 ? "Onaylandı" : "Reddedildi"}
+                                                        label={row.status === 0 ? "Beklemede" : row.status === 1 ? "تأیید شد" : "Reddedildi"}
                                                         color={row.status === 0 ? "warning" : row.status === 1 ? "success" : "error"}
                                                     />
                                                     {row.invoiceHeaderStatusHistories && row.invoiceHeaderStatusHistories.length > 0 && (
@@ -1913,7 +1913,7 @@ const ListInvoices = () => {
                                             </StyledTableCell>
                                             <StyledTableCell>
                                                 <Button variant="outlined" startIcon={<IconEye />}
-                                                    onClick={() => handleOpenModal(row)}>Görünüm</Button>
+                                                    onClick={() => handleOpenModal(row)}>نما</Button>
                                             </StyledTableCell>
                                             <StyledTableCell align="right">
                                                 <IconButton id={`basic-button-${row.id}`} aria-controls={Boolean(anchorEl) ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={Boolean(anchorEl) ? 'true' : undefined} onClick={(event) => handleClickMenu(event, row)}>
@@ -1922,36 +1922,36 @@ const ListInvoices = () => {
                                                 <Menu id="basic-menu" anchorEl={anchorEl} open={Boolean(anchorEl) && selectedInvoiceForMenu?.id === row.id} onClose={handleCloseMenu} MenuListProps={{ 'aria-labelledby': `basic-button-${row.id}` }}>
                                                     {hasStatusPermission && selectedInvoiceForMenu?.status === 0 && (
                                                         <>
-                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu faturayı onaylayın" : ""}>
+                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "تأیید این فاکتور" : ""}>
                                                                 <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'approve')}>
-                                                                    <ListItemIcon><IconCheck size={18} /></ListItemIcon> Onayla
+                                                                    <ListItemIcon><IconCheck size={18} /></ListItemIcon> تأیید
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
-                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu faturayı reddedin" : ""}>
+                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "رد این فاکتور" : ""}>
                                                                 <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'reject')}>
-                                                                    <ListItemIcon><IconX size={18} /></ListItemIcon> Reddet
+                                                                    <ListItemIcon><IconX size={18} /></ListItemIcon> رد
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
                                                         </>
                                                     )}
                                                     {hasStatusPermission && selectedInvoiceForMenu?.status === 1 && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu faturayı reddedin" : ""}>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "رد این فاکتور" : ""}>
                                                             <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'reject')}>
-                                                                <ListItemIcon><IconX size={18} /></ListItemIcon> Reddet
+                                                                <ListItemIcon><IconX size={18} /></ListItemIcon> رد
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasStatusPermission && selectedInvoiceForMenu?.status === 2 && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu faturayı onaylayın" : ""}>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "تأیید این فاکتور" : ""}>
                                                             <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'approve')}>
-                                                                <ListItemIcon><IconCheck size={18} /></ListItemIcon> Onayla
+                                                                <ListItemIcon><IconCheck size={18} /></ListItemIcon> تأیید
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasEditPermission && selectedInvoiceForMenu?.status === 0 && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu faturayı düzenleyin" : ""}>
                                                             <UiMenuItem onClick={() => handleEditClick(row)}>
-                                                                <ListItemIcon><IconEdit size={18} /></ListItemIcon> Düzenle
+                                                                <ListItemIcon><IconEdit size={18} /></ListItemIcon> ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1965,7 +1965,7 @@ const ListInvoices = () => {
                                                     {hasDownloadPermission && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Fatura dosyasını indir" : ""}>
                                                             <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}>
-                                                                <ListItemIcon><IconFileDownload size={18} /></ListItemIcon> Bu satırı indir
+                                                                <ListItemIcon><IconFileDownload size={18} /></ListItemIcon> دانلود این ردیف
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1985,26 +1985,26 @@ const ListInvoices = () => {
             </BlankCard>
 
             <Dialog open={openModal} onClose={handleCloseModal} maxWidth="xl" fullWidth>
-                <DialogTitle>Fatura Detayları</DialogTitle>
+                <DialogTitle>جزئیات فاکتور</DialogTitle>
                 <DialogContent dividers>
                     <TableContainer component={Paper}>
                         <Table size="small" aria-label="Fatura detayları tablosu">
 
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Tedarikçi</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Firma</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Ürün Adı</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Miktar</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Birim</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Birim Fiyat</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Indirimsiz Fiyat</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تأمین‌کننده</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">شرکت</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">نام کالا</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">مقدار</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">واحد</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">قیمت واحد</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">قیمت بدون تخفیف</Typography></StyledTableCell>
 
-                                    <StyledTableCell><Typography variant="h6">İndirim %</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">İndirim Miktarı</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Toplam İndirim</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Toplam Fiyat</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تخفیف ٪</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">مقدار تخفیف</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تخفیف کل</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">قیمت کل</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -2047,8 +2047,8 @@ const ListInvoices = () => {
                                     <Table size="small">
                                         <TableHead>
                                             <TableRow>
-                                                <StyledTableCell sx={{ fontWeight: 'bold', color: '#555' }}>Birim</StyledTableCell>
-                                                <StyledTableCell align="right" sx={{ fontWeight: 'bold', color: '#555' }}>Toplam Tutar (TL)</StyledTableCell>
+                                                <StyledTableCell sx={{ fontWeight: 'bold', color: '#555' }}>واحد</StyledTableCell>
+                                                <StyledTableCell align="right" sx={{ fontWeight: 'bold', color: '#555' }}>مبلغ کل (تومان)</StyledTableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -2095,7 +2095,7 @@ const ListInvoices = () => {
                             onClick={() => viewedInvoice && exportToPdf(viewedInvoice)}
                             disabled={!viewedInvoice}
                         >
-                            PDF İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -2106,11 +2106,11 @@ const ListInvoices = () => {
                             onClick={() => viewedInvoice && exportToExcel(viewedInvoice)}
                             disabled={!viewedInvoice}
                         >
-                            Excel İndir
+                            دانلود Excel
                         </Button>
                         <Button onClick={handleCloseModal} color="secondary" variant="outlined" fullWidth
                             sx={{ flex: 1 }} >
-                            Kapat
+                            بستن
                         </Button>
                     </Stack>
                 </DialogActions>
@@ -2128,15 +2128,15 @@ const ListInvoices = () => {
                     </RadioGroup>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenVehicleModal(false)} color="secondary">İptal</Button>
-                    <Button onClick={handleSelectVehicle} variant="contained" disabled={tempSelectedVehicle === null}>Seç</Button>
+                    <Button onClick={() => setOpenVehicleModal(false)} color="secondary">انصراف</Button>
+                    <Button onClick={handleSelectVehicle} variant="contained" disabled={tempSelectedVehicle === null}>انتخاب</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={openStatusModal} onClose={handleCloseStatusModal} maxWidth="sm" fullWidth>
-                <DialogTitle>{statusToUpdate === 1 ? 'Onaylama Açıklaması' : 'Reddetme Açıklaması'}</DialogTitle>
+                <DialogTitle>{statusToUpdate === 1 ? 'توضیح تأیید' : 'توضیح رد'}</DialogTitle>
                 <DialogContent>
                     <TextField
-                        autoFocus margin="dense" label="Açıklama" type="text" fullWidth multiline rows={4} variant="outlined"
+                        autoFocus margin="dense" label="توضیحات" type="text" fullWidth multiline rows={4} variant="outlined"
                         value={description}
                         onChange={(e) => { setDescription(e.target.value); if (statusError) setStatusError(false); }}
                         error={statusError}
@@ -2144,8 +2144,8 @@ const ListInvoices = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseStatusModal} color="secondary">İptal</Button>
-                    <Button onClick={handleUpdateStatus} color="primary">Kaydet</Button>
+                    <Button onClick={handleCloseStatusModal} color="secondary">انصراف</Button>
+                    <Button onClick={handleUpdateStatus} color="primary">ذخیره</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2156,9 +2156,9 @@ const ListInvoices = () => {
                         <Table size="small" aria-label="Durum geçmişi tablosu">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Tarih</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تاریخ</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -2170,7 +2170,7 @@ const ListInvoices = () => {
                                                 <StyledTableCell><Typography variant="body1">{formatDateDisplay(historyItem.createAt)}</Typography></StyledTableCell>
                                                 <StyledTableCell>
                                                     <Chip
-                                                        label={historyItem.status === 0 ? "Beklemede" : historyItem.status === 1 ? "Onaylandı" : "Reddedildi"}
+                                                        label={historyItem.status === 0 ? "Beklemede" : historyItem.status === 1 ? "تأیید شد" : "Reddedildi"}
                                                         color={historyItem.status === 0 ? "warning" : historyItem.status === 1 ? "success" : "error"}
                                                         size="small"
                                                     />
@@ -2178,7 +2178,7 @@ const ListInvoices = () => {
                                                 <StyledTableCell><Typography variant="body1">{historyItem.description || '-'}</Typography>
                                                     {historyItem.user?.username && (
                                                         <Typography variant="caption" color="textSecondary" sx={{ fontStyle: 'italic' }}>
-                                                            İşlem Yapan: {historyItem.user.username}
+                                                            انجام‌دهنده: {historyItem.user.username}
                                                         </Typography>
                                                     )}
                                                 </StyledTableCell>
@@ -2191,7 +2191,7 @@ const ListInvoices = () => {
                         </Table>
                     </TableContainer>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseStatusHistoryModal}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseStatusHistoryModal}>بستن</Button></DialogActions>
             </Dialog>
 
             <DeleteInvoiceModal
@@ -2204,33 +2204,33 @@ const ListInvoices = () => {
                 <DialogTitle>Tüm Faturaları İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" onClick={() => { exportAllDetailedPdf(false); handleCloseDownloadAllModal(); }} startIcon={<IconFile />}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" onClick={() => { exportAllExcel(false); handleCloseDownloadAllModal(); }} startIcon={<IconFileSpreadsheet />}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" onClick={() => { exportAllDetailedPdf(false); handleCloseDownloadAllModal(); }} startIcon={<IconFile />}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" onClick={() => { exportAllExcel(false); handleCloseDownloadAllModal(); }} startIcon={<IconFileSpreadsheet />}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseDownloadAllModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseDownloadAllModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={handleCloseDownloadFilteredModal} maxWidth="xs">
                 <DialogTitle>Filtrelenmiş Faturaları İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" onClick={() => { exportAllDetailedPdf(true); handleCloseDownloadFilteredModal(); }} startIcon={<IconFile />}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" onClick={() => { exportAllExcel(true); handleCloseDownloadFilteredModal(); }} startIcon={<IconFileSpreadsheet />}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" onClick={() => { exportAllDetailedPdf(true); handleCloseDownloadFilteredModal(); }} startIcon={<IconFile />}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" onClick={() => { exportAllExcel(true); handleCloseDownloadFilteredModal(); }} startIcon={<IconFileSpreadsheet />}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseDownloadFilteredModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseDownloadFilteredModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={handleCloseRowDownloadModal} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" onClick={() => handleRowDownload('pdf')} startIcon={<IconFile />}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" onClick={() => handleRowDownload('excel')} startIcon={<IconFileSpreadsheet />}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" onClick={() => handleRowDownload('pdf')} startIcon={<IconFile />}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" onClick={() => handleRowDownload('excel')} startIcon={<IconFileSpreadsheet />}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openIsEndModal} onClose={() => setOpenIsEndModal(false)}>
@@ -2257,7 +2257,7 @@ const ListInvoices = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -2265,7 +2265,7 @@ const ListInvoices = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -2290,7 +2290,7 @@ const ListInvoices = () => {
                             Sürücü Listesi ve Yönetimi
                         </Typography>
                         <Button autoFocus color="inherit" onClick={handleCloseDriverModal}>
-                            Kapat
+                            بستن
                         </Button>
                     </Toolbar>
                 </AppBar>

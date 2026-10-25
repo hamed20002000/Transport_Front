@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 import { DriverLayout } from './DriverShell';
 import { getDriverProfile } from './api';
-import { DriverBorders, DriverFilters, DriverHistory, DriverHome, DriverLoads, DriverProfile, DriverRequests, DriverTrip } from './pages';
+import { DriverBorders, DriverFilters, DriverHistory, DriverHome, DriverLoads, DriverProfile, DriverRequests, DriverSubscription, DriverTrip } from './pages';
 
 export const driverPanelRoutes: RouteObject[] = [
   {
@@ -15,6 +15,7 @@ export const driverPanelRoutes: RouteObject[] = [
       { path: '/account/driver/filters', element: <DriverFilters /> },
       { path: '/account/driver/profile', element: <DriverProfile /> },
       { path: '/account/driver/borders', element: <DriverBorders /> },
+      { path: '/account/driver/subscription', element: <DriverSubscription /> },
     ],
   },
 ];

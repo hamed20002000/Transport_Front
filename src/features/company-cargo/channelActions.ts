@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { removeChannel, type Channel } from './channelsApi';
 import type { CargoNotify } from './cargoActions';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 /**
  * Fired on window when a channel is changed from outside the channels page (the agent chat cards),
@@ -37,10 +38,11 @@ export function useChannelRemove({
 }) {
   const toast = useToast();
   const say = notify ?? { success: (message: string) => toast.success(message), error: (message: string) => toast.error(message) };
+  const messageBox = useMessageBox();
   const [removingId, setRemovingId] = useState('');
 
   async function remove(channel: Channel) {
-    if (removingId || !window.confirm(`«${channel.label || channel.identifier}» از لیست شما حذف شود؟ دیگر باری از آن دریافت نمی‌کنید.`)) return;
+    if (removingId || !(await messageBox.confirm({ message: `«${channel.label || channel.identifier}» از لیست شما حذف شود؟ دیگر باری از آن دریافت نمی‌کنید.`, tone: 'danger', confirmText: 'حذف' }))) return;
     setRemovingId(channel.id);
     try {
       await removeChannel(channel);

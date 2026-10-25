@@ -37,7 +37,7 @@ const DeleteLeaves = ({
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             onClose();
             navigate('/');
             return;
@@ -68,7 +68,7 @@ const DeleteLeaves = ({
                 setOpenInUseModal(true);
             } else if (e?.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate('/');
             } else {
                 const msg =
@@ -105,13 +105,13 @@ const DeleteLeaves = ({
                         >
                             Silmek
                         </span>
-                        düğmesine tıklayın.
+                        را بزنید.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? 'Silme işlemini iptal et' : ''}>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? 'لغو حذف' : ''}>
                         <Button onClick={onClose} disabled={loading}>
-                            İptal et
+                            لغو
                         </Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? 'Seçilen izin kaydını sil' : ''}>
@@ -155,7 +155,7 @@ const DeleteLeaves = ({
                         }}
                         autoFocus
                     >
-                        Tamam
+                        باشه
                     </Button>
                 </DialogActions>
             </Dialog>

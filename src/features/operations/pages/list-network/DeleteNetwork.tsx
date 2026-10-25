@@ -51,11 +51,11 @@ const DeleteNetwork = ({ openModal, networkIdToDelete, networkTitleToDelete, onC
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 const errorMessage = e.response?.data?.message || 'Şebekeler silinirken bir hata oluştu, lütfen tekrar deneyin.';
@@ -85,12 +85,12 @@ const DeleteNetwork = ({ openModal, networkIdToDelete, networkTitleToDelete, onC
                         <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>{networkTitleToDelete}</span> başlıklı Şebekeleri silmek üzeresiniz.
                         Eğer silerseniz, geri almanın bir yolu yoktur.
                         Kaydı silmek istediğinizden eminseniz,
-                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "İşlemi iptal et" : ""}>
-                        <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "لغو عملیات" : ""}>
+                        <Button onClick={onClose} disabled={loading}>لغو</Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen Şebekeleri kalıcı olarak sil" : ""}>
                         <Button
@@ -128,7 +128,7 @@ const DeleteNetwork = ({ openModal, networkIdToDelete, networkTitleToDelete, onC
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseNetworkInUseModal} autoFocus>
-                        Tamam
+                        باشه
                     </Button>
                 </DialogActions>
             </Dialog>

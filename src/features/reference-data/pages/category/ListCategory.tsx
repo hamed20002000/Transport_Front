@@ -244,9 +244,9 @@ const ListCategory = () => {
     );
   };
   const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-  const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+  const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
   const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-  const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+  const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
   const findCategoryById = useCallback((categories: ApiCategoryType[], id: string): ApiCategoryType | undefined => {
@@ -269,8 +269,8 @@ const ListCategory = () => {
       const date = new Date(dateString);
       return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-      console.log("Tarih biçimlendirilirken hata oluştu:", e);
-      return "Geçersiz Tarih";
+      console.log("خطا در قالب‌بندی تاریخ:", e);
+      return "تاریخ نامعتبر";
     }
   };
 
@@ -283,7 +283,7 @@ const ListCategory = () => {
         name: cat.name,
         createAt: cat.createAt,
         recordStatus: cat.recordStatus,
-        status: cat.recordStatus === 0 ? 'Aktif' : cat.recordStatus === 1 ? 'Pasif' : 'Silindi',
+        status: cat.recordStatus === 0 ? 'فعال' : cat.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
         parentId: cat.parentId,
         depth: cat.depth,
       }));
@@ -296,7 +296,7 @@ const ListCategory = () => {
           name: cat.name,
           createAt: cat.createAt,
           recordStatus: cat.recordStatus,
-          status: cat.recordStatus === 0 ? 'Aktif' : cat.recordStatus === 1 ? 'Pasif' : 'Silindi',
+          status: cat.recordStatus === 0 ? 'فعال' : cat.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
           parentId: cat.parentId,
           depth: cat.depth,
         }));
@@ -394,9 +394,9 @@ const ListCategory = () => {
     const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       setLoadingData(false);
       return false;
     }
@@ -422,7 +422,7 @@ const ListCategory = () => {
       if (axios.isAxiosError(e) && e.response?.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Kategoriler getirilirken hata oluştu:", e);
         showAlert('Kategoriler yüklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -438,7 +438,7 @@ const ListCategory = () => {
     if (!name.trim()) {
       setNameError(true);
       setNameHelperText('Kategori adı boş bırakılamaz!');
-      showAlert('İsim boş bırakılamaz!', 'warning');
+      showAlert('نام نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setNameError(false);
@@ -449,7 +449,7 @@ const ListCategory = () => {
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+      showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
       setLoadingButton(false);
       return;
     }
@@ -484,7 +484,7 @@ const ListCategory = () => {
       if (axios.isAxiosError(e) && e.response?.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Kategori eklenirken hata:", e);
         showAlert('Kategori eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -499,7 +499,7 @@ const ListCategory = () => {
     if (!name.trim()) {
       setNameError(true);
       setNameHelperText('Kategori adı boş bırakılamaz!');
-      showAlert('İsim boş bırakılamaz!', 'warning');
+      showAlert('نام نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setNameError(false);
@@ -510,7 +510,7 @@ const ListCategory = () => {
     const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
-      showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+      showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
       setLoadingButton(false);
       return;
     }
@@ -543,11 +543,11 @@ const ListCategory = () => {
 
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       } else {
         console.error("Kategori güncellenirken hata:", e);
@@ -562,7 +562,7 @@ const ListCategory = () => {
     clearAlert();
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+      showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
       return;
     }
 
@@ -586,20 +586,20 @@ const ListCategory = () => {
       });
 
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`Kategori başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`Kategori başarıyla ${statusText} تنظیم شد!`, 'success');
         await fetchCategories();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (axios.isAxiosError(e) && e.response?.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Durum güncellenirken hata:", e);
-        showAlert('Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert('هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
       }
     } finally {
       handleCloseMenu();
@@ -674,7 +674,7 @@ const ListCategory = () => {
       name: selectedCategory.name,
       createAt: selectedCategory.createAt,
       recordStatus: selectedCategory.recordStatus,
-      status: selectedCategory.recordStatus === 0 ? 'Aktif' : selectedCategory.recordStatus === 1 ? 'Pasif' : 'Silindi',
+      status: selectedCategory.recordStatus === 0 ? 'فعال' : selectedCategory.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
       parentId: selectedCategory.parentId,
       depth: selectedCategory.depth,
     } : null);
@@ -747,7 +747,7 @@ const ListCategory = () => {
       const row = [
         fullCategoryName,
         formatDateDisplay(category.createAt),
-        category.recordStatus === 0 ? 'Aktif' : 'Pasif'
+        category.recordStatus === 0 ? 'فعال' : 'غیرفعال'
       ];
       rows.push(row);
 
@@ -762,7 +762,7 @@ const ListCategory = () => {
     worksheet.addRow([]);
     const companyInfo = [
       'ترابوت',
-      'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+      'ترابوت، دستیار هوشمند حمل‌ونقل',
       'دستیار هوشمند حمل‌ونقل',
     ];
     companyInfo.forEach(line => {
@@ -781,7 +781,7 @@ const ListCategory = () => {
       return;
     }
 
-    showAlert('Excel dosyası oluşturuluyor...', 'info');
+    showAlert('در حال ساخت فایل Excel...', 'info');
 
     try {
       const workbook = new Excel.Workbook();
@@ -850,7 +850,7 @@ const ListCategory = () => {
       }
       worksheet.mergeCells('A2:C2');
 
-      worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+      worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
       const dateRow = worksheet.lastRow;
       if (dateRow) {
         dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -858,7 +858,7 @@ const ListCategory = () => {
       }
       worksheet.addRow([]);
 
-      const tableHeaders = ['Kategori Adı', 'Oluşturulma Tarihi', 'Durum'];
+      const tableHeaders = ['نام دسته‌بندی', 'تاریخ ایجاد', 'وضعیت'];
       const headerRow = worksheet.addRow(tableHeaders);
       headerRow.eachCell((cell) => {
         cell.style = fullHeaderStyle;
@@ -889,10 +889,10 @@ const ListCategory = () => {
       const fileName = `Tüm_Kategoriler_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
       saveAs(new Blob([buffer]), fileName);
 
-      showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+      showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
     } catch (error) {
-      console.error("Excel dışa aktarılırken hata:", error);
-      showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+      console.error("خطا در خروجی Excel:", error);
+      showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
     }
   };
 
@@ -906,7 +906,7 @@ const ListCategory = () => {
       const row = [
         fullCategoryName,
         formatDateDisplay(category.createAt),
-        category.recordStatus === 0 ? 'Aktif' : 'Pasif'
+        category.recordStatus === 0 ? 'فعال' : 'غیرفعال'
       ];
       rows.push(row);
 
@@ -940,7 +940,7 @@ const ListCategory = () => {
         try {
           pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
         } catch (e) {
-          console.error("Logo yüklenemedi", e);
+          console.error("لوگو بارگذاری نشد", e);
         }
 
         pdfDoc.setFont('NotoSans', 'normal');
@@ -950,7 +950,7 @@ const ListCategory = () => {
 
         pdfDoc.setFontSize(10);
         pdfDoc.setFont('NotoSans', 'bold');
-        pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+        pdfDoc.text(`تاریخ گزارش:`, 15, 40);
         pdfDoc.setFont('NotoSans', 'normal');
         pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -965,7 +965,7 @@ const ListCategory = () => {
 
         const companyInfo = [
           'ترابوت',
-          'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+          'ترابوت، دستیار هوشمند حمل‌ونقل',
           'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -977,19 +977,19 @@ const ListCategory = () => {
 
         pdfDoc.setTextColor(0);
         pdfDoc.setFontSize(10);
-        pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-        pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
       };
 
       const rows = flattenAndPrepareCategoriesForPdf(rawApiCategories);
 
       autoTable(doc, {
         startY: 55,
-        head: [['Kategori Adı', 'Oluşturulma Tarihi', 'Durum']],
+        head: [['نام دسته‌بندی', 'تاریخ ایجاد', 'وضعیت']],
         body: rows,
         theme: 'grid',
         styles: {
@@ -1018,7 +1018,7 @@ const ListCategory = () => {
       });
 
       doc.save(`${reportTitle.replace(/\s+/g, '_')}.pdf`);
-      showAlert('PDF başarıyla oluşturuldu.', 'success');
+      showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
     } catch (error: any) {
       console.error('PDF Error:', error);
       showAlert('PDF oluşturulurken hata oluştu.', 'error');
@@ -1061,7 +1061,7 @@ const ListCategory = () => {
               </CustomTooltip>
             )}
             {isFormVisible && (
-              <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+              <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                 <Button
                   variant="contained"
                   color="error"
@@ -1105,7 +1105,7 @@ const ListCategory = () => {
           <Grid container spacing={1}>
             <Grid item xs={12} sm={1} display="flex" alignItems="center">
               <CustomFormLabel htmlFor="category-name" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                İsim
+                نام
               </CustomFormLabel>
             </Grid>
             <Grid item xs={12} sm={7}>
@@ -1141,12 +1141,12 @@ const ListCategory = () => {
                       >
                         {loadingButton ? <>
                           <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                        </> : 'Düzenlemek'}
+                        </> : 'ویرایش'}
                       </Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni kategori moduna dön" : ""}>
                       <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                        İptal Et
+                        لغو
                       </Button>
                     </CustomTooltip>
                   </>
@@ -1188,14 +1188,14 @@ const ListCategory = () => {
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             {hasDownloadPermission && (
               <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                   <Button
                     variant="contained"
                     color="primary"
                     onClick={() => setOpenDownloadModal(true)}
                     startIcon={<IconFileDownload />}
                   >
-                    Tümünü İndir
+                    دانلود همه
                   </Button>
                 </CustomTooltip>
               </Grid>
@@ -1233,19 +1233,19 @@ const ListCategory = () => {
                   value="all"
                   aria-label="all categories"
                 >
-                  Tümü
+                  همه
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="active"
                   aria-label="active categories"
                 >
-                  Aktif
+                  فعال
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="inactive"
                   aria-label="inactive categories"
                 >
-                  Pasif
+                  غیرفعال
                 </StyledToggleButton>
               </ToggleButtonGroup>
             </Grid>
@@ -1268,7 +1268,7 @@ const ListCategory = () => {
                       onClick={() => handleRequestSort('name')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">İsim</Typography>
+                      <Typography variant="h6">نام</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell>
@@ -1278,7 +1278,7 @@ const ListCategory = () => {
                       onClick={() => handleRequestSort('createAt')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                      <Typography variant="h6">تاریخ ایجاد</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell>
@@ -1288,7 +1288,7 @@ const ListCategory = () => {
                       onClick={() => handleRequestSort('status')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Durum</Typography>
+                      <Typography variant="h6">وضعیت</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell style={{ color: "#171c23" }}>
@@ -1350,7 +1350,7 @@ const ListCategory = () => {
                         </CustomTooltip>
                       </StyledTableCell>
                       <StyledTableCell>
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                           <IconButton
                             id={`basic-button-${row.id}`}
                             aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1376,7 +1376,7 @@ const ListCategory = () => {
                                 <ListItemIcon>
                                   <DoNotDisturbOnRoundedIcon width={18} />
                                 </ListItemIcon>
-                                Pasif Yap
+                                غیرفعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1386,7 +1386,7 @@ const ListCategory = () => {
                                 <ListItemIcon>
                                   <DoneRoundedIcon width={18} />
                                 </ListItemIcon>
-                                Aktif Yap
+                                فعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1396,7 +1396,7 @@ const ListCategory = () => {
                                 <ListItemIcon>
                                   <IconEdit width={18} />
                                 </ListItemIcon>
-                                Düzenlemek
+                                ویرایش
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1435,7 +1435,7 @@ const ListCategory = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Satır başına düşen:"
+          labelRowsPerPage="تعداد در هر صفحه:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
         />
       </BlankCard>
@@ -1452,7 +1452,7 @@ const ListCategory = () => {
         open={openDownloadModal}
         onClose={() => setOpenDownloadModal(false)}
       >
-        <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+        <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
         <DialogContent>
           <Stack direction="column" spacing={2}>
             <Button
@@ -1461,7 +1461,7 @@ const ListCategory = () => {
               startIcon={<IconFileDownload />}
               onClick={handleDownloadAllCategoriesPDF}
             >
-              PDF Olarak İndir
+              دانلود PDF
             </Button>
             <Button
               variant="contained"
@@ -1469,13 +1469,13 @@ const ListCategory = () => {
               startIcon={<IconFileDownload />}
               onClick={handleExportExcel}
             >
-              Excel Olarak İndir
+              دانلود Excel
             </Button>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-            İptal
+            انصراف
           </Button>
         </DialogActions>
       </Dialog>

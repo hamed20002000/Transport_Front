@@ -115,7 +115,7 @@ const FinalCalculationModal: React.FC<FinalCalculationModalProps> = ({ open, onC
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
             setLoading(false);
             return;
@@ -152,7 +152,7 @@ const FinalCalculationModal: React.FC<FinalCalculationModalProps> = ({ open, onC
         setLoading(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
             setLoading(false);
             return;
@@ -219,10 +219,10 @@ const FinalCalculationModal: React.FC<FinalCalculationModalProps> = ({ open, onC
                     <Table>
                         <TableHead style={{ background: theme.palette.grey[200] }}>
                             <TableRow>
-                                <TableCell><Typography variant="h6">Ürün</Typography></TableCell>
+                                <TableCell><Typography variant="h6">کالا</Typography></TableCell>
                                 <TableCell><Typography variant="h6">Türü</Typography></TableCell>
-                                <TableCell><Typography variant="h6">Toplam Miktar</Typography></TableCell>
-                                <TableCell><Typography variant="h6">Ağırlık</Typography></TableCell>
+                                <TableCell><Typography variant="h6">مقدار کل</Typography></TableCell>
+                                <TableCell><Typography variant="h6">وزن</Typography></TableCell>
                                 <TableCell><Typography variant="h6">Yüzde (%)</Typography></TableCell>
                                 <TableCell><Typography variant="h6">Sonuç</Typography></TableCell>
                             </TableRow>
@@ -280,9 +280,9 @@ const FinalCalculationModal: React.FC<FinalCalculationModalProps> = ({ open, onC
                         Tümünü Sil
                     </Button>
                 )}
-                <Button onClick={onClose} color="primary" variant="outlined">Kapat</Button>
+                <Button onClick={onClose} color="primary" variant="outlined">بستن</Button>
                 <Button onClick={handleCalculateAndSave} color="success" variant="contained" disabled={loading} startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <IconCalculator />}>
-                    {transmissionSummary.length > 0 ? 'Güncelle' : 'Hesapla'}
+                    {transmissionSummary.length > 0 ? 'به‌روزرسانی' : 'Hesapla'}
                 </Button>
             </DialogActions>
         </Dialog>

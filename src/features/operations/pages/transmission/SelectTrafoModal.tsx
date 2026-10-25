@@ -46,7 +46,7 @@ const SelectTrafoModal: React.FC<SelectTrafoModalProps> = ({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="error" variant="outlined">İptal</Button>
+                <Button onClick={onClose} color="error" variant="outlined">انصراف</Button>
                 <Button
                     onClick={() => selectedTrafo && onSelectTrafo(selectedTrafo)}
                     color="primary"

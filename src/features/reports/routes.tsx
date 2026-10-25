@@ -37,7 +37,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/commitee-members/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCommiteeMembers />
       </PermissionGuard>
     ),
@@ -45,7 +45,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/commitee-members-report/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCommiteeMembersReport />
       </PermissionGuard>
     ),
@@ -53,7 +53,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-concrete/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListConcreteReport />
       </PermissionGuard>
     ),
@@ -61,7 +61,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-item/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListItemReport />
       </PermissionGuard>
     ),
@@ -69,7 +69,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-carwarehouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCarwarehouseReport />
       </PermissionGuard>
     ),
@@ -77,7 +77,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-personall-workhouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPersonalWorkhouseReport />
       </PermissionGuard>
     ),
@@ -85,7 +85,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-personall-course/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPersonalCourse />
       </PermissionGuard>
     ),
@@ -93,7 +93,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-tender-flow/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListTenderFlowReport />
       </PermissionGuard>
     ),
@@ -101,7 +101,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-roll-call/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListRollCallsReport />
       </PermissionGuard>
     ),
@@ -109,7 +109,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/report-financial-state-report/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListFinancialState />
       </PermissionGuard>
     ),
@@ -117,7 +117,7 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: '/report/kpi-report/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListKPIList />
       </PermissionGuard>
     ),

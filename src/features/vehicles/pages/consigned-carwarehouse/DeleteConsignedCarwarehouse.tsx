@@ -25,14 +25,14 @@ const DeleteConsignedCarwarehouse = ({ openModal, idToDelete, nameToDelete, onCl
 
     const handleDelete = async () => {
         if (idToDelete === null) {
-            showAlert('Silinecek kayıt seçilmedi.', 'warning');
+            showAlert('رکوردی برای حذف انتخاب نشده است.', 'warning');
             onClose();
             return;
         }
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate('/');
             return;
         }
@@ -51,7 +51,7 @@ const DeleteConsignedCarwarehouse = ({ openModal, idToDelete, nameToDelete, onCl
                 onDeleteSuccess();
                 onClose();
             } else {
-                showAlert(response.data.message || 'Kayıt silinirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام حذف رکورد خطایی رخ داد.', 'error');
                 onClose();
             }
         } catch (e: any) {
@@ -59,10 +59,10 @@ const DeleteConsignedCarwarehouse = ({ openModal, idToDelete, nameToDelete, onCl
                 showAlert(e.response?.data?.message || 'Bu kayıt başka bir işlemde kullanıldığı için silinemeyebilir.', 'error');
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate('/');
             } else {
-                showAlert(e.response?.data?.message || 'Kayıt silinirken beklenmeyen bir hata oluştu.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام حذف رکورد خطای غیرمنتظره‌ای رخ داد.', 'error');
             }
         } finally {
             setLoading(false);
@@ -78,7 +78,7 @@ const DeleteConsignedCarwarehouse = ({ openModal, idToDelete, nameToDelete, onCl
 
             <DialogContent>
                 <DialogContentText id="delete-consignment-desc">
-                    Seçtiğiniz <span style={{ fontSize: 16, fontWeight: 'bold', color: '#FA896B', margin: '0 5px' }}>{nameToDelete}</span>
+                    انتخاب شما <span style={{ fontSize: 16, fontWeight: 'bold', color: '#FA896B', margin: '0 5px' }}>{nameToDelete}</span>
                     emanet kaydını silerseniz bu işlem geri alınamaz. Lütfen onaylayın.
                 </DialogContentText>
             </DialogContent>
@@ -86,11 +86,11 @@ const DeleteConsignedCarwarehouse = ({ openModal, idToDelete, nameToDelete, onCl
             <DialogActions>
                 <CustomTooltip title={isTooltipGloballyEnabled ? 'Silmeyi iptal et' : ''}>
                     <Button onClick={onClose} disabled={loading} color="secondary" variant="outlined">
-                        İptal et
+                        لغو
                     </Button>
                 </CustomTooltip>
 
-                <CustomTooltip title={isTooltipGloballyEnabled ? 'Seçilen kaydı kalıcı olarak sil' : ''}>
+                <CustomTooltip title={isTooltipGloballyEnabled ? 'حذف دائمی رکورد انتخاب‌شده' : ''}>
                     <Button color="error" variant="contained" onClick={handleDelete} autoFocus disabled={loading}>
                         {loading ? (<><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</>) : ('Silmek')}
                     </Button>

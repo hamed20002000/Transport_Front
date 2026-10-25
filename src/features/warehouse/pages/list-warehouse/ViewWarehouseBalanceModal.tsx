@@ -129,8 +129,8 @@ const ViewWarehouseBalanceModal: React.FC<ViewWarehouseBalanceModalProps> = ({
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell><Typography variant="h6">Malzeme Adı</Typography></TableCell>
-                                    <TableCell><Typography variant="h6">Mevcut Miktar</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">نام کالا</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">مقدار موجود</Typography></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -148,7 +148,7 @@ const ViewWarehouseBalanceModal: React.FC<ViewWarehouseBalanceModalProps> = ({
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">Kapat</Button>
+                <Button onClick={onClose} color="primary">بستن</Button>
             </DialogActions>
         </Dialog>
     );

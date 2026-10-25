@@ -86,10 +86,10 @@ const SelectTenderItemsModal: React.FC<SelectTenderItemsModalProps> = ({
 
                         setTenderItems(parsedItems);
                     } else {
-                        showAlert(response.data.message || 'İhale ürünleri yüklenirken bir hata oluştu.', 'error');
+                        showAlert(response.data.message || 'هنگام بارگذاری کالاهای مناقصه خطایی رخ داد.', 'error');
                     }
                 } catch (e: any) {
-                    showAlert('İhale ürünleri yüklenirken bir hata oluştu.', 'error');
+                    showAlert('هنگام بارگذاری کالاهای مناقصه خطایی رخ داد.', 'error');
                 } finally {
                     setLoading(false);
                 }
@@ -117,7 +117,7 @@ const SelectTenderItemsModal: React.FC<SelectTenderItemsModalProps> = ({
                             onChange={(e) => setSelectedTender(e.target.value as string)}
                             label="İhale Seçin"
                         >
-                            <MenuItem value=""><em>Yok</em></MenuItem>
+                            <MenuItem value=""><em>ندارد</em></MenuItem>
                             {tendersList.map((tender) => (
                                 <MenuItem key={tender.id} value={tender.id}>{tender.title}</MenuItem>
                             ))}
@@ -135,11 +135,11 @@ const SelectTenderItemsModal: React.FC<SelectTenderItemsModalProps> = ({
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Ürün</TableCell>
-                                        <TableCell>ÖLÇÜ</TableCell>
-                                        <TableCell>Miktar</TableCell>
-                                        <TableCell>Açıklama</TableCell>
-                                        <TableCell>Fiyat</TableCell>
+                                        <TableCell>کالا</TableCell>
+                                        <TableCell>واحد اندازه‌گیری</TableCell>
+                                        <TableCell>مقدار</TableCell>
+                                        <TableCell>توضیحات</TableCell>
+                                        <TableCell>قیمت</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -167,8 +167,8 @@ const SelectTenderItemsModal: React.FC<SelectTenderItemsModalProps> = ({
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">İptal Et</Button>
-                <Button onClick={handleConfirm} color="primary" disabled={tenderItems.length === 0}>Ekle</Button>
+                <Button onClick={onClose} color="secondary">لغو</Button>
+                <Button onClick={handleConfirm} color="primary" disabled={tenderItems.length === 0}>افزودن</Button>
             </DialogActions>
         </Dialog>
     );

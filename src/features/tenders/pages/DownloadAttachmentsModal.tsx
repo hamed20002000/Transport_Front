@@ -24,12 +24,12 @@ const DownloadAttachmentsModal: React.FC<DownloadAttachmentsModalProps> = ({
 }) => {
     const handleDownloadClick = (fileUrl: string) => {
         if (!fileUrl) {
-            showAlert('Dosya adresi geçersiz.', 'error');
+            showAlert('آدرس فایل نامعتبر است.', 'error');
             return;
         }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
 
     return (
@@ -65,7 +65,7 @@ const DownloadAttachmentsModal: React.FC<DownloadAttachmentsModalProps> = ({
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Kapat</Button>
+                <Button onClick={onClose}>بستن</Button>
             </DialogActions>
         </Dialog>
     );

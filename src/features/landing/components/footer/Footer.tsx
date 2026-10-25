@@ -1,24 +1,14 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import React from 'react';
-import { Grid, Link, Typography, Container } from 'src/shared/components/compat';
-import logoIcon from 'src/shared/assets/images/logos/logoIcon.svg';
+import { Grid, Typography, Container } from 'src/shared/components/compat';
+import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 
 const Footer = () => {
   return (
     <Container maxWidth="lg">
       <Grid container spacing={3} justifyContent="center" mt={4}>
         <Grid item xs={12} sm={5} lg={4} textAlign="center">
-          <img src={logoIcon} alt="icon" />
+          <img src={trabotIcon} alt="ترابوت" width={48} height={48} style={{ borderRadius: 12 }} />
           <Typography fontSize="16" color="textSecondary" mt={1} mb={4}>
-            All rights reserved by Modernize. Designed & Developed by
-            <Link target="_blank" href="https://adminmart.com/">
-              <Typography color="textSecondary" component="span" display="inline">
-                {' '}
-                AdminMart
-              </Typography>{' '}
-            </Link>
-            .
+            ترابوت، دستیار هوشمند حمل‌ونقل
           </Typography>
         </Grid>
       </Grid>

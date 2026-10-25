@@ -18,8 +18,8 @@ const StatCard: React.FC<StatCardProps> = ({
     active,
     icon: Icon,
     color,
-    activeLabel = "Aktif",
-    inactiveLabel = "Pasif"
+    activeLabel = "فعال",
+    inactiveLabel = "غیرفعال"
 }) => {
 
     const inactive = active !== undefined ? total - active : 0;

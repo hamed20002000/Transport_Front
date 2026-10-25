@@ -103,22 +103,22 @@ export interface CarConsignment {
 }
 
 
-const SEX_LABELS = ["Erkek", "Kadın"] as const;
-const SALARY_TYPE_LABELS = ["Aylık", "Günlük"] as const;
-const ACCRUAL_LABELS = ["Brüt", "Net"] as const;
+const SEX_LABELS = ["Erkek", "زن"] as const;
+const SALARY_TYPE_LABELS = ["ماهانه", "روزانه"] as const;
+const ACCRUAL_LABELS = ["ناخالص", "Net"] as const;
 const GROUP_LABELS = ["Emekli", "Normal", "Engelli"] as const;
 const MARITAL_LABELS = ["Bekâr", "Evli", "Dul"] as const;
 const BLOOD_LABELS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
 const EDU_LABELS = ["İlkokul", "Ortaokul", "Lise", "Ön Lisans", "Lisans", "Yüksek Lisans", "Doktora"] as const;
 
-const statusText = (s?: number) => (s === 0 ? "Aktif" : s === 1 ? "Pasif" : "Silindi");
+const statusText = (s?: number) => (s === 0 ? "فعال" : s === 1 ? "غیرفعال" : "Silindi");
 
 const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "—";
     try {
         const d = parseISO(dateString.length === 10 ? dateString : String(dateString));
-        return isValidDate(d) ? format(d, "dd MMMM yyyy", { locale: tr }) : "Geçersiz Tarih";
-    } catch { return "Geçersiz Tarih"; }
+        return isValidDate(d) ? format(d, "dd MMMM yyyy", { locale: tr }) : "تاریخ نامعتبر";
+    } catch { return "تاریخ نامعتبر"; }
 };
 
 const descendingComparator = <T, K extends keyof T>(a: T, b: T, orderBy: K) => {
@@ -145,14 +145,14 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 };
 
 const TEMPLATE_HEADERS = [
-    "Ad", "Soyad", "TC Kimlik", "Pozisyon",
-    "Başlangıç (yyyy-MM-dd)",
-    "Sigorta No", "Cinsiyet (Erkek|Kadın|0|1)", "Ücret Tipi (Aylık|Günlük|0|1)",
-    "Tahakkuk (Brüt|Net|0|1)", "Grup (Emekli|Normal|Engelli|0|1|2)", "Doğum Yeri",
-    "Doğum Tarihi (yyyy-MM-dd)", "Medeni (Bekâr|Evli|Dul|0|1|2)", "Kan Grubu (A+|A-|B+|B-|AB+|AB-|O+|O-|0..7)",
-    "Baba Adı", "Adres", "Eğitim (İlkokul|Ortaokul|Lise|Ön Lisans|Lisans|Yüksek Lisans|Doktora|0..6)",
+    "نام", "نام خانوادگی", "TC Kimlik", "Pozisyon",
+    "شروع (yyyy-MM-dd)",
+    "شماره بیمه", "Cinsiyet (Erkek|Kadın|0|1)", "Ücret Tipi (Aylık|Günlük|0|1)",
+    "Tahakkuk (Brüt|Net|0|1)", "Grup (Emekli|Normal|Engelli|0|1|2)", "محل تولد",
+    "تاریخ تولد (yyyy-MM-dd)", "Medeni (Bekâr|Evli|Dul|0|1|2)", "Kan Grubu (A+|A-|B+|B-|AB+|AB-|O+|O-|0..7)",
+    "نام پدر", "آدرس", "Eğitim (İlkokul|Ortaokul|Lise|Ön Lisans|Lisans|Yüksek Lisans|Doktora|0..6)",
     "Maaş (Sadece Sayısal)",
-    "IBAN", "Telefon", "Cep Telefon",
+    "IBAN", "تلفن", "تلفن همراه",
     "ISG (Var|Yok|True|False|0|1)",
 ] as const;
 
@@ -210,11 +210,11 @@ const uploadFiles = async (
         if (uploadResponse.data.httpStatusCode === 201) {
             return uploadResponse.data.data.files as string[];
         } else {
-            showAlert(uploadResponse.data?.message || 'Dosya yüklenirken sunucu hatası oluştu.', 'error');
+            showAlert(uploadResponse.data?.message || 'هنگام بارگذاری فایل خطای سرور رخ داد.', 'error');
             return null;
         }
     } catch (e: any) {
-        showAlert(e?.response?.data?.message || 'Dosya yüklenirken ağ hatası oluştu.', 'error');
+        showAlert(e?.response?.data?.message || 'هنگام بارگذاری فایل خطای شبکه رخ داد.', 'error');
         return null;
     }
 };
@@ -289,9 +289,9 @@ const ListPersonnel: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -407,12 +407,12 @@ const ListPersonnel: React.FC = () => {
             const data = (res.data?.data ?? []).map((p: any) => ({ id: Number(p.id), title: p.title })) as PositionOption[];
             setPositions(data);
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -445,12 +445,12 @@ const ListPersonnel: React.FC = () => {
             }));
             setPersonnelList(list);
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -497,12 +497,12 @@ const ListPersonnel: React.FC = () => {
                 showAlert("Veri alınırken bir hata oluştu.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingAnnualLeave(false);
         }
@@ -637,12 +637,12 @@ const ListPersonnel: React.FC = () => {
                 getAllPersonnels();
             } else { showAlert(res.data?.message || "Kayıt oluşturulamadı.", "error"); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -681,7 +681,7 @@ const ListPersonnel: React.FC = () => {
                 bloodType: form.bloodType, address: form.address, educationStatus: form.educationStatus,
                 iban: form.iban, telephone: form.telephone, mobile: form.mobile,
                 positionId: Number(form.positionId) ?? null,
-                imageSrc: profileImageUrlToSend?.replace("https://setasportal.com",""),
+                imageSrc: profileImageUrlToSend,
                 hasISG: form.hasISG ?? false,
                 attachments: attachmentPayload,
             };
@@ -696,18 +696,18 @@ const ListPersonnel: React.FC = () => {
                 showAlert(res.data?.message || "Güncelleme başarısız.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
     const sendStatusUpdate = async (id: number, statusValue: number) => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); navigate("/"); }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); navigate("/"); }
         try {
             const response = await axios.put(
                 server.baseurl + server.hr + "update-personnel",
@@ -719,15 +719,15 @@ const ListPersonnel: React.FC = () => {
                 resetFormAndState();
                 getAllPersonnels();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { handleCloseMenu(); }
     };
 
@@ -752,15 +752,15 @@ const ListPersonnel: React.FC = () => {
                 setOpenEndCooperationModal(false);
                 getAllPersonnels();
             } else {
-                showAlert(res.data?.message || "İş birliği sonlandırılamadı.", "error");
+                showAlert(res.data?.message || "همکاری پایان داده نشد.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -782,7 +782,7 @@ const ListPersonnel: React.FC = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -790,7 +790,7 @@ const ListPersonnel: React.FC = () => {
         doc.text(title, pageWidth / 2, 25, { align: 'center' });
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -808,7 +808,7 @@ const ListPersonnel: React.FC = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -820,12 +820,12 @@ const ListPersonnel: React.FC = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
     const cleanAndFormatPrice = (priceInput: string | number | null | undefined): string => {
         if (priceInput === null || priceInput === undefined) {
@@ -848,30 +848,30 @@ const ListPersonnel: React.FC = () => {
         const positionTitle = positions.find(x => x.id === (Number(p.position?.id) ?? -1))?.title || "—";
 
         return [
-            ["Ad", p.name || "—"],
-            ["Soyad", p.family || "—"],
+            ["نام", p.name || "—"],
+            ["نام خانوادگی", p.family || "—"],
             ["TC Kimlik", p.identityNumber || "—"],
             ["Pozisyon", positionTitle],
-            ["İş Güvenliği (ISG)", p.hasISG ? "Var" : "Yok"],
-            ["Başlangıç", formatDateDisplay(p.workStartDate)],
-            ["Bitiş", formatDateDisplay(p.workEndDate)],
-            ["Maaş", cleanAndFormatPrice(p.salary)],
-            ["Sigorta No", p.insuranceNumber || "—"],
+            ["İş Güvenliği (ISG)", p.hasISG ? "دارد" : "ندارد"],
+            ["شروع", formatDateDisplay(p.workStartDate)],
+            ["پایان", formatDateDisplay(p.workEndDate)],
+            ["حقوق", cleanAndFormatPrice(p.salary)],
+            ["شماره بیمه", p.insuranceNumber || "—"],
             ["Cinsiyet", SEX_LABELS[p.sex] ?? "—"],
-            ["Ücret Tipi", SALARY_TYPE_LABELS[p.salaryType] ?? "—"],
+            ["نوع دستمزد", SALARY_TYPE_LABELS[p.salaryType] ?? "—"],
             ["Tahakkuk", ACCRUAL_LABELS[p.salaryAccrualMethod] ?? "—"],
             ["Grup", GROUP_LABELS[p.group] ?? "—"],
-            ["Doğum Yeri", p.birthPlace || "—"],
-            ["Doğum Tarihi", formatDateDisplay(p.birthDate)],
-            ["Medeni Durum", MARITAL_LABELS[p.maritalStatus] ?? "—"],
-            ["Baba Adı", p.fatherName || "—"],
+            ["محل تولد", p.birthPlace || "—"],
+            ["تاریخ تولد", formatDateDisplay(p.birthDate)],
+            ["وضعیت تأهل", MARITAL_LABELS[p.maritalStatus] ?? "—"],
+            ["نام پدر", p.fatherName || "—"],
             ["Kan Grubu", BLOOD_LABELS[p.bloodType] ?? "—"],
-            ["Adres", p.address || "—"],
-            ["Eğitim", EDU_LABELS[p.educationStatus] ?? "—"],
+            ["آدرس", p.address || "—"],
+            ["آموزش", EDU_LABELS[p.educationStatus] ?? "—"],
             ["IBAN", p.iban || "—"],
-            ["Telefon", p.telephone || "—"],
-            ["Cep Telefon", p.mobile || "—"],
-            ["Durum", statusText(p.recordStatus)],
+            ["تلفن", p.telephone || "—"],
+            ["تلفن همراه", p.mobile || "—"],
+            ["وضعیت", statusText(p.recordStatus)],
             ["Oluşturulma", formatDateDisplay(p.createAt?.slice(0, 10) || null)],
         ];
     };
@@ -921,7 +921,7 @@ const ListPersonnel: React.FC = () => {
 
             autoTable((doc as any), {
                 startY: startY,
-                head: [["Alan", "Değer"]],
+                head: [["فیلد", "مقدار"]],
                 body: pairs,
                 theme: "grid",
                 styles: { font: "NotoSans", fontStyle: "normal", fontSize: 10, cellPadding: 4, overflow: "linebreak" },
@@ -950,9 +950,9 @@ const ListPersonnel: React.FC = () => {
                 const fileSlug = `${rowForDownload.name || ""}_${rowForDownload.family || ""}`.trim().replace(/\s+/g, "_");
                 await pdfForRows([rowForDownload], `Personel_Detay_${fileSlug || rowForDownload.id}.pdf`);
             }
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (e) {
-            showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+            showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
             console.error("PDF generation error:", e);
         }
     };
@@ -969,10 +969,10 @@ const ListPersonnel: React.FC = () => {
         const rows = paginated;
 
         const headerRow = [
-            "Ad", "Soyad", "TC Kimlik", "Başlangıç", "Bitiş", "Pozisyon",
-            "Cinsiyet", "Ücret Tipi", "Tahakkuk", "Grup", "Doğum Tarihi",
-            "Medeni Durum", "Baba Adı", "Eğitim", "ISG",
-            "Telefon", "Cep Telefon"
+            "نام", "نام خانوادگی", "TC Kimlik", "شروع", "پایان", "Pozisyon",
+            "Cinsiyet", "نوع دستمزد", "Tahakkuk", "Grup", "تاریخ تولد",
+            "وضعیت تأهل", "نام پدر", "آموزش", "ISG",
+            "تلفن", "تلفن همراه"
         ];
 
         const allData: any[] = [];
@@ -992,7 +992,7 @@ const ListPersonnel: React.FC = () => {
                 MARITAL_LABELS[p.maritalStatus] ?? "—",
                 p.fatherName || "—",
                 EDU_LABELS[p.educationStatus] ?? "—",
-                p.hasISG ? "Var" : "Yok",
+                p.hasISG ? "دارد" : "ندارد",
                 p.telephone || "—",
                 p.mobile || "—"
             ];
@@ -1030,11 +1030,11 @@ const ListPersonnel: React.FC = () => {
         ws.addRow([
             "Ali", "Yılmaz", "12345678901", "Yazılım Uzmanı",
             "2023-01-10",
-            "SGK-0001", "Erkek", "Aylık", "Brüt", "Normal", "İzmir",
+            "SGK-0001", "Erkek", "ماهانه", "ناخالص", "Normal", "İzmir",
             "1992-05-15", "Evli", "A+", "Mehmet", "İzmir/...", "Lisans",
             "15000",
             "TR00 0000 0000 0000 0000 0000 00", "0232...", "05..",
-            "Var"
+            "دارد"
         ]);
         const buf = await wb.xlsx.writeBuffer();
         saveAs(new Blob([buf]), "Personel_Sablonu.xlsx");
@@ -1050,22 +1050,22 @@ const ListPersonnel: React.FC = () => {
         addPdfHeader(doc, "Yıllık İzin Detay Raporu");
 
         const workDurationText = leaveData.personnelWorkYearsAndMonths
-            ? `${leaveData.personnelWorkYearsAndMonths.years} Yıl, ${leaveData.personnelWorkYearsAndMonths.months} Ay, ${leaveData.personnelWorkYearsAndMonths.days} Gün`
-            : `${leaveData.yearOfWork || 0} Yıl`;
+            ? `${leaveData.personnelWorkYearsAndMonths.years} سال، ${leaveData.personnelWorkYearsAndMonths.months} ماه، ${leaveData.personnelWorkYearsAndMonths.days} روز`
+            : `${leaveData.yearOfWork || 0} سال`;
 
         const leavePairs: Array<[string, string]> = [
-            ["Adı Soyadı", `${p.name || "—"} ${p.family || "—"}`],
-            ["Başlangıç Tarihi", formatDateDisplay(p.workStartDate)],
+            ["نام و نام خانوادگی", `${p.name || "—"} ${p.family || "—"}`],
+            ["تاریخ شروع", formatDateDisplay(p.workStartDate)],
             ["Bitiش Tarihi", formatDateDisplay(p.workEndDate)],
             ["Yaş", leaveData.age ? String(leaveData.age) : "—"],
             ["Çalışma Süresi", workDurationText],
-            ["Resmi İzin Hakkı", leaveData.official ? `${leaveData.official} Gün` : "—"],
-            ["Kalan İzin Günü", leaveData.remaining ? `${leaveData.remaining} Gün` : "—"],
+            ["Resmi İzin Hakkı", leaveData.official ? `${leaveData.official} روز` : "—"],
+            ["Kalan İzin Günü", leaveData.remaining ? `${leaveData.remaining} روز` : "—"],
         ];
 
         autoTable((doc as any), {
             startY: 120,
-            head: [["Alan", "Değer"]],
+            head: [["فیلد", "مقدار"]],
             body: leavePairs,
             theme: "grid",
             styles: { font: "NotoSans", fontSize: 10, cellPadding: 8 },
@@ -1150,47 +1150,47 @@ const ListPersonnel: React.FC = () => {
             ws.eachRow((row, rowNumber) => {
                 if (rowNumber === 1) return;
                 const map = headerMap;
-                const name = getByTitle(row, map, "Ad");
-                const family = getByTitle(row, map, "Soyad");
+                const name = getByTitle(row, map, "نام");
+                const family = getByTitle(row, map, "نام خانوادگی");
                 const identityNumber = getByTitle(row, map, "TC Kimlik");
                 const positionText = getByTitle(row, map, "Pozisyon");
-                const workStartDate = parseIso(getByTitle(row, map, "Başlangıç (yyyy-MM-dd)"));
-                const insuranceNumber = getByTitle(row, map, "Sigorta No");
+                const workStartDate = parseIso(getByTitle(row, map, "شروع (yyyy-MM-dd)"));
+                const insuranceNumber = getByTitle(row, map, "شماره بیمه");
                 const sex = tryMapRadioFromText(getByTitle(row, map, "Cinsiyet (Erkek|Kadın|0|1)"), SEX_LABELS as unknown as string[], 0);
                 const salaryType = tryMapRadioFromText(getByTitle(row, map, "Ücret Tipi (Aylık|Günlük|0|1)"), SALARY_TYPE_LABELS as unknown as string[], 0);
                 const salaryAccrualMethod = tryMapRadioFromText(getByTitle(row, map, "Tahakkuk (Brüt|Net|0|1)"), ACCRUAL_LABELS as unknown as string[], 0);
                 const group = tryMapRadioFromText(getByTitle(row, map, "Grup (Emekli|Normal|Engelli|0|1|2)"), GROUP_LABELS as unknown as string[], 1);
-                const birthPlace = getByTitle(row, map, "Doğum Yeri");
-                const birthDate = parseIso(getByTitle(row, map, "Doğum Tarihi (yyyy-MM-dd)"));
+                const birthPlace = getByTitle(row, map, "محل تولد");
+                const birthDate = parseIso(getByTitle(row, map, "تاریخ تولد (yyyy-MM-dd)"));
                 const maritalStatus = tryMapRadioFromText(getByTitle(row, map, "Medeni (Bekâr|Evli|Dul|0|1|2)"), MARITAL_LABELS as unknown as string[], 0);
                 const bloodType = tryMapRadioFromText(getByTitle(row, map, "Kan Grubu (A+|A-|B+|B-|AB+|AB-|O+|O-|0..7)"), BLOOD_LABELS as unknown as string[], 0);
-                const fatherName = getByTitle(row, map, "Baba Adı");
-                const address = getByTitle(row, map, "Adres");
+                const fatherName = getByTitle(row, map, "نام پدر");
+                const address = getByTitle(row, map, "آدرس");
                 const educationStatus = tryMapRadioFromText(getByTitle(row, map, "Eğitim (İlkokul|Ortaokul|Lise|Ön Lisans|Lisans|Yüksek Lisans|Doktora|0..6)"), EDU_LABELS as unknown as string[], 4);
                 const iban = getByTitle(row, map, "IBAN");
-                const telephone = getByTitle(row, map, "Telefon");
-                const mobile = getByTitle(row, map, "Cep Telefon");
+                const telephone = getByTitle(row, map, "تلفن");
+                const mobile = getByTitle(row, map, "تلفن همراه");
                 const salaryRaw = getByTitle(row, map, "Maaş (Sadece Sayısal)");
                 const salary = salaryRaw === "" ? null : Number(salaryRaw);
                 const hasISGText = getByTitle(row, map, "ISG (Var|Yok|True|False|0|1)");
-                const hasISG = normalizeTr(hasISGText) === normalizeTr("Var") || normalizeTr(hasISGText) === normalizeTr("True") || Number(hasISGText) === 1;
+                const hasISG = normalizeTr(hasISGText) === normalizeTr("دارد") || normalizeTr(hasISGText) === normalizeTr("True") || Number(hasISGText) === 1;
 
                 const foundPos = positions.find(p => normalizeTr(p.title) === normalizeTr(positionText));
                 const positionId = foundPos?.id ?? null;
 
                 const requiredMissing: string[] = [];
-                if (!name) requiredMissing.push("Ad");
-                if (!family) requiredMissing.push("Soyad");
+                if (!name) requiredMissing.push("نام");
+                if (!family) requiredMissing.push("نام خانوادگی");
                 if (!identityNumber) requiredMissing.push("TC Kimlik");
-                if (!workStartDate) requiredMissing.push("Başlangıç (yyyy-MM-dd)");
-                if (!birthDate) requiredMissing.push("Doğum Tarihi (yyyy-MM-dd)");
-                if (!fatherName) requiredMissing.push("Baba Adı");
-                if (!address) requiredMissing.push("Adres");
-                if (!(mobile || telephone)) requiredMissing.push("Cep Telefon");
+                if (!workStartDate) requiredMissing.push("شروع (yyyy-MM-dd)");
+                if (!birthDate) requiredMissing.push("تاریخ تولد (yyyy-MM-dd)");
+                if (!fatherName) requiredMissing.push("نام پدر");
+                if (!address) requiredMissing.push("آدرس");
+                if (!(mobile || telephone)) requiredMissing.push("تلفن همراه");
 
                 const invalidDate: string[] = [];
-                if (getByTitle(row, map, "Başlangıç (yyyy-MM-dd)") && !workStartDate) invalidDate.push("Başlangıç");
-                if (getByTitle(row, map, "Doğum Tarihi (yyyy-MM-dd)") && !birthDate) invalidDate.push("Doğum Tarihi");
+                if (getByTitle(row, map, "شروع (yyyy-MM-dd)") && !workStartDate) invalidDate.push("شروع");
+                if (getByTitle(row, map, "تاریخ تولد (yyyy-MM-dd)") && !birthDate) invalidDate.push("تاریخ تولد");
 
                 const tcDup = !identityNumber ? false : (seenTC.has(identityNumber) || existingTC.has(identityNumber));
                 if (identityNumber) seenTC.add(identityNumber);
@@ -1275,7 +1275,7 @@ const ListPersonnel: React.FC = () => {
         titleRow.font = { name: 'NotoSans', size: 14, bold: true };
         worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
         titleRow.getCell(1).alignment = { horizontal: 'center' };
-        const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+        const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
         dateRow.font = { name: 'NotoSans', size: 10, bold: false };
         dateRow.getCell(1).alignment = { horizontal: 'left' };
         worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -1285,7 +1285,7 @@ const ListPersonnel: React.FC = () => {
     const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل',
         ];
         let rowNum = startRow;
@@ -1320,8 +1320,8 @@ const ListPersonnel: React.FC = () => {
             currentRow++;
 
             const headers = ws.getRow(currentRow);
-            headers.getCell(1).value = "Alan";
-            headers.getCell(2).value = "Değer";
+            headers.getCell(1).value = "فیلد";
+            headers.getCell(2).value = "مقدار";
             headers.font = { bold: true };
             headers.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
             currentRow++;
@@ -1350,8 +1350,8 @@ const ListPersonnel: React.FC = () => {
         const ws = wb.addWorksheet("Personel Detay", { views: [{ rightToLeft: false }] });
 
         ws.columns = [
-            { header: "Alan", key: "label", width: 30 },
-            { header: "Değer", key: "value", width: 50 },
+            { header: "فیلد", key: "label", width: 30 },
+            { header: "مقدار", key: "value", width: 50 },
         ];
 
         const pairs = toPairsForPerson(p);
@@ -1372,10 +1372,10 @@ const ListPersonnel: React.FC = () => {
         const ws = wb.addWorksheet("Personel Tablo", { views: [{ rightToLeft: false }] });
 
         const headerRowTitles = [
-            "Ad", "Soyad", "TC Kimlik", "Pozisyon", "Başlangıç", "Bitiş", "Maaş",
-            "Sigorta No", "Cinsiyet", "Ücret Tipi", "Tahakkuk", "Grup", "Doğum Yeri",
-            "Doğum Tarihi", "Medeni Durum", "Baba Adı", "Kan Grubu", "Adres",
-            "Eğitim", "IBAN", "Telefon", "Cep Telefon", "ISG", "Durum"
+            "نام", "نام خانوادگی", "TC Kimlik", "Pozisyon", "شروع", "پایان", "حقوق",
+            "شماره بیمه", "Cinsiyet", "نوع دستمزد", "Tahakkuk", "Grup", "محل تولد",
+            "تاریخ تولد", "وضعیت تأهل", "نام پدر", "Kan Grubu", "آدرس",
+            "آموزش", "IBAN", "تلفن", "تلفن همراه", "ISG", "وضعیت"
         ];
         const columnsLength = headerRowTitles.length;
 
@@ -1403,7 +1403,7 @@ const ListPersonnel: React.FC = () => {
                 formatDateDisplay(p.birthDate), MARITAL_LABELS[p.maritalStatus] ?? "—",
                 p.fatherName || "—", BLOOD_LABELS[p.bloodType] ?? "—", p.address || "—",
                 EDU_LABELS[p.educationStatus] ?? "—", p.iban || "—",
-                p.telephone || "—", p.mobile || "—", p.hasISG ? "Var" : "Yok",
+                p.telephone || "—", p.mobile || "—", p.hasISG ? "دارد" : "ندارد",
                 statusText(p.recordStatus),
             ];
             allData.push(rowData);
@@ -1457,7 +1457,7 @@ const ListPersonnel: React.FC = () => {
         const headerSpace = 100;
         const sideMargin = 40;
         let finalY = headerSpace + 20;
-        addPdfHeader(doc, "PERSONEL İLİŞİK KESME / ZİMMET TESLİM RAPORU");
+        addPdfHeader(doc, "گزارش تسویه‌حساب / تحویل اموال پرسنل");
 
         doc.setFontSize(12);
         doc.text(`Personel Adı Soyadı: ${personnel.name} ${personnel.family}`, sideMargin, finalY);
@@ -1486,7 +1486,7 @@ const ListPersonnel: React.FC = () => {
 
             autoTable((doc as any), {
                 startY: finalY,
-                head: [["Mal İsmi (Kod)", "Veriliş Tarihi", "Açıklama", "Teslim Edildi"]],
+                head: [["Mal İsmi (Kod)", "تاریخ صدور", "توضیحات", "Teslim Edildi"]],
                 body: generalBody,
                 theme: "grid",
                 styles: { font: "NotoSans", fontStyle: "normal", fontSize: 10, cellPadding: 5 },
@@ -1494,7 +1494,7 @@ const ListPersonnel: React.FC = () => {
                 columnStyles: { 3: { cellWidth: 80, halign: 'center' } },
                 margin: { left: sideMargin, right: sideMargin },
                 didDrawPage: (_data: any) => {
-                    addPdfHeader(doc, "PERSONEL İLİŞİK KESME / ZİMMET TESLİM RAPORU");
+                    addPdfHeader(doc, "گزارش تسویه‌حساب / تحویل اموال پرسنل");
                     addPdfFooter(doc);
                 },
             });
@@ -1525,7 +1525,7 @@ const ListPersonnel: React.FC = () => {
 
             autoTable((doc as any), {
                 startY: finalY,
-                head: [["Plaka (Marka)", "Model", "Veriliş Tarihi", "Teslim Edildi"]],
+                head: [["Plaka (Marka)", "Model", "تاریخ صدور", "Teslim Edildi"]],
                 body: carBody,
                 theme: "grid",
                 styles: { font: "NotoSans", fontStyle: "normal", fontSize: 10, cellPadding: 5 },
@@ -1533,7 +1533,7 @@ const ListPersonnel: React.FC = () => {
                 columnStyles: { 3: { cellWidth: 80, halign: 'center' } },
                 margin: { left: sideMargin, right: sideMargin },
                 didDrawPage: (_data: any) => {
-                    addPdfHeader(doc, "PERSONEL İLİŞİK KESME / ZİMMET TESLİM RAPORU");
+                    addPdfHeader(doc, "گزارش تسویه‌حساب / تحویل اموال پرسنل");
                     addPdfFooter(doc);
                 },
             });
@@ -1553,7 +1553,7 @@ const ListPersonnel: React.FC = () => {
         const approvalText = "Yukarıdaki zimmet listesinin eksiksiz teslim alındığı onaylanır.";
         doc.text(approvalText, sideMargin, finalY + 10);
 
-        doc.text("Personel İmzası:", sideMargin, finalY + 40);
+        doc.text("امضای پرسنل:", sideMargin, finalY + 40);
         doc.line(sideMargin + 100, finalY + 40, sideMargin + 250, finalY + 40);
 
         doc.text("HR/Yönetici İmzası:", sideMargin + 300, finalY + 40);
@@ -1582,7 +1582,7 @@ const ListPersonnel: React.FC = () => {
         setPersonnelToEndCooperation(personnel);
 
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert("Lütfen giriş yapın.", "warning"); navigate("/"); return; }
+        if (!authToken) { showAlert("لطفاً وارد شوید.", "warning"); navigate("/"); return; }
 
         showAlert("Zimmet ve Araç kayıtları kontrol ediliyor...", "info");
         setLoadingButton(true);
@@ -1697,7 +1697,7 @@ const ListPersonnel: React.FC = () => {
             if (e.response?.status === 500) showAlert('Sunucu hatası: Güncelleme başarısız.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
             else showAlert(e.response?.data?.message || 'Maaş güncellenirken beklenmedik bir hata oluştu.', 'error');
         } finally {
@@ -1723,7 +1723,7 @@ const ListPersonnel: React.FC = () => {
         setLoadingSalaryUpdate(false);
     };
 
-    const handleDownloadLinkClick = (fileUrl: string) => { if (!fileUrl) { showAlert('Dosya adresi geçersiz.', 'error'); return; } const url = `${server.urldpwonload}${fileUrl}`; window.open(url, '_blank'); showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info'); };
+    const handleDownloadLinkClick = (fileUrl: string) => { if (!fileUrl) { showAlert('آدرس فایل نامعتبر است.', 'error'); return; } const url = `${server.urldpwonload}${fileUrl}`; window.open(url, '_blank'); showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info'); };
 
 
     const renderTopBar = (
@@ -1733,11 +1733,11 @@ const ListPersonnel: React.FC = () => {
                 <Stack direction="row" spacing={1} alignItems="center" justifyContent={{ xs: "flex-start", sm: "flex-end" }}>
 
                     <Button variant="outlined" startIcon={<IconFileDownload />} onClick={handleDownloadTemplate}>
-                        Şablonu İndir
+                        دانلود قالب
                     </Button>
                     <input ref={fileInputRef} type="file" accept=".xlsx" hidden onChange={handleExcelFileChange} />
                     <Button variant="outlined" color="secondary" startIcon={<IconUpload />} onClick={() => fileInputRef.current?.click()}>
-                        Excel İçe Aktar
+                        ورود از Excel
                     </Button>
 
                     {!isFormVisible && hasCreatePermission && (
@@ -1770,11 +1770,11 @@ const ListPersonnel: React.FC = () => {
                                 <Grid item xs={12} md={8}>
                                     <Grid container spacing={2} alignItems="center">
                                         <Grid item xs={12} sm={4} display="flex" alignItems="center">
-                                            <CustomFormLabel sx={{ mt: 0 }} required>Ad</CustomFormLabel>
+                                            <CustomFormLabel sx={{ mt: 0 }} required>نام</CustomFormLabel>
                                         </Grid>
                                         <Grid item xs={12} sm={8}>
                                             <CustomTextField size="small" fullWidth value={form.name}
-                                                placeholder="Ad"
+                                                placeholder="نام"
                                                 inputRef={nameInputRef}
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, name: e.target.value }))}
                                                 required
@@ -1783,11 +1783,11 @@ const ListPersonnel: React.FC = () => {
                                         </Grid>
 
                                         <Grid item xs={12} sm={4} display="flex" alignItems="center">
-                                            <CustomFormLabel sx={{ mt: 0 }} required>Soyad</CustomFormLabel>
+                                            <CustomFormLabel sx={{ mt: 0 }} required>نام خانوادگی</CustomFormLabel>
                                         </Grid>
                                         <Grid item xs={12} sm={8}>
                                             <CustomTextField size="small" fullWidth value={form.family}
-                                                placeholder="Soyad"
+                                                placeholder="نام خانوادگی"
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, family: e.target.value }))}
                                                 required
                                                 error={showStepErrors && !form.family?.trim()}
@@ -1870,7 +1870,7 @@ const ListPersonnel: React.FC = () => {
                                         size="medium"
                                         startIcon={<IconUpload size={20} />}
                                     >
-                                        {profileImageUrl !== DEFAULT_IMAGE_URL ? "Resmi Değiştir" : "Resim Seç"}
+                                        {profileImageUrl !== DEFAULT_IMAGE_URL ? "Resmi Değiştir" : "انتخاب تصویر"}
                                     </Button>
                                 </Grid>
 
@@ -1880,12 +1880,12 @@ const ListPersonnel: React.FC = () => {
                         {activeStep === 1 && (
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6} md={2} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>Başlangıç</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>شروع</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={4}>
                                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                         <DatePicker
-                                            label="Başlangıç"
+                                            label="شروع"
                                             inputFormat="dd/MM/yyyy"
                                             value={form.workStartDate ? parseISO(form.workStartDate) : null}
                                             onChange={(next) => setForm((f) => ({
@@ -1904,7 +1904,7 @@ const ListPersonnel: React.FC = () => {
                                     </LocalizationProvider>
                                 </Grid>
 
-                                <Grid item xs={12} sm={6} md={2}><CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }}>Sigorta No</CustomFormLabel></Grid>
+                                <Grid item xs={12} sm={6} md={2}><CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }}>شماره بیمه</CustomFormLabel></Grid>
                                 <Grid item xs={12} sm={6} md={4}>
                                     <CustomTextField size="small" fullWidth value={form.insuranceNumber}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, insuranceNumber: e.target.value }))} />
@@ -1925,20 +1925,20 @@ const ListPersonnel: React.FC = () => {
                                     <FormLabel>Cinsiyet</FormLabel>
                                     <RadioGroup row value={form.sex} onChange={(e) => setForm((f) => ({ ...f, sex: Number(e.target.value) }))}>
                                         <FormControlLabel value={0} control={<Radio />} label="Erkek" />
-                                        <FormControlLabel value={1} control={<Radio />} label="Kadın" />
+                                        <FormControlLabel value={1} control={<Radio />} label="زن" />
                                     </RadioGroup>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3}>
-                                    <FormLabel>Ücret Tipi</FormLabel>
+                                    <FormLabel>نوع دستمزد</FormLabel>
                                     <RadioGroup row value={form.salaryType} onChange={(e) => setForm((f) => ({ ...f, salaryType: Number(e.target.value) }))}>
-                                        <FormControlLabel value={0} control={<Radio />} label="Aylık" />
-                                        <FormControlLabel value={1} control={<Radio />} label="Günlük" />
+                                        <FormControlLabel value={0} control={<Radio />} label="ماهانه" />
+                                        <FormControlLabel value={1} control={<Radio />} label="روزانه" />
                                     </RadioGroup>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3}>
                                     <FormLabel>Tahakkuk</FormLabel>
                                     <RadioGroup row value={form.salaryAccrualMethod} onChange={(e) => setForm((f) => ({ ...f, salaryAccrualMethod: Number(e.target.value) }))}>
-                                        <FormControlLabel value={0} control={<Radio />} label="Brüt" />
+                                        <FormControlLabel value={0} control={<Radio />} label="ناخالص" />
                                         <FormControlLabel value={1} control={<Radio />} label="Net" />
                                     </RadioGroup>
                                 </Grid>
@@ -1975,7 +1975,7 @@ const ListPersonnel: React.FC = () => {
                         {activeStep === 2 && (
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6} md={2} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }}>Doğum Yeri</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }}>محل تولد</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={4}>
                                     <CustomTextField size="small" fullWidth placeholder="Doğum yeri girin" value={form.birthPlace}
@@ -1983,12 +1983,12 @@ const ListPersonnel: React.FC = () => {
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={2} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>Doğum Tarihi</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>تاریخ تولد</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={4}>
                                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                         <DatePicker
-                                            label="Doğum Tarihi"
+                                            label="تاریخ تولد"
                                             inputFormat="dd/MM/yyyy"
                                             value={form.birthDate ? parseISO(form.birthDate) : null}
                                             onChange={(next) => setForm((f) => ({
@@ -2009,7 +2009,7 @@ const ListPersonnel: React.FC = () => {
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={4}>
-                                    <FormLabel>Medeni Durum</FormLabel>
+                                    <FormLabel>وضعیت تأهل</FormLabel>
                                     <RadioGroup row value={form.maritalStatus} onChange={(e) => setForm((f) => ({ ...f, maritalStatus: Number(e.target.value) }))}>
                                         <FormControlLabel value={0} control={<Radio />} label="Bekâr" />
                                         <FormControlLabel value={1} control={<Radio />} label="Evli" />
@@ -2044,20 +2044,20 @@ const ListPersonnel: React.FC = () => {
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={3} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>Baba Adı</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>نام پدر</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={9}>
                                     <CustomTextField size="small" fullWidth value={form.fatherName}
-                                        placeholder="Baba Adı"
+                                        placeholder="نام پدر"
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, fatherName: e.target.value }))} />
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={3} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>Adres</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>آدرس</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={9}>
                                     <CustomTextField size="small" fullWidth multiline minRows={2} value={form.address}
-                                        placeholder="Adres"
+                                        placeholder="آدرس"
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, address: e.target.value }))} />
                                 </Grid>
                             </Grid>
@@ -2067,7 +2067,7 @@ const ListPersonnel: React.FC = () => {
                             <Grid container spacing={2}>
 
                                 <Grid item xs={12} sm={6} md={3} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>Maaş</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>حقوق</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3}>
                                     <CustomTextField
@@ -2109,24 +2109,24 @@ const ListPersonnel: React.FC = () => {
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, iban: e.target.value }))} />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }}>Telefon</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }}>تلفن</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3}>
                                     <CustomTextField size="small" fullWidth value={form.telephone}
-                                        placeholder="Telefon"
+                                        placeholder="تلفن"
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, telephone: e.target.value }))}
                                         error={showStepErrors && !(form.mobile?.trim() || form.telephone?.trim())}
-                                        helperText={showStepErrors && !(form.mobile?.trim() || form.telephone?.trim()) ? "Cep Telefon veya Telefon zorunlu" : ""} />
+                                        helperText={showStepErrors && !(form.mobile?.trim() || form.telephone?.trim()) ? "تلفن همراه یا تلفن الزامی است" : ""} />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3} display="flex" alignItems="center">
-                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>Cep Telefon</CustomFormLabel>
+                                    <CustomFormLabel sx={{ mt: 0, mb: { xs: "-10px", sm: 0 } }} required>تلفن همراه</CustomFormLabel>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3}>
                                     <CustomTextField size="small" fullWidth value={form.mobile}
-                                        placeholder="Cep Telefon"
+                                        placeholder="تلفن همراه"
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, mobile: e.target.value }))}
                                         error={showStepErrors && !(form.mobile?.trim() || form.telephone?.trim())}
-                                        helperText={showStepErrors && !(form.mobile?.trim() || form.telephone?.trim()) ? "Cep Telefon veya Telefon zorunlu" : ""} />
+                                        helperText={showStepErrors && !(form.mobile?.trim() || form.telephone?.trim()) ? "تلفن همراه یا تلفن الزامی است" : ""} />
                                 </Grid>
                             </Grid>
                         )}
@@ -2140,13 +2140,13 @@ const ListPersonnel: React.FC = () => {
                                     {editingId ? (
                                         <>
                                             <Button variant="contained" color="info" onClick={submitUpdate} disabled={loadingButton}>
-                                                {loadingButton ? (<><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> İşlem yapılıyor...</>) : "Güncelle"}
+                                                {loadingButton ? (<><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> İşlem yapılıyor...</>) : "به‌روزرسانی"}
                                             </Button>
-                                            <Button variant="outlined" color="secondary" onClick={resetFormAndState}>İptal</Button>
+                                            <Button variant="outlined" color="secondary" onClick={resetFormAndState}>انصراف</Button>
                                         </>
                                     ) : (
                                         <Button variant="contained" color="success" onClick={submitCreate} disabled={loadingButton}>
-                                            {loadingButton ? (<><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> İşlem yapılıyor...</>) : "Kaydet"}
+                                            {loadingButton ? (<><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> İşlem yapılıyor...</>) : "ذخیره"}
                                         </Button>
                                     )}
                                 </Stack>
@@ -2179,15 +2179,15 @@ const ListPersonnel: React.FC = () => {
             </Stack>
             <Grid container spacing={2} alignItems="center">
                 <Grid item xs={12} sm={7} md={8}>
-                    <TextField label="Personel Ara" variant="outlined" fullWidth value={searchTerm}
+                    <TextField label="جستجوی پرسنل" variant="outlined" fullWidth value={searchTerm}
                         onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
                         InputProps={{ startAdornment: (<InputAdornment position="start"><IconSearch size={20} /></InputAdornment>) }} />
                 </Grid>
                 <Grid item xs={12} sm={5} md={4}>
                     <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} fullWidth>
-                        <StyledToggleButton value="all" data-value="all">Tümü</StyledToggleButton>
-                        <StyledToggleButton value="active" data-value="active">Aktif</StyledToggleButton>
-                        <StyledToggleButton value="inactive" data-value="inactive">Pasif</StyledToggleButton>
+                        <StyledToggleButton value="all" data-value="all">همه</StyledToggleButton>
+                        <StyledToggleButton value="active" data-value="active">فعال</StyledToggleButton>
+                        <StyledToggleButton value="inactive" data-value="inactive">غیرفعال</StyledToggleButton>
                     </ToggleButtonGroup>
                 </Grid>
             </Grid>
@@ -2202,9 +2202,9 @@ const ListPersonnel: React.FC = () => {
                 <Stack direction="row" spacing={2} mt={2} mr={2} justifyContent="flex-end">
                     {hasDownloadPermission && (
                         <Grid item xs={12} sm={6} md={4} sx={{ textAlign: "right" }}>
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                 <Button variant="contained" color="primary" onClick={openDownloadChooserForAll} startIcon={<IconFileDownload />}>
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         </Grid>
@@ -2220,7 +2220,7 @@ const ListPersonnel: React.FC = () => {
                                 <StyledTableCell><Typography variant="h6">Fotoğraf</Typography></StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "name"} direction={orderBy === "name" ? order : "asc"} onClick={() => handleRequestSort("name")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Ad Soyad</Typography>
+                                        <Typography variant="h6">نام و نام خانوادگی</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -2244,20 +2244,20 @@ const ListPersonnel: React.FC = () => {
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "workStartDate"} direction={orderBy === "workStartDate" ? order : "asc"} onClick={() => handleRequestSort("workStartDate")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Başlangıç</Typography>
+                                        <Typography variant="h6">شروع</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "workEndDate"} direction={orderBy === "workEndDate" ? order : "asc"} onClick={() => handleRequestSort("workEndDate")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Bitiş</Typography>
+                                        <Typography variant="h6">پایان</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "recordStatus"} direction={orderBy === "recordStatus" ? order : "asc"} onClick={() => handleRequestSort("recordStatus")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Detay</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">جزئیات</Typography></StyledTableCell>
                                 <StyledTableCell />
                             </TableRow>
                         </TableHead>
@@ -2295,7 +2295,7 @@ const ListPersonnel: React.FC = () => {
                                         <StyledTableCell>
                                             {row.hasISG ? (
                                                 <Chip
-                                                    label="Var"
+                                                    label="دارد"
                                                     size="small"
                                                     color="success"
                                                     variant="filled"
@@ -2303,7 +2303,7 @@ const ListPersonnel: React.FC = () => {
                                                 />
                                             ) : (
                                                 <Chip
-                                                    label="Yok"
+                                                    label="ندارد"
                                                     size="small"
                                                     color="error"
                                                     variant="outlined"
@@ -2330,11 +2330,11 @@ const ListPersonnel: React.FC = () => {
                                         </StyledTableCell>
                                         <StyledTableCell>
                                             <Button variant="outlined" size="small" onClick={() => handleClickDetails(row)}>
-                                                Detay
+                                                جزئیات
                                             </Button>
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                 <IconButton id={`menu-${row.id}`} onClick={(event) => handleClickMenu(event, row)}>
                                                     <IconDots width={18} />
                                                 </IconButton>
@@ -2360,7 +2360,7 @@ const ListPersonnel: React.FC = () => {
 
                                                 {hasEditPermission && (
                                                     <UiMenuItem onClick={() => selectedRowForMenu && onEditRow(selectedRowForMenu)}>
-                                                        <ListItemIcon><IconEdit width={18} /></ListItemIcon> Düzenle
+                                                        <ListItemIcon><IconEdit width={18} /></ListItemIcon> ویرایش
                                                     </UiMenuItem>
                                                 )}
                                                 {hasDeletePermission && (
@@ -2371,13 +2371,13 @@ const ListPersonnel: React.FC = () => {
                                                 {hasEditPermission && selectedRowForMenu?.recordStatus === 0 ? (
                                                     <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu projeyi pasif yap" : ""}>
                                                         <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}>
-                                                            <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap
+                                                            <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 ) : (
                                                     <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu projeyi aktif yap" : ""}>
                                                         <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}>
-                                                            <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap
+                                                            <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -2389,7 +2389,7 @@ const ListPersonnel: React.FC = () => {
                                                 )}
                                                 {hasDownloadPermission && (
                                                     <UiMenuItem onClick={openDownloadChooserForRow}>
-                                                        <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir
+                                                        <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف
                                                     </UiMenuItem>
                                                 )}
                                             </Menu>
@@ -2399,7 +2399,7 @@ const ListPersonnel: React.FC = () => {
                             ) : (
                                 <TableRow>
                                     <StyledTableCell colSpan={8} align="center">
-                                        <Typography variant="subtitle1" color="textSecondary">Kayıt bulunamadı.</Typography>
+                                        <Typography variant="subtitle1" color="textSecondary">رکوردی پیدا نشد.</Typography>
                                     </StyledTableCell>
                                 </TableRow>
                             )}
@@ -2428,12 +2428,12 @@ const ListPersonnel: React.FC = () => {
             />
 
             <Dialog open={openDownloadModal} onClose={() => setOpenDownloadModal(false)}>
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
 
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={handleDownloadChoosePDF}>
-                            PDF İndir (Detay)
+                            دانلود PDF (جزئیات)
                         </Button>
 
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={handleDownloadChoosePDFTable}>
@@ -2463,7 +2463,7 @@ const ListPersonnel: React.FC = () => {
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadModal(false)} color="secondary">İptal</Button>
+                    <Button onClick={() => setOpenDownloadModal(false)} color="secondary">انصراف</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={openDetailsDialog} onClose={() => setOpenDetailsDialog(false)} maxWidth="md" fullWidth scroll="body" PaperProps={{ sx: { maxHeight: "none" } }}>
@@ -2478,9 +2478,9 @@ const ListPersonnel: React.FC = () => {
                                 </React.Fragment>
                             ))}
                         </Grid>
-                    ) : <Typography>Veri yok.</Typography>}
+                    ) : <Typography>داده‌ای نیست.</Typography>}
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDetailsDialog(false)}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDetailsDialog(false)}>بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={invalidRows.length > 0} maxWidth="md" fullWidth>
@@ -2501,20 +2501,20 @@ const ListPersonnel: React.FC = () => {
                         return (
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Ad" value={r.name}
+                                    <TextField fullWidth size="small" label="نام" value={r.name}
                                         onChange={(e) => setR({ name: e.target.value })}
-                                        error={reqMissing("Ad")} helperText={reqMissing("Ad") ? "Zorunlu" : ""} />
+                                        error={reqMissing("نام")} helperText={reqMissing("نام") ? "الزامی" : ""} />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Soyad" value={r.family}
+                                    <TextField fullWidth size="small" label="نام خانوادگی" value={r.family}
                                         onChange={(e) => setR({ family: e.target.value })}
-                                        error={reqMissing("Soyad")} helperText={reqMissing("Soyad") ? "Zorunlu" : ""} />
+                                        error={reqMissing("نام خانوادگی")} helperText={reqMissing("نام خانوادگی") ? "الزامی" : ""} />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <TextField fullWidth size="small" label="TC Kimlik" value={r.identityNumber}
                                         onChange={(e) => setR({ identityNumber: e.target.value, errors: { ...r.errors, identityDuplicate: false } })}
                                         error={r.errors.identityDuplicate || reqMissing("TC Kimlik")}
-                                        helperText={r.errors.identityDuplicate ? "TC Kimlik tekrarlı — benzersiz olmalı" : (reqMissing("TC Kimlik") ? "Zorunlu" : "")}
+                                        helperText={r.errors.identityDuplicate ? "TC Kimlik tekrarlı — benzersiz olmalı" : (reqMissing("TC Kimlik") ? "الزامی" : "")}
                                         sx={errorStyle(r.errors.identityDuplicate)} />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
@@ -2533,17 +2533,17 @@ const ListPersonnel: React.FC = () => {
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Başlangıç (yyyy-MM-dd)" value={r.workStartDate ?? ""}
+                                    <TextField fullWidth size="small" label="شروع (yyyy-MM-dd)" value={r.workStartDate ?? ""}
                                         onChange={(e) => setR({ workStartDate: e.target.value })}
-                                        error={reqMissing("Başlangıç (yyyy-MM-dd)")}
-                                        helperText={reqMissing("Başlangıç (yyyy-MM-dd)") ? "Zorunlu" : ""} />
+                                        error={reqMissing("شروع (yyyy-MM-dd)")}
+                                        helperText={reqMissing("شروع (yyyy-MM-dd)") ? "الزامی" : ""} />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <TextField fullWidth size="small" label="Bitiş (yyyy-MM-dd) - Kaldırıldı" value={r.workEndDate ?? ""} disabled />
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Sigorta No" value={r.insuranceNumber} onChange={(e) => setR({ insuranceNumber: e.target.value })} />
+                                    <TextField fullWidth size="small" label="شماره بیمه" value={r.insuranceNumber} onChange={(e) => setR({ insuranceNumber: e.target.value })} />
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
@@ -2559,21 +2559,21 @@ const ListPersonnel: React.FC = () => {
                                     <FormLabel>Cinsiyet</FormLabel>
                                     <RadioGroup row value={r.sex} onChange={(e) => setR({ sex: Number(e.target.value) })}>
                                         <FormControlLabel value={0} control={<Radio />} label="Erkek" />
-                                        <FormControlLabel value={1} control={<Radio />} label="Kadın" />
+                                        <FormControlLabel value={1} control={<Radio />} label="زن" />
                                     </RadioGroup>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                    <FormLabel>Ücret Tipi</FormLabel>
+                                    <FormLabel>نوع دستمزد</FormLabel>
                                     <RadioGroup row value={r.salaryType} onChange={(e) => setR({ salaryType: Number(e.target.value) })}>
-                                        <FormControlLabel value={0} control={<Radio />} label="Aylık" />
-                                        <FormControlLabel value={1} control={<Radio />} label="Günlük" />
+                                        <FormControlLabel value={0} control={<Radio />} label="ماهانه" />
+                                        <FormControlLabel value={1} control={<Radio />} label="روزانه" />
                                     </RadioGroup>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <FormLabel>Tahakkuk</FormLabel>
                                     <RadioGroup row value={r.salaryAccrualMethod} onChange={(e) => setR({ salaryAccrualMethod: Number(e.target.value) })}>
-                                        <FormControlLabel value={0} control={<Radio />} label="Brüt" />
+                                        <FormControlLabel value={0} control={<Radio />} label="ناخالص" />
                                         <FormControlLabel value={1} control={<Radio />} label="Net" />
                                     </RadioGroup>
                                 </Grid>
@@ -2588,13 +2588,13 @@ const ListPersonnel: React.FC = () => {
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Doğum Yeri" value={r.birthPlace} onChange={(e) => setR({ birthPlace: e.target.value })} />
+                                    <TextField fullWidth size="small" label="محل تولد" value={r.birthPlace} onChange={(e) => setR({ birthPlace: e.target.value })} />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Doğum Tarihi (yyyy-MM-dd)" value={r.birthDate ?? ""}
+                                    <TextField fullWidth size="small" label="تاریخ تولد (yyyy-MM-dd)" value={r.birthDate ?? ""}
                                         onChange={(e) => setR({ birthDate: e.target.value })}
-                                        error={reqMissing("Doğum Tarihi (yyyy-MM-dd)")}
-                                        helperText={reqMissing("Doğum Tarihi (yyyy-MM-dd)") ? "Zorunlu" : ""} />
+                                        error={reqMissing("تاریخ تولد (yyyy-MM-dd)")}
+                                        helperText={reqMissing("تاریخ تولد (yyyy-MM-dd)") ? "الزامی" : ""} />
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
@@ -2621,31 +2621,31 @@ const ListPersonnel: React.FC = () => {
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Baba Adı" value={r.fatherName}
+                                    <TextField fullWidth size="small" label="نام پدر" value={r.fatherName}
                                         onChange={(e) => setR({ fatherName: e.target.value })}
-                                        error={reqMissing("Baba Adı")} helperText={reqMissing("Baba Adı") ? "Zorunlu" : ""} />
+                                        error={reqMissing("نام پدر")} helperText={reqMissing("نام پدر") ? "الزامی" : ""} />
                                 </Grid>
 
                                 <Grid item xs={12}>
-                                    <TextField fullWidth size="small" label="Adres" value={r.address}
+                                    <TextField fullWidth size="small" label="آدرس" value={r.address}
                                         onChange={(e) => setR({ address: e.target.value })}
-                                        error={reqMissing("Adres")} helperText={reqMissing("Adres") ? "Zorunlu" : ""} multiline minRows={2} />
+                                        error={reqMissing("آدرس")} helperText={reqMissing("آدرس") ? "الزامی" : ""} multiline minRows={2} />
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                    <FormLabel>Eğitim</FormLabel>
+                                    <FormLabel>آموزش</FormLabel>
                                     <RadioGroup row value={r.educationStatus} onChange={(e) => setR({ educationStatus: Number(e.target.value) })}>
                                         {EDU_LABELS.map((lbl, idx) => <FormControlLabel key={idx} value={idx} control={<Radio />} label={lbl} />)}
                                     </RadioGroup>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}><TextField fullWidth size="small" label="IBAN" value={r.iban} onChange={(e) => setR({ iban: e.target.value })} /></Grid>
-                                <Grid item xs={12} sm={6}><TextField fullWidth size="small" label="Telefon" value={r.telephone} onChange={(e) => setR({ telephone: e.target.value })} /></Grid>
+                                <Grid item xs={12} sm={6}><TextField fullWidth size="small" label="تلفن" value={r.telephone} onChange={(e) => setR({ telephone: e.target.value })} /></Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth size="small" label="Cep Telefon" value={r.mobile}
+                                    <TextField fullWidth size="small" label="تلفن همراه" value={r.mobile}
                                         onChange={(e) => setR({ mobile: e.target.value })}
-                                        error={r.errors.requiredMissing.includes("Cep Telefon")}
-                                        helperText={r.errors.requiredMissing.includes("Cep Telefon") ? "Cep Telefon veya Telefon zorunlu" : ""} />
+                                        error={r.errors.requiredMissing.includes("تلفن همراه")}
+                                        helperText={r.errors.requiredMissing.includes("تلفن همراه") ? "تلفن همراه یا تلفن الزامی است" : ""} />
                                 </Grid>
                             </Grid>
                         );
@@ -2654,18 +2654,18 @@ const ListPersonnel: React.FC = () => {
                 <DialogActions sx={{ justifyContent: "space-between" }}>
                     <Button disabled={invalidIndex === 0} onClick={() => setInvalidIndex(i => Math.max(0, i - 1))}>Önceki</Button>
                     <Stack direction="row" spacing={1}>
-                        <Button variant="outlined" color="secondary" onClick={() => { setInvalidRows([]); getAllPersonnels(); }}>Kapat</Button>
+                        <Button variant="outlined" color="secondary" onClick={() => { setInvalidRows([]); getAllPersonnels(); }}>بستن</Button>
                         <Button variant="contained" color="success" onClick={async () => {
                             const r = invalidRows[invalidIndex];
                             const req: string[] = [];
-                            if (!r.name) req.push("Ad");
-                            if (!r.family) req.push("Soyad");
+                            if (!r.name) req.push("نام");
+                            if (!r.family) req.push("نام خانوادگی");
                             if (!r.identityNumber) req.push("TC Kimlik");
-                            if (!r.workStartDate) req.push("Başlangıç (yyyy-MM-dd)");
-                            if (!r.birthDate) req.push("Doğum Tarihi (yyyy-MM-dd)");
-                            if (!r.fatherName) req.push("Baba Adı");
-                            if (!r.address) req.push("Adres");
-                            if (!(r.mobile || r.telephone)) req.push("Cep Telefon");
+                            if (!r.workStartDate) req.push("شروع (yyyy-MM-dd)");
+                            if (!r.birthDate) req.push("تاریخ تولد (yyyy-MM-dd)");
+                            if (!r.fatherName) req.push("نام پدر");
+                            if (!r.address) req.push("آدرس");
+                            if (!(r.mobile || r.telephone)) req.push("تلفن همراه");
 
                             const identityDuplicate =
                                 !r.identityNumber ? false :
@@ -2724,10 +2724,10 @@ const ListPersonnel: React.FC = () => {
                                     {personnelForAnnualLeave.name} {personnelForAnnualLeave.family}
                                 </Typography>
                                 <Typography variant="body2">
-                                    Başlangıç: {formatDateDisplay(personnelForAnnualLeave.workStartDate)}
+                                    شروع: {formatDateDisplay(personnelForAnnualLeave.workStartDate)}
                                 </Typography>
                                 <Typography variant="body2">
-                                    Bitiş: {formatDateDisplay(personnelForAnnualLeave.workEndDate)}
+                                    پایان: {formatDateDisplay(personnelForAnnualLeave.workEndDate)}
                                 </Typography>
 
                                 <Divider sx={{ my: 1 }} />
@@ -2740,15 +2740,15 @@ const ListPersonnel: React.FC = () => {
                                     <Chip
                                         label={
                                             annualLeaveData.personnelWorkYearsAndMonths
-                                                ? `${annualLeaveData.personnelWorkYearsAndMonths.years} Yıl, ${annualLeaveData.personnelWorkYearsAndMonths.months} Ay, ${annualLeaveData.personnelWorkYearsAndMonths.days} Gün`
-                                                : `${annualLeaveData.yearOfWork} Yıl`
+                                                ? `${annualLeaveData.personnelWorkYearsAndMonths.years} سال، ${annualLeaveData.personnelWorkYearsAndMonths.months} ماه، ${annualLeaveData.personnelWorkYearsAndMonths.days} روز`
+                                                : `${annualLeaveData.yearOfWork} سال`
                                         }
                                         color="secondary"
                                     />
                                 </Box>
 
                                 <Divider sx={{ my: 1 }} />
-                                <Typography variant="h6">Rapor İndir</Typography>
+                                <Typography variant="h6">دانلود گزارش</Typography>
                                 <Button
                                     variant="contained"
                                     startIcon={<IconFileDownload />}
@@ -2760,14 +2760,14 @@ const ListPersonnel: React.FC = () => {
                                             `İzin_Raporu_${personnelForAnnualLeave.name}_${personnelForAnnualLeave.family}.pdf`
                                         )
                                     }>
-                                    PDF İndir (Detay)
+                                    دانلود PDF (جزئیات)
                                 </Button>
                             </Stack>
                         )
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseAnnualLeaveModal} color="secondary">Kapat</Button>
+                    <Button onClick={handleCloseAnnualLeaveModal} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2776,12 +2776,12 @@ const ListPersonnel: React.FC = () => {
                 <DialogContent>
                     {personnelToEndCooperation && (
                         <Stack spacing={2}>
-                            <Typography>Personel: {personnelToEndCooperation.name} {personnelToEndCooperation.family}</Typography>
-                            <Typography>Başlangıç Tarihi:{formatDateDisplay(personnelToEndCooperation.workStartDate)}</Typography>
+                            <Typography>پرسنل: {personnelToEndCooperation.name} {personnelToEndCooperation.family}</Typography>
+                            <Typography>تاریخ شروع:{formatDateDisplay(personnelToEndCooperation.workStartDate)}</Typography>
 
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <DatePicker
-                                    label="Bitiş Tarihi Seçin"
+                                    label="تاریخ پایان را انتخاب کنید"
                                     value={endDate}
                                     inputFormat="dd/MM/yyyy"
                                     minDate={personnelToEndCooperation.workStartDate ? parseISO(personnelToEndCooperation.workStartDate) : undefined}
@@ -2793,8 +2793,8 @@ const ListPersonnel: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEndCooperationModal(false)} color="secondary">İptal</Button>
-                    <Button onClick={submitEndCooperation} color="error" disabled={!endDate}>Sonlandır</Button>
+                    <Button onClick={() => setOpenEndCooperationModal(false)} color="secondary">انصراف</Button>
+                    <Button onClick={submitEndCooperation} color="error" disabled={!endDate}>پایان دادن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2815,8 +2815,8 @@ const ListPersonnel: React.FC = () => {
                                 <TableHead>
                                     <TableRow>
                                         <StyledTableCell sx={{ fontWeight: 'bold' }}>Mal İsmi (Kod)</StyledTableCell>
-                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>Veriliş Tarihi</StyledTableCell>
-                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>Açıklama</StyledTableCell>
+                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>تاریخ صدور</StyledTableCell>
+                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>توضیحات</StyledTableCell>
                                         <StyledTableCell sx={{ fontWeight: 'bold' }}>Ekler</StyledTableCell>
                                     </TableRow>
                                 </TableHead>
@@ -2861,8 +2861,8 @@ const ListPersonnel: React.FC = () => {
                                     <TableRow sx={{ backgroundColor: '#f0f8ff' }}>
                                         <StyledTableCell sx={{ fontWeight: 'bold' }}>Plaka (Marka)</StyledTableCell>
                                         <StyledTableCell sx={{ fontWeight: 'bold' }}>Model</StyledTableCell>
-                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>Veriliş Tarihi</StyledTableCell>
-                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>Açıklama</StyledTableCell>
+                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>تاریخ صدور</StyledTableCell>
+                                        <StyledTableCell sx={{ fontWeight: 'bold' }}>توضیحات</StyledTableCell>
                                         <StyledTableCell sx={{ fontWeight: 'bold' }}>Ekler</StyledTableCell>
                                     </TableRow>
                                 </TableHead>
@@ -2906,7 +2906,7 @@ const ListPersonnel: React.FC = () => {
                         İlişik Kesme PDF İndir
                     </Button>
                     <Button onClick={() => setOpenActiveConsignmentsModal(false)} color="secondary" variant="outlined">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -2948,7 +2948,7 @@ const ListPersonnel: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
 
-                    <Button onClick={() => setOpenImageSlider(false)} color="primary">Kapat</Button>
+                    <Button onClick={() => setOpenImageSlider(false)} color="primary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2982,11 +2982,11 @@ const ListPersonnel: React.FC = () => {
                             })}
                         </Stack>
                     ) : (
-                        <DialogContentText>Bu kayda ait ek dosya bulunmamaktadır.</DialogContentText>
+                        <DialogContentText>این رکورد فایل پیوستی ندارد.</DialogContentText>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAttachmentsModal(false)} color="primary" variant="outlined">Kapat</Button>
+                    <Button onClick={() => setOpenAttachmentsModal(false)} color="primary" variant="outlined">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -3026,7 +3026,7 @@ const ListPersonnel: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenPersonnelFilesModal(false)} color="primary" variant="outlined">Kapat</Button>
+                    <Button onClick={() => setOpenPersonnelFilesModal(false)} color="primary" variant="outlined">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -3037,7 +3037,7 @@ const ListPersonnel: React.FC = () => {
                     {personnelToUpdateSalary ? (
                         <Stack spacing={2}>
                             <Typography variant="subtitle1">
-                                Personel:   {personnelToUpdateSalary.name} {personnelToUpdateSalary.family}
+                                پرسنل:   {personnelToUpdateSalary.name} {personnelToUpdateSalary.family}
                             </Typography>
                             <Typography variant="body2">
                                 TC Kimlik:   {personnelToUpdateSalary.identityNumber}
@@ -3070,14 +3070,14 @@ const ListPersonnel: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseSalaryEditModal} color="secondary">İptal</Button>
+                    <Button onClick={handleCloseSalaryEditModal} color="secondary">انصراف</Button>
                     <Button
                         onClick={submitSalaryUpdate}
                         color="info"
                         variant="contained"
                         disabled={loadingSalaryUpdate || newSalary === null || newSalary <= 0}
                     >
-                        {loadingSalaryUpdate ? 'Güncelleniyor...' : 'Maaşı Kaydet'}
+                        {loadingSalaryUpdate ? 'در حال به‌روزرسانی...' : 'Maaşı Kaydet'}
                     </Button>
                 </DialogActions>
             </Dialog>

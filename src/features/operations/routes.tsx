@@ -37,7 +37,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/tender/define-work/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListWorks />
       </PermissionGuard>
     ),
@@ -45,7 +45,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/work/:workId/networks',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListNetworks />
       </PermissionGuard>
     ),
@@ -53,7 +53,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/network/list-network',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListNetworks />
       </PermissionGuard>
     ),
@@ -61,7 +61,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/network/:networkId/details',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <NetworkDetails />
       </PermissionGuard>
     ),
@@ -69,7 +69,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/workhouse/list-workhouse/:workId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListWorkHouse />
       </PermissionGuard>
     ),
@@ -77,7 +77,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/workhouse/list-workhouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListWorkHouse />
       </PermissionGuard>
     ),
@@ -85,7 +85,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/workhouse/workhousedetails/:workhouseId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <WorkHouseDetails />
       </PermissionGuard>
     ),
@@ -93,7 +93,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/transmission/list-transmission/:networkId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListTransmission />
       </PermissionGuard>
     ),
@@ -101,7 +101,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-stores/:workhouseId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStores />
       </PermissionGuard>
     ),
@@ -109,7 +109,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-stores/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStores />
       </PermissionGuard>
     ),
@@ -117,7 +117,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-between-store-receipt/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListBetweenStoreReceipt />
       </PermissionGuard>
     ),
@@ -125,7 +125,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-store-receipt/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreReceipts />
       </PermissionGuard>
     ),
@@ -133,7 +133,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-store-receipt-invoice/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreReceiptInvoice />
       </PermissionGuard>
     ),
@@ -141,7 +141,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-store-receipt/:storeId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreReceipts />
       </PermissionGuard>
     ),
@@ -149,7 +149,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-store-dispatch-to-center/:storeId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreDispatchToCenter />
       </PermissionGuard>
     ),
@@ -157,7 +157,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-store-dispatch-return-to-center/:storeId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreDispatchReturnToCenter />
       </PermissionGuard>
     ),
@@ -165,7 +165,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/between-store-dispatch/:storeId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListBetweenStoreDispatch />
       </PermissionGuard>
     ),
@@ -173,7 +173,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/store-dispatch/:storeId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreDispatch />
       </PermissionGuard>
     ),
@@ -181,7 +181,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/store/list-requests/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <RequestTabs />
       </PermissionGuard>
     ),
@@ -189,7 +189,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/order/list-request-receipt/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <RequestReceiptTabs />
       </PermissionGuard>
     ),
@@ -197,7 +197,7 @@ export const operationsRoutes: RouteObject[] = [
   {
     path: '/hr/list-roll-calls/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListRollCalls />
       </PermissionGuard>
     ),

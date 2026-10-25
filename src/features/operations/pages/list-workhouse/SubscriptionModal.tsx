@@ -141,7 +141,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                                             <TextField
                                                 fullWidth
                                                 label="Abone Sahibi"
-                                                placeholder="Adı Soyadı"
+                                                placeholder="نام و نام خانوادگی"
                                                 size="small"
                                                 disabled={!checkedStatus}
                                                 value={subData?.owner || ''}
@@ -172,8 +172,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">İptal</Button>
-                <Button onClick={handleSave} color="primary" variant="contained">Kaydet</Button>
+                <Button onClick={onClose} color="secondary">انصراف</Button>
+                <Button onClick={handleSave} color="primary" variant="contained">ذخیره</Button>
             </DialogActions>
         </Dialog>
     );

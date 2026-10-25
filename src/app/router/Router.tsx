@@ -15,7 +15,6 @@ import { humanResourcesRoutes } from 'src/features/human-resources';
 import { vehiclesRoutes } from 'src/features/vehicles';
 import { educationRoutes } from 'src/features/education';
 import { reportsRoutes } from 'src/features/reports';
-import { aiAgentRoutes } from 'src/features/ai-agent';
 import { authRoutes } from 'src/features/auth';
 import { accountRoutes, companyHomeRoute } from 'src/features/account';
 import { subscriptionPlanRoutes } from 'src/features/subscription-plans';
@@ -48,7 +47,6 @@ const Router: RouteObject[] = [
       ...educationRoutes,
       ...reportsRoutes,
       { path: '*', element: <Navigate to="/auth/404" /> },
-      ...aiAgentRoutes,
     ],
   },
   {

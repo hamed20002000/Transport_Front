@@ -38,6 +38,7 @@ import {
 } from './api';
 import DriverShell from './DriverShell';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 type TextKey = 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber';
 type Plate = { left: string; letter: string; middle: string; region: string };
@@ -151,6 +152,7 @@ const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 
 function PhotoSlot({ kind, title, hint, version, onChange }: { kind: DriverPhotoKind; title: string; hint: string; version: string | null; onChange: (profile: DriverProfile) => void }) {
   const toast = useToast();
+  const messageBox = useMessageBox();
   const input = useRef<HTMLInputElement>(null);
   const [src, setSrc] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -210,7 +212,7 @@ function PhotoSlot({ kind, title, hint, version, onChange }: { kind: DriverPhoto
             <button
               type="button"
               disabled={busy}
-              onClick={() => window.confirm(`${title} حذف شود؟`) && run(() => deleteDriverPhoto(kind), 'عکس حذف شد.')}
+              onClick={async () => (await messageBox.confirm({ message: `${title} حذف شود؟`, tone: 'danger', confirmText: 'حذف' })) && run(() => deleteDriverPhoto(kind), 'عکس حذف شد.')}
               title="حذف عکس"
               aria-label={`حذف ${title}`}
               className="tw-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-lg tw-bg-transparent tw-text-brand-muted hover:tw-bg-red-50 hover:tw-text-red-600"

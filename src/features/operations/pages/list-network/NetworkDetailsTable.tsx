@@ -179,7 +179,7 @@ const NetworkDetailsTable: React.FC<WorkDetailsTableProps> = ({
                     <TableRow>
                         <TableCell style={{ width: '50px' }}></TableCell>
                         <TableCell><Typography variant="h6" color="#171c23">TR ADI</Typography></TableCell>
-                        <TableCell sx={{ width: '100px', textAlign: 'right' }}><Typography variant="h6" color="#171c23">İşlemler</Typography></TableCell>
+                        <TableCell sx={{ width: '100px', textAlign: 'right' }}><Typography variant="h6" color="#171c23">عملیات</Typography></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -268,10 +268,10 @@ const NetworkDetailsTable: React.FC<WorkDetailsTableProps> = ({
                                                             }}>
                                                                 <TableCell style={{ width: '50px' }}></TableCell>
                                                                 <TableCell sx={{ fontWeight: 'bold' }}>D.N</TableCell>
-                                                                <TableCell sx={{ fontWeight: 'bold' }}>YENİ</TableCell>
+                                                                <TableCell sx={{ fontWeight: 'bold' }}>جدید</TableCell>
                                                                 <TableCell sx={{ fontWeight: 'bold' }}>DMM</TableCell>
                                                                 <TableCell sx={{ fontWeight: 'bold' }}>MEVCUT</TableCell>
-                                                                <TableCell sx={{ width: '100px', textAlign: 'right', fontWeight: 'bold' }}>İşlemler</TableCell>
+                                                                <TableCell sx={{ width: '100px', textAlign: 'right', fontWeight: 'bold' }}>عملیات</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
@@ -307,7 +307,7 @@ const NetworkDetailsTable: React.FC<WorkDetailsTableProps> = ({
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Satır başına düşen:"
+                labelRowsPerPage="تعداد در هر صفحه:"
                 labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
             />
         </TableContainer>

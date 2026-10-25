@@ -35,6 +35,7 @@ import {
 } from './api';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, IconButton, LoadFailed, SectionTitle } from './components';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 type ListKey = 'origins' | 'destinations' | 'cargoTypes' | 'vehicleTypes' | 'companies';
 export type FilterAudience = 'company' | 'driver';
@@ -296,6 +297,7 @@ function FilterCard({
 
 export function FiltersContent({ audience = 'company' }: { audience?: FilterAudience }) {
   const toast = useToast();
+  const messageBox = useMessageBox();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [busyKey, setBusyKey] = useState('');
@@ -362,9 +364,9 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
       settle(row.key, { key: row.key, saved, draft: { ...row.draft, isActive: saved.isActive } });
     });
 
-  const remove = (row: Row) => {
+  const remove = async (row: Row) => {
     if (!row.saved) return replace(row.key, null);
-    if (!window.confirm('این فیلتر حذف شود؟')) return;
+    if (!(await messageBox.confirm({ message: 'این فیلتر حذف شود؟', tone: 'danger', confirmText: 'حذف' }))) return;
     run(row.key, async () => {
       await deleteCargoFilter(row.saved!.id);
       replace(row.key, null);

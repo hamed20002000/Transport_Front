@@ -51,7 +51,7 @@ const NoDataView = () => (
             <IconDatabaseOff size={40} color="#9ca3af" />
         </Avatar>
         <Typography variant="h6" fontWeight={600} color="textPrimary" gutterBottom>
-            Kayıt Bulunamadı
+            رکوردی پیدا نشد
         </Typography>
         <Typography variant="body2" color="textSecondary">
             Şu anda görüntülenecek herhangi bir yakıt harcaması bulunamadı.
@@ -135,7 +135,7 @@ const WorkhouseFuelStats = () => {
                         workhouse_id: 'other-stats-id',
                         workhouse_code: '-',
                         workhouse_name: 'Şantiye Dışı ',
-                        fuel_type: 'Diğer',
+                        fuel_type: 'سایر',
                         total_fuel_amount: 0,
                         total_price: parseNumber(otherItemRaw.total_price),
                         isOther: true
@@ -256,7 +256,7 @@ const WorkhouseFuelStats = () => {
                                     }}
                                 />
                                 <Typography variant="caption" color="textSecondary">
-                                    {item.workhouse_code !== '-' ? `Kod: ${item.workhouse_code}` : ''}
+                                    {item.workhouse_code !== '-' ? `کد: ${item.workhouse_code}` : ''}
                                 </Typography>
                             </Stack>
                         </Box>
@@ -269,7 +269,7 @@ const WorkhouseFuelStats = () => {
                             <Box display="flex" alignItems="center" gap={1}>
                                 <IconDroplet size={18} color={itemColor} />
                                 <Box>
-                                    <Typography variant="caption" color="textSecondary" display="block">Miktar</Typography>
+                                    <Typography variant="caption" color="textSecondary" display="block">مقدار</Typography>
                                     <Typography variant="subtitle1" fontWeight={700}>
                                         {formatTR(item.total_fuel_amount)} <Typography component="span" variant="caption">Lt</Typography>
                                     </Typography>
@@ -283,7 +283,7 @@ const WorkhouseFuelStats = () => {
 
                         <Box display="flex" alignItems="center" gap={1} textAlign="right" ml="auto">
                             <Box>
-                                <Typography variant="caption" color="textSecondary" display="block">Tutar</Typography>
+                                <Typography variant="caption" color="textSecondary" display="block">مبلغ</Typography>
                                 <Typography variant="subtitle1" fontWeight={700} color={itemColor}>
                                     {formatTR(item.total_price)} <Typography component="span" variant="caption">TL</Typography>
                                 </Typography>
@@ -341,7 +341,7 @@ const WorkhouseFuelStats = () => {
                         <ToggleButton value="cards" aria-label="cards view">
                             <Stack direction="row" spacing={1} alignItems="center">
                                 <IconLayoutGrid size={18} />
-                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>Liste</Typography>
+                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>فهرست</Typography>
                             </Stack>
                         </ToggleButton>
                     </ToggleButtonGroup>

@@ -215,7 +215,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="warning.main">Miktar ve Fiyatlar</Typography>
                         <Stack spacing={1}>
-                            <TextField label="Ürün Adı" size="small" fullWidth value={report.itmName} disabled />
+                            <TextField label="نام کالا" size="small" fullWidth value={report.itmName} disabled />
                             <TextField label="Toplam Miktar (Makbuz)" size="small" fullWidth value={formatPriceDisplay(report.qty)} disabled />
                             <TextField label="Demontaj Miktarı (Net)" size="small" fullWidth value={formatPriceDisplay(report.demontaj)} disabled />
                             <TextField label="Demontaj+Montaj Miktarı" size="small" fullWidth value={formatPriceDisplay(report.demontajMontaj)} disabled />
@@ -226,7 +226,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     </Grid>
 
                     <Grid item xs={12} mt={3}>
-                        <Typography variant="h6" mb={1} color="secondary">📥 Raporu İndir</Typography>
+                        <Typography variant="h6" mb={1} color="secondary">📥 دانلود گزارش</Typography>
                         <Stack direction="row" spacing={2}>
                             <Button variant="contained" color="success" startIcon={<IconFileDownload />}
                                 onClick={() => onExportPdf(report)} fullWidth>
@@ -241,7 +241,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">Kapat</Button>
+                <Button onClick={onClose} color="secondary">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -286,9 +286,9 @@ const ListTenderFlowReport = () => {
     }, []);
     const clearAlert = () => { setAlertMessage(null); };
 
-    const handleApiError = useCallback((e: any, defaultMessage: string = 'Bir hata oluştu.') => {
-        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-        else if (e.response?.status === 500) { showAlert('Sistem hatası oluştu, lütfen deneyin.', 'error'); }
+    const handleApiError = useCallback((e: any, defaultMessage: string = 'خطایی رخ داد.') => {
+        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+        else if (e.response?.status === 500) { showAlert('خطای سیستمی رخ داد، لطفاً دوباره تلاش کنید.', 'error'); }
         else { console.error("API Error:", e); showAlert(e.response?.data?.message || defaultMessage, 'error'); }
     }, [navigate, showAlert]);
 
@@ -322,8 +322,8 @@ const ListTenderFlowReport = () => {
             if (result.data.httpStatusCode === 200) {
                 const formattedData: TenderType[] = result.data.data.map((item: any) => ({
                     id: item.id, title: item.title, recordStatus: item.recordStatus, createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif', tenderStatus: item.status,
-                    approvedTenderText: item.status === 1 ? 'Onaylandı' : 'Beklemede',
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال', tenderStatus: item.status,
+                    approvedTenderText: item.status === 1 ? 'تأیید شد' : 'Beklemede',
                     approvedTenderDate: item.statusDate, showApprovedIcon: item.status === 1,
                     showRejectedIcon: item.status === 2, showPendingIcon: item.status === 0, attachments: item.attachments || [],
                 }));
@@ -339,11 +339,11 @@ const ListTenderFlowReport = () => {
             if (response.data && response.data.success) {
                 const processedData: ItemType[] = response.data.data.filter((item: any) => item.recordStatus === 0).map((item: any) => ({
                     id: item.id, name: item.name, description: item.description, abbreviation: item.abbreviation,
-                    recordStatus: item.recordStatus ?? 0, category: item.category, unit: item.unit, status: item.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    recordStatus: item.recordStatus ?? 0, category: item.category, unit: item.unit, status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                 }));
                 setItemsList(processedData);
             }
-        } catch (e: any) { handleApiError(e, 'Ürünler sunucudan alınamadı'); }
+        } catch (e: any) { handleApiError(e, 'کالاها از سرور دریافت نشدند'); }
     }, [navigate, authToken, handleApiError]);
 
     const getWorkhousesList = useCallback(async () => {
@@ -357,7 +357,7 @@ const ListTenderFlowReport = () => {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
             }
-        } catch (e: any) { handleApiError(e, 'Şantiye listesi alınamadı.'); }
+        } catch (e: any) { handleApiError(e, 'فهرست کارگاه‌ها دریافت نشد.'); }
     }, [navigate, authToken, handleApiError]);
 
 
@@ -385,7 +385,7 @@ const ListTenderFlowReport = () => {
             }
         } catch (e: any) {
             setReportData(null);
-            handleApiError(e, 'Rapor verileri alınırken bir sorun oluştu.');
+            handleApiError(e, 'هنگام دریافت داده‌های گزارش مشکلی پیش آمد.');
         } finally {
             setLoadingData(false);
         }
@@ -464,7 +464,7 @@ const ListTenderFlowReport = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -473,7 +473,7 @@ const ListTenderFlowReport = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -491,7 +491,7 @@ const ListTenderFlowReport = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -503,46 +503,46 @@ const ListTenderFlowReport = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
     const handleExportPdfSingle = async (report: TenderFlowReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('PDF raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش PDF در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
         try {
             const doc = new jsPDF('portrait', 'pt', 'a4'); (doc as any).addFileToVFS("NotoSans-Regular.ttf", NotoSansRegular); (doc as any).addFont("NotoSans-Regular.ttf", "NotoSans", "normal"); doc.setFont("NotoSans", "normal");
             const reportTitle = `İhale Akış Detay Raporu: ${report.ihaleTitle}`; addPdfHeader(doc, reportTitle);
-            const tableColumn = ["Alan", "Değer"];
+            const tableColumn = ["فیلد", "مقدار"];
             const tableRows = [
-                ["İhale Başlığı", report.ihaleTitle], ["Şantiye", report.workhouse_name],
-                ["Toplam Miktar", `${parseNumberFromString(report.qty)} (${report.unit})`],
+                ["İhale Başlığı", report.ihaleTitle], ["کارگاه", report.workhouse_name],
+                ["مقدار کل", `${parseNumberFromString(report.qty)} (${report.unit})`],
                 ["Demontaj", parseNumberFromString(report.demontaj)], ["DemontajMontaj", parseNumberFromString(report.demontajMontaj)],
                 ["DemontajMontajPrice", formatPriceDisplay(report.demontajMontajPrice)], ["DemontajTutari", formatPriceDisplay(report.demontajTutari)],
                 ["MontajPrice", formatPriceDisplay(report.montajPrice)], ["DemontajPrice", formatPriceDisplay(report.demontajPrice)],
             ];
             autoTable(doc, { startY: 70, head: [tableColumn], body: tableRows, theme: 'grid', styles: { font: 'NotoSans', fontStyle: "normal", fontSize: 9, cellPadding: 5, }, headStyles: { fillColor: [60, 141, 188], textColor: 255 }, didDrawPage: (_data) => { addPdfFooter(doc); } });
-            doc.save(`İhale_Detay_${report.itmName}_${format(new Date(), 'yyyyMMdd')}.pdf`); showAlert('PDF raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'PDF raporu oluşturulurken bir hata oluştu.'); }
+            doc.save(`İhale_Detay_${report.itmName}_${format(new Date(), 'yyyyMMdd')}.pdf`); showAlert('گزارش PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش PDF خطایی رخ داد.'); }
     };
 
     const handleExportExcelSingle = async (report: TenderFlowReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('Excel raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش Excel در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
         try {
             const workbook = new Excel.Workbook(); const sheet = workbook.addWorksheet('İhale Detay', { views: [{ rightToLeft: false }] });
-            const data = [['İhale', report.ihaleTitle], ['Şantiye', report.workhouse_name], ['Toplam Miktar', parseNumberFromString(report.qty)], ['Demontaj', parseNumberFromString(report.demontaj)], ['DemontajMontaj', parseNumberFromString(report.demontajMontaj)], ['DemontajMontajPrice', parseNumberFromString(report.demontajMontajPrice)], ['DemontajTutari', parseNumberFromString(report.demontajTutari)], ['MontajPrice', parseNumberFromString(report.montajPrice)], ['DemontajPrice', parseNumberFromString(report.demontajPrice)],];
+            const data = [['مناقصه', report.ihaleTitle], ['کارگاه', report.workhouse_name], ['مقدار کل', parseNumberFromString(report.qty)], ['Demontaj', parseNumberFromString(report.demontaj)], ['DemontajMontaj', parseNumberFromString(report.demontajMontaj)], ['DemontajMontajPrice', parseNumberFromString(report.demontajMontajPrice)], ['DemontajTutari', parseNumberFromString(report.demontajTutari)], ['MontajPrice', parseNumberFromString(report.montajPrice)], ['DemontajPrice', parseNumberFromString(report.demontajPrice)],];
             const titleRow = sheet.addRow([`İhale Akış Raporu Detayı: ${report.ihaleTitle}`]); titleRow.font = { name: 'Calibri', size: 14, bold: true }; sheet.mergeCells('A1:B1'); sheet.addRow([]);
-            const headerRow = sheet.addRow(['Alan', 'Değer']); headerRow.eachCell((cell) => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; cell.font = { bold: true }; cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }; });
+            const headerRow = sheet.addRow(['فیلد', 'مقدار']); headerRow.eachCell((cell) => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; cell.font = { bold: true }; cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }; });
             data.forEach(row => { const newRow = sheet.addRow(row); newRow.eachCell((cell) => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }; }); const fieldName = row[0] as string; if (fieldName.includes('Price') || fieldName.includes('Tutari')) { newRow.getCell(2).numFmt = '$ #,##0.00'; } });
             sheet.columns[0].width = 30; sheet.columns[1].width = 40;
-            const buffer = await workbook.xlsx.writeBuffer(); saveAs(new Blob([buffer]), `İhale_Detay_${report.itmName}_${format(new Date(), 'yyyyMMdd')}.xlsx`); showAlert('Excel raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'Excel raporu oluşturulurken bir hata oluştu.'); }
+            const buffer = await workbook.xlsx.writeBuffer(); saveAs(new Blob([buffer]), `İhale_Detay_${report.itmName}_${format(new Date(), 'yyyyMMdd')}.xlsx`); showAlert('گزارش Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش Excel خطایی رخ داد.'); }
     };
 
     const handleExportPdfAll = () => {
@@ -564,7 +564,7 @@ const ListTenderFlowReport = () => {
 
             addPdfHeader(doc, "İhale Akış Genel Raporu");
 
-            const tableColumn = ["İhale", "Ürün Adı", "Top. Miktar", "Demontaj", "Dem/Mon", "D+M Fiyat", "Dem Tutarı", "Mon Fiyat", "Dem Fiyat"];
+            const tableColumn = ["مناقصه", "نام کالا", "مقدار کل", "Demontaj", "Dem/Mon", "D+M Fiyat", "Dem Tutarı", "Mon Fiyat", "Dem Fiyat"];
 
             const tableRows = dataToExport.map(row => [
                 row.ihaleTitle,
@@ -618,13 +618,13 @@ const ListTenderFlowReport = () => {
             return;
         }
 
-        showAlert('Excel raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        showAlert('گزارش Excel در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
             const sheet = workbook.addWorksheet('İhale Akış Genel Raporu', { views: [{ rightToLeft: false }] });
 
-            const headerRowData = ["İhale", "Ürün Adı", "Toplam Miktar", "Demontaj", "DemontajMontaj", "DemontajMontajPrice", "DemontajTutari", "MontajPrice", "DemontajPrice"];
+            const headerRowData = ["مناقصه", "نام کالا", "مقدار کل", "Demontaj", "DemontajMontaj", "DemontajMontajPrice", "DemontajTutari", "MontajPrice", "DemontajPrice"];
 
             sheet.addRow(["İhale Akış Genel Raporu"]);
             sheet.mergeCells('A1:J1');
@@ -676,17 +676,17 @@ const ListTenderFlowReport = () => {
 
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `İhale_Akış_Genel_${format(new Date(), 'yyyyMMdd_HHmm')}.xlsx`);
-            showAlert('Excel raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('گزارش Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) {
             console.error(e);
-            showAlert('Excel raporu oluşturulurken bir hata oluştu.', 'error');
+            showAlert('هنگام ساخت گزارش Excel خطایی رخ داد.', 'error');
         }
     };
 
     const tableHeaders: { label: string; key: keyof TenderFlowReportRowType | 'actions' }[] = [
         { label: 'İhale Başlığı', key: 'ihaleTitle' },
-        { label: 'Ürün Adı', key: 'itmName' },
-        { label: 'Top. Miktar', key: 'qty' },
+        { label: 'نام کالا', key: 'itmName' },
+        { label: 'مقدار کل', key: 'qty' },
         { label: 'Demontaj Miktarı', key: 'demontaj' },
         { label: 'D+M Miktarı', key: 'demontajMontaj' },
         { label: 'Demontaj Tutarı', key: 'demontajTutari' },
@@ -694,7 +694,7 @@ const ListTenderFlowReport = () => {
 
         { label: 'Montaj Fiyatı', key: 'montajPrice' },
         { label: 'Demontaj Fiyatı', key: 'demontajPrice' },
-        { label: 'İşlemler', key: 'actions' },
+        { label: 'عملیات', key: 'actions' },
     ];
 
 
@@ -711,7 +711,7 @@ const ListTenderFlowReport = () => {
                 <Grid container spacing={3} p={2}>
 
                     <Grid item xs={12} sm={6} md={4}><Autocomplete id="tender-select" options={tendersList} getOptionLabel={(o) => `${o.title} (${o.approvedTenderText})`} value={tendersList.find(t => t.id === filterParams.tenderId) || null} onChange={(_, newValue) => handleFilterChange('tenderId', newValue?.id || null)} renderInput={(params) => (<TextField {...params} label="İhale Seçiniz" fullWidth size="small" />)} /></Grid>
-                    <Grid item xs={12} sm={6} md={4}><Autocomplete id="workhouse-select" options={workhousesList} getOptionLabel={(o) => `${o.name} (${o.code})`} value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null} onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)} renderInput={(params) => (<TextField {...params} label="Şantiye" fullWidth size="small" />)} /></Grid>
+                    <Grid item xs={12} sm={6} md={4}><Autocomplete id="workhouse-select" options={workhousesList} getOptionLabel={(o) => `${o.name} (${o.code})`} value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null} onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)} renderInput={(params) => (<TextField {...params} label="کارگاه" fullWidth size="small" />)} /></Grid>
 
                     <Grid item xs={12} sm={6} md={4}><Autocomplete id="item-select" options={itemsList}
                         getOptionLabel={(o) => `${o.name} `} value={itemsList.find(i => i.id === filterParams.itemId) || null} onChange={(_, newValue) => handleFilterChange('itemId', newValue?.id || null)} renderInput={(params) => (<TextField {...params} label="Ürün Seçiniz" fullWidth size="small" />)} /></Grid>
@@ -722,10 +722,10 @@ const ListTenderFlowReport = () => {
                         <Grid item xs={12} md={6} display="flex" justifyContent="flex-end" gap={1}>
                             <Button variant="outlined" color="success" startIcon={<IconFileSpreadsheet />}
                                 onClick={handleExportExcelAll}
-                                disabled={loadingData || !reportData?.data?.length}>Tüm Veriyi Excel İndir</Button>
+                                disabled={loadingData || !reportData?.data?.length}>دانلود همه‌ی داده‌ها در Excel</Button>
                             <Button variant="outlined" color="error" startIcon={<IconFileDownload />}
                                 onClick={handleExportPdfAll}
-                                disabled={loadingData || !reportData?.data?.length}>Tüm Veriyi PDF İndir</Button>
+                                disabled={loadingData || !reportData?.data?.length}>دانلود همه‌ی داده‌ها در PDF</Button>
                         </Grid>
                     </Grid>
                 </Box>
@@ -773,11 +773,11 @@ const ListTenderFlowReport = () => {
                                         <StyledTableCell>{formatPriceDisplay(row.montajPrice)}</StyledTableCell>
                                         <StyledTableCell>{formatPriceDisplay(row.demontajPrice)}</StyledTableCell>
                                         <StyledTableCell>
-                                            <Tooltip title="Detaylar ve İşlemler"><IconButton id={`actions-button-${index}`} onClick={(event) => handleClickMenu(event, row)} color="secondary" size="small"><IconDots width={20} /></IconButton></Tooltip>
+                                            <Tooltip title="جزئیات و عملیات"><IconButton id={`actions-button-${index}`} onClick={(event) => handleClickMenu(event, row)} color="secondary" size="small"><IconDots width={20} /></IconButton></Tooltip>
                                             <Menu id="actions-menu" anchorEl={anchorEl} open={openMenu && selectedRowForMenu === row} onClose={handleCloseMenu}>
-                                                <MenuItem onClick={() => handleOpenDetailViewModal(row)}><ListItemIcon><IconRuler width={18} /></ListItemIcon> Detayları Görüntüle</MenuItem>
-                                                <MenuItem onClick={() => handleExportPdfSingle(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> PDF İndir</MenuItem>
-                                                <MenuItem onClick={() => handleExportExcelSingle(row)}><ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> Excel İndir</MenuItem>
+                                                <MenuItem onClick={() => handleOpenDetailViewModal(row)}><ListItemIcon><IconRuler width={18} /></ListItemIcon> مشاهده‌ی جزئیات</MenuItem>
+                                                <MenuItem onClick={() => handleExportPdfSingle(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود PDF</MenuItem>
+                                                <MenuItem onClick={() => handleExportExcelSingle(row)}><ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> دانلود Excel</MenuItem>
                                             </Menu>
                                         </StyledTableCell>
                                     </TableRow>
@@ -817,7 +817,7 @@ const ListTenderFlowReport = () => {
                             page={page}
                             onPageChange={handlePageChange}
                             onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Satır sayısı:"
+                            labelRowsPerPage="تعداد ردیف‌ها:"
                             labelDisplayedRows={({ from, to, count }) =>
                                 `${from}–${to} / ${count !== -1 ? count : `> ${to}`}`
                             }

@@ -21,7 +21,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/position/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPosition />
       </PermissionGuard>
     ),
@@ -29,7 +29,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/personnal/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPersonnel />
       </PermissionGuard>
     ),
@@ -37,7 +37,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/leaves/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListLeaves />
       </PermissionGuard>
     ),
@@ -45,7 +45,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/personnel-work-places/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPersonnelWorkPlaces />
       </PermissionGuard>
     ),
@@ -53,7 +53,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/personnel-work-places-by-workhouse/:workhouseId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPersonnelWorkPlacesByWorkhouse />
       </PermissionGuard>
     ),
@@ -61,7 +61,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/list-consignments/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListConsignments />
       </PermissionGuard>
     ),
@@ -69,7 +69,7 @@ export const humanResourcesRoutes: RouteObject[] = [
   {
     path: '/hr/list-personal-consignments/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListPersonnelConsigneds />
       </PermissionGuard>
     ),

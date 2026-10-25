@@ -24,14 +24,14 @@ const DeleteBetweenReceipt = ({ openModal, receiptIdToDelete, receiptCodeToDelet
 
     const handleDeleteReceipt = async () => {
         if (receiptIdToDelete === null) {
-            showAlert('Silinecek fiş seçilmedi.', 'warning');
+            showAlert('برگه‌ای برای حذف انتخاب نشده است.', 'warning');
             onClose();
             return;
         }
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
             return;
         }
@@ -49,18 +49,18 @@ const DeleteBetweenReceipt = ({ openModal, receiptIdToDelete, receiptCodeToDelet
             );
 
             if (response.data.httpStatusCode === 200) {
-                showAlert('Fiş başarıyla silindi!', 'success');
+                showAlert('برگه با موفقیت حذف شد!', 'success');
                 onDeleteSuccess();
             } else {
-                showAlert(response.data.message || 'Fiş silinirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام حذف برگه خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 const errorMessage = e.response?.data?.message || 'Fiş silinirken beklenmeyen bir hata oluştu, lütfen tekrar deneyin.';
@@ -79,20 +79,20 @@ const DeleteBetweenReceipt = ({ openModal, receiptIdToDelete, receiptCodeToDelet
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description">
             <DialogTitle id="alert-dialog-title">
-                {"Bu fişi silmek istediğinizden emin misiniz?"}
+                {"آیا از حذف این برگه مطمئن هستید؟"}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                     <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>{receiptCodeToDelete}</span> kodlu fişi silerseniz, geri almanın bir yolu yoktur.
                     Kaydı silmek istediğinizden eminseniz,
-                    <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+                    <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <CustomTooltip title={isTooltipGloballyEnabled ? "Silme işlemini iptal et" : ""}>
-                    <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "لغو حذف" : ""}>
+                    <Button onClick={onClose} disabled={loading}>لغو</Button>
                 </CustomTooltip>
-                <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen fişi sil" : ""}>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "حذف برگه‌ی انتخاب‌شده" : ""}>
                     <Button
                         color="error"
                         variant="contained"

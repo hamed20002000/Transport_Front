@@ -34,8 +34,8 @@ const formatDateDisplay = (dateString: string | null): string => {
     const date = new Date(dateString);
     return format(date, 'dd MMMM yyyy', { locale: tr });
   } catch (e) {
-    console.log("Tarih biçimlendirilirken hata oluştu:", e);
-    return "Geçersiz Tarih";
+    console.log("خطا در قالب‌بندی تاریخ:", e);
+    return "تاریخ نامعتبر";
   }
 };
 
@@ -232,7 +232,7 @@ const SystemRole = () => {
 
   const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
   const hasChangeOpPermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-  const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+  const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
   const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
 
 
@@ -267,7 +267,7 @@ const SystemRole = () => {
           name: item.name,
           recordStatus: item.recordStatus !== undefined && item.recordStatus !== null ? item.recordStatus : 0,
           createAt: item.createAt,
-          status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+          status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
         }));
         setRolesList(formattedData as RowType[]);
         setLoadingData(false);
@@ -278,7 +278,7 @@ const SystemRole = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Error fetching Roles list:", e);
         showAlert('Rol listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -531,7 +531,7 @@ const SystemRole = () => {
     if (!name.trim()) {
       setNameError(true);
       setNameHelperText('Rol ismi boş bırakılamaz.');
-      showAlert('İsim boş olamaz!', 'warning');
+      showAlert('نام نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setNameError(false);
@@ -541,7 +541,7 @@ const SystemRole = () => {
     const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
-      console.warn("No auth token found, redirecting to login.");
+      console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
       return;
     }
@@ -570,7 +570,7 @@ const SystemRole = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
       console.error("Error inserting Role:", e);
       showAlert(e.response?.data?.message || 'Rol eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -584,7 +584,7 @@ const SystemRole = () => {
     if (!name.trim()) {
       setNameError(true);
       setNameHelperText('Rol ismi boş bırakılamaz.');
-      showAlert('İsim boş olamaz!', 'warning');
+      showAlert('نام نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setNameError(false);
@@ -593,7 +593,7 @@ const SystemRole = () => {
     clearAlert();
 
     if (name === originalName) {
-      showAlert('İsimde herhangi bir değişiklik yapmadınız.', 'info');
+      showAlert('هیچ تغییری در نام ایجاد نکردید.', 'info');
       resetFormAndState();
       return;
     }
@@ -601,7 +601,7 @@ const SystemRole = () => {
     const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
-      showAlert('Lütfen giriş yapın.', 'warning');
+      showAlert('لطفاً وارد شوید.', 'warning');
       navigate("/");
       return;
     }
@@ -631,11 +631,11 @@ const SystemRole = () => {
       }
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       } else {
         console.error("Error updating Role:", e);
@@ -653,7 +653,7 @@ const SystemRole = () => {
     const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
-      showAlert('Lütfen giriş yapın.', 'warning');
+      showAlert('لطفاً وارد شوید.', 'warning');
       navigate("/");
       return;
     }
@@ -671,21 +671,21 @@ const SystemRole = () => {
       );
 
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`Rol başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`Rol başarıyla ${statusText} تنظیم شد!`, 'success');
         getListRole();
         resetFormAndState();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
       console.error("Error updating status:", e);
-      showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+      showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
     } finally {
       handleCloseMenu();
     }
@@ -835,7 +835,7 @@ const SystemRole = () => {
               </CustomTooltip>
             )}
             {isFormVisible && (
-              <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+              <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                 <Button
                   variant="contained"
                   color="error"
@@ -855,7 +855,7 @@ const SystemRole = () => {
           <Grid container spacing={1}>
             <Grid item xs={12} sm={1} display="flex" alignItems="center">
               <CustomFormLabel htmlFor="bl-name" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                İsim
+                نام
               </CustomFormLabel>
             </Grid>
             <Grid item xs={12} sm={7}>
@@ -890,12 +890,12 @@ const SystemRole = () => {
                       >
                         {loadingButton ? <>
                           <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                        </> : 'Düzenlemek'}
+                        </> : 'ویرایش'}
                       </Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni rol moduna dön" : ""}>
                       <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                        İptal Et
+                        لغو
                       </Button>
                     </CustomTooltip>
                   </>
@@ -961,19 +961,19 @@ const SystemRole = () => {
                   value="all"
                   aria-label="all roles"
                 >
-                  Tümü
+                  همه
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="active"
                   aria-label="active roles"
                 >
-                  Aktif
+                  فعال
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="inactive"
                   aria-label="inactive roles"
                 >
-                  Pasif
+                  غیرفعال
                 </StyledToggleButton>
               </ToggleButtonGroup>
             </Grid>
@@ -996,7 +996,7 @@ const SystemRole = () => {
                       onClick={() => handleRequestSort('name')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">İsim</Typography>
+                      <Typography variant="h6">نام</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell>
@@ -1006,7 +1006,7 @@ const SystemRole = () => {
                       onClick={() => handleRequestSort('createAt')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                      <Typography variant="h6">تاریخ ایجاد</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell>
@@ -1016,7 +1016,7 @@ const SystemRole = () => {
                       onClick={() => handleRequestSort('status')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Durum</Typography>
+                      <Typography variant="h6">وضعیت</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell></StyledTableCell>
@@ -1039,20 +1039,20 @@ const SystemRole = () => {
                             backgroundColor:
                               row.status === 'Silindi'
                                 ? (theme) => theme.palette.primary.light
-                                : row.status === 'Pasif'
+                                : row.status === 'غیرفعال'
                                   ? (theme) => theme.palette.error.light
                                   : (theme) => theme.palette.success.light,
                             color:
                               row.status === 'Silindi'
                                 ? (theme) => theme.palette.primary.main
-                                : row.status === 'Pasif'
+                                : row.status === 'غیرفعال'
                                   ? (theme) => theme.palette.error.main
                                   : (theme) => theme.palette.success.main,
                           }}
                         />
                       </StyledTableCell>
                       <StyledTableCell>
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                           <IconButton
                             id={`basic-button-${row.id}`}
                             aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1076,7 +1076,7 @@ const SystemRole = () => {
                                 <ListItemIcon>
                                   <DoNotDisturbOnRoundedIcon width={18} />
                                 </ListItemIcon>
-                                Pasif Yap
+                                غیرفعال کردن
                               </UiMenuItem>
                             </CustomTooltip> 
                           )}
@@ -1086,7 +1086,7 @@ const SystemRole = () => {
                                 <ListItemIcon>
                                   <DoneRoundedIcon width={18} />
                                 </ListItemIcon>
-                                Aktif Yap
+                                فعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1106,7 +1106,7 @@ const SystemRole = () => {
                                 <ListItemIcon>
                                   <IconEdit width={18} />
                                 </ListItemIcon>
-                                Düzenlemek
+                                ویرایش
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1128,7 +1128,7 @@ const SystemRole = () => {
                   <TableRow>
                     <StyledTableCell colSpan={4} align="center">
                       <Typography variant="subtitle1" color="textSecondary">
-                        Hiç rol bulunamadı.
+                        هیچ نقشی پیدا نشد.
                       </Typography>
                     </StyledTableCell>
                   </TableRow>
@@ -1145,7 +1145,7 @@ const SystemRole = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Satır başına düşen:"
+          labelRowsPerPage="تعداد در هر صفحه:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
         />
       </BlankCard>

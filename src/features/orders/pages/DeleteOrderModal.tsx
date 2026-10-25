@@ -33,7 +33,7 @@ const DeleteOrderModal: React.FC<DeleteOrderModalProps> = ({
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             onClose();
             return;
         }
@@ -60,11 +60,11 @@ const DeleteOrderModal: React.FC<DeleteOrderModalProps> = ({
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 const errorMessage = e.response?.data?.message || 'Sipariş silinirken bir hata oluştu, lütfen tekrar deneyin.';
@@ -93,7 +93,7 @@ const DeleteOrderModal: React.FC<DeleteOrderModalProps> = ({
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                <Button onClick={onClose} disabled={loading}>لغو</Button>
                 <Button
                     color="error"
                     variant="contained"

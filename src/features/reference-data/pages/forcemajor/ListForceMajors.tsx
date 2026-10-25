@@ -39,8 +39,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -227,9 +227,9 @@ const ListForceMajors = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>, row: ForceMajorType) => {
@@ -304,8 +304,8 @@ const ListForceMajors = () => {
     const insertForceMajor = async () => {
         if (!title.trim()) {
             setTitleError(true);
-            setTitleHelperText('İsim boş olamaz!');
-            showAlert('İsim boş olamaz!', 'warning');
+            setTitleHelperText('نام نمی‌تواند خالی باشد!');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         setTitleError(false);
@@ -314,7 +314,7 @@ const ListForceMajors = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            console.warn("No auth token found, redirecting to login.");
+            console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
             return;
         }
@@ -343,7 +343,7 @@ const ListForceMajors = () => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             console.error("Error inserting force major:", e);
             showAlert(e.response?.data?.message || 'Mücbir Sebep  eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -357,8 +357,8 @@ const ListForceMajors = () => {
         if (editingId === null) return;
         if (!title.trim()) {
             setTitleError(true);
-            setTitleHelperText('İsim boş olamaz!');
-            showAlert('İsim boş olamaz!', 'warning');
+            setTitleHelperText('نام نمی‌تواند خالی باشد!');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         setTitleError(false);
@@ -366,7 +366,7 @@ const ListForceMajors = () => {
         clearAlert();
 
         if (title === originalTitle) {
-            showAlert('İsimde herhangi bir değişiklik yapmadınız.', 'info');
+            showAlert('هیچ تغییری در نام ایجاد نکردید.', 'info');
             resetFormAndState();
             return;
         }
@@ -374,7 +374,7 @@ const ListForceMajors = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -404,11 +404,11 @@ const ListForceMajors = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 console.error("Error updating force major:", e);
@@ -426,7 +426,7 @@ const ListForceMajors = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -444,21 +444,21 @@ const ListForceMajors = () => {
             );
 
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Mücbir Sebep  başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Mücbir Sebep  başarıyla ${statusText} تنظیم شد!`, 'success');
                 getListForceMajors();
                 resetFormAndState();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             console.error("Error updating status:", e);
-            showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -490,7 +490,7 @@ const ListForceMajors = () => {
 
         setLoadingData(true);
         if (!authToken) {
-            console.warn("No auth token found, redirecting to login.");
+            console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
             setLoadingData(false);
             return;
@@ -510,21 +510,21 @@ const ListForceMajors = () => {
                     title: item.title,
                     recordStatus: item.recordStatus,
                     createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                 }));
                 setForceMajorsList(formattedData as ForceMajorType[]);
                 setLoadingData(false);
             } else {
-                showAlert(result.data.message || 'Operasyon listesi alınırken bir hata oluştu.', 'error');
+                showAlert(result.data.message || 'هنگام دریافت فهرست عملیات خطایی رخ داد.', 'error');
             }
         }).catch((e) => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 console.error("Error fetching operations list:", e);
-                showAlert('Operasyon listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert('هنگام دریافت فهرست عملیات خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
             }
         });
     }
@@ -616,7 +616,7 @@ const ListForceMajors = () => {
                 try {
                     pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
                 } catch (e) {
-                    console.error("Logo yüklenemedi", e);
+                    console.error("لوگو بارگذاری نشد", e);
                 }
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.setFontSize(14);
@@ -625,7 +625,7 @@ const ListForceMajors = () => {
 
                 pdfDoc.setFontSize(10);
                 pdfDoc.setFont('NotoSans', 'bold');
-                pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+                pdfDoc.text(`تاریخ گزارش:`, 15, 40);
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -640,7 +640,7 @@ const ListForceMajors = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
 
@@ -652,12 +652,12 @@ const ListForceMajors = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
             const rows = sortedAndFilteredForceMajors.map(forceMajor => [
@@ -668,7 +668,7 @@ const ListForceMajors = () => {
 
             autoTable(doc, {
                 startY: 55,
-                head: [['Mücbir Sebep İsmi', 'Oluşturulma Tarihi', 'Durum']],
+                head: [['Mücbir Sebep İsmi', 'تاریخ ایجاد', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: {
@@ -712,7 +712,7 @@ const ListForceMajors = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -743,7 +743,7 @@ const ListForceMajors = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 companyInfo.forEach(line => {
@@ -765,7 +765,7 @@ const ListForceMajors = () => {
             }
             worksheet.mergeCells('A2:C2');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -773,7 +773,7 @@ const ListForceMajors = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['İsim', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -809,10 +809,10 @@ const ListForceMajors = () => {
             const fileName = `Tüm_Forsa_major_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -848,7 +848,7 @@ const ListForceMajors = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -869,7 +869,7 @@ const ListForceMajors = () => {
                     <Grid container spacing={1}>
                         <Grid item xs={12} sm={1} display="flex" alignItems="center">
                             <CustomFormLabel htmlFor="force-major-title" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                                İsim
+                                نام
                             </CustomFormLabel>
                         </Grid>
                         <Grid item xs={12} sm={7}>
@@ -906,12 +906,12 @@ const ListForceMajors = () => {
                                             >
                                                 {loadingButton ? <>
                                                     <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                                                </> : 'Düzenlemek'}
+                                                </> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni mücbir sebep  moduna dön" : ""}>
                                             <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                                İptal Et
+                                                لغو
                                             </Button>
                                         </CustomTooltip>
                                     </>
@@ -953,14 +953,14 @@ const ListForceMajors = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => setOpenDownloadModal(true)}
                                         startIcon={<IconFileDownload />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -999,19 +999,19 @@ const ListForceMajors = () => {
                                     value="all"
                                     aria-label="all force majors"
                                 >
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="active"
                                     aria-label="active force majors"
                                 >
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="inactive"
                                     aria-label="inactive force majors"
                                 >
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1028,7 +1028,7 @@ const ListForceMajors = () => {
                                         onClick={() => handleRequestSort('title')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">İsim</Typography>
+                                        <Typography variant="h6">نام</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1038,7 +1038,7 @@ const ListForceMajors = () => {
                                         onClick={() => handleRequestSort('createAt')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                        <Typography variant="h6">تاریخ ایجاد</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1048,7 +1048,7 @@ const ListForceMajors = () => {
                                         onClick={() => handleRequestSort('status')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell></StyledTableCell>
@@ -1093,7 +1093,7 @@ const ListForceMajors = () => {
                                             />
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                 <IconButton
                                                     id={`basic-button-${row.id}`}
                                                     aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1119,7 +1119,7 @@ const ListForceMajors = () => {
                                                             <ListItemIcon>
                                                                 <DoNotDisturbOnRoundedIcon width={18} />
                                                             </ListItemIcon>
-                                                            Pasif Yap
+                                                            غیرفعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1129,7 +1129,7 @@ const ListForceMajors = () => {
                                                             <ListItemIcon>
                                                                 <DoneRoundedIcon width={18} />
                                                             </ListItemIcon>
-                                                            Aktif Yap
+                                                            فعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1139,7 +1139,7 @@ const ListForceMajors = () => {
                                                             <ListItemIcon>
                                                                 <IconEdit width={18} />
                                                             </ListItemIcon>
-                                                            Düzenlemek
+                                                            ویرایش
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1177,7 +1177,7 @@ const ListForceMajors = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1193,7 +1193,7 @@ const ListForceMajors = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1202,7 +1202,7 @@ const ListForceMajors = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllForceMajorsPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1210,13 +1210,13 @@ const ListForceMajors = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

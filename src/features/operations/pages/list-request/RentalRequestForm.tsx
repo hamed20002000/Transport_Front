@@ -119,7 +119,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                 const fileUrls = uploadResponse.data.data.files;
                 return fileUrls.map((url: string) => ({ fileUrl: url }));
             } else {
-                showAlert('Dosyalar yüklenirken bir hata oluştu.', 'error'); return null;
+                showAlert('هنگام بارگذاری فایل‌ها خطایی رخ داد.', 'error'); return null;
             }
         } catch (e) { showAlert('Dosya yükleme API hatası.', 'error'); return null; }
     };
@@ -128,7 +128,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
         if (!validateForm()) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error'); setLoadingButton(false); return; }
 
         const attachmentsPayload = await uploadFiles(authToken);
         if (attachmentsPayload === null) { setLoadingButton(false); return; }
@@ -153,7 +153,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                 showAlert(response.data.message || 'Kiralama talebi oluşturulurken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -161,7 +161,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
         if (!validateForm() || !itemToEdit || !itemToEdit.id) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error'); setLoadingButton(false); return; }
 
         const newAttachmentsPayload = await uploadFiles(authToken);
         if (newAttachmentsPayload === null) { setLoadingButton(false); return; }
@@ -192,7 +192,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                 showAlert(response.data.message || 'Kiralama talebi güncellenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -222,27 +222,27 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <CustomFormLabel htmlFor="rental-workhouse" required>Şantiye</CustomFormLabel>
+                    <CustomFormLabel htmlFor="rental-workhouse" required>کارگاه</CustomFormLabel>
                     <Autocomplete
                         id="rental-workhouse" options={workhouses} size="small"
-                        getOptionLabel={(option) => option.name ? `${option.name} (Kod:${option.code})` : ''}
+                        getOptionLabel={(option) => option.name ? `${option.name} (کد:${option.code})` : ''}
                         isOptionEqualToValue={(option, value) => option.id === value.id}
                         value={workhouses.find(w => w.id === selectedWorkhouseId) || null}
                         onChange={(_event, newValue) => { setSelectedWorkhouseId(newValue ? newValue.id : ''); }}
-                        renderInput={(params) => (<TextField {...params} label="Şantiye Seçiniz" variant="outlined" size="small" />)}
+                        renderInput={(params) => (<TextField {...params} label="کارگاه را انتخاب کنید" variant="outlined" size="small" />)}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                        <CustomFormLabel htmlFor="rent-start-date" required>Kira Başlangıç Tarihi</CustomFormLabel>
+                        <CustomFormLabel htmlFor="rent-start-date" required>تاریخ شروع اجاره</CustomFormLabel>
                         <DatePicker
-                            label="Kira Başlangıç Tarihi" value={rentStartDate}
+                            label="تاریخ شروع اجاره" value={rentStartDate}
                             onChange={(newValue) => { setRentStartDate(newValue); if (rentStartDateError && newValue) setRentStartDateError(false); }}
                             maxDate={rentEndDate || undefined} inputFormat="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField
                                     {...params} size="small" fullWidth
-                                    error={rentStartDateError} helperText={rentStartDateError ? "Başlangıç tarihi zorunludur!" : ""}
+                                    error={rentStartDateError} helperText={rentStartDateError ? "تاریخ شروع الزامی است!" : ""}
                                 />
                             )}
                         />
@@ -250,9 +250,9 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                        <CustomFormLabel htmlFor="rent-end-date" required>Kira Bitiş Tarihi</CustomFormLabel>
+                        <CustomFormLabel htmlFor="rent-end-date" required>تاریخ پایان اجاره</CustomFormLabel>
                         <DatePicker
-                            label="Kira Bitiş Tarihi" value={rentEndDate}
+                            label="تاریخ پایان اجاره" value={rentEndDate}
                             onChange={(newValue) => { setRentEndDate(newValue); if (rentEndDateError && newValue) setRentEndDateError(false); }}
                             minDate={rentStartDate || undefined} inputFormat="dd/MM/yyyy"
                             renderInput={(params) => (
@@ -265,17 +265,17 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                     </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <CustomFormLabel htmlFor="rental-company">Kiralandığı Şirket</CustomFormLabel>
+                    <CustomFormLabel htmlFor="rental-company">شرکت اجاره‌دهنده</CustomFormLabel>
                     <CustomTextField id="rental-company" size="small" fullWidth value={company}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value)} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <CustomFormLabel htmlFor="rental-driver-info">Şoför Bilgisi</CustomFormLabel>
+                    <CustomFormLabel htmlFor="rental-driver-info">اطلاعات راننده</CustomFormLabel>
                     <CustomTextField id="rental-driver-info" size="small" fullWidth value={driverInfo}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDriverInfo(e.target.value)} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <CustomFormLabel htmlFor="rental-price" required>Fiyat</CustomFormLabel>
+                    <CustomFormLabel htmlFor="rental-price" required>قیمت</CustomFormLabel>
                     <CustomTextField
                         id="rental-price" type="number" size="small" fullWidth value={price}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)}
@@ -283,9 +283,9 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <CustomFormLabel htmlFor="rental-description">Açıklama</CustomFormLabel>
+                    <CustomFormLabel htmlFor="rental-description">توضیحات</CustomFormLabel>
                     <CustomTextField
-                        id="rental-description" placeholder="Talep Detayları" multiline rows={2} fullWidth
+                        id="rental-description" placeholder="جزئیات درخواست" multiline rows={2} fullWidth
                         value={rentalDescription}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRentalDescription(e.target.value)}
                     />
@@ -296,7 +296,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
                     <CustomFormLabel htmlFor="request-attachments">Ekler (Resim,PDF, Excel)</CustomFormLabel>
                     <Button size="small" onClick={() => fileInputRef.current?.click()} startIcon={<IconPlus />} variant="outlined">
-                        Dosya Ekle
+                        افزودن فایل
                     </Button>
                     <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} multiple accept="image/*, .pdf, .xls, .xlsx" />
                 </Stack>
@@ -307,7 +307,7 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                         ))
                     ) : (
                         <Typography variant="body2" color="textSecondary" sx={{ m: 'auto' }}>
-                            Henüz eklenmiş dosya yok.
+                            هنوز فایلی اضافه نشده است.
                         </Typography>
                     )}
                 </Box>
@@ -317,9 +317,9 @@ const RentalRequestForm: React.FC<RentalRequestFormProps> = ({ isEditing, itemTo
                 {isEditing ? (
                     <>
                         <Button variant="contained" color="primary" onClick={handleUpdate} disabled={loadingButton}>
-                            {loadingButton ? 'Bekleniyor...' : 'Güncellemeyi Kaydet'}
+                            {loadingButton ? 'Bekleniyor...' : 'ذخیره‌ی تغییرات'}
                         </Button>
-                        <Button variant="outlined" color="secondary" onClick={onCancel}>İptal Et</Button>
+                        <Button variant="outlined" color="secondary" onClick={onCancel}>لغو</Button>
                     </>
                 ) : (
                     <Button variant="contained" color="info" onClick={handleCreate} disabled={loadingButton}>

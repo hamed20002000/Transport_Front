@@ -97,7 +97,7 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
 
     const handleSave = async () => {
         if (!title.trim() || !abbreviation.trim()) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید.', 'warning');
             return;
         }
 
@@ -117,16 +117,16 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                 fetchFirms();
                 onFirmChange();
             } else {
-                showAlert(response.data.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'İşlem sırasında bir hata oluştu.', 'error');
+            showAlert(e.response?.data?.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
         }
     };
 
     const handleUpdate = async () => {
         if (!title.trim() || !abbreviation.trim() || editingId === null) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید.', 'warning');
             return;
         }
 
@@ -147,18 +147,18 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                 onFirmChange();
             } else {
 
-                showAlert(response.data.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert(e.response?.data?.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
 
             }
         }
@@ -180,10 +180,10 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                 fetchFirms();
                 onFirmChange();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+            showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -237,16 +237,16 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                             <TextField label="Firma Adı" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={4}>
-                            <TextField label="Kısaltma" fullWidth value={abbreviation} onChange={(e) => setAbbreviation(e.target.value)} />
+                            <TextField label="اختصار" fullWidth value={abbreviation} onChange={(e) => setAbbreviation(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={3}>
                             <Stack direction="row" spacing={1} justifyContent="flex-end">
                                 {editingId ? (
-                                    <Button onClick={handleUpdate} variant="contained" color="success">Güncelle</Button>
+                                    <Button onClick={handleUpdate} variant="contained" color="success">به‌روزرسانی</Button>
                                 ) : (
-                                    <Button onClick={handleSave} variant="contained" color="primary">Kaydet</Button>
+                                    <Button onClick={handleSave} variant="contained" color="primary">ذخیره</Button>
                                 )}
-                                {editingId && <Button onClick={resetForm} variant="outlined" color="secondary">İptal</Button>}
+                                {editingId && <Button onClick={resetForm} variant="outlined" color="secondary">انصراف</Button>}
                             </Stack>
                         </Grid>
                     </Grid>
@@ -256,10 +256,10 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Adı</TableCell>
-                                <TableCell>Kısaltma</TableCell>
-                                <TableCell>Durum</TableCell>
-                                <TableCell>İşlemler</TableCell>
+                                <TableCell>نام</TableCell>
+                                <TableCell>اختصار</TableCell>
+                                <TableCell>وضعیت</TableCell>
+                                <TableCell>عملیات</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -272,7 +272,7 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                                         <TableCell>{firm.abbreviation}</TableCell>
                                         <TableCell>
                                             <Chip
-                                                label={firm.recordStatus === 0 ? 'Aktif' : 'Pasif'}
+                                                label={firm.recordStatus === 0 ? 'فعال' : 'غیرفعال'}
                                                 color={firm.recordStatus === 0 ? 'success' : 'error'}
                                             />
                                         </TableCell>
@@ -280,18 +280,18 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                                             <IconButton onClick={(event) => handleClickMenu(event, firm)}><IconDots width={18} /></IconButton>
                                             <Menu anchorEl={anchorEl} open={openMenu && selectedFirmForMenu?.id === firm.id} onClose={handleCloseMenu}>
                                                 <MenuItem onClick={() => handleEditClick(firm)}>
-                                                    <ListItemIcon><IconEdit width={18} /></ListItemIcon> Düzenle
+                                                    <ListItemIcon><IconEdit width={18} /></ListItemIcon> ویرایش
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleDeleteClick(firm)}>
                                                     <ListItemIcon><IconTrash width={18} /></ListItemIcon> Sil
                                                 </MenuItem>
                                                 {firm.recordStatus === 0 ? (
                                                     <MenuItem onClick={() => handleStatusChange(firm.id, 1)}>
-                                                        <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap
+                                                        <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن
                                                     </MenuItem>
                                                 ) : (
                                                     <MenuItem onClick={() => handleStatusChange(firm.id, 0)}>
-                                                        <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap
+                                                        <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن
                                                     </MenuItem>
                                                 )}
                                             </Menu>
@@ -304,7 +304,7 @@ const ProjectFirmManagement: React.FC<ProjectFirmManagementProps> = ({ open, onC
                 </TableContainer>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">Kapat</Button>
+                <Button onClick={onClose} color="primary">بستن</Button>
             </DialogActions>
 
             <DeleteFirm

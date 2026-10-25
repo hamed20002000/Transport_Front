@@ -29,7 +29,7 @@ const DeleteBetweenwarehouseDispatch = ({ openModal, dispatchIdToDelete, dispatc
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
             return;
         }
@@ -54,11 +54,11 @@ const DeleteBetweenwarehouseDispatch = ({ openModal, dispatchIdToDelete, dispatc
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 const errorMessage = e.response?.data?.message || 'Depolar arası sevk belgesi silinirken beklenmeyen bir hata oluştu, lütfen tekrar deneyin.';
@@ -83,12 +83,12 @@ const DeleteBetweenwarehouseDispatch = ({ openModal, dispatchIdToDelete, dispatc
                 <DialogContentText id="alert-dialog-description">
                     <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>{dispatchCodeToDelete}</span> kodlu depolar arası sevk belgesini silerseniz, geri almanın bir yolu yoktur.
                     Kaydı silmek istediğinizden eminseniz,
-                    <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+                    <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <CustomTooltip title={isTooltipGloballyEnabled ? "Silme işlemini iptal et" : ""}>
-                    <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "لغو حذف" : ""}>
+                    <Button onClick={onClose} disabled={loading}>لغو</Button>
                 </CustomTooltip>
                 <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen depolar arası sevk belgesini sil" : ""}>
                     <Button

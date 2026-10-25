@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Bell, ClipboardList, History, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Truck, UserRound } from 'lucide-react';
+import { Bell, ClipboardList, CreditCard, History, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Sparkles, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -15,6 +15,8 @@ import SmoothScroll from 'src/shared/components/SmoothScroll';
 import PushPrompt from 'src/shared/components/pwa/PushPrompt';
 import FloatingPanelNav from 'src/shared/components/FloatingPanelNav';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
+import SubscriptionPurchase from 'src/features/subscription/SubscriptionPurchase';
+import { getSubscription, SUBSCRIPTION_REQUIRED_EVENT, watchSubscriptionRequired, type SubscriptionState } from 'src/features/subscription/api';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -24,6 +26,7 @@ const items = [
   { to: '/account/driver/history', label: 'سفرهای رفته', icon: History },
   { to: '/account/driver/borders', label: 'مرزها', icon: Landmark },
   { to: '/account/driver/profile', label: 'پروفایل', icon: UserRound },
+  { to: '/account/driver/subscription', label: 'اشتراک', icon: CreditCard },
 ];
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
@@ -45,6 +48,49 @@ function useUnread() {
   }, [load]);
   useNotificationEvent<{ kind: 'suggestion' | 'listing' }>('cargo-notification', (event) => event.kind === 'listing' && load());
   return count;
+}
+
+// Whether the driver may work (a subscription, or the free first month): checked when the panel opens, when a
+// request is refused with 402 (the month ran out meanwhile) and after a purchase is approved.
+let refreshSubscription: () => void = () => undefined;
+export const recheckSubscription = () => refreshSubscription();
+
+function useSubscriptionAccess() {
+  const [access, setAccess] = useState<SubscriptionState['access'] | null>(null);
+  const load = useCallback(() => {
+    getSubscription()
+      .then((state) => setAccess(state.access))
+      // unknown (offline, server down): the pages stay usable; the server still refuses with 402
+      .catch(() => setAccess((current) => current ?? { allowed: true, reason: 'free', isDriver: true, trialEndsAt: null, expireAt: null }));
+  }, []);
+  useEffect(() => {
+    watchSubscriptionRequired();
+    load();
+    refreshSubscription = load;
+    window.addEventListener(SUBSCRIPTION_REQUIRED_EVENT, load);
+    return () => window.removeEventListener(SUBSCRIPTION_REQUIRED_EVENT, load);
+  }, [load]);
+  return access;
+}
+
+const TRIAL_REMINDER_DAYS = 7;
+
+/** The last week of the free month: a strip that leads to the purchase page. */
+function TrialReminder({ endsAt }: { endsAt: string }) {
+  const days = Math.max(0, Math.ceil((new Date(endsAt).getTime() - Date.now()) / 86_400_000));
+  if (days > TRIAL_REMINDER_DAYS) return null;
+  return (
+    <Link
+      to="/account/driver/subscription"
+      className="tw-mb-5 tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-orange/30 tw-bg-brand-orange-soft tw-px-4 tw-py-3 tw-text-sm tw-text-brand-navy tw-no-underline hover:tw-border-brand-orange"
+    >
+      <Sparkles size={20} className="tw-shrink-0 tw-text-brand-orange-ink" aria-hidden />
+      <span className="tw-flex-1">
+        {days === 0 ? 'استفاده‌ی رایگان شما امروز تمام می‌شود.' : `${fa(days)} روز از استفاده‌ی رایگان شما باقی مانده است.`}
+      </span>
+      <strong className="tw-shrink-0 tw-text-brand-orange-ink">خرید اشتراک</strong>
+    </Link>
+  );
 }
 
 // Driver frame, sharing the floating navigation drawer with the company panel.
@@ -138,10 +184,32 @@ export function DriverLayout() {
   return (
     <Frame>
       <SmoothScroll />
-      <Suspense fallback={<PageSkeleton />}>
-        <Outlet />
-      </Suspense>
+      <SubscriptionGate>
+        <Suspense fallback={<PageSkeleton />}>
+          <Outlet />
+        </Suspense>
+      </SubscriptionGate>
     </Frame>
+  );
+}
+
+/** Without a subscription after the free month, every page of the panel is the purchase page. */
+function SubscriptionGate({ children }: { children: ReactNode }) {
+  const access = useSubscriptionAccess();
+  const { pathname } = useLocation();
+  if (!access) return <PageSkeleton />;
+  if (!access.allowed) {
+    return (
+      <PageContainer title="اشتراک | ترابوت" description="پنل راننده">
+        <SubscriptionPurchase onActivated={recheckSubscription} />
+      </PageContainer>
+    );
+  }
+  return (
+    <>
+      {access.reason === 'trial' && access.trialEndsAt && pathname !== '/account/driver/subscription' && <TrialReminder endsAt={access.trialEndsAt} />}
+      {children}
+    </>
   );
 }
 

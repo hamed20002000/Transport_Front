@@ -26,14 +26,14 @@ const DeleteSystemRole = ({ openModal, rowIdToDelete, onClose, onDeleteSuccess, 
 
   const handleDeleteRole = async () => {
     if (rowIdToDelete === null) {
-      showAlert('Silinecek kayıt seçilmedi.', 'warning');
+      showAlert('رکوردی برای حذف انتخاب نشده است.', 'warning');
       onClose();
       return;
     }
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("No auth token found, redirecting to login.");
+      console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
       return;
     }
@@ -55,19 +55,19 @@ const DeleteSystemRole = ({ openModal, rowIdToDelete, onClose, onDeleteSuccess, 
       );
 
       if (response.data.httpStatusCode === 200) {
-        showAlert('Kayıt başarıyla silindi!', 'success');
+        showAlert('رکورد با موفقیت حذف شد!', 'success');
         onDeleteSuccess();
         onClose();
       } else {
-        showAlert(response.data.message || 'Kayıt silinirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام حذف رکورد خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       }
     } finally {
@@ -83,18 +83,17 @@ const DeleteSystemRole = ({ openModal, rowIdToDelete, onClose, onDeleteSuccess, 
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">
-          {"Bu kaydı silmek istediğinizden emin misiniz?"}
+          {"آیا از حذف این رکورد مطمئن هستید؟"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Eğer silerseniz, geri almanın bir yolu yoktur.
-            Kaydı silmek istediğinizden eminseniz,
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+            با حذف، راه بازگشتی وجود ندارد. اگر از حذف رکورد مطمئن هستید،
+            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <CustomTooltip title={isTooltipGloballyEnabled ? "İşlemi iptal et" : ""}>
-            <Button onClick={onClose} disabled={loading}>İptal et</Button>
+          <CustomTooltip title={isTooltipGloballyEnabled ? "لغو عملیات" : ""}>
+            <Button onClick={onClose} disabled={loading}>لغو</Button>
           </CustomTooltip>
           <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen rolü sil" : ""}>
             <Button

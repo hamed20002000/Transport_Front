@@ -129,22 +129,22 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="primary">Proje Bilgileri</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Proje Adı" size="small" fullWidth value={report.proje_adi} disabled />
-                            <CustomTextField label="Proje Kodu" size="small" fullWidth value={report.proje_kodu} disabled />
-                            <CustomTextField label="İş Tipi" size="small" fullWidth value={report.is_turu} disabled />
-                            <CustomTextField label="Tarih" size="small" fullWidth value={format(new Date(report.tarih), 'dd/MM/yyyy')} disabled />
+                            <CustomTextField label="نام پروژه" size="small" fullWidth value={report.proje_adi} disabled />
+                            <CustomTextField label="کد پروژه" size="small" fullWidth value={report.proje_kodu} disabled />
+                            <CustomTextField label="نوع کار" size="small" fullWidth value={report.is_turu} disabled />
+                            <CustomTextField label="تاریخ" size="small" fullWidth value={format(new Date(report.tarih), 'dd/MM/yyyy')} disabled />
                         </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="success.main">Miktar ve Maliyet</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Miktar" size="small" fullWidth value={report.quantity} disabled />
-                            <CustomTextField label="Birim" size="small" fullWidth value={report.unit} disabled />
-                            <CustomTextField label="Birim Fiyat" size="small" fullWidth value={cleanCurrencyValue(report.price).toLocaleString('us-US', {
+                            <CustomTextField label="مقدار" size="small" fullWidth value={report.quantity} disabled />
+                            <CustomTextField label="واحد" size="small" fullWidth value={report.unit} disabled />
+                            <CustomTextField label="قیمت واحد" size="small" fullWidth value={cleanCurrencyValue(report.price).toLocaleString('us-US', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             })} disabled />
-                            <CustomTextField label="Toplam Tutar" size="small" fullWidth value={cleanCurrencyValue(report.total).toLocaleString('us-US', {
+                            <CustomTextField label="مبلغ کل" size="small" fullWidth value={cleanCurrencyValue(report.total).toLocaleString('us-US', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             })} disabled />
@@ -154,28 +154,28 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12}>
                         <Typography variant="h6" mt={2} mb={1} color="info">Konum ve Şantiye</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Şantiye Adı" size="small" fullWidth value={report.workhousen_name} disabled />
-                            <CustomTextField label="Bölge" size="small" fullWidth value={report.bolge_adi} disabled />
+                            <CustomTextField label="نام کارگاه" size="small" fullWidth value={report.workhousen_name} disabled />
+                            <CustomTextField label="منطقه" size="small" fullWidth value={report.bolge_adi} disabled />
                             <CustomTextField label="İl / İlçe" size="small" fullWidth value={`${report.il} / ${report.ilce}`} disabled />
                         </Stack>
                     </Grid>
                     <Grid item xs={12} mt={3}>
-                        <Typography variant="h6" mb={1} color="secondary">📥 Raporu İndir</Typography>
+                        <Typography variant="h6" mb={1} color="secondary">📥 دانلود گزارش</Typography>
                         <Stack direction="row" spacing={2}>
                             <Button variant="contained" color="success" startIcon={<IconFileDownload />}
                                 onClick={() => onExportPdf(report)} fullWidth>
-                                PDF Olarak İndir
+                                دانلود PDF
                             </Button>
                             <Button variant="contained" color="primary" startIcon={<IconFileDownload />}
                                 onClick={() => onExportExcel(report)} fullWidth>
-                                Excel Olarak İndir
+                                دانلود Excel
                             </Button>
                         </Stack>
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">Kapat</Button>
+                <Button onClick={onClose} color="secondary">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -240,10 +240,10 @@ const ListConcreteReport = () => {
     }, []);
     const clearAlert = () => { setAlertMessage(null); };
 
-    const handleApiError = useCallback((e: any, defaultMessage: string = 'Bir hata oluştu.') => {
+    const handleApiError = useCallback((e: any, defaultMessage: string = 'خطایی رخ داد.') => {
         console.error("API Error Full Detail:", e);
-        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-        else if (e.response?.status === 500) { showAlert('Sistem hatası oluştu, lütfen deneyin.', 'error'); }
+        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+        else if (e.response?.status === 500) { showAlert('خطای سیستمی رخ داد، لطفاً دوباره تلاش کنید.', 'error'); }
         else { showAlert(e.response?.data?.message || defaultMessage, 'error'); }
     }, [navigate, showAlert]);
 
@@ -266,9 +266,9 @@ const ListConcreteReport = () => {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
-        } catch (e: any) { handleApiError(e, 'Şantiye listesi alınamadı.'); }
+        } catch (e: any) { handleApiError(e, 'فهرست کارگاه‌ها دریافت نشد.'); }
     }, [navigate, showAlert, handleApiError]);
 
     const fetchConcreteReportData = useCallback(async () => {
@@ -310,7 +310,7 @@ const ListConcreteReport = () => {
             }
         } catch (e: any) {
             setReportData(null);
-            handleApiError(e, 'Rapor verileri alınırken bir sorun oluştu.');
+            handleApiError(e, 'هنگام دریافت داده‌های گزارش مشکلی پیش آمد.');
         } finally {
             setLoadingData(false);
         }
@@ -429,7 +429,7 @@ const ListConcreteReport = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -438,7 +438,7 @@ const ListConcreteReport = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -456,7 +456,7 @@ const ListConcreteReport = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -468,17 +468,17 @@ const ListConcreteReport = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
     const handleExportPdfSingle = async (report: ConcreteReportRowType) => {
-        showAlert('PDF raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        showAlert('گزارش PDF در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
         try {
             const doc = new jsPDF('portrait', 'pt', 'a4');
             (doc as any).addFileToVFS("NotoSans-Regular.ttf", NotoSansRegular);
@@ -487,20 +487,20 @@ const ListConcreteReport = () => {
 
             addPdfHeader(doc, `Beton Raporu Detayı: ${report.itemname}`);
 
-            const tableColumn = ["Alan (Field)", "Değer (Value)"];
+            const tableColumn = ["فیلد", "مقدار"];
             const tableRows = [
-                ["Proje Adı", report.proje_adi],
-                ["Proje Kodu", report.proje_kodu],
-                ["Şantiye Adı", report.workhousen_name],
-                ["Şantiye Kodu", report.workhouse_code],
-                ["Tarih", format(new Date(report.tarih), 'dd/MM/yyyy')],
-                ["Bölge Adı", report.bolge_adi],
+                ["نام پروژه", report.proje_adi],
+                ["کد پروژه", report.proje_kodu],
+                ["نام کارگاه", report.workhousen_name],
+                ["کد کارگاه", report.workhouse_code],
+                ["تاریخ", format(new Date(report.tarih), 'dd/MM/yyyy')],
+                ["نام منطقه", report.bolge_adi],
                 ["İl / İlçe", `${report.il} / ${report.ilce}`],
                 ["Ekip Adı", report.ekip_adi],
-                ["İş Tipi", report.is_turu],
-                ["Malzeme Kodu", report.itemcode],
-                ["Malzeme Adı", report.itemname],
-                ["Birim", report.unit],
+                ["نوع کار", report.is_turu],
+                ["کد کالا", report.itemcode],
+                ["نام کالا", report.itemname],
+                ["واحد", report.unit],
                 ["Miktar (Quantity)", report.quantity],
                 ["Birim Fiyat (Price)", report.price],
                 ["Toplam Tutar (Total)", report.total],
@@ -521,30 +521,30 @@ const ListConcreteReport = () => {
             doc.save(`Beton_Detay_${report.proje_kodu}_${format(new Date(), 'yyyyMMdd')}.pdf`);
             showAlert('PDF raporu başarıyla oluşturuldu.', 'success');
         } catch (e: any) {
-            handleApiError(e, 'PDF raporu oluşturulurken bir hata oluştu.');
+            handleApiError(e, 'هنگام ساخت گزارش PDF خطایی رخ داد.');
         }
     };
 
     const handleExportExcelSingle = async (report: ConcreteReportRowType) => {
-        showAlert('Excel raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        showAlert('گزارش Excel در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
         try {
             const workbook = new Excel.Workbook();
             const sheet = workbook.addWorksheet('Beton Detay', { views: [{ rightToLeft: false }] });
 
             const data = [
-                ['Proje Adı', report.proje_adi],
-                ['Proje Kodu', report.proje_kodu],
-                ['Şantiye Adı', report.workhousen_name],
-                ['Şantiye Kodu', report.workhouse_code],
-                ['Tarih', format(new Date(report.tarih), 'dd/MM/yyyy')],
-                ['Bölge Adı', report.bolge_adi],
+                ['نام پروژه', report.proje_adi],
+                ['کد پروژه', report.proje_kodu],
+                ['نام کارگاه', report.workhousen_name],
+                ['کد کارگاه', report.workhouse_code],
+                ['تاریخ', format(new Date(report.tarih), 'dd/MM/yyyy')],
+                ['نام منطقه', report.bolge_adi],
                 ['İl', report.il],
-                ['İlçe', report.ilce],
+                ['شهرستان', report.ilce],
                 ['Ekip Adı', report.ekip_adi],
-                ['İş Tipi', report.is_turu],
-                ['Malzeme Kodu', report.itemcode],
-                ['Malzeme Adı', report.itemname],
-                ['Birim', report.unit],
+                ['نوع کار', report.is_turu],
+                ['کد کالا', report.itemcode],
+                ['نام کالا', report.itemname],
+                ['واحد', report.unit],
                 ['Miktar (Quantity)', cleanCurrencyValue(report.quantity)],
                 ['Birim Fiyat (Price)', cleanCurrencyValue(report.price)],
                 ['Toplam Tutar (Total)', cleanCurrencyValue(report.total)],
@@ -555,7 +555,7 @@ const ListConcreteReport = () => {
             sheet.mergeCells('A1:B1');
             sheet.addRow([]);
 
-            const headerRow = sheet.addRow(['Alan (Field)', 'Değer (Value)']);
+            const headerRow = sheet.addRow(['فیلد', 'مقدار']);
             headerRow.eachCell((cell) => {
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } };
                 cell.font = { bold: true };
@@ -578,7 +578,7 @@ const ListConcreteReport = () => {
             saveAs(new Blob([buffer]), `Beton_Detay_${report.proje_kodu}_${format(new Date(), 'yyyyMMdd')}.xlsx`);
             showAlert('Excel raporu başarıyla oluşturuldu.', 'success');
         } catch (e: any) {
-            handleApiError(e, 'Excel raporu oluşturulurken bir hata oluştu.');
+            handleApiError(e, 'هنگام ساخت گزارش Excel خطایی رخ داد.');
         }
     };
 
@@ -596,7 +596,7 @@ const ListConcreteReport = () => {
 
             addPdfHeader(doc, `Beton Genel Raporu (${format(new Date(), 'dd/MM/yyyy')})`);
 
-            const headers = ["Şantiye Adı", "Proje Adı", "Tarih", "İş Tipi", "Miktar", "Birim", "Toplam Tutar (TL)"];
+            const headers = ["نام کارگاه", "نام پروژه", "تاریخ", "نوع کار", "مقدار", "واحد", "مبلغ کل (تومان)"];
 
             const totalPrice = data.reduce((sum, row) => sum + cleanCurrencyValue(row.total), 0);
             const totalDisplay = totalPrice.toLocaleString('us-US', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 });
@@ -641,7 +641,7 @@ const ListConcreteReport = () => {
             doc.save(`Beton_Raporu_Listesi_${format(new Date(), 'yyyyMMdd')}.pdf`);
             showAlert('PDF raporu başarıyla oluşturuldu.', 'success');
         } catch (e: any) {
-            handleApiError(e, 'PDF raporu oluşturulurken bir hata oluştu.');
+            handleApiError(e, 'هنگام ساخت گزارش PDF خطایی رخ داد.');
         }
     };
 
@@ -656,8 +656,8 @@ const ListConcreteReport = () => {
             const sheet = workbook.addWorksheet('Beton Raporu', { views: [{ rightToLeft: false }] });
 
             const headers = [
-                "Şantiye Adı", "Proje Adı", "Tarih", "İş Tipi", "Miktar",
-                "Birim", "Birim Fiyat", "Toplam Tutar (TL)"
+                "نام کارگاه", "نام پروژه", "تاریخ", "نوع کار", "مقدار",
+                "واحد", "قیمت واحد", "مبلغ کل (تومان)"
             ];
 
             const headerRow = sheet.addRow(headers);
@@ -698,7 +698,7 @@ const ListConcreteReport = () => {
             saveAs(new Blob([buffer]), `Beton_Raporu_Listesi_${format(new Date(), 'yyyyMMdd')}.xlsx`);
             showAlert('Excel raporu başarıyla oluşturuldu.', 'success');
         } catch (e: any) {
-            handleApiError(e, 'Excel raporu oluşturulurken bir hata oluştu.');
+            handleApiError(e, 'هنگام ساخت گزارش Excel خطایی رخ داد.');
         }
     };
 
@@ -719,13 +719,13 @@ const ListConcreteReport = () => {
     }, [processedData]);
 
     const tableHeaders: { label: string; key: keyof ConcreteReportRowType }[] = [
-        { label: 'Şantiye Adı', key: 'workhousen_name' },
-        { label: 'Proje Adı', key: 'proje_adi' },
-        { label: 'Tarih', key: 'tarih' },
-        { label: 'İş Tipi', key: 'is_turu' },
-        { label: 'Miktar', key: 'quantity' },
-        { label: 'Birim', key: 'unit' },
-        { label: 'Toplam Tutar (TL)', key: 'total' },
+        { label: 'نام کارگاه', key: 'workhousen_name' },
+        { label: 'نام پروژه', key: 'proje_adi' },
+        { label: 'تاریخ', key: 'tarih' },
+        { label: 'نوع کار', key: 'is_turu' },
+        { label: 'مقدار', key: 'quantity' },
+        { label: 'واحد', key: 'unit' },
+        { label: 'مبلغ کل (تومان)', key: 'total' },
     ];
 
 
@@ -747,13 +747,13 @@ const ListConcreteReport = () => {
                             value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null}
                             onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)}
                             isOptionEqualToValue={(o, v) => o.id === v.id}
-                            renderInput={(params) => (<TextField {...params} label="Şantiye" fullWidth size="small" />)}
+                            renderInput={(params) => (<TextField {...params} label="کارگاه" fullWidth size="small" />)}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Başlangıç Tarihi"
+                                label="تاریخ شروع"
                                 value={startDate}
                                 onChange={(v) => setStartDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -791,7 +791,7 @@ const ListConcreteReport = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Bitiş Tarihi"
+                                label="تاریخ پایان"
                                 value={endDate}
                                 onChange={(v) => setEndDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -851,7 +851,7 @@ const ListConcreteReport = () => {
                                 onClick={() => handleExportExcelAll(processedData)}
                                 disabled={loadingData || processedData.length === 0}
                             >
-                                Tüm Veriyi Excel İndir
+                                دانلود همه‌ی داده‌ها در Excel
                             </Button>
                             <Button
                                 variant="outlined"
@@ -860,7 +860,7 @@ const ListConcreteReport = () => {
                                 onClick={() => handleExportPdfAll(processedData)}
                                 disabled={loadingData || processedData.length === 0}
                             >
-                                Tüm Veriyi PDF İndir
+                                دانلود همه‌ی داده‌ها در PDF
                             </Button>
                         </Grid>
                     </Grid>
@@ -893,7 +893,7 @@ const ListConcreteReport = () => {
                                     </StyledTableCell>
                                 ))}
                                 <StyledTableCell>
-                                    <Typography variant="h6" fontWeight="bold">İşlemler</Typography>
+                                    <Typography variant="h6" fontWeight="bold">عملیات</Typography>
                                 </StyledTableCell>
                             </TableRow>
                         </TableHead>
@@ -918,7 +918,7 @@ const ListConcreteReport = () => {
                                             </Typography>
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <Tooltip title="Detaylar ve İşlemler">
+                                            <Tooltip title="جزئیات و عملیات">
                                                 <IconButton
                                                     id={`actions-button-${index}`}
                                                     aria-controls={openMenu ? 'actions-menu' : undefined}
@@ -938,20 +938,20 @@ const ListConcreteReport = () => {
                                                 onClose={handleCloseMenu}
                                             >
                                                 <MenuItem onClick={() => handleOpenDetailViewModal(row)}>
-                                                    <ListItemIcon><IconRuler width={18} /></ListItemIcon> Detayları Görüntüle
+                                                    <ListItemIcon><IconRuler width={18} /></ListItemIcon> مشاهده‌ی جزئیات
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleExportPdfSingle(row)}>
-                                                    <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> PDF İndir
+                                                    <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود PDF
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleExportExcelSingle(row)}>
-                                                    <ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> Excel İndir
+                                                    <ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> دانلود Excel
                                                 </MenuItem>
                                             </Menu>
                                         </StyledTableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow><StyledTableCell colSpan={tableHeaders.length + 1} align="center"><Typography variant="subtitle1" color="textSecondary" sx={{ my: 2 }}>Veri bulunamadı.</Typography></StyledTableCell></TableRow>
+                                <TableRow><StyledTableCell colSpan={tableHeaders.length + 1} align="center"><Typography variant="subtitle1" color="textSecondary" sx={{ my: 2 }}>داده‌ای پیدا نشد.</Typography></StyledTableCell></TableRow>
                             )}
                         </TableBody>
                         {reportData && reportData.data?.length > 0 && (
@@ -994,7 +994,7 @@ const ListConcreteReport = () => {
                             page={page}
                             onPageChange={handleChangePage}
                             onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Satır sayısı:"
+                            labelRowsPerPage="تعداد ردیف‌ها:"
                             labelDisplayedRows={({ from, to, count }) =>
                                 `${from}–${to} / ${count !== -1 ? count : `> ${to}`}`
                             }

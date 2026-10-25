@@ -116,14 +116,14 @@ const stableSort = <T,>(array: T[], comparator: (a: T, b: T) => number) => {
 };
 
 const statusToLabel = (s: number) => {
-    switch (s) { case 0: return "Beklemede"; case 1: return "Onaylandı"; case 2: return "Reddedildi"; default: return "-"; }
+    switch (s) { case 0: return "Beklemede"; case 1: return "تأیید شد"; case 2: return "Reddedildi"; default: return "-"; }
 };
 const statusToColor = (s: number): 'warning' | 'success' | 'error' | 'primary' => {
     switch (s) { case 0: return "warning"; case 1: return "success"; case 2: return "error"; default: return "primary"; }
 };
 const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "N/A";
-    try { const date = new Date(dateString); return format(date, 'dd MMMM yyyy', { locale: tr }); } catch (e) { return "Geçersiz Tarih"; }
+    try { const date = new Date(dateString); return format(date, 'dd MMMM yyyy', { locale: tr }); } catch (e) { return "تاریخ نامعتبر"; }
 };
 const stripHtml = (htmlString: string): string => {
     if (!htmlString) return '';
@@ -151,7 +151,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -160,7 +160,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -178,7 +178,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -190,12 +190,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -284,9 +284,9 @@ const RequestTabs: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const idsFromState = ((location.state as { notifIds?: string[] } | undefined)?.notifIds) ?? [];
     const idsFromSingleParam = (searchParams.get('ids') ?? '').split(',').map(s => s.trim()).filter(Boolean);
@@ -320,10 +320,10 @@ const RequestTabs: React.FC = () => {
         setOpenAttachmentsModal(true);
     };
     const handleDownloadClick = (fileUrl: string) => {
-        if (!fileUrl) { showAlert('Dosya adresi geçersiz.', 'error'); return; }
+        if (!fileUrl) { showAlert('آدرس فایل نامعتبر است.', 'error'); return; }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
     const clearNotifFilter = () => {
         const next = new URLSearchParams(searchParams);
@@ -435,7 +435,7 @@ const RequestTabs: React.FC = () => {
                 setRentalRequestsList(mappedData);
             } else {
                 setRentalRequestsList([]);
-                showAlert(response.data.message || 'Kiralama talepleri alınamadı.', 'error');
+                showAlert(response.data.message || 'درخواست‌های اجاره دریافت نشدند.', 'error');
             }
         } catch (e: any) {
             setRentalRequestsList([]);
@@ -478,23 +478,23 @@ const RequestTabs: React.FC = () => {
 
         const isMaterial = (requestData as MaterialRequestType).subject !== undefined;
         const tableData = [
-            ['Başlık', isMaterial ? (requestData as MaterialRequestType).subject : (requestData as WorkhouseRentRequest).title],
-            ['Durum', statusToLabel(requestData.status)],
-            ['Tarih', new Date(requestData.createAt).toLocaleDateString('tr-TR')],
-            ['Açıklama', stripHtml(requestData.description) || '-'],
+            ['عنوان', isMaterial ? (requestData as MaterialRequestType).subject : (requestData as WorkhouseRentRequest).title],
+            ['وضعیت', statusToLabel(requestData.status)],
+            ['تاریخ', new Date(requestData.createAt).toLocaleDateString('tr-TR')],
+            ['توضیحات', stripHtml(requestData.description) || '-'],
             ...(!isMaterial ? [
-                ['Şoför Bilgisi', (requestData as WorkhouseRentRequest).driverInfo || '-'],
-                ['Kiralandığı Şirket', (requestData as WorkhouseRentRequest).company || '-'],
-                ['Fiyat', (requestData as WorkhouseRentRequest).price + ' TL' || '-'],
-                ['Şantiye', (requestData as WorkhouseRentRequest).workhouseName || 'Bilinmiyor'],
-                ['Başlangıç', formatDateDisplay((requestData as WorkhouseRentRequest).rentStartDate)],
-                ['Bitiş', formatDateDisplay((requestData as WorkhouseRentRequest).rentEndDate)],
+                ['اطلاعات راننده', (requestData as WorkhouseRentRequest).driverInfo || '-'],
+                ['شرکت اجاره‌دهنده', (requestData as WorkhouseRentRequest).company || '-'],
+                ['قیمت', (requestData as WorkhouseRentRequest).price + ' TL' || '-'],
+                ['کارگاه', (requestData as WorkhouseRentRequest).workhouseName || 'Bilinmiyor'],
+                ['شروع', formatDateDisplay((requestData as WorkhouseRentRequest).rentStartDate)],
+                ['پایان', formatDateDisplay((requestData as WorkhouseRentRequest).rentEndDate)],
             ] : []),
         ];
 
         autoTable(doc, {
             startY: 50,
-            head: [['Özellik', 'Değer']],
+            head: [['ویژگی', 'مقدار']],
             body: tableData,
             theme: 'grid',
             // @ts-ignore
@@ -519,13 +519,13 @@ const RequestTabs: React.FC = () => {
 
         worksheet.addRow(['ترابوت']).font = { bold: true, size: 12 };
         worksheet.addRow(['Rapor Başlığı:', title]).font = { bold: true };
-        worksheet.addRow(['Rapor Tarihi:', new Date().toLocaleDateString('tr-TR')]);
+        worksheet.addRow(['تاریخ گزارش:', new Date().toLocaleDateString('tr-TR')]);
         worksheet.addRow([]);
         worksheet.addRow([]);
 
         worksheet.columns = [
-            { header: 'Özellik', key: 'key', width: 25 },
-            { header: 'Değer', key: 'value', width: 60 }
+            { header: 'ویژگی', key: 'key', width: 25 },
+            { header: 'مقدار', key: 'value', width: 60 }
         ];
 
         const isMaterial = (requestData as MaterialRequestType).subject !== undefined;
@@ -551,10 +551,10 @@ const RequestTabs: React.FC = () => {
         worksheet.mergeCells(`A${worksheet.lastRow?.number}:B${worksheet.lastRow?.number}`);
 
         if (requestData.attachments && requestData.attachments.length > 0) {
-            worksheet.addRow(['Dosya Adı', 'URL']).font = { bold: true };
+            worksheet.addRow(['نام فایل', 'URL']).font = { bold: true };
             requestData.attachments.forEach(att => { worksheet.addRow([att.fileUrl.split('/').pop() || '-', att.fileUrl]); });
         } else {
-            worksheet.addRow(['Piyes bulunamadı']);
+            worksheet.addRow(['قطعه پیدا نشد']);
         }
 
         const buffer = await workbook.xlsx.writeBuffer();
@@ -570,8 +570,8 @@ const RequestTabs: React.FC = () => {
         // @ts-ignore
         doc.setFont('Arial');
 
-        const materialColumns = ['ID', 'Başlık', 'Şantiye', 'Durum', 'Tarih', 'Açıklama'];
-        const rentalColumns = ['ID', 'Başlık', 'Şantiye', 'Başlangıç', 'Bitiş', 'Fiyat', 'Durum', 'Kiralandığı Şirket'];
+        const materialColumns = ['ID', 'عنوان', 'کارگاه', 'وضعیت', 'تاریخ', 'توضیحات'];
+        const rentalColumns = ['ID', 'عنوان', 'کارگاه', 'شروع', 'پایان', 'قیمت', 'وضعیت', 'شرکت اجاره‌دهنده'];
 
         const head = [isMaterial ? materialColumns : rentalColumns];
 
@@ -633,17 +633,17 @@ const RequestTabs: React.FC = () => {
 
         worksheet.addRow(['ترابوت']).font = { bold: true, size: 12 };
         worksheet.addRow(['Rapor Başlığı:', title]).font = { bold: true };
-        worksheet.addRow(['Rapor Tarihi:', new Date().toLocaleDateString('tr-TR')]);
+        worksheet.addRow(['تاریخ گزارش:', new Date().toLocaleDateString('tr-TR')]);
         worksheet.addRow([]);
         worksheet.addRow([]);
 
         if (isMaterial) {
             worksheet.columns = [
                 { header: 'ID', key: 'id', width: 10 },
-                { header: 'Başlık', key: 'subject', width: 30 },
-                { header: 'Durum', key: 'status', width: 15 },
-                { header: 'Tarih', key: 'createAt', width: 18 },
-                { header: 'Açıklama', key: 'description', width: 50 },
+                { header: 'عنوان', key: 'subject', width: 30 },
+                { header: 'وضعیت', key: 'status', width: 15 },
+                { header: 'تاریخ', key: 'createAt', width: 18 },
+                { header: 'توضیحات', key: 'description', width: 50 },
             ];
             worksheet.addRows(dataList.map(r => ({
                 id: r.id,
@@ -655,13 +655,13 @@ const RequestTabs: React.FC = () => {
         } else {
             worksheet.columns = [
                 { header: 'ID', key: 'id', width: 10 },
-                { header: 'Başlık', key: 'title', width: 25 },
-                { header: 'Şantiye', key: 'workhouseName', width: 25 },
-                { header: 'Başlangıç', key: 'rentStartDate', width: 18 },
-                { header: 'Bitiş', key: 'rentEndDate', width: 18 },
-                { header: 'Fiyat (TL)', key: 'price', width: 15 },
-                { header: 'Durum', key: 'status', width: 15 },
-                { header: 'Kiralandığı Şirket', key: 'company', width: 20 },
+                { header: 'عنوان', key: 'title', width: 25 },
+                { header: 'کارگاه', key: 'workhouseName', width: 25 },
+                { header: 'شروع', key: 'rentStartDate', width: 18 },
+                { header: 'پایان', key: 'rentEndDate', width: 18 },
+                { header: 'قیمت (تومان)', key: 'price', width: 15 },
+                { header: 'وضعیت', key: 'status', width: 15 },
+                { header: 'شرکت اجاره‌دهنده', key: 'company', width: 20 },
             ];
             worksheet.addRows(dataList.map(r => ({
                 id: r.id,
@@ -792,7 +792,7 @@ const RequestTabs: React.FC = () => {
                                     onClick={() => setOpenDownloadSingleModal(true)}
                                     startIcon={<IconFileDownload size={20} />}
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         )}
@@ -820,9 +820,9 @@ const RequestTabs: React.FC = () => {
                             value={materialStatusFilter} exclusive fullWidth size="small"
                             onChange={(_: any, v: 'all' | 0 | 1 | 2 | null) => { if (v !== null) { setMaterialStatusFilter(v); setMaterialPage(0); } }}
                         >
-                            <StyledToggleButton value="all" data-value="all">Tümü</StyledToggleButton>
+                            <StyledToggleButton value="all" data-value="all">همه</StyledToggleButton>
                             <StyledToggleButton value={0} data-value="0">Beklemede</StyledToggleButton>
-                            <StyledToggleButton value={1} data-value="1">Onaylandı</StyledToggleButton>
+                            <StyledToggleButton value={1} data-value="1">تأیید شد</StyledToggleButton>
                             <StyledToggleButton value={2} data-value="2">Reddedildi</StyledToggleButton>
                         </ToggleButtonGroup>
                     </Grid>
@@ -830,18 +830,18 @@ const RequestTabs: React.FC = () => {
             </Box>
             <TableContainer component={Paper} sx={{ mt: 3 }}>
                 {loadingData ? (
-                    <Box display="flex" justifyContent="center" alignItems="center" height="200px"><CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>Talepler yükleniyor...</Typography></Box>
+                    <Box display="flex" justifyContent="center" alignItems="center" height="200px"><CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری درخواست‌ها...</Typography></Box>
                 ) : (
                     <Table aria-label="Malzeme Talepleri tablosu">
                         <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                             <TableRow>
-                                {(['Başlık', 'Şantiye', 'Açıklama', 'Durum', 'Tarih', 'Ekler', 'Detay', ''] as const).map((head, index) => (
+                                {(['عنوان', 'کارگاه', 'توضیحات', 'وضعیت', 'تاریخ', 'Ekler', 'جزئیات', ''] as const).map((head, index) => (
                                     <StyledTableCell key={index} sx={{ color: "#171c23" }}>
                                         <TableSortLabel
-                                            active={materialOrderBy === (head === 'Başlık' ? 'subject' : head === 'Durum' ? 'status' : 'createAt')}
-                                            direction={materialOrderBy === (head === 'Başlık' ? 'subject' : head === 'Durum' ? 'status' : 'createAt') ? materialOrder : "asc"}
+                                            active={materialOrderBy === (head === 'عنوان' ? 'subject' : head === 'وضعیت' ? 'status' : 'createAt')}
+                                            direction={materialOrderBy === (head === 'عنوان' ? 'subject' : head === 'وضعیت' ? 'status' : 'createAt') ? materialOrder : "asc"}
                                             onClick={() => {
-                                                const property = head === 'Başlık' ? 'subject' : head === 'Durum' ? 'status' : 'createAt';
+                                                const property = head === 'عنوان' ? 'subject' : head === 'وضعیت' ? 'status' : 'createAt';
                                                 const isAsc = materialOrderBy === property && materialOrder === "asc";
                                                 setMaterialOrder(isAsc ? "desc" : "asc");
                                                 setMaterialOrderBy(property);
@@ -870,14 +870,14 @@ const RequestTabs: React.FC = () => {
                                             </Typography>
                                             {row.workhouse?.code && (
                                                 <Typography variant="caption" color="textSecondary" display="block">
-                                                    Kod: {row.workhouse.code}
+                                                    کد: {row.workhouse.code}
                                                 </Typography>
                                             )}
                                         </StyledTableCell>
 
                                         <StyledTableCell sx={{ maxWidth: 150 }}>
                                             {row.description && row.description.trim().length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                     <Button
 
                                                         variant="outlined"
@@ -887,7 +887,7 @@ const RequestTabs: React.FC = () => {
                                                             setOpenDescriptionModal(true);
                                                         }}
                                                     >
-                                                        Açıklamanı Oku
+                                                        خواندن توضیحات
                                                     </Button>
                                                 </CustomTooltip>
                                             ) : (
@@ -905,7 +905,7 @@ const RequestTabs: React.FC = () => {
                                             >
                                                 <Chip label={statusToLabel(row.status)} color={statusToColor(row.status)} size="small" />
                                                 {(row.requestStatusHistories && row.requestStatusHistories.length > 0) ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Durum Geçmişini Gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی تاریخچه‌ی وضعیت" : ""}>
                                                         <IconButton size="small" onClick={() => { setHistoryData(row.requestStatusHistories!); setOpenHistoryModal(true); }}><IconInfoCircle size={18} /></IconButton>
                                                     </CustomTooltip>
                                                 ) : null}
@@ -914,7 +914,7 @@ const RequestTabs: React.FC = () => {
                                         <StyledTableCell><Typography variant="body1">{new Date(row.createAt).toLocaleDateString('tr-TR')}</Typography></StyledTableCell>
                                         <StyledTableCell>
                                             {row.attachments && row.attachments.length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Ekleri görüntüle ve indir" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده و دانلود پیوست‌ها" : ""}>
                                                     <IconButton onClick={() => handleOpenAttachmentsModal(row.attachments)}><IconLink size={18} /><Chip label={row.attachments.length} color="primary"></Chip></IconButton>
                                                 </CustomTooltip>
                                             ) : (<Typography variant="body2" color="textSecondary">-</Typography>)}
@@ -928,7 +928,7 @@ const RequestTabs: React.FC = () => {
                                                 startIcon={<IconInfoCircle size={16} />}
                                                 sx={{ fontSize: '10px' }}
                                             >
-                                                Detay
+                                                جزئیات
                                             </Button>
                                         </StyledTableCell>
 
@@ -958,7 +958,7 @@ const RequestTabs: React.FC = () => {
                 count={filteredMaterialRequests.length} rowsPerPage={materialRowsPerPage} page={materialPage}
                 onPageChange={(_event: unknown, newPage: number) => setMaterialPage(newPage)}
                 onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => { setMaterialRowsPerPage(parseInt(event.target.value, 10)); setMaterialPage(0); }}
-                labelRowsPerPage="Satır başına düşen:"
+                labelRowsPerPage="تعداد در هر صفحه:"
                 labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
             />
         </>
@@ -979,7 +979,7 @@ const RequestTabs: React.FC = () => {
                                 onClick={() => setOpenDownloadSingleModal(true)}
                                 startIcon={<IconFileDownload size={20} />}
                             >
-                                Tümünü İndir
+                                دانلود همه
                             </Button>
                         </CustomTooltip>
                     )}
@@ -993,7 +993,7 @@ const RequestTabs: React.FC = () => {
                                     id="table-workhouse-filter"
                                     options={workhouses}
                                     size="small"
-                                    getOptionLabel={(option) => option.name ? `${option.name} (Kod:${option.code})` : 'Tüm İşyerleri'}
+                                    getOptionLabel={(option) => option.name ? `${option.name} (کد:${option.code})` : 'Tüm İşyerleri'}
                                     isOptionEqualToValue={(option, value) => option.id === value.id}
                                     value={workhouses.find(w => w.id === selectedRentalWorkhouseId) || null}
                                     onChange={(_event, newValue) => {
@@ -1008,7 +1008,7 @@ const RequestTabs: React.FC = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Şantiye Seçiniz"
+                                            label="کارگاه را انتخاب کنید"
                                             variant="outlined"
                                             size="small"
                                             sx={{
@@ -1045,9 +1045,9 @@ const RequestTabs: React.FC = () => {
                             value={rentalStatusFilter} exclusive fullWidth size="small"
                             onChange={(_: any, v: 'all' | 0 | 1 | 2 | null) => { if (v !== null) { setRentalStatusFilter(v); setRentalPage(0); } }}
                         >
-                            <StyledToggleButton value="all" data-value="all">Tümü</StyledToggleButton>
+                            <StyledToggleButton value="all" data-value="all">همه</StyledToggleButton>
                             <StyledToggleButton value={0} data-value="0">Beklemede</StyledToggleButton>
-                            <StyledToggleButton value={1} data-value="1">Onaylandı</StyledToggleButton>
+                            <StyledToggleButton value={1} data-value="1">تأیید شد</StyledToggleButton>
                             <StyledToggleButton value={2} data-value="2">Reddedildi</StyledToggleButton>
                         </ToggleButtonGroup>
                     </Grid>
@@ -1063,13 +1063,13 @@ const RequestTabs: React.FC = () => {
                     <Table aria-label="Kiralama Talepleri tablosu">
                         <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                             <TableRow>
-                                {(['Başlık', 'Şantiye', 'Başlangıç', 'Bitiş', 'Fiyat (TL)', 'Durum', 'Ekler', 'Detay', ''] as const).map((head, index) => (
+                                {(['عنوان', 'کارگاه', 'شروع', 'پایان', 'قیمت (تومان)', 'وضعیت', 'Ekler', 'جزئیات', ''] as const).map((head, index) => (
                                     <StyledTableCell key={index} sx={{ color: "#171c23" }}>
                                         <TableSortLabel
-                                            active={rentalOrderBy === (head === 'Başlık' ? 'title' : head === 'Başlangıç' ? 'rentStartDate' : head === 'Bitiş' ? 'rentEndDate' : head === 'Fiyat (TL)' ? 'price' : head === 'Durum' ? 'status' : 'createAt')}
-                                            direction={rentalOrderBy === (head === 'Başlık' ? 'title' : head === 'Başlangıç' ? 'rentStartDate' : head === 'Bitiş' ? 'rentEndDate' : head === 'Fiyat (TL)' ? 'price' : head === 'Durum' ? 'status' : 'createAt') ? rentalOrder : "asc"}
+                                            active={rentalOrderBy === (head === 'عنوان' ? 'title' : head === 'شروع' ? 'rentStartDate' : head === 'پایان' ? 'rentEndDate' : head === 'قیمت (تومان)' ? 'price' : head === 'وضعیت' ? 'status' : 'createAt')}
+                                            direction={rentalOrderBy === (head === 'عنوان' ? 'title' : head === 'شروع' ? 'rentStartDate' : head === 'پایان' ? 'rentEndDate' : head === 'قیمت (تومان)' ? 'price' : head === 'وضعیت' ? 'status' : 'createAt') ? rentalOrder : "asc"}
                                             onClick={() => {
-                                                const property = head === 'Başlık' ? 'title' : head === 'Başlangıç' ? 'rentStartDate' : head === 'Bitiş' ? 'rentEndDate' : head === 'Fiyat (TL)' ? 'price' : head === 'Durum' ? 'status' : 'createAt';
+                                                const property = head === 'عنوان' ? 'title' : head === 'شروع' ? 'rentStartDate' : head === 'پایان' ? 'rentEndDate' : head === 'قیمت (تومان)' ? 'price' : head === 'وضعیت' ? 'status' : 'createAt';
                                                 const isAsc = rentalOrderBy === property && rentalOrder === "asc";
                                                 setRentalOrder(isAsc ? "desc" : "asc");
                                                 setRentalOrderBy(property);
@@ -1108,7 +1108,7 @@ const RequestTabs: React.FC = () => {
                                         <StyledTableCell><Chip label={statusToLabel(row.status)} color={statusToColor(row.status)} size="small" /></StyledTableCell>
                                         <StyledTableCell>
                                             {row.attachments && row.attachments.length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Ekleri görüntüle ve indir" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده و دانلود پیوست‌ها" : ""}>
                                                     <IconButton onClick={() => handleOpenAttachmentsModal(row.attachments)}><IconLink size={18} /><Chip label={row.attachments.length} color="primary"></Chip></IconButton>
                                                 </CustomTooltip>
                                             ) : (<Typography variant="body2" color="textSecondary">-</Typography>)}
@@ -1122,7 +1122,7 @@ const RequestTabs: React.FC = () => {
                                                 startIcon={<IconInfoCircle size={16} />}
                                                 sx={{ fontSize: '10px' }}
                                             >
-                                                Detay
+                                                جزئیات
                                             </Button>
                                         </StyledTableCell>
                                         <StyledTableCell>
@@ -1140,7 +1140,7 @@ const RequestTabs: React.FC = () => {
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow><StyledTableCell colSpan={8} align="center"><Typography variant="subtitle1" color="textSecondary">Seçili işyerinde kayıtlı kiralama talebi bulunamadı.</Typography></StyledTableCell></TableRow>
+                                <TableRow><StyledTableCell colSpan={8} align="center"><Typography variant="subtitle1" color="textSecondary">درخواست اجاره‌ای برای محل کار انتخاب‌شده ثبت نشده است.</Typography></StyledTableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>
@@ -1151,7 +1151,7 @@ const RequestTabs: React.FC = () => {
                 count={filteredRentalRequests.length} rowsPerPage={rentalRowsPerPage} page={rentalPage}
                 onPageChange={(_event: unknown, newPage: number) => setRentalPage(newPage)}
                 onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => { setRentalRowsPerPage(parseInt(event.target.value, 10)); setRentalPage(0); }}
-                labelRowsPerPage="Satır başına düşen:"
+                labelRowsPerPage="تعداد در هر صفحه:"
                 labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
             />
         </>
@@ -1165,7 +1165,7 @@ const RequestTabs: React.FC = () => {
                     <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}><IconFileText style={{ marginRight: 8 }} /> Talep Yönetimi</Typography>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: { xs: 2, sm: 0 } }}>
                         <TabList onChange={handleTabChange} aria-label="Talep Türleri">
-                            <Tab label="Malzeme Talepleri" value="material" />
+                            <Tab label="درخواست‌های کالا" value="material" />
                             <Tab label="Kiralama Talepleri" value="rental" />
                         </TabList>
                     </Box>
@@ -1181,13 +1181,13 @@ const RequestTabs: React.FC = () => {
                                 fullWidth={false} startIcon={<IconPlus size={20} />}
                                 disabled={!hasCreatePermission}
                             >
-                                Yeni {currentTab === 'material' ? 'Malzeme' : 'Kiralama'} Talep Kaydet
+                                جدید {currentTab === 'material' ? 'کالا' : 'Kiralama'} Talep Kaydet
                             </BlinkingButton>
                         </CustomTooltip>
                     )
                     }
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained" color="error"
                                 onClick={() => { setIsFormVisible(false); setIsEditing(false); setMaterialItemToEdit(null); setRentalItemToEdit(null); }}
@@ -1251,7 +1251,7 @@ const RequestTabs: React.FC = () => {
                             onClick={() => {
                                 const row = materialSelectedRowForMenu || rentalSelectedRowForMenu;
                                 if (row) {
-                                    exportRequestPdf(row, currentTab === 'material' ? 'Malzeme Talep Detay Raporu' : 'Kiralama Talep Detay Raporu');
+                                    exportRequestPdf(row, currentTab === 'material' ? 'گزارش جزئیات درخواست کالا' : 'گزارش جزئیات درخواست اجاره');
                                 } else if (currentTab === 'material') {
                                     exportAllRequestsPdf(filteredMaterialRequests, 'Tüm Malzeme Talepleri Raporu', true);
                                 } else {
@@ -1263,14 +1263,14 @@ const RequestTabs: React.FC = () => {
                             }}
                             startIcon={<IconFileDownload />}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained" color="success"
                             onClick={() => {
                                 const row = materialSelectedRowForMenu || rentalSelectedRowForMenu;
                                 if (row) {
-                                    exportRequestExcel(row, currentTab === 'material' ? 'Malzeme Talep Detayları' : 'Kiralama Talep Detayları');
+                                    exportRequestExcel(row, currentTab === 'material' ? 'جزئیات درخواست کالا' : 'جزئیات درخواست اجاره');
                                 } else if (currentTab === 'material') {
                                     exportAllRequestsExcel(filteredMaterialRequests, 'Tüm Malzeme Talepleri Detayları', true);
                                 } else {
@@ -1282,15 +1282,15 @@ const RequestTabs: React.FC = () => {
                             }}
                             startIcon={<IconFileDownload />}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => { setOpenDownloadSingleModal(false); setMaterialSelectedRowForMenu(null); setRentalSelectedRowForMenu(null); }} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => { setOpenDownloadSingleModal(false); setMaterialSelectedRowForMenu(null); setRentalSelectedRowForMenu(null); }} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openHistoryModal} onClose={() => setOpenHistoryModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Talep Durum Geçmişi</DialogTitle>
+                <DialogTitle>تاریخچه‌ی وضعیت درخواست</DialogTitle>
                 <DialogContent dividers>
                     <Stack spacing={2}>
                         {historyData.length > 0 ? (
@@ -1301,22 +1301,22 @@ const RequestTabs: React.FC = () => {
                                         <Typography variant="caption" color="textSecondary">{new Date(h.createAt).toLocaleString('tr-TR')}</Typography>
                                     </Box>
                                     <Divider sx={{ my: 1 }} />
-                                    <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 1 }}>Açıklama: {h.statusDescription || '—'}</Typography>
-                                    <Typography variant="body2">İşlem Yapan: {h.user?.username || 'Bilinmiyor'}</Typography>
+                                    <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 1 }}>توضیحات: {h.statusDescription || '—'}</Typography>
+                                    <Typography variant="body2">انجام‌دهنده: {h.user?.username || 'Bilinmiyor'}</Typography>
                                 </Paper>
                             ))
-                        ) : (<Typography>Henüz durum geçmişi yok.</Typography>)}
+                        ) : (<Typography>هنوز تاریخچه‌ی وضعیتی وجود ندارد.</Typography>)}
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenHistoryModal(false)}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenHistoryModal(false)}>بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDescriptionModal} onClose={() => setOpenDescriptionModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText><div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} /></DialogContentText>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDescriptionModal(false)} color="primary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDescriptionModal(false)} color="primary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openAttachmentsModal} onClose={() => setOpenAttachmentsModal(false)} maxWidth="sm" fullWidth>
@@ -1346,7 +1346,7 @@ const RequestTabs: React.FC = () => {
                         );
                     })}
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)} maxWidth="sm" fullWidth>
                 <DialogTitle sx={{ bgcolor: 'info.main', color: 'white' }}>
@@ -1356,11 +1356,11 @@ const RequestTabs: React.FC = () => {
                     {viewingRow && (
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <Box display="flex" justifyContent="space-between">
-                                <Typography fontWeight="bold">Başlık:</Typography>
+                                <Typography fontWeight="bold">عنوان:</Typography>
                                 <Typography>{(viewingRow as MaterialRequestType).subject || (viewingRow as WorkhouseRentRequest).title}</Typography>
                             </Box>
                             <Box display="flex" justifyContent="space-between">
-                                <Typography fontWeight="bold">Şantiye:</Typography>
+                                <Typography fontWeight="bold">کارگاه:</Typography>
                                 <Typography>{getWorkhouseNameFromRow(viewingRow as MaterialRequestType)}</Typography>
                             </Box>
                             {currentTab === 'rental' && (
@@ -1392,9 +1392,9 @@ const RequestTabs: React.FC = () => {
 
                             <Divider />
 
-                            <Typography fontWeight="bold">Açıklama:</Typography>
+                            <Typography fontWeight="bold">توضیحات:</Typography>
                             <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f9f9f9' }}>
-                                <div dangerouslySetInnerHTML={{ __html: viewingRow.description || 'Açıklama belirtilmemiş.' }} />
+                                <div dangerouslySetInnerHTML={{ __html: viewingRow.description || 'توضیحی ثبت نشده است.' }} />
                             </Paper>
 
                             <Divider sx={{ my: 2 }} />
@@ -1404,7 +1404,7 @@ const RequestTabs: React.FC = () => {
                                     variant="outlined"
                                     color="primary"
                                     startIcon={<IconFileDownload />}
-                                    onClick={() => exportRequestPdf(viewingRow, currentTab === 'material' ? 'Malzeme Talep Raporu' : 'Kiralama Talep Raporu')}
+                                    onClick={() => exportRequestPdf(viewingRow, currentTab === 'material' ? 'گزارش درخواست کالا' : 'گزارش درخواست اجاره')}
                                 >
                                     PDF
                                 </Button>
@@ -1412,7 +1412,7 @@ const RequestTabs: React.FC = () => {
                                     variant="outlined"
                                     color="success"
                                     startIcon={<IconFileDownload />}
-                                    onClick={() => exportRequestExcel(viewingRow, currentTab === 'material' ? 'Malzeme Talep Detayları' : 'Kiralama Talep Detayları')}
+                                    onClick={() => exportRequestExcel(viewingRow, currentTab === 'material' ? 'جزئیات درخواست کالا' : 'جزئیات درخواست اجاره')}
                                 >
                                     Excel
                                 </Button>
@@ -1421,7 +1421,7 @@ const RequestTabs: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDetailsModal(false)} variant="contained" color="inherit">Kapat</Button>
+                    <Button onClick={() => setOpenDetailsModal(false)} variant="contained" color="inherit">بستن</Button>
                 </DialogActions>
             </Dialog>
 

@@ -36,8 +36,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -228,9 +228,9 @@ const ListDrivers = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const showAlert = (message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
         setAlertMessage(message);
@@ -263,7 +263,7 @@ const ListDrivers = () => {
                 const allDrivers = response.data.data as DriverData[];
                 const driversWithStatus = allDrivers.map((item) => ({
                     ...item,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     internal: item.internal ? '1' : '0'
                 }));
                 setDriversList(driversWithStatus);
@@ -271,12 +271,12 @@ const ListDrivers = () => {
                 showAlert(response.data.message || 'Şoförler yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -325,7 +325,7 @@ const ListDrivers = () => {
         if (!birthdate) { setBirthDateError(true); isValid = false; } else { setBirthDateError(false); }
         if (!fatherName.trim()) { setFatherNameError(true); isValid = false; } else { setFatherNameError(false); }
         if (!identityNo.trim()) { setNationalCodeError(true); isValid = false; } else { setNationalCodeError(false); }
-        if (!isValid) { showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning'); }
+        if (!isValid) { showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning'); }
         return isValid;
     };
     const insertDriver = async () => {
@@ -413,7 +413,7 @@ const ListDrivers = () => {
                 resetFormAndState();
                 fetchDrivers();
             } else {
-                showAlert(response.data.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response?.status === 500) showAlert('Sunucu hatası (500).', 'error');
@@ -421,7 +421,7 @@ const ListDrivers = () => {
                 localStorage.removeItem('authToken');
                 showAlert('Oturum süreniz doldu.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -462,18 +462,18 @@ const ListDrivers = () => {
                 resetFormAndState();
                 fetchDrivers();
             } else {
-                showAlert(response.data.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
 
             }
         } finally {
@@ -536,7 +536,7 @@ const ListDrivers = () => {
     const sendStatusUpdate = async (id: number, statusValue: number) => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); navigate("/"); return; }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); navigate("/"); return; }
         try {
             const response = await axios.put(
                 server.baseurl + server.warehouse + "update-driver",
@@ -544,19 +544,19 @@ const ListDrivers = () => {
                 { headers: { "Authorization": `Bearer ${authToken}`, 'Content-Type': 'application/json' } }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Sürücü başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Sürücü başarıyla ${statusText} تنظیم شد!`, 'success');
                 fetchDrivers();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -628,7 +628,7 @@ const ListDrivers = () => {
             doc.text(title, pageWidth / 2, 15, { align: 'center' });
             doc.setFontSize(10);
             doc.setFont('NotoSans', 'bold');
-            doc.text(`Rapor Tarihi:`, 15, 40);
+            doc.text(`تاریخ گزارش:`, 15, 40);
             doc.setFont('NotoSans', 'normal');
             doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -639,12 +639,12 @@ const ListDrivers = () => {
 
             if (isFiltered) {
                 let filterInfo = '';
-                if (searchTerm) filterInfo += `Arama: ${searchTerm} | `;
-                if (statusFilter !== 'all') filterInfo += `Durum: ${statusFilter === 'active' ? 'Aktif' : 'Pasif'} | `;
+                if (searchTerm) filterInfo += `جستجو: ${searchTerm} | `;
+                if (statusFilter !== 'all') filterInfo += `وضعیت: ${statusFilter === 'active' ? 'فعال' : 'غیرفعال'} | `;
                 if (startDate || endDate) {
                     const startStr = startDate ? format(startDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
                     const endStr = endDate ? format(endDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
-                    filterInfo += `Tarih Aralığı: ${startStr} - ${endStr}`;
+                    filterInfo += `بازه‌ی زمانی: ${startStr} - ${endStr}`;
                 }
                 if (filterInfo) {
                     doc.setFont('Arial', 'normal');
@@ -661,7 +661,7 @@ const ListDrivers = () => {
 
             const companyInfo = [
                 'ترابوت',
-                'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                'ترابوت، دستیار هوشمند حمل‌ونقل',
                 'دستیار هوشمند حمل‌ونقل',
             ];
 
@@ -673,12 +673,12 @@ const ListDrivers = () => {
 
             pdfDoc.setTextColor(0);
             pdfDoc.setFontSize(10);
-            pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+            pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
             pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
             const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
             const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-            pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+            pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
         };
 
         const rows = data.map(driver => [
@@ -686,13 +686,13 @@ const ListDrivers = () => {
             formatDateDisplay(driver.birthdate),
             driver.fatherName,
             driver.identityNo,
-            driver.internal === '1' ? 'Şirket İçi' : 'Şirket Dışı',
-            driver.recordStatus === 0 ? 'Aktif' : 'Pasif',
+            driver.internal === '1' ? 'داخل شرکت' : 'خارج از شرکت',
+            driver.recordStatus === 0 ? 'فعال' : 'غیرفعال',
         ]);
 
         autoTable(doc, {
             startY: isFiltered ? 55 : 50,
-            head: [['Adı Soyadı', 'Doğum Tarihi', 'Baba Adı', 'TC Kimlik No', 'Sürücü Tipi', 'Durum']],
+            head: [['نام و نام خانوادگی', 'تاریخ تولد', 'نام پدر', 'کد ملی', 'نوع گواهینامه', 'وضعیت']],
             body: rows,
             theme: 'grid',
             styles: {
@@ -716,8 +716,8 @@ const ListDrivers = () => {
             margin: { top: 50, bottom: 45 },
         });
 
-        doc.save(`${isFiltered ? 'Filtrelenmiş' : 'Tüm'}_Şoförler_Raporu.pdf`);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        doc.save(`${isFiltered ? 'فیلترشده' : 'همه‌ی'}_Şoförler_Raporu.pdf`);
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
     };
 
     const handleDownloadAllDriversPDF = () => {
@@ -745,7 +745,7 @@ const ListDrivers = () => {
             showAlert('Dışa aktarılacak sürücü bulunamadı.', 'warning');
             return;
         }
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -776,7 +776,7 @@ const ListDrivers = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 const mergeRangeEndColumn = String.fromCharCode(65 + columnCount - 1);
@@ -806,12 +806,12 @@ const ListDrivers = () => {
 
             let filterInfo = '';
             if (isFiltered) {
-                if (searchTerm) filterInfo += `Arama: ${searchTerm} | `;
-                if (statusFilter !== 'all') filterInfo += `Durum: ${statusFilter === 'active' ? 'Aktif' : 'Pasif'} | `;
+                if (searchTerm) filterInfo += `جستجو: ${searchTerm} | `;
+                if (statusFilter !== 'all') filterInfo += `وضعیت: ${statusFilter === 'active' ? 'فعال' : 'غیرفعال'} | `;
                 if (startDate || endDate) {
                     const startStr = startDate ? format(startDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
                     const endStr = endDate ? format(endDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
-                    filterInfo += `Tarih Aralığı: ${startStr} - ${endStr}`;
+                    filterInfo += `بازه‌ی زمانی: ${startStr} - ${endStr}`;
                 }
             }
             if (filterInfo) {
@@ -825,7 +825,7 @@ const ListDrivers = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['Adı Soyadı', 'Doğum Tarihi', 'Baba Adı', 'TC Kimlik No', 'Sürücü Tipi', 'Durum'];
+            const tableHeaders = ['نام و نام خانوادگی', 'تاریخ تولد', 'نام پدر', 'کد ملی', 'نوع گواهینامه', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -837,8 +837,8 @@ const ListDrivers = () => {
                     formatDateDisplay(driver.birthdate),
                     driver.fatherName,
                     driver.identityNo,
-                    driver.internal === '1' ? 'Şirket İçi' : 'Şirket Dışı',
-                    driver.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    driver.internal === '1' ? 'داخل شرکت' : 'خارج از شرکت',
+                    driver.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                 ]);
                 row.eachCell((cell) => {
                     cell.style = bodyStyle;
@@ -865,10 +865,10 @@ const ListDrivers = () => {
             const fileName = `${fileNamePrefix}_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -879,7 +879,7 @@ const ListDrivers = () => {
         try {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 return;
             }
 
@@ -933,7 +933,7 @@ const ListDrivers = () => {
 
                 doc.setFontSize(10);
                 doc.setFont('NotoSans', 'bold');
-                doc.text(`Rapor Tarihi:`, 15, 40);
+                doc.text(`تاریخ گزارش:`, 15, 40);
                 doc.setFont('NotoSans', 'normal');
                 doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -944,12 +944,12 @@ const ListDrivers = () => {
 
                 if (isFiltered) {
                     let filterInfo = '';
-                    if (searchTerm) filterInfo += `Arama: ${searchTerm} | `;
-                    if (statusFilter !== 'all') filterInfo += `Durum: ${statusFilter === 'active' ? 'Aktif' : 'Pasif'} | `;
+                    if (searchTerm) filterInfo += `جستجو: ${searchTerm} | `;
+                    if (statusFilter !== 'all') filterInfo += `وضعیت: ${statusFilter === 'active' ? 'فعال' : 'غیرفعال'} | `;
                     if (startDate || endDate) {
                         const startStr = startDate ? format(startDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
                         const endStr = endDate ? format(endDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
-                        filterInfo += `Tarih Aralığı: ${startStr} - ${endStr}`;
+                        filterInfo += `بازه‌ی زمانی: ${startStr} - ${endStr}`;
                     }
                     if (filterInfo) {
                         doc.setFont('Arial', 'normal');
@@ -965,7 +965,7 @@ const ListDrivers = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
 
@@ -977,12 +977,12 @@ const ListDrivers = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
 
@@ -991,7 +991,7 @@ const ListDrivers = () => {
             dataToExport.forEach((driver: DriverWithVehicles) => {
                 tableBody.push([
                     {
-                        content: `Sürücü: ${driver.name} ${driver.family} (${driver.identityNo})`,
+                        content: `راننده: ${driver.name} ${driver.family} (${driver.identityNo})`,
                         colSpan: 4,
                         styles: {
                             fontStyle: 'normal',
@@ -1005,7 +1005,7 @@ const ListDrivers = () => {
                     car.name || '-',
                     String(car.model) || '-',
                     car.plaque || '-',
-                    car.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    car.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                 ]);
                 tableBody.push(...vehicleRows);
 
@@ -1016,7 +1016,7 @@ const ListDrivers = () => {
 
             autoTable(doc, {
                 startY: isFiltered ? 55 : 50,
-                head: [['Araç Adı', 'Model', 'Plaka', 'Durum']],
+                head: [['نام خودرو', 'Model', 'پلاک', 'وضعیت']],
                 body: tableBody,
                 theme: 'grid',
                 styles: {
@@ -1035,11 +1035,11 @@ const ListDrivers = () => {
                 margin: { top: 50, bottom: 20 }
             });
 
-            doc.save(`${isFiltered ? 'Filtrelenmiş' : 'Tüm'}_Araçlı_Şoförler_Raporu.pdf`);
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            doc.save(`${isFiltered ? 'فیلترشده' : 'همه‌ی'}_Araçlı_Şoförler_Raporu.pdf`);
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error('PDF oluşturulurken hata:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+            console.error('خطا در ساخت PDF:', error);
+            showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
         }
     };
 
@@ -1051,7 +1051,7 @@ const ListDrivers = () => {
         try {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 return;
             }
 
@@ -1102,7 +1102,7 @@ const ListDrivers = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 const mergeRangeEndColumn = String.fromCharCode(65 + columnCount - 1);
@@ -1132,12 +1132,12 @@ const ListDrivers = () => {
 
             let filterInfo = '';
             if (isFiltered) {
-                if (searchTerm) filterInfo += `Arama: ${searchTerm} | `;
-                if (statusFilter !== 'all') filterInfo += `Durum: ${statusFilter === 'active' ? 'Aktif' : 'Pasif'} | `;
+                if (searchTerm) filterInfo += `جستجو: ${searchTerm} | `;
+                if (statusFilter !== 'all') filterInfo += `وضعیت: ${statusFilter === 'active' ? 'فعال' : 'غیرفعال'} | `;
                 if (startDate || endDate) {
                     const startStr = startDate ? format(startDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
                     const endStr = endDate ? format(endDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
-                    filterInfo += `Tarih Aralığı: ${startStr} - ${endStr}`;
+                    filterInfo += `بازه‌ی زمانی: ${startStr} - ${endStr}`;
                 }
             }
             if (filterInfo) {
@@ -1151,14 +1151,14 @@ const ListDrivers = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['Araç Adı', 'Model', 'Plaka', 'Durum'];
+            const tableHeaders = ['نام خودرو', 'Model', 'پلاک', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
             });
 
             dataToExport.forEach(driver => {
-                const driverInfoRow = worksheet.addRow([`Sürücü: ${driver.name} ${driver.family} (${driver.identityNo})`]);
+                const driverInfoRow = worksheet.addRow([`راننده: ${driver.name} ${driver.family} (${driver.identityNo})`]);
                 driverInfoRow.getCell(1).style = { ...bodyStyle, font: { ...bodyStyle.font, bold: true } };
                 worksheet.mergeCells(`A${driverInfoRow.number}:D${driverInfoRow.number}`);
 
@@ -1167,7 +1167,7 @@ const ListDrivers = () => {
                         car.name || '-',
                         car.model || '-',
                         car.plaque || '-',
-                        car.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                        car.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     ]).eachCell(cell => { cell.style = bodyStyle; });
                 });
 
@@ -1194,11 +1194,11 @@ const ListDrivers = () => {
             const fileName = `${fileNamePrefix}_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
 
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -1215,7 +1215,7 @@ const ListDrivers = () => {
         try {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 return;
             }
 
@@ -1249,7 +1249,7 @@ const ListDrivers = () => {
                 doc.text('Sürücü Detay Raporu', pageWidth / 2, 15, { align: 'center' });
                 doc.setFontSize(10);
                 doc.setFont('NotoSans', 'bold');
-                doc.text(`Rapor Tarihi:`, 15, 40);
+                doc.text(`تاریخ گزارش:`, 15, 40);
                 doc.setFont('NotoSans', 'normal');
                 doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -1266,7 +1266,7 @@ const ListDrivers = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
 
@@ -1278,12 +1278,12 @@ const ListDrivers = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
             header();
@@ -1304,7 +1304,7 @@ const ListDrivers = () => {
             currentY += 6;
             doc.text(`TC Kimlik No: ${driver.identityNo}`, 15, currentY);
             currentY += 6;
-            doc.text(`Sürücü Tipi: ${driver.internal === '1' ? 'Şirket İçi' : 'Şirket Dışı'}`, 15, currentY);
+            doc.text(`Sürücü Tipi: ${driver.internal === '1' ? 'داخل شرکت' : 'خارج از شرکت'}`, 15, currentY);
             currentY += 10;
 
             if (vehicles.length > 0) {
@@ -1315,12 +1315,12 @@ const ListDrivers = () => {
 
                 autoTable(doc, {
                     startY: currentY,
-                    head: [['Araç Adı', 'Model', 'Plaka', 'Durum']],
+                    head: [['نام خودرو', 'Model', 'پلاک', 'وضعیت']],
                     body: vehicles.map((car: any) => [
                         car.name || '-',
                         car.model || '-',
                         car.plaque || '-',
-                        car.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                        car.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     ]),
                     theme: 'grid',
                     styles: {
@@ -1344,7 +1344,7 @@ const ListDrivers = () => {
 
             footer(doc);
             doc.save(`Sürücü_Detay_${driver.id}.pdf`);
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) {
             console.error("Detay PDF oluşturulurken hata:", e);
             showAlert('Detay PDF oluşturulurken bir hata oluştu.', 'error');
@@ -1363,7 +1363,7 @@ const ListDrivers = () => {
         try {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 return;
             }
 
@@ -1396,7 +1396,7 @@ const ListDrivers = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 const mergeRangeEndColumn = String.fromCharCode(65 + columnCount - 1);
@@ -1414,7 +1414,7 @@ const ListDrivers = () => {
             titleRow.getCell(1).alignment = { horizontal: 'center' };
             worksheet.mergeCells('A1:B1');
 
-            worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
             worksheet.mergeCells('A2:B2');
             worksheet.addRow([]);
 
@@ -1429,11 +1429,11 @@ const ListDrivers = () => {
             worksheet.mergeCells(`A${driverInfoHeader.number}:B${driverInfoHeader.number}`);
 
             // Driver Info Rows
-            worksheet.addRow(['Adı Soyadı', `${driver.name} ${driver.family}`]).eachCell(c => Object.assign(c.style, bodyStyle));
-            worksheet.addRow(['Baba Adı', driver.fatherName]).eachCell(c => Object.assign(c.style, bodyStyle));
-            worksheet.addRow(['Doğum Tarihi', formatDateDisplay(driver.birthdate)]).eachCell(c => Object.assign(c.style, bodyStyle));
-            worksheet.addRow(['TC Kimlik No', driver.identityNo]).eachCell(c => Object.assign(c.style, bodyStyle));
-            worksheet.addRow(['Sürücü Tipi', driver.internal === '1' ? 'Şirket İçi' : 'Şirket Dışı']).eachCell(c => Object.assign(c.style, bodyStyle));
+            worksheet.addRow(['نام و نام خانوادگی', `${driver.name} ${driver.family}`]).eachCell(c => Object.assign(c.style, bodyStyle));
+            worksheet.addRow(['نام پدر', driver.fatherName]).eachCell(c => Object.assign(c.style, bodyStyle));
+            worksheet.addRow(['تاریخ تولد', formatDateDisplay(driver.birthdate)]).eachCell(c => Object.assign(c.style, bodyStyle));
+            worksheet.addRow(['کد ملی', driver.identityNo]).eachCell(c => Object.assign(c.style, bodyStyle));
+            worksheet.addRow(['نوع گواهینامه', driver.internal === '1' ? 'داخل شرکت' : 'خارج از شرکت']).eachCell(c => Object.assign(c.style, bodyStyle));
             worksheet.addRow([]);
 
             // Vehicle Info Section
@@ -1450,7 +1450,7 @@ const ListDrivers = () => {
                 worksheet.mergeCells(`A${vehicleInfoHeader.number}:D${vehicleInfoHeader.number}`);
 
                 // Vehicle Table Headers
-                const vehicleHeaders = ['Araç Adı', 'Model', 'Plaka', 'Durum'];
+                const vehicleHeaders = ['نام خودرو', 'Model', 'پلاک', 'وضعیت'];
                 const vehicleHeaderRow = worksheet.addRow(vehicleHeaders);
                 vehicleHeaderRow.eachCell(c => Object.assign(c.style, fullHeaderStyle));
 
@@ -1460,7 +1460,7 @@ const ListDrivers = () => {
                         car.name || '-',
                         car.model || '-',
                         car.plaque || '-',
-                        car.recordStatus === 0 ? 'Aktif' : 'Pasif'
+                        car.recordStatus === 0 ? 'فعال' : 'غیرفعال'
                     ]).eachCell(c => Object.assign(c.style, bodyStyle));
                 });
             } else {
@@ -1525,7 +1525,7 @@ const ListDrivers = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained"
                                 color="error"
@@ -1545,11 +1545,11 @@ const ListDrivers = () => {
                     <Paper elevation={3} sx={{ p: isSmallScreen ? 2 : 3, mb: 3 }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel htmlFor="driver-firstName" required>Adı</CustomFormLabel>
+                                <CustomFormLabel htmlFor="driver-firstName" required>نام</CustomFormLabel>
                                 <CustomTextField
                                     id="driver-firstName"
                                     fullWidth
-                                    placeholder="Adı"
+                                    placeholder="نام"
                                     value={firstName}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setFirstName(e.target.value); if (firstNameError) setFirstNameError(false); }}
                                     inputRef={firstNameInputRef}
@@ -1558,11 +1558,11 @@ const ListDrivers = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel htmlFor="driver-lastName" required>Soyadı</CustomFormLabel>
+                                <CustomFormLabel htmlFor="driver-lastName" required>نام خانوادگی</CustomFormLabel>
                                 <CustomTextField
                                     id="driver-lastName"
                                     fullWidth
-                                    placeholder="Soyadı"
+                                    placeholder="نام خانوادگی"
                                     value={lastName}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setLastName(e.target.value); if (lastNameError) setLastNameError(false); }}
                                     error={lastNameError}
@@ -1570,7 +1570,7 @@ const ListDrivers = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel htmlFor="start-date" required>Doğum Tarihi</CustomFormLabel>
+                                <CustomFormLabel htmlFor="start-date" required>تاریخ تولد</CustomFormLabel>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                     <DatePicker
                                         label=""
@@ -1585,18 +1585,18 @@ const ListDrivers = () => {
                                                 {...params}
                                                 fullWidth
                                                 error={birthDateError}
-                                                helperText={birthDateError ? "Başlangıç tarihi boş olamaz!" : ""}
+                                                helperText={birthDateError ? "تاریخ شروع نمی‌تواند خالی باشد!" : ""}
                                             />
                                         )}
                                     />
                                 </LocalizationProvider>
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel htmlFor="driver-fatherName" required>Baba Adı</CustomFormLabel>
+                                <CustomFormLabel htmlFor="driver-fatherName" required>نام پدر</CustomFormLabel>
                                 <CustomTextField
                                     id="driver-fatherName"
                                     fullWidth
-                                    placeholder="Baba Adı"
+                                    placeholder="نام پدر"
                                     value={fatherName}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setFatherName(e.target.value); if (fatherNameError) setFatherNameError(false); }}
                                     error={fatherNameError}
@@ -1622,8 +1622,8 @@ const ListDrivers = () => {
                                     value={internal}
                                     onChange={(e) => setDriverType(e.target.value)}
                                 >
-                                    <FormControlLabel value="1" control={<Radio />} label="Evet" />
-                                    <FormControlLabel value="0" control={<Radio />} label="Hayır" />
+                                    <FormControlLabel value="1" control={<Radio />} label="بله" />
+                                    <FormControlLabel value="0" control={<Radio />} label="خیر" />
                                 </RadioGroup>
                             </Grid>
                             <Grid item xs={12}>
@@ -1632,11 +1632,11 @@ const ListDrivers = () => {
                                         <>
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili sürücüyü güncelleyin" : ""}>
                                                 <Button variant="contained" color="info" onClick={editDriver} disabled={loadingButton} fullWidth={isSmallScreen}>
-                                                    {loadingButton ? <><CircularProgress size={20} /><Box component="span" ml={1}>Bekleniyor...</Box></> : 'Düzenle'}
+                                                    {loadingButton ? <><CircularProgress size={20} /><Box component="span" ml={1}>Bekleniyor...</Box></> : 'ویرایش'}
                                                 </Button>
                                             </CustomTooltip>
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et" : ""}>
-                                                <Button variant="outlined" color="secondary" onClick={handleCancelEdit} fullWidth={isSmallScreen}>İptal Et</Button>
+                                                <Button variant="outlined" color="secondary" onClick={handleCancelEdit} fullWidth={isSmallScreen}>لغو</Button>
                                             </CustomTooltip>
                                         </>
                                     ) : (
@@ -1677,7 +1677,7 @@ const ListDrivers = () => {
                                         isBlinking={true}
                                         disabled={loadingData}
                                     >
-                                        Filtrelenmişi İndir
+                                        دانلود موارد فیلترشده
                                     </BlinkingButton>
                                 </CustomTooltip>
                             </>
@@ -1691,7 +1691,7 @@ const ListDrivers = () => {
                                     startIcon={<IconFileDownload />}
                                     fullWidth={isSmallScreen}
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </Stack>
                         )}
@@ -1715,14 +1715,14 @@ const ListDrivers = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={startDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setStartDate(newValue)}
                                         renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={endDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setEndDate(newValue)}
@@ -1742,9 +1742,9 @@ const ListDrivers = () => {
                                 aria-label="Status filter"
                                 fullWidth
                             >
-                                <StyledToggleButton value="all" aria-label="Tüm Şoförler">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" aria-label="Aktif Şoförler">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" aria-label="Pasif Şoförler">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all" aria-label="Tüm Şoförler">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" aria-label="Aktif Şoförler">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" aria-label="Pasif Şoförler">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1761,16 +1761,16 @@ const ListDrivers = () => {
                                 <TableRow>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'asc'} onClick={() => handleRequestSort('name')} sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Adı</Typography>
+                                            <Typography variant="h6">نام</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'family'} direction={orderBy === 'family' ? order : 'asc'} onClick={() => handleRequestSort('family')} sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Soyadı</Typography>
+                                            <Typography variant="h6">نام خانوادگی</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
-                                    {!isSmallScreen && <StyledTableCell><Typography variant="h6">Doğum Tarihi</Typography></StyledTableCell>}
-                                    {!isSmallScreen && <StyledTableCell><Typography variant="h6">Baba Adı</Typography></StyledTableCell>}
+                                    {!isSmallScreen && <StyledTableCell><Typography variant="h6">تاریخ تولد</Typography></StyledTableCell>}
+                                    {!isSmallScreen && <StyledTableCell><Typography variant="h6">نام پدر</Typography></StyledTableCell>}
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'identityNo'} direction={orderBy === 'identityNo' ? order : 'asc'} onClick={() => handleRequestSort('identityNo')} sx={{ color: "#171c23" }}>
                                             <Typography variant="h6">TC</Typography>
@@ -1779,7 +1779,7 @@ const ListDrivers = () => {
                                     {!isMediumScreen && <StyledTableCell><Typography variant="h6">Şoförler Tipi</Typography></StyledTableCell>}
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'recordStatus'} direction={orderBy === 'recordStatus' ? order : 'asc'} onClick={() => handleRequestSort('recordStatus')} sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
@@ -1796,7 +1796,7 @@ const ListDrivers = () => {
                                             <StyledTableCell><Typography variant="body1">{row.identityNo}</Typography></StyledTableCell>
                                             {!isMediumScreen && (
                                                 <StyledTableCell>
-                                                    <Chip label={row.internal === '1' ? 'Şirket İçi (ترابوت)' : 'Şirket Dışı'} color={row.internal === '1' ? 'primary' : 'secondary'} />
+                                                    <Chip label={row.internal === '1' ? 'Şirket İçi (ترابوت)' : 'خارج از شرکت'} color={row.internal === '1' ? 'primary' : 'secondary'} />
                                                 </StyledTableCell>
                                             )}
                                             <StyledTableCell>
@@ -1806,7 +1806,7 @@ const ListDrivers = () => {
                                                 />
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={Boolean(anchorEl) ? 'basic-menu' : undefined}
@@ -1840,7 +1840,7 @@ const ListDrivers = () => {
                                                     {hasEditPermission && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu sürücüyü düzenle" : ""}>
                                                             <UiMenuItem onClick={handleEditClick}>
-                                                                <ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle
+                                                                <ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1854,14 +1854,14 @@ const ListDrivers = () => {
                                                     {hasEditPermission && selectedRowForMenu?.recordStatus === 0 && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu sürücüyü pasif yap" : ""}>
                                                             <UiMenuItem onClick={handleSetInactive}>
-                                                                <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon>Pasif Yap
+                                                                <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon>غیرفعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasEditPermission && selectedRowForMenu?.recordStatus === 1 && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu sürücüyü aktif yap" : ""}>
                                                             <UiMenuItem onClick={handleSetActive}>
-                                                                <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon>Aktif Yap
+                                                                <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon>فعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1888,7 +1888,7 @@ const ListDrivers = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1922,7 +1922,7 @@ const ListDrivers = () => {
                             startIcon={<IconFileDownload />}
                             onClick={() => handleDownloadDriverDetailsPDF(selectedDriver!)}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1930,13 +1930,13 @@ const ListDrivers = () => {
                             startIcon={<IconFileDownload />}
                             onClick={() => handleDownloadDriverDetailsExcel(selectedDriver!)}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDriverDetailsDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1984,7 +1984,7 @@ const ListDrivers = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenAllDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -2032,7 +2032,7 @@ const ListDrivers = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenFilteredDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

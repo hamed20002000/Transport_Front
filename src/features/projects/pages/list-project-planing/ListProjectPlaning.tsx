@@ -286,7 +286,7 @@ const ListProjectPlanning = () => {
                     ...p,
                     id: Number(p.id),
                     recordStatus: p.recordStatus,
-                    status: p.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    status: p.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     type: p.type as ProjectType['type'],
                     startDate: p.startDate,
                     endDate: p.endDate,
@@ -305,12 +305,12 @@ const ListProjectPlanning = () => {
                 setProjectEnd(null);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -333,7 +333,7 @@ const ListProjectPlanning = () => {
                 const formattedData = dataArray.map((item: any) => ({
                     ...item,
                     project: item.project || { title: '' },
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                 }));
                 setPlanningsList(formattedData as PlanningType[]);
             } else {
@@ -341,12 +341,12 @@ const ListProjectPlanning = () => {
                 setPlanningsList([]);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -495,12 +495,12 @@ const ListProjectPlanning = () => {
                 showAlert(response.data.message || 'Yeni planlama eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -535,7 +535,7 @@ const ListProjectPlanning = () => {
             }
         } catch (e: any) {
             if (e.response?.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             } else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 showAlert('Oturum süreniz doldu، lütfen tekrar giriş yapın.', 'error');
@@ -574,15 +574,15 @@ const ListProjectPlanning = () => {
             doc.setFont('NotoSans', 'normal').setFontSize(8).setTextColor(0);
             const company = [
                 'ترابوت',
-                'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR',
+                'ترابوت',
                 'دستیار هوشمند حمل‌ونقل'
             ];
             const ph = doc.internal.pageSize.getHeight();
             const pw = doc.internal.pageSize.getWidth();
             let y = ph - 30;
             company.forEach(line => { doc.text(line, pw / 2, y, { align: 'center' }); y += 4; });
-            doc.text(`Sayfa ${pageIndex} / ${total}`, 15, ph - 10);
-            doc.text('İmza', pw - 15, ph - 10, { align: 'right' });
+            doc.text(`صفحه ${pageIndex} / ${total}`, 15, ph - 10);
+            doc.text('امضا', pw - 15, ph - 10, { align: 'right' });
             doc.line(pw - 65, ph - 15, pw - 15, ph - 15);
         };
 
@@ -659,21 +659,21 @@ const ListProjectPlanning = () => {
             : `${titlePrefix}.pdf`;
 
         doc.save(name);
-        showAlert('PDF başarıyla oluşturuldu.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
     };
 
 
     const handleExportExcel = async (data: PlanningType[]) => {
         setOpenDownloadModal(false);
         if (!data || data.length === 0) { showAlert('Dışa aktarılacak planlama bulunamadı.', 'warning'); return; }
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
         try {
             const workbook = new Excel.Workbook();
             const worksheet = workbook.addWorksheet('Proje Planlama Raporu', { views: [{ rightToLeft: false }] });
 
             const tableHeaders = [
-                'Proje Adı', 'Proje Başlangıç', 'Proje Bitiş',
-                'Kayıt Tarihi (08:00 - 17:00)', 'Durum',
+                'نام پروژه', 'Proje Başlangıç', 'Proje Bitiş',
+                'Kayıt Tarihi (08:00 - 17:00)', 'وضعیت',
                 ...ALL_PLANNING_FIELDS.map(f => f.label)
             ];
             const headerRow = worksheet.addRow(tableHeaders);
@@ -713,10 +713,10 @@ const ListProjectPlanning = () => {
             const buffer = await workbook.xlsx.writeBuffer();
             const fileName = `Proje_Planlama_Raporu_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
         }
     };
 
@@ -822,15 +822,15 @@ const ListProjectPlanning = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button variant="contained" color="error" onClick={resetFormAndState} fullWidth={false} startIcon={<IconX size={20} />}>
                                     Gizle
                                 </Button>
                             </CustomTooltip>
                         )}
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                             <Button variant="outlined" color="error" onClick={() => navigate(-1)} endIcon={<IconArrowRight size={20} />} fullWidth={false}>
-                                Geri Dön
+                                بازگشت
                             </Button>
                         </CustomTooltip>
                     </Stack>
@@ -840,7 +840,7 @@ const ListProjectPlanning = () => {
                     <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                         <CircularProgress />
                         <Typography variant="subtitle1" color="textSecondary" sx={{ ml: 2 }}>
-                            Veriler yükleniyor...
+                            در حال بارگذاری داده‌ها...
                         </Typography>
                     </Box>
                 ) : (
@@ -914,11 +914,11 @@ const ListProjectPlanning = () => {
                                             <>
                                                 <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili planlamayı güncelleyin" : ""}>
                                                     <Button variant="contained" color="info" onClick={editPlanning} disabled={loadingButton || !startDate || !endDate}>
-                                                        {loadingButton ? <><BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....</> : 'Düzenlemek'}
+                                                        {loadingButton ? <><BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....</> : 'ویرایش'}
                                                     </Button>
                                                 </CustomTooltip>
                                                 <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni planlama moduna dön" : ""}>
-                                                    <Button variant="outlined" color="secondary" onClick={resetFormAndState}>İptal Et</Button>
+                                                    <Button variant="outlined" color="secondary" onClick={resetFormAndState}>لغو</Button>
                                                 </CustomTooltip>
                                             </>
                                         ) : (
@@ -961,15 +961,15 @@ const ListProjectPlanning = () => {
                                     isBlinking={true}
                                     disabled={loadingData || planningsList.length === 0}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button variant="contained" color="primary" onClick={() => setOpenDownloadModal(true)} startIcon={<IconFileDownload />}>
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -1000,14 +1000,14 @@ const ListProjectPlanning = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={filterStartDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setFilterStartDate(newValue)}
                                         renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={filterEndDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setFilterEndDate(newValue)}
@@ -1028,9 +1028,9 @@ const ListProjectPlanning = () => {
                                 aria-label="Status filter"
                                 fullWidth
                             >
-                                <StyledToggleButton value="all" aria-label="all plannings">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" aria-label="active plannings">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" aria-label="inactive plannings">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all" aria-label="all plannings">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" aria-label="active plannings">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" aria-label="inactive plannings">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1051,21 +1051,21 @@ const ListProjectPlanning = () => {
                                 <TableRow>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'project'} direction={orderBy === 'project' ? order : 'asc'} onClick={() => handleRequestSort('project' as keyof PlanningType)} style={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Proje Adı</Typography>
+                                            <Typography variant="h6">نام پروژه</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'startDate'} direction={orderBy === 'startDate' ? order : 'asc'} onClick={() => handleRequestSort('startDate')} style={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Başlangıç Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ شروع</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'endDate'} direction={orderBy === 'endDate' ? order : 'asc'} onClick={() => handleRequestSort('endDate')} style={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Bitiş Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ پایان</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Detaylar</Typography>
+                                        <Typography variant="h6">جزئیات</Typography>
                                     </StyledTableCell>
                                     <StyledTableCell />
                                 </TableRow>
@@ -1085,19 +1085,19 @@ const ListProjectPlanning = () => {
                                             </StyledTableCell>
                                             <StyledTableCell>
                                                 <Stack direction="row" spacing={1} alignItems="center">
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Detayları Görüntüle" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی جزئیات" : ""}>
                                                         <Button
                                                             variant="outlined"
                                                             startIcon={<IconEye />}
                                                             onClick={() => { setDetailData(row); setOpenDetailModal(true); }}
                                                         >
-                                                            Görünüm
+                                                            نما
                                                         </Button>
                                                     </CustomTooltip>
                                                 </Stack>
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton id={`basic-button-${row.id}`} aria-controls={openMenu ? 'basic-menu' : undefined} aria-haspopup="true" aria-expanded={openMenu ? 'true' : undefined} onClick={(e) => handleClickMenu(e, row)}>
                                                         <IconDots width={18} />
                                                     </IconButton>
@@ -1106,7 +1106,7 @@ const ListProjectPlanning = () => {
 
                                                     {hasEditPermission && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu planlamayı düzenle" : ""}>
-                                                            <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenlemek</UiMenuItem>
+                                                            <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasDeletePermission && (
@@ -1117,7 +1117,7 @@ const ListProjectPlanning = () => {
                                                     {hasDownloadPermission && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu planlamayı indir" : ""}>
                                                             <UiMenuItem onClick={handleClickOpenSingleDownloadModal}>
-                                                                <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>Bu satırı indir
+                                                                <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>دانلود این ردیف
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1145,7 +1145,7 @@ const ListProjectPlanning = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1159,33 +1159,33 @@ const ListProjectPlanning = () => {
             />
 
             <Dialog open={openDownloadModal} onClose={() => setOpenDownloadModal(false)}>
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button onClick={() => handleDownloadPDF(sortedAndFilteredPlannings, 'Planlama_Raporu')}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleExportExcel(sortedAndFilteredPlannings)}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary">İptal</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary">انصراف</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openSingleDownloadModal} onClose={handleCloseSingleDownloadModal}>
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleSingleDownload('pdf')}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleSingleDownload('excel')}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseSingleDownloadModal} color="secondary">İptal</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseSingleDownloadModal} color="secondary">انصراف</Button></DialogActions>
             </Dialog>
 
             <Dialog
@@ -1204,8 +1204,8 @@ const ListProjectPlanning = () => {
                                 <Paper elevation={0} sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 2, mb: 2 }}>
                                     <Typography variant="h6" color="primary">{detailData.project?.title}</Typography>
                                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={1}>
-                                        <Typography variant="body2"><b>Başlangıç:</b> {format(new Date(detailData.startDate), 'dd MMMM yyyy HH:mm', { locale: tr })}</Typography>
-                                        <Typography variant="body2"><b>Bitiş:</b> {format(new Date(detailData.endDate), 'dd MMMM yyyy HH:mm', { locale: tr })}</Typography>
+                                        <Typography variant="body2"><b>شروع:</b> {format(new Date(detailData.startDate), 'dd MMMM yyyy HH:mm', { locale: tr })}</Typography>
+                                        <Typography variant="body2"><b>پایان:</b> {format(new Date(detailData.endDate), 'dd MMMM yyyy HH:mm', { locale: tr })}</Typography>
                                     </Stack>
                                 </Paper>
                             </Grid>
@@ -1255,7 +1255,7 @@ const ListProjectPlanning = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDetailModal(false)} variant="contained" color="primary">Kapat</Button>
+                    <Button onClick={() => setOpenDetailModal(false)} variant="contained" color="primary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1325,8 +1325,8 @@ const ListProjectPlanning = () => {
 
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseValueModal}>İptal</Button>
-                    <Button variant="contained" onClick={handleSaveValue}>Kaydet</Button>
+                    <Button onClick={handleCloseValueModal}>انصراف</Button>
+                    <Button variant="contained" onClick={handleSaveValue}>ذخیره</Button>
                 </DialogActions>
             </Dialog>
         </>

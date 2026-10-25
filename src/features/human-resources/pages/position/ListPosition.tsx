@@ -36,8 +36,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -226,9 +226,9 @@ const ListPosition = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>, row: PositionType) => {
         setAnchorEl(event.currentTarget);
@@ -302,8 +302,8 @@ const ListPosition = () => {
     const insertPosition = async () => {
         if (!title.trim()) {
             setTitleError(true);
-            setTitleHelperText('İsim boş olamaz!');
-            showAlert('İsim boş olamaz!', 'warning');
+            setTitleHelperText('نام نمی‌تواند خالی باشد!');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         setTitleError(false);
@@ -312,7 +312,7 @@ const ListPosition = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            console.warn("No auth token found, redirecting to login.");
+            console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
             return;
         }
@@ -338,12 +338,12 @@ const ListPosition = () => {
                 showAlert(response.data.message || 'Yeni pozisyon eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -357,8 +357,8 @@ const ListPosition = () => {
         }
         if (!title.trim()) {
             setTitleError(true);
-            setTitleHelperText('İsim boş olamaz!');
-            showAlert('İsim boş olamaz!', 'warning');
+            setTitleHelperText('نام نمی‌تواند خالی باشد!');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         setTitleError(false);
@@ -366,7 +366,7 @@ const ListPosition = () => {
         clearAlert();
 
         if (title === originalTitle) {
-            showAlert('İsimde herhangi bir değişiklik yapmadınız.', 'info');
+            showAlert('هیچ تغییری در نام ایجاد نکردید.', 'info');
             resetFormAndState();
             return;
         }
@@ -374,7 +374,7 @@ const ListPosition = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -404,11 +404,11 @@ const ListPosition = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
 
@@ -426,7 +426,7 @@ const ListPosition = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -451,20 +451,20 @@ const ListPosition = () => {
             );
 
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Pozisyon başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Pozisyon başarıyla ${statusText} تنظیم شد!`, 'success');
                 getListPositions();
                 resetFormAndState();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -495,7 +495,7 @@ const ListPosition = () => {
 
         setLoadingData(true);
         if (!authToken) {
-            console.warn("No auth token found, redirecting to login.");
+            console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
             setLoadingData(false);
             return;
@@ -516,7 +516,7 @@ const ListPosition = () => {
                     title: item.title,
                     recordStatus: item.recordStatus,
                     createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                 }));
                 setPositionsList(formattedData as PositionType[]);
                 setLoadingData(false);
@@ -527,7 +527,7 @@ const ListPosition = () => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 console.error("Error fetching positions list:", e);
                 showAlert('Pozisyon listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -624,7 +624,7 @@ const ListPosition = () => {
 
             autoTable(doc, {
                 startY: 65,
-                head: [['İsim', 'Oluşturulma Tarihi', 'Durum']],
+                head: [['نام', 'تاریخ ایجاد', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: {
@@ -646,7 +646,7 @@ const ListPosition = () => {
                     doc.text('Tüm Pozisyon Raporu', pageWidth / 2, 15, { align: 'center' });
                     doc.setFontSize(10);
                     doc.setFont('NotoSans', 'bold');
-                    doc.text(`Rapor Tarihi:`, 15, 40);
+                    doc.text(`تاریخ گزارش:`, 15, 40);
                     doc.setFont('NotoSans', 'normal');
                     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -660,7 +660,7 @@ const ListPosition = () => {
                     doc.setTextColor(0);
                     const companyInfo = [
                         'ترابوت',
-                        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                        'ترابوت، دستیار هوشمند حمل‌ونقل',
                         'دستیار هوشمند حمل‌ونقل'
                     ];
                     let footerY = pageHeight - 20;
@@ -671,22 +671,22 @@ const ListPosition = () => {
 
                     doc.setTextColor(0);
                     doc.setFontSize(10);
-                    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
                     const pageCount = (doc as any).internal.getNumberOfPages();
-                    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
                 },
                 showHead: 'everyPage',
                 margin: { top: 50, bottom: 45 },
             });
 
             doc.save('Tüm_Pozisyon_Raporu.pdf');
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error: any) {
-            console.error('PDF oluşturulurken hata:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu: ' + error.message, 'error');
+            console.error('خطا در ساخت PDF:', error);
+            showAlert('هنگام ساخت PDF خطایی رخ داد: ' + error.message, 'error');
         }
     };
 
@@ -698,7 +698,7 @@ const ListPosition = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -729,7 +729,7 @@ const ListPosition = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 companyInfo.forEach(line => {
@@ -751,7 +751,7 @@ const ListPosition = () => {
             }
             worksheet.mergeCells('A2:C2');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -759,7 +759,7 @@ const ListPosition = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['İsim', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -795,10 +795,10 @@ const ListPosition = () => {
             const fileName = `Tüm_Pozisyon_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -836,7 +836,7 @@ const ListPosition = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -858,7 +858,7 @@ const ListPosition = () => {
                         <Grid item xs={12} sm={1} display="flex" alignItems="center">
                             <CustomFormLabel htmlFor="position-title"
                                 sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                                İsim
+                                نام
                             </CustomFormLabel>
                         </Grid>
                         <Grid item xs={12} sm={7}>
@@ -894,12 +894,12 @@ const ListPosition = () => {
                                             >
                                                 {loadingButton ? <>
                                                     <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                                                </> : 'Düzenlemek'}
+                                                </> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni Pozisyon moduna dön" : ""}>
                                             <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                                İptal Et
+                                                لغو
                                             </Button>
                                         </CustomTooltip>
                                     </>
@@ -941,14 +941,14 @@ const ListPosition = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => setOpenDownloadModal(true)}
                                         startIcon={<IconFileDownload />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -987,19 +987,19 @@ const ListPosition = () => {
                                     value="all"
                                     aria-label="all positions"
                                 >
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="active"
                                     aria-label="active positions"
                                 >
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="inactive"
                                     aria-label="inactive positions"
                                 >
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1016,7 +1016,7 @@ const ListPosition = () => {
                                         onClick={() => handleRequestSort('title')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">İsim</Typography>
+                                        <Typography variant="h6">نام</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1026,7 +1026,7 @@ const ListPosition = () => {
                                         onClick={() => handleRequestSort('createAt')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                        <Typography variant="h6">تاریخ ایجاد</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1036,7 +1036,7 @@ const ListPosition = () => {
                                         onClick={() => handleRequestSort('status')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell></StyledTableCell>
@@ -1081,7 +1081,7 @@ const ListPosition = () => {
                                             />
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                 <IconButton
                                                     id={`basic-button-${row.id}`}
                                                     aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1107,7 +1107,7 @@ const ListPosition = () => {
                                                             <ListItemIcon>
                                                                 <DoNotDisturbOnRoundedIcon width={18} />
                                                             </ListItemIcon>
-                                                            Pasif Yap
+                                                            غیرفعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1117,7 +1117,7 @@ const ListPosition = () => {
                                                             <ListItemIcon>
                                                                 <DoneRoundedIcon width={18} />
                                                             </ListItemIcon>
-                                                            Aktif Yap
+                                                            فعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1127,7 +1127,7 @@ const ListPosition = () => {
                                                             <ListItemIcon>
                                                                 <IconEdit width={18} />
                                                             </ListItemIcon>
-                                                            Düzenlemek
+                                                            ویرایش
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1165,7 +1165,7 @@ const ListPosition = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1180,7 +1180,7 @@ const ListPosition = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1189,7 +1189,7 @@ const ListPosition = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllPositionsPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1197,13 +1197,13 @@ const ListPosition = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

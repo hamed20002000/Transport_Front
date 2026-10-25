@@ -53,7 +53,8 @@ async function subscribe(key: string): Promise<void> {
   await axios.post(`${endpoints.baseurl}push/subscriptions`, subscription.toJSON(), authConfig());
 }
 
-export default function PushPrompt() {
+/** hint: what this panel's notifications bring (the driver/company default, or e.g. new payment receipts for an admin) */
+export default function PushPrompt({ hint = 'درخواست رانندگان، تحویل بار و پیام‌های سفر را حتی وقتی برنامه بسته است به‌صورت اعلان روی گوشی ببینید.' }: { hint?: string } = {}) {
   const [key, setKey] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -108,9 +109,7 @@ export default function PushPrompt() {
       </span>
       <div className="tw-min-w-0 tw-flex-1 tw-space-y-2">
         <p className="tw-m-0 tw-text-sm tw-font-bold">اعلان گوشی را روشن کنید</p>
-        <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">
-          درخواست رانندگان، تحویل بار و پیام‌های سفر را حتی وقتی برنامه بسته است به‌صورت اعلان روی گوشی ببینید.
-        </p>
+        <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">{hint}</p>
         {failed && <p className="tw-m-0 tw-text-xs tw-text-red-700">اعلان روشن نشد. اتصال را بررسی کنید و دوباره امتحان کنید.</p>}
         <div className="tw-flex tw-flex-wrap tw-gap-2">
           <button

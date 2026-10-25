@@ -123,7 +123,7 @@ const WorkhouseDispatchStats = () => {
                         <ToggleButton value="cards">
                             <Stack direction="row" spacing={1} alignItems="center">
                                 <IconLayoutGrid size={18} />
-                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>Liste</Typography>
+                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>فهرست</Typography>
                             </Stack></ToggleButton>
                     </ToggleButtonGroup>
                 </Stack>
@@ -150,14 +150,14 @@ const WorkhouseDispatchStats = () => {
                                 <Legend verticalAlign="top" height={36} />
                                 <Area
                                     type="monotone"
-                                    dataKey="Tutar"
+                                    dataKey="مبلغ"
                                     fill="url(#barGradient)"
                                     stroke="none"
                                     legendType="none"
                                     tooltipType="none"
                                 />
 
-                                <Bar name="Tutar" dataKey="Tutar" barSize={40} fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
+                                <Bar name="مبلغ" dataKey="مبلغ" barSize={40} fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
 
                                 <Line name="Ortalama" type="monotone" dataKey="Ortalama" stroke={COLORS.line} strokeWidth={3} dot={{ r: 4 }} />
                             </ComposedChart>

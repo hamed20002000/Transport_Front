@@ -19,7 +19,7 @@ const navigate = (path: string) => console.log(`Yönlendiriliyor: ${path}`);
 const formatHours = (hours: string): string => {
     try {
         const num = parseFloat(hours);
-        return `${num.toFixed(1)} Saat`;
+        return `${num.toFixed(1)} ساعت`;
     } catch {
         return hours;
     }
@@ -31,9 +31,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 const addPdfHeader = (doc: jsPDF, title: string) => {
@@ -51,7 +51,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -60,7 +60,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -78,7 +78,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -90,12 +90,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -129,11 +129,11 @@ const ListParticipationCertificate: React.FC = () => {
                         hasISG: p.hasISG
                     })) as PersonnelLite[];
                 setPersonnels(filteredAndMapped);
-            } else { showAlert(res.data.message || 'Personel listesi alınamadı.', 'error'); }
+            } else { showAlert(res.data.message || 'فهرست پرسنل دریافت نشد.', 'error'); }
         } catch (e: any) {
             if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Personel listesi alınırken bir hata oluştu.', 'error');
             }
@@ -225,16 +225,16 @@ const ListParticipationCertificate: React.FC = () => {
         finalY += 7;
 
         const detailBody = [
-            ["Personel Adı Soyadı", `${personnel.name} ${personnel.family}`],
-            ["Kimlik Numarası", personnel.identityNumber || 'Belirtilmemiş'],
-            ["Kurs Adı", course.courseTitle],
+            ["نام و نام خانوادگی پرسنل", `${personnel.name} ${personnel.family}`],
+            ["شماره شناسایی", personnel.identityNumber || 'Belirtilmemiş'],
+            ["نام دوره", course.courseTitle],
             ["Eğitim Süresi", formatHours(course.courseHours)],
             ["Sertifika Tarihi", format(new Date(), 'dd MMMM yyyy', { locale: tr })],
         ];
 
         autoTable(docAny, {
             startY: finalY,
-            head: [["Alan", "Değer"]],
+            head: [["فیلد", "مقدار"]],
             body: detailBody,
             theme: "grid",
             styles: {
@@ -305,7 +305,7 @@ const ListParticipationCertificate: React.FC = () => {
                     onChange={(_, newValue) => handlePersonnelChange(newValue)}
                     value={personnels.find(p => p.id === selectedPersonnelId) || null}
                     loading={isPersonnelLoading}
-                    noOptionsText={isPersonnelLoading ? 'Yükleniyor...' : 'Kayıt bulunamadı'}
+                    noOptionsText={isPersonnelLoading ? 'در حال بارگذاری...' : 'Kayıt bulunamadı'}
                     renderInput={(params) => (
                         <TextField
                             {...params}

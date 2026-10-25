@@ -11,6 +11,7 @@ import { errorMessage } from './cargoText';
 import CompanyShell from './CompanyShell';
 import { Badge, CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, PrimaryButton, RouteLine, SecondaryButton, SectionTitle, Spec, timeAgo } from './components';
 import { useNotificationEvent } from './notificationSocket';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 const PAGE_SIZE = 20;
 // Same default as TRIP_DELIVERY_REMINDER_DAYS on the server: after this the trip is flagged as waiting for delivery.
@@ -90,6 +91,7 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
 
 function Trips() {
   const toast = useToast();
+  const messageBox = useMessageBox();
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Page<CompanyTrip> | null>(null);
   const [failed, setFailed] = useState(false);
@@ -119,7 +121,7 @@ function Trips() {
     const question = trip.deliveryReportedAt
       ? `راننده تحویل بار ${route} را اعلام کرده. تأیید می‌کنید؟ راننده هم خبردار می‌شود.`
       : `تحویل بار ${route} ثبت شود؟ راننده هم خبردار می‌شود.`;
-    if (!window.confirm(question)) return;
+    if (!(await messageBox.confirm({ title: 'تحویل بار', message: question, confirmText: 'ثبت تحویل' }))) return;
     setBusyId(trip.requestId);
     try {
       await deliverTrip(trip.requestId);
@@ -134,7 +136,7 @@ function Trips() {
 
   // «تحویل نشده»: the driver's report is turned down; the trip stays here and the driver is told
   async function reject(trip: CompanyTrip) {
-    if (!window.confirm('اعلام تحویل راننده رد شود؟ سفر فعال می‌ماند و راننده خبردار می‌شود.')) return;
+    if (!(await messageBox.confirm({ message: 'اعلام تحویل راننده رد شود؟ سفر فعال می‌ماند و راننده خبردار می‌شود.', tone: 'danger', confirmText: 'رد اعلام تحویل' }))) return;
     setBusyId(trip.requestId);
     try {
       await rejectTripDelivery(trip.requestId);

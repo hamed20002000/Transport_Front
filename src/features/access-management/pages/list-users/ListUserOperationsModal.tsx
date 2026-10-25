@@ -252,7 +252,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
     const fetchAllMenus = useCallback(async () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return [];
         }
         try {
@@ -278,7 +278,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
     const fetchUserMenuOperations = useCallback(async (currentUserId: string, menus: Menu[]) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return {};
         }
         try {
@@ -338,7 +338,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
             if (error.response && error.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             return {};
         }
@@ -506,7 +506,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
         setSaving(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             setSaving(false);
             return;
         }
@@ -549,7 +549,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
             if (error.response && error.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
         } finally {
             setSaving(false);
@@ -580,7 +580,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
         <Dialog fullScreen open={openOperationsModal} onClose={onClose} TransitionComponent={Transition}>
             <AppBar sx={{ position: 'relative' }}>
                 <Toolbar>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "Kapat" : ""}>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "بستن" : ""}>
                         <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
                             <IconX width={24} height={24} />
                         </IconButton>
@@ -590,7 +590,7 @@ const ListUserOperationsModal = ({ openOperationsModal, onClose, userId, showAle
                     </Typography>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen operasyonları kaydet" : ""}>
                         <Button autoFocus color="inherit" onClick={handleSaveOperations} disabled={loading || saving}>
-                            {saving ? <CircularProgress size={20} color="inherit" /> : 'Kaydet'}
+                            {saving ? <CircularProgress size={20} color="inherit" /> : 'ذخیره'}
                         </Button>
                     </CustomTooltip>
                 </Toolbar>

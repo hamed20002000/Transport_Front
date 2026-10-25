@@ -7,16 +7,20 @@ self.addEventListener('push', (event) => {
   } catch {
     data = { body: event.data ? event.data.text() : '' };
   }
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'ترابوت', {
-      body: data.body || '',
-      icon: '/pwa/trabot-icon-192.png',
-      badge: '/pwa/trabot-icon-192.png',
-      dir: 'rtl',
-      lang: 'fa',
-      data: { url: data.url || '/' },
-    }),
-  );
+  const options = {
+    body: data.body || '',
+    icon: '/pwa/trabot-icon-192.png',
+    badge: '/pwa/trabot-icon-192.png',
+    dir: 'rtl',
+    lang: 'fa',
+    data: { url: data.url || '/' },
+  };
+  // a burst (e.g. many cargo suggestions) shares one tag: the newer one replaces the shown one, silently unless renotify
+  if (data.tag) {
+    options.tag = data.tag;
+    options.renotify = data.renotify === true;
+  }
+  event.waitUntil(self.registration.showNotification(data.title || 'ترابوت', options));
 });
 
 // tapping it opens the page the notification is about, in the app's window when it is already open

@@ -11,6 +11,7 @@ import { LoadSpecs, type ListingChangedEvent } from './DriverLoads';
 import DriverShell from './DriverShell';
 import { useLoadsChangedEvent } from './loadEvents';
 import OfferAnswer from './OfferAnswer';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 // What happened last, in the card footer: «فرستاده شد ۲ ساعت پیش» / «قبول شد …».
 function lastEvent(request: CargoRequest) {
@@ -82,6 +83,7 @@ const steps = [
 
 function RequestsContent() {
   const toast = useToast();
+  const messageBox = useMessageBox();
   const [page, setPage] = useState(1);
   const [busyId, setBusyId] = useState('');
   const state = useAsync(() => listMyRequests(page), [page]);
@@ -95,7 +97,7 @@ function RequestsContent() {
   });
 
   async function cancel(request: CargoRequest) {
-    if (!window.confirm('درخواست این بار لغو شود؟')) return;
+    if (!(await messageBox.confirm({ message: 'درخواست این بار لغو شود؟', tone: 'danger', confirmText: 'لغو درخواست', cancelText: 'نه، بماند' }))) return;
     setBusyId(request.id);
     try {
       const updated = await cancelRequest(request.id);

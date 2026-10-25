@@ -143,29 +143,29 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12}>
                         <Typography variant="h6" mb={1} color="primary">Genel Bilgiler</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Fatura No" size="small" fullWidth value={report.invoice_no || '-'} disabled />
-                            <CustomTextField label="Proje Adı" size="small" fullWidth value={report.proje_adi} disabled />
-                            <CustomTextField label="Proje Kodu" size="small" fullWidth value={report.proje_kodu} disabled />
+                            <CustomTextField label="شماره فاکتور" size="small" fullWidth value={report.invoice_no || '-'} disabled />
+                            <CustomTextField label="نام پروژه" size="small" fullWidth value={report.proje_adi} disabled />
+                            <CustomTextField label="کد پروژه" size="small" fullWidth value={report.proje_kodu} disabled />
                         </Stack>
                     </Grid>
 
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mt={1} mb={1} color="info.main">Malzeme Bilgileri</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Malzeme Adı" size="small" fullWidth value={report.itemname} disabled />
-                            <CustomTextField label="Malzeme Kodu" size="small" fullWidth value={report.itemcode || '-'} disabled />
-                            <CustomTextField label="Birim" size="small" fullWidth value={report.unit} disabled />
-                            <CustomTextField label="Tarih" size="small" fullWidth value={format(new Date(report.tarih), 'dd/MM/yyyy')} disabled />
+                            <CustomTextField label="نام کالا" size="small" fullWidth value={report.itemname} disabled />
+                            <CustomTextField label="کد کالا" size="small" fullWidth value={report.itemcode || '-'} disabled />
+                            <CustomTextField label="واحد" size="small" fullWidth value={report.unit} disabled />
+                            <CustomTextField label="تاریخ" size="small" fullWidth value={format(new Date(report.tarih), 'dd/MM/yyyy')} disabled />
                         </Stack>
                     </Grid>
 
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mt={1} mb={1} color="success.main">Miktar ve Maliyet</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Miktar" size="small" fullWidth value={report.quantity} disabled />
-                            <CustomTextField label="Birim Fiyat" size="small" fullWidth value={cleanNumber(report.price).toLocaleString('us-US') + " TL"} disabled />
+                            <CustomTextField label="مقدار" size="small" fullWidth value={report.quantity} disabled />
+                            <CustomTextField label="قیمت واحد" size="small" fullWidth value={cleanNumber(report.price).toLocaleString('us-US') + " TL"} disabled />
                             <CustomTextField label="İndirim Tutarı" size="small" fullWidth value={cleanNumber(report.discount).toLocaleString('us-US') + " TL"} disabled />
-                            <CustomTextField label="Toplam Tutar" size="small" fullWidth
+                            <CustomTextField label="مبلغ کل" size="small" fullWidth
                                 value={cleanNumber(report.total).toLocaleString('us-US', { minimumFractionDigits: 2 }) + " TL"}
                                 sx={{ "& .UiInputBase-input": { fontWeight: 'bold', color: 'primary.main' } }}
                                 disabled
@@ -176,7 +176,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12}>
                         <Typography variant="h6" mt={1} mb={1} color="secondary">Konum ve Şantiye</Typography>
                         <Stack direction="row" spacing={1}>
-                            <CustomTextField label="Şantiye" size="small" fullWidth value={report.workhousen_name} disabled />
+                            <CustomTextField label="کارگاه" size="small" fullWidth value={report.workhousen_name} disabled />
                             <CustomTextField label="İl / İlçe" size="small" fullWidth value={`${report.il || '-'} / ${report.ilce}`} disabled />
                         </Stack>
                     </Grid>
@@ -190,7 +190,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="inherit">Kapat</Button>
+                <Button onClick={onClose} color="inherit">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -252,9 +252,9 @@ const ListItemReport = () => {
     }, []);
     const clearAlert = () => { setAlertMessage(null); };
 
-    const handleApiError = useCallback((e: any, defaultMessage: string = 'Bir hata oluştu.') => {
-        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-        else if (e.response?.status === 500) { showAlert('Sistem hatası oluştu, lütfen deneyin.', 'error'); }
+    const handleApiError = useCallback((e: any, defaultMessage: string = 'خطایی رخ داد.') => {
+        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+        else if (e.response?.status === 500) { showAlert('خطای سیستمی رخ داد، لطفاً دوباره تلاش کنید.', 'error'); }
         else { console.error("API Error:", e); showAlert(e.response?.data?.message || defaultMessage, 'error'); }
     }, [navigate, showAlert]);
 
@@ -272,8 +272,8 @@ const ListItemReport = () => {
             if (response.data.httpStatusCode === 200) {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
-            } else { showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error'); }
-        } catch (e: any) { handleApiError(e, 'Şantiye listesi alınamadı.'); }
+            } else { showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error'); }
+        } catch (e: any) { handleApiError(e, 'فهرست کارگاه‌ها دریافت نشد.'); }
     }, [navigate, showAlert, handleApiError]);
 
     const getProjectsList = useCallback(async () => {
@@ -321,7 +321,7 @@ const ListItemReport = () => {
             } else {
                 setReportData(null); showAlert(response.data.message || 'Ürün rapor verileri alınamadı.', 'error');
             }
-        } catch (e: any) { setReportData(null); handleApiError(e, 'Rapor verileri alınırken bir sorun oluştu.'); }
+        } catch (e: any) { setReportData(null); handleApiError(e, 'هنگام دریافت داده‌های گزارش مشکلی پیش آمد.'); }
         finally { setLoadingData(false); }
     }, [filterParams, navigate, showAlert, handleApiError]);
 
@@ -398,7 +398,7 @@ const ListItemReport = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -407,7 +407,7 @@ const ListItemReport = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -425,7 +425,7 @@ const ListItemReport = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -437,18 +437,18 @@ const ListItemReport = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
     const handleExportPdfSingle = async (report: ReportRowType) => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
         showAlert('PDF raporu hazırlanıyor...', 'info');
         try {
             const doc = new jsPDF('portrait', 'pt', 'a4');
@@ -459,22 +459,22 @@ const ListItemReport = () => {
             addPdfHeader(doc, `Ürün Raporu Detayı: ${report.itemname}`);
 
             const tableRows = [
-                ["Fatura No", report.invoice_no || '-'],
-                ["Malzeme Adı", report.itemname],
-                ["Malzeme Kodu", report.itemcode || '-'],
-                ["Proje Adı", report.proje_adi],
-                ["Şantiye Adı", report.workhousen_name],
-                ["Tarih", format(new Date(report.tarih), 'dd/MM/yyyy')],
-                ["Miktar", report.quantity],
-                ["Birim", report.unit],
-                ["Birim Fiyat", cleanCurrency(report.price)],
-                ["İndirim", cleanCurrency(report.discount)],
-                ["Toplam Tutar", cleanCurrency(report.total) + " TL"],
+                ["شماره فاکتور", report.invoice_no || '-'],
+                ["نام کالا", report.itemname],
+                ["کد کالا", report.itemcode || '-'],
+                ["نام پروژه", report.proje_adi],
+                ["نام کارگاه", report.workhousen_name],
+                ["تاریخ", format(new Date(report.tarih), 'dd/MM/yyyy')],
+                ["مقدار", report.quantity],
+                ["واحد", report.unit],
+                ["قیمت واحد", cleanCurrency(report.price)],
+                ["تخفیف", cleanCurrency(report.discount)],
+                ["مبلغ کل", cleanCurrency(report.total) + " TL"],
             ];
 
             autoTable(doc, {
                 startY: 70,
-                head: [["Alan (Field)", "Değer (Value)"]],
+                head: [["فیلد", "مقدار"]],
                 body: tableRows,
                 theme: 'grid',
                 styles: { font: 'NotoSans', fontStyle: 'normal', fontSize: 9, cellPadding: 6 },
@@ -483,7 +483,7 @@ const ListItemReport = () => {
             });
 
             doc.save(`Urun_Detay_${report.invoice_no || 'No'}_${format(new Date(), 'yyyyMMdd')}.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (e: any) { handleApiError(e, 'PDF hatası.'); }
     };
 
@@ -498,34 +498,34 @@ const ListItemReport = () => {
             sheet.mergeCells('A1:B1');
             sheet.addRow([]);
 
-            const headerRow = sheet.addRow(['Alan (Field)', 'Değer (Value)']);
+            const headerRow = sheet.addRow(['فیلد', 'مقدار']);
             headerRow.eachCell(cell => { cell.font = { bold: true }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; });
 
             const rows = [
-                ['Fatura No', report.invoice_no || '-'],
-                ['Malzeme Adı', report.itemname],
-                ['Proje Adı', report.proje_adi],
-                ['Tarih', format(new Date(report.tarih), 'dd/MM/yyyy')],
-                ['Miktar', cleanNumber(report.quantity)],
-                ['Birim Fiyat', cleanNumber(report.price)],
-                ['İndirim', cleanNumber(report.discount)],
-                ['Toplam Tutar', cleanNumber(report.total)],
+                ['شماره فاکتور', report.invoice_no || '-'],
+                ['نام کالا', report.itemname],
+                ['نام پروژه', report.proje_adi],
+                ['تاریخ', format(new Date(report.tarih), 'dd/MM/yyyy')],
+                ['مقدار', cleanNumber(report.quantity)],
+                ['قیمت واحد', cleanNumber(report.price)],
+                ['تخفیف', cleanNumber(report.discount)],
+                ['مبلغ کل', cleanNumber(report.total)],
             ];
 
             rows.forEach(row => {
                 const newRow = sheet.addRow(row);
-                if (typeof row[1] === 'number' && row[0] !== 'Miktar') newRow.getCell(2).numFmt = '#,##0.00';
+                if (typeof row[1] === 'number' && row[0] !== 'مقدار') newRow.getCell(2).numFmt = '#,##0.00';
             });
 
             sheet.columns = [{ width: 25 }, { width: 35 }];
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Urun_Detay_${report.invoice_no || 'No'}.xlsx`);
-            showAlert('Excel başarıyla oluşturuldu.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد.', 'success');
         } catch (e: any) { handleApiError(e, 'Excel hatası.'); }
     };
 
     const handleExportPdfAll = (data: ReportRowType[]) => {
-        if (!data || data.length === 0) { showAlert('Veri yok.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('داده‌ای نیست.', 'warning'); return; }
         try {
             const doc = new jsPDF('landscape', 'pt', 'a4');
             (doc as any).addFileToVFS("NotoSans-Regular.ttf", NotoSansRegular);
@@ -534,7 +534,7 @@ const ListItemReport = () => {
 
             addPdfHeader(doc, `Ürün Genel Raporu (${format(new Date(), 'dd/MM/yyyy')})`);
 
-            const headers = ["Fatura No", "Malzeme", "Şantiye", "Tarih", "Miktar", "Fiyat", "İndirim", "Toplam (TL)"];
+            const headers = ["شماره فاکتور", "کالا", "کارگاه", "تاریخ", "مقدار", "قیمت", "تخفیف", "Toplam (TL)"];
             const body = data.map(row => [
                 row.invoice_no || '-',
                 row.itemname,
@@ -560,17 +560,17 @@ const ListItemReport = () => {
             });
 
             doc.save(`Urun_Raporu_Tumu.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (e: any) { handleApiError(e, 'PDF hatası.'); }
     };
 
     const handleExportExcelAll = async (data: ReportRowType[]) => {
-        if (!data || data.length === 0) { showAlert('Veri yok.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('داده‌ای نیست.', 'warning'); return; }
         try {
             const workbook = new Excel.Workbook();
             const sheet = workbook.addWorksheet('Ürün Raporu');
 
-            const headers = ["Fatura No", "Malzeme Adı", "Şantiye", "Tarih", "Miktar", "Birim", "Fiyat", "İndirim", "Toplam"];
+            const headers = ["شماره فاکتور", "نام کالا", "کارگاه", "تاریخ", "مقدار", "واحد", "قیمت", "تخفیف", "جمع"];
             const headerRow = sheet.addRow(headers);
             headerRow.eachCell(cell => { cell.font = { bold: true }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; });
 
@@ -592,13 +592,13 @@ const ListItemReport = () => {
             sheet.columns.forEach(col => col.width = 18);
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Urun_Raporu_Tumu.xlsx`);
-            showAlert('Excel başarıyla oluşturuldu.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد.', 'success');
         } catch (e: any) { handleApiError(e, 'Excel hatası.'); }
     };
 
     const fetchFullReportData = useCallback(async (exportType: 'pdf' | 'excel') => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
         const requestParams = {
             fromDate: filterParams.fromDate || null, toDate: filterParams.toDate || null,
             projectId: Number(filterParams.projectId) || null, workhouseId: Number(filterParams.workhouseId) || null,
@@ -641,16 +641,16 @@ const ListItemReport = () => {
     }, [processedData]);
 
     const tableHeaders: { label: string; key: keyof ReportRowType }[] = [
-        { label: 'Fatura No', key: 'invoice_no' },
-        { label: 'Malzeme Adı', key: 'itemname' },
-        { label: 'Şantiye Adı', key: 'workhousen_name' },
-        { label: 'Proje Adı', key: 'proje_adi' },
-        { label: 'Tarih', key: 'tarih' },
-        { label: 'Miktar', key: 'quantity' },
-        { label: 'Birim', key: 'unit' },
-        { label: 'Birim Fiyat', key: 'price' },
-        { label: 'İndirim', key: 'discount' },
-        { label: 'Toplam Tutar (TL)', key: 'total' },
+        { label: 'شماره فاکتور', key: 'invoice_no' },
+        { label: 'نام کالا', key: 'itemname' },
+        { label: 'نام کارگاه', key: 'workhousen_name' },
+        { label: 'نام پروژه', key: 'proje_adi' },
+        { label: 'تاریخ', key: 'tarih' },
+        { label: 'مقدار', key: 'quantity' },
+        { label: 'واحد', key: 'unit' },
+        { label: 'قیمت واحد', key: 'price' },
+        { label: 'تخفیف', key: 'discount' },
+        { label: 'مبلغ کل (تومان)', key: 'total' },
     ];
 
     return (
@@ -662,7 +662,7 @@ const ListItemReport = () => {
                 <Typography variant="h6" mb={2} p={2}>Filtreleme</Typography>
                 <Grid container spacing={3} p={2}>
 
-                    <Grid item xs={12} sm={6} md={3}><Autocomplete id="workhouse-select" options={workhousesList} getOptionLabel={(o) => `${o.name} (${o.code})`} value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null} onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)} isOptionEqualToValue={(o, v) => o.id === v.id} renderInput={(params) => (<TextField {...params} label="Şantiye" fullWidth size="small" />)} /></Grid>
+                    <Grid item xs={12} sm={6} md={3}><Autocomplete id="workhouse-select" options={workhousesList} getOptionLabel={(o) => `${o.name} (${o.code})`} value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null} onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)} isOptionEqualToValue={(o, v) => o.id === v.id} renderInput={(params) => (<TextField {...params} label="کارگاه" fullWidth size="small" />)} /></Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <Autocomplete
                             id="project-select"
@@ -675,7 +675,7 @@ const ListItemReport = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Proje"
+                                    label="پروژه"
                                     fullWidth
                                     size="small"
                                     InputProps={{
@@ -694,7 +694,7 @@ const ListItemReport = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Başlangıç Tarihi"
+                                label="تاریخ شروع"
                                 value={startDate}
                                 onChange={(v) => setStartDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -732,7 +732,7 @@ const ListItemReport = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Bitiş Tarihi"
+                                label="تاریخ پایان"
                                 value={endDate}
                                 onChange={(v) => setEndDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -776,10 +776,10 @@ const ListItemReport = () => {
                         <Grid item xs={12} sm={5} md={5} spacing={2} display={'flex'} justifyContent={'space-evenly'}>
                             <Button variant="outlined" color="success"
                                 startIcon={<IconFileSpreadsheet size={20} />} onClick={() => fetchFullReportData('excel')}
-                                disabled={loadingData}>Tüm Veriyi Excel İndir</Button>
+                                disabled={loadingData}>دانلود همه‌ی داده‌ها در Excel</Button>
                             <Button variant="outlined" color="error"
                                 startIcon={<IconFileDownload size={20} />} onClick={() => fetchFullReportData('pdf')}
-                                disabled={loadingData}>Tüm Veriyi PDF İndir</Button>
+                                disabled={loadingData}>دانلود همه‌ی داده‌ها در PDF</Button>
                         </Grid>
                     </Grid>
                 </Box>
@@ -799,7 +799,7 @@ const ListItemReport = () => {
                                         </TableSortLabel>
                                     </StyledTableCell>
                                 ))}
-                                <StyledTableCell><Typography variant="h6" fontWeight="bold">İşlemler</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6" fontWeight="bold">عملیات</Typography></StyledTableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -829,12 +829,12 @@ const ListItemReport = () => {
                                             </Typography>
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <Tooltip title="Detaylar ve İşlemler">
+                                            <Tooltip title="جزئیات و عملیات">
                                                 <IconButton id={`actions-button-${index}`} onClick={(event) => handleClickMenu(event, row)} color="secondary" size="small"><IconDots width={20} /></IconButton></Tooltip>
                                             <Menu id="actions-menu" anchorEl={anchorEl} open={openMenu && selectedRowForMenu === row} onClose={handleCloseMenu}>
-                                                <MenuItem onClick={() => handleOpenDetailViewModal(row)}><ListItemIcon><IconRuler width={18} /></ListItemIcon> Detayları Görüntüle</MenuItem>
-                                                <MenuItem onClick={() => handleExportPdfSingle(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> PDF İndir</MenuItem>
-                                                <MenuItem onClick={() => handleExportExcelSingle(row)}><ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> Excel İndir</MenuItem>
+                                                <MenuItem onClick={() => handleOpenDetailViewModal(row)}><ListItemIcon><IconRuler width={18} /></ListItemIcon> مشاهده‌ی جزئیات</MenuItem>
+                                                <MenuItem onClick={() => handleExportPdfSingle(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود PDF</MenuItem>
+                                                <MenuItem onClick={() => handleExportExcelSingle(row)}><ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> دانلود Excel</MenuItem>
                                             </Menu>
                                         </StyledTableCell>
                                     </TableRow>
@@ -870,7 +870,7 @@ const ListItemReport = () => {
                             page={page}
                             onPageChange={handleChangePage}
                             onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Satır sayısı:"
+                            labelRowsPerPage="تعداد ردیف‌ها:"
                             labelDisplayedRows={({ from, to, count }) =>
                                 `${from}–${to} / ${count !== -1 ? count : `> ${to}`}`
                             }

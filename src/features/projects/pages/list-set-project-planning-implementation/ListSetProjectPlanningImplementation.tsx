@@ -95,9 +95,9 @@ const StatusToggleButton = styled(UiToggleButton)<{ value: number, selected: boo
 const STATUS_OPTIONS = [
     { value: 0, label: 'Tamamlandı', color: 'success' as const },
     { value: 1, label: 'Mevcut', color: 'warning' as const },
-    { value: 2, label: 'İptal', color: 'error' as const },
+    { value: 2, label: 'انصراف', color: 'error' as const },
 ];
-const getStatusLabel = (value: number) => STATUS_OPTIONS.find(o => o.value === value)?.label || 'Yok';
+const getStatusLabel = (value: number) => STATUS_OPTIONS.find(o => o.value === value)?.label || 'ندارد';
 
 interface ComboOption { id: number; name: string; }
 interface ChannelOption extends ComboOption { channelRowId: number; type?: number; }
@@ -246,8 +246,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -266,7 +266,7 @@ const mapApiItemToRow = (item: ApiImplementItem): ImplementRow => {
 
 
     const recStatus = (item.recordStatus as 0 | 1 | 2);
-    const statusStr = recStatus === 0 ? 'Aktif' : recStatus === 1 ? 'Pasif' : 'Silindi';
+    const statusStr = recStatus === 0 ? 'فعال' : recStatus === 1 ? 'غیرفعال' : 'Silindi';
 
     return {
         id: Number(item.id),
@@ -460,9 +460,9 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
 
@@ -743,7 +743,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
     const handleClickCloseDeleteModal = () => { setOpenDeleteModal(false); setImplementationIdToDelete(null); getListImplementations(); };
 
     const handleDownloadPDF = (data: ImplementRow[], titlePrefix = 'Uygulama_Detay') => {
-        if (!data || data.length === 0) { showAlert('PDF oluşturulacak veri bulunamadı.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('داده‌ای برای ساخت PDF پیدا نشد.', 'warning'); return; }
         const doc = new (jsPDF as any)();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -760,7 +760,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 40);
+        doc.text(`تاریخ گزارش:`, 15, 40);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
         doc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
@@ -774,10 +774,10 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
             let columnIndex = 0;
 
             doc.setFontSize(10);
-            doc.text(`Proje: ${item.projectTitle}`, 15, currentY); currentY += 5;
-            doc.text(`Başlangıç: ${format(new Date(item.startDate), 'dd MMMM yyyy', { locale: tr })}`, 15, currentY);
-            doc.text(`Bitiş: ${format(new Date(item.endDate), 'dd MMMM yyyy', { locale: tr })}`, 80, currentY); currentY += 5;
-            doc.text(`Tür: ${item.channelRowId ? 'Direkler' : 'İletkenler'}`, 15, currentY);
+            doc.text(`پروژه: ${item.projectTitle}`, 15, currentY); currentY += 5;
+            doc.text(`شروع: ${format(new Date(item.startDate), 'dd MMMM yyyy', { locale: tr })}`, 15, currentY);
+            doc.text(`پایان: ${format(new Date(item.endDate), 'dd MMMM yyyy', { locale: tr })}`, 80, currentY); currentY += 5;
+            doc.text(`Tür: ${item.channelRowId ? 'Direkler' : 'هادی‌ها'}`, 15, currentY);
             const adTxt = item.channelRowId ? (item.channelName ?? `Kanal ID: ${item.channelRowId}`) : (item.transmissionName ?? `Hat ID: ${item.transmissionRowId}`);
             doc.text(`Ad: ${adTxt}`, 50, currentY); currentY += 10;
 
@@ -815,7 +815,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
 
             if (item.description) {
                 currentY += 40;
-                doc.text(`Açıklama: ${item.description}`, 15, currentY);
+                doc.text(`توضیحات: ${item.description}`, 15, currentY);
             }
         });
 
@@ -823,7 +823,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             doc.setFont('NotoSans', 'normal').setFontSize(8).setTextColor(0);
-            const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR', 'دستیار هوشمند حمل‌ونقل'];
+            const companyInfo = ['ترابوت', 'ترابوت', 'دستیار هوشمند حمل‌ونقل'];
             let footerY = pageHeight - 20;
             companyInfo.forEach(line => {
                 doc.text(line, pageWidth / 2, footerY, { align: 'center' });
@@ -832,25 +832,25 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
 
             doc.setTextColor(0);
             doc.setFontSize(10);
-            doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+            doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
             doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
             const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
             const pageCount = (doc as any).internal.getNumberOfPages();
-            doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+            doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
         }
         doc.save(`${titlePrefix}.pdf`);
-        showAlert('PDF başarıyla oluşturuldu.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
     };
 
     const handleExportExcel = async (data: ImplementRow[]) => {
-        if (!data || data.length === 0) { showAlert('Dışa aktarılacak veri bulunamadı.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('داده‌ای برای خروجی پیدا نشد.', 'warning'); return; }
 
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet('Uygulama Raporu', { views: [{ rightToLeft: false }] });
 
         const dynamicHeaders = ALL_IMPLEMENTATION_FIELDS.map(f => f.label);
-        const headers = ['Plan Adı', 'Başlangıç', 'Bitiş', 'Tür', 'Ad', ...dynamicHeaders, 'Çekilen Kablo Miktarı', 'Açıklama', 'Durum'];
+        const headers = ['Plan Adı', 'شروع', 'پایان', 'نوع', 'نام', ...dynamicHeaders, 'Çekilen Kablo Miktarı', 'توضیحات', 'وضعیت'];
         const headerRow = worksheet.addRow(headers);
 
         const thinBorder: Partial<Excel.Border> = { style: 'thin', color: { argb: 'FFD3D3D3' } };
@@ -861,7 +861,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
         headerRow.eachCell(c => { c.border = border as Excel.Borders; c.fill = headFill; (c.font as any) = headFont; });
 
         data.forEach(item => {
-            const type = item.channelRowId ? 'Direkler' : 'İletkenler';
+            const type = item.channelRowId ? 'Direkler' : 'هادی‌ها';
             const name = item.channelRowId ? (item.channelName ?? `Kanal ID: ${item.channelRowId}`) : (item.transmissionName ?? `Hat ID: ${item.transmissionRowId}`);
             const rowData = [
                 item.projectTitle,
@@ -890,7 +890,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
         const buffer = await workbook.xlsx.writeBuffer();
         const fileName = `Proje_Uygulama_Raporu_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
         saveAs(new Blob([buffer]), fileName);
-        showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
     };
 
 
@@ -972,7 +972,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
 
                 {(loadingData || comboLoading) ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                        <CircularProgress /><Typography sx={{ ml: 2 }} variant="subtitle1" color="textSecondary">Veriler yükleniyor...</Typography>
+                        <CircularProgress /><Typography sx={{ ml: 2 }} variant="subtitle1" color="textSecondary">در حال بارگذاری داده‌ها...</Typography>
                     </Box>
                 ) : (
                     <>
@@ -995,7 +995,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                         </Grid>
                                         <Grid item xs={12} md={4}>
                                             <AutocompleteCombo
-                                                label="İletkenler"
+                                                label="هادی‌ها"
                                                 options={transmissionOptions.filter(o => editingId === null || o.id === formData.transmissionRowId)}
                                                 value={formData.transmissionRowId || null}
                                                 onChange={(id) => handleComboChange('transmission', id)}
@@ -1071,7 +1071,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
 
                                 <Grid item xs={12}>
                                     <Typography variant="h6" fontWeight="bold" mb={2} color="primary.main">3. Açıklama</Typography>
-                                    <CustomFormLabel htmlFor="description">Açıklama</CustomFormLabel>
+                                    <CustomFormLabel htmlFor="description">توضیحات</CustomFormLabel>
                                     <CustomTextField id="description" multiline rows={4} value={formData.description || ''}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFormInputChange('description', e.target.value)} fullWidth disabled={isFormDisabled} />
                                 </Grid>
@@ -1081,9 +1081,9 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                         {editingId !== null ? (
                                             <>
                                                 <Button variant="contained" color="info" onClick={editImplementation} disabled={isFormDisabled || !selectedCombo}>
-                                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Beklemek....</> : 'Düzenlemek'}
+                                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Beklemek....</> : 'ویرایش'}
                                                 </Button>
-                                                <Button variant="outlined" color="secondary" onClick={resetFormAndState}>İptal Et</Button>
+                                                <Button variant="outlined" color="secondary" onClick={resetFormAndState}>لغو</Button>
                                             </>
                                         ) : (
                                             hasCreatePermission && (
@@ -1125,7 +1125,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                 disabled={loadingData || sortedAndFiltered.length === 0}
                                 sx={{ width: { xs: "100%", sm: "auto" } }}
                             >
-                                Filtrelenmişi İndir
+                                دانلود موارد فیلترشده
                             </BlinkingButton>
                         )}
 
@@ -1138,7 +1138,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                 disabled={loadingData || implementationsList.length === 0}
                                 sx={{ width: { xs: "100%", sm: "auto" } }}
                             >
-                                Tümünü İndir
+                                دانلود همه
                             </Button>
                         )}
                     </Stack>
@@ -1164,7 +1164,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                     sx={{ width: "100%" }}
                                 >
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={filterStartDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(v) => setFilterStartDate(v)}
@@ -1172,7 +1172,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                     />
 
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={filterEndDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(v) => setFilterEndDate(v)}
@@ -1199,9 +1199,9 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
 
                         <Grid item xs={12} sm={6} md={3}>
                             <ToggleButtonGroup value={statusFilter} exclusive onChange={(_e, v) => v && setStatusFilter(v)} fullWidth>
-                                <StyledToggleButton value="all">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all">همه</StyledToggleButton>
+                                <StyledToggleButton value="active">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1219,19 +1219,19 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'projectTitle'} direction={orderBy === 'projectTitle' ? order : 'asc'} onClick={() => handleRequestSort('projectTitle')}>Proje (Kod)</TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell>Tür</StyledTableCell>
-                                    <StyledTableCell>Ad</StyledTableCell>
+                                    <StyledTableCell>نوع</StyledTableCell>
+                                    <StyledTableCell>نام</StyledTableCell>
                                     <StyledTableCell>
-                                        <TableSortLabel active={orderBy === 'startDate'} direction={orderBy === 'startDate' ? order : 'asc'} onClick={() => handleRequestSort('startDate')}>Başlangıç</TableSortLabel>
+                                        <TableSortLabel active={orderBy === 'startDate'} direction={orderBy === 'startDate' ? order : 'asc'} onClick={() => handleRequestSort('startDate')}>شروع</TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
-                                        <TableSortLabel active={orderBy === 'endDate'} direction={orderBy === 'endDate' ? order : 'asc'} onClick={() => handleRequestSort('endDate')}>Bitiş</TableSortLabel>
+                                        <TableSortLabel active={orderBy === 'endDate'} direction={orderBy === 'endDate' ? order : 'asc'} onClick={() => handleRequestSort('endDate')}>پایان</TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell>Açıklama</StyledTableCell>
+                                    <StyledTableCell>توضیحات</StyledTableCell>
                                     <StyledTableCell>
-                                        <TableSortLabel active={orderBy === 'status'} direction={orderBy === 'status' ? order : 'asc'} onClick={() => handleRequestSort('status')}>Durum</TableSortLabel>
+                                        <TableSortLabel active={orderBy === 'status'} direction={orderBy === 'status' ? order : 'asc'} onClick={() => handleRequestSort('status')}>وضعیت</TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell>Detaylar</StyledTableCell>
+                                    <StyledTableCell>جزئیات</StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1240,7 +1240,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                     <TableRow key={row.id}>
                                         <StyledTableCell><Typography variant="body1">{row.projectTitle}</Typography></StyledTableCell>
                                         <StyledTableCell>
-                                            <Chip label={row.channelRowId ? 'Direkler' : 'İletkenler'} color={row.channelRowId ? 'primary' : 'secondary'} size="small" />
+                                            <Chip label={row.channelRowId ? 'Direkler' : 'هادی‌ها'} color={row.channelRowId ? 'primary' : 'secondary'} size="small" />
                                         </StyledTableCell>
                                         <StyledTableCell>
                                             <Typography variant="body2">
@@ -1259,14 +1259,14 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                         <StyledTableCell><Typography variant="body1">{format(new Date(row.endDate), 'dd MMMM yyyy', { locale: tr })}</Typography></StyledTableCell>
                                         <StyledTableCell sx={{ maxWidth: 150 }}>
                                             {row.description && row.description.trim().length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                     <Button
 
                                                         variant="outlined"
                                                         style={{ fontSize: "10px", padding: "2px 5px" }}
                                                         onClick={() => handleOpenDescriptionModal(row.description)}
                                                     >
-                                                        Açıklamayı Oku
+                                                        خواندن توضیحات
                                                     </Button>
                                                 </CustomTooltip>
                                             ) : (
@@ -1277,19 +1277,19 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                             <Chip label={row.status} sx={{ backgroundColor: row.recordStatus === 0 ? 'success.light' : 'error.light', color: row.recordStatus === 0 ? 'success.main' : 'error.main' }} size="small" />
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Detayları Görüntüle" : ""}>
-                                                <Button variant="outlined" startIcon={<IconEye />} onClick={() => { setDetailData(row); setOpenDetailModal(true); }}>Görünüm</Button>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی جزئیات" : ""}>
+                                                <Button variant="outlined" startIcon={<IconEye />} onClick={() => { setDetailData(row); setOpenDetailModal(true); }}>نما</Button>
                                             </CustomTooltip>
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                 <IconButton id={`basic-button-${row.id}`} onClick={(e) => handleClickMenu(e, row)}><IconDots width={18} /></IconButton>
                                             </CustomTooltip>
                                             <Menu anchorEl={anchorEl} open={openMenu && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
 
                                                 {hasEditPermission && (
                                                     <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu uygulamayı düzenle" : ""}>
-                                                        <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenlemek</UiMenuItem>
+                                                        <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
                                                 {hasDeletePermission && (
@@ -1300,7 +1300,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                                                 {hasDownloadPermission && (
                                                     <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu uygulamayı indir" : ""}>
                                                         <UiMenuItem onClick={() => { setOpenSingleDownloadModal(true); }}>
-                                                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir
+                                                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1320,7 +1320,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                     count={sortedAndFiltered.length} rowsPerPage={rowsPerPage} page={page}
                     onPageChange={(_e, p) => setPage(p)}
                     onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                    labelRowsPerPage="Satır başına:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
+                    labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
 
@@ -1336,22 +1336,22 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                 <DialogTitle>Tüm / Filtrelenmiş Kaydı İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleDownloadPDF(sortedAndFiltered, 'Uygulama_Raporu')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleExportExcel(sortedAndFiltered)}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleDownloadPDF(sortedAndFiltered, 'Uygulama_Raporu')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleExportExcel(sortedAndFiltered)}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary">İptal</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary">انصراف</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openSingleDownloadModal} onClose={() => setOpenSingleDownloadModal(false)}>
                 <DialogTitle>Seçili Satırı İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleSingleDownload('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleSingleDownload('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleSingleDownload('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleSingleDownload('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenSingleDownloadModal(false)} color="secondary">İptal</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenSingleDownloadModal(false)} color="secondary">انصراف</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDetailModal} onClose={() => setOpenDetailModal(false)} fullWidth maxWidth="md">
@@ -1359,8 +1359,8 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                 <DialogContent dividers>
                     {detailData && (
                         <Grid container spacing={2}>
-                            <Grid item xs={12}><Typography variant="subtitle1" fontWeight="bold">Proje: {detailData.projectTitle}</Typography></Grid>
-                            <Grid item xs={12}><Typography variant="body2" sx={{ wordBreak: 'break-word' }}>Açıklama: {detailData.description || '-'}</Typography></Grid>
+                            <Grid item xs={12}><Typography variant="subtitle1" fontWeight="bold">پروژه: {detailData.projectTitle}</Typography></Grid>
+                            <Grid item xs={12}><Typography variant="body2" sx={{ wordBreak: 'break-word' }}>توضیحات: {detailData.description || '-'}</Typography></Grid>
 
                             {detailData.channelRowId && (
                                 <>
@@ -1415,7 +1415,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                         </Grid>
                     )}
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDetailModal(false)} color="primary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDetailModal(false)} color="primary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog
@@ -1424,7 +1424,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -1432,7 +1432,7 @@ const ListSetProjectPlanningImplementation: React.FC<Props> = ({ dateId: propDat
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

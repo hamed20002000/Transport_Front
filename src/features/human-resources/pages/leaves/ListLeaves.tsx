@@ -40,7 +40,7 @@ const fmtTR = (iso?: string | null) => {
     return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 const statusToLabel = (s: number | undefined) =>
-    s === 0 ? "İncelemede" : s === 1 ? "Onaylandı" : s === 2 ? "Reddedildi" : "-";
+    s === 0 ? "İncelemede" : s === 1 ? "تأیید شد" : s === 2 ? "Reddedildi" : "-";
 const statusToColor = (s: number | undefined) =>
     s === 0
         ? (theme: any) => ({ bg: theme.palette.warning.light, fg: theme.palette.warning.main })
@@ -120,7 +120,7 @@ const calculateLeaveDuration = (startDate: string, endDate: string): string => {
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime()) || end.getTime() < start.getTime()) {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 
     if (start.toDateString() !== end.toDateString()) {
@@ -128,7 +128,7 @@ const calculateLeaveDuration = (startDate: string, endDate: string): string => {
 
         if (diffDays <= 1) {
         } else {
-            return `${diffDays} Gün`;
+            return `${diffDays} روز`;
         }
     }
     const totalMinutes = differenceInMinutes(end, start);
@@ -139,10 +139,10 @@ const calculateLeaveDuration = (startDate: string, endDate: string): string => {
     const minutes = totalMinutes % 60;
 
     if (hours > 0 && minutes > 0) {
-        return `${hours} Saat ${minutes} Dakika`;
+        return `${hours} ساعت ${minutes} Dakika`;
     }
     if (hours > 0) {
-        return `${hours} Saat`;
+        return `${hours} ساعت`;
     }
     return `${minutes} Dakika`;
 
@@ -176,8 +176,8 @@ export const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 const drawHeader = (doc: jsPDF, title: string) => {
@@ -195,7 +195,7 @@ const drawHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -204,7 +204,7 @@ const drawHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -222,7 +222,7 @@ const drawFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -234,12 +234,12 @@ const drawFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -258,7 +258,7 @@ const exportPDF = (rows: LeaveType[], filename: string) => {
     addFonts(doc);
     autoTable(doc, {
         startY: 92,
-        head: [["Personel", "Başlangıç", "Bitiş", "Durum", "Tür"]],
+        head: [["پرسنل", "شروع", "پایان", "وضعیت", "نوع"]],
         body: buildRowsForExport(rows),
         theme: "grid",
         styles: { font: "Arial", fontStyle: "normal", fontSize: 10, cellPadding: 6, overflow: "linebreak" },
@@ -280,11 +280,11 @@ const exportExcel = async (rows: LeaveType[], filename: string) => {
     c1.font = { name: "Arial", size: 14, bold: true }; c1.alignment = { horizontal: "center" };
 
     ws.mergeCells("A2:D2");
-    const c2 = ws.getCell("A2"); c2.value = `Rapor Tarihi: ${printDateTR()}`;
+    const c2 = ws.getCell("A2"); c2.value = `تاریخ گزارش: ${printDateTR()}`;
     c2.font = { name: "Times New Roman", size: 10 }; c2.alignment = { horizontal: "left" };
     ws.addRow([]);
 
-    const hdr = ws.addRow(["Personel", "Başlangıç", "Bitiş", "Durum", "Tür"]);
+    const hdr = ws.addRow(["پرسنل", "شروع", "پایان", "وضعیت", "نوع"]);
     hdr.font = { bold: true };
     hdr.eachCell((cell) => {
         cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFEFEFEF" } };
@@ -303,7 +303,7 @@ const exportExcel = async (rows: LeaveType[], filename: string) => {
     const ft = ws.addRow(["Şirket Bilgisi"]); ft.font = { bold: true }; ws.mergeCells(`A${ft.number}:D${ft.number}`);
     [
         "ترابوت",
-        "Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11",
+        "ترابوت، دستیار هوشمند حمل‌ونقل",
         "دستیار هوشمند حمل‌ونقل",
     ].forEach((line) => {
         const r = ws.addRow([line]);
@@ -414,7 +414,7 @@ const generateLeavePDFPersonnelInfo = (doc: jsPDF, row: LeaveType) => {
     const leaveTypedesc = getLeaveTypedesc(row.type);
 
     doc.text(leaveTypedesc.title2, 40, personnelInfoYPosition + 130);
-    doc.text("AD-SOYAD / İMZA", 350, personnelInfoYPosition + 180);
+    doc.text("نام و نام خانوادگی / امضا", 350, personnelInfoYPosition + 180);
 };
 
 
@@ -427,7 +427,7 @@ const generateLeavePDFFooter = (doc: jsPDF, row: LeaveType) => {
     doc.text(leaveTypedesc.title3, 40, footerYPosition);
 
     const approvalDateYPosition = footerYPosition + 20;
-    doc.text("AD-SOYAD / İMZA", 380, approvalDateYPosition + 20);
+    doc.text("نام و نام خانوادگی / امضا", 380, approvalDateYPosition + 20);
     doc.text("Onay", 300, approvalDateYPosition + 70);
     const currentDate = new Date();
     const formattedDate = `${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}/${(currentDate.getMonth() + 1) < 10 ? '0' + (currentDate.getMonth() + 1) : (currentDate.getMonth() + 1)}/${currentDate.getFullYear()}`;
@@ -441,8 +441,8 @@ const generateLeavePDFFooter = (doc: jsPDF, row: LeaveType) => {
     const leavePeriodYPosition1 = leavePeriodYPosition + 20;
 
     const signatureYPosition = leavePeriodYPosition1 + 90;
-    doc.text("Adı Soyadı", 380, signatureYPosition);
-    doc.text("İmza", 380, signatureYPosition + 20);
+    doc.text("نام و نام خانوادگی", 380, signatureYPosition);
+    doc.text("امضا", 380, signatureYPosition + 20);
 };
 
 const getLeaveTypeTitle = (leaveType: number) => {
@@ -615,7 +615,7 @@ const generateLeaveExcelSubHeaderAndPersonnelInfo = (ws: ExcelWorksheet, row: Le
 
     ws.addRow([]);
     nextRow = ws.lastRow ? ws.lastRow.number + 1 : nextRow + 1;
-    ws.addRow(["", "", "", "", "", "AD-SOYAD / İMZA"]);
+    ws.addRow(["", "", "", "", "", "نام و نام خانوادگی / امضا"]);
     ws.mergeCells(`F${nextRow}:H${nextRow}`);
 };
 
@@ -633,7 +633,7 @@ const generateLeaveExcelFooter = (ws: ExcelWorksheet, row: LeaveType) => {
 
     ws.addRow([]);
     nextRow = ws.lastRow ? ws.lastRow.number + 1 : nextRow;
-    ws.addRow(["", "", "", "", "", "AD-SOYAD / İMZA"]);
+    ws.addRow(["", "", "", "", "", "نام و نام خانوادگی / امضا"]);
     ws.mergeCells(`F${nextRow}:H${nextRow}`);
 
     nextRow += 1;
@@ -651,11 +651,11 @@ const generateLeaveExcelFooter = (ws: ExcelWorksheet, row: LeaveType) => {
     ws.getCell(`A${nextRow}`).style = { font: { size: 10, name: 'Arial' } };
 
     nextRow += 3;
-    ws.addRow(["", "", "", "", "", "Adı Soyadı"]);
+    ws.addRow(["", "", "", "", "", "نام و نام خانوادگی"]);
     ws.getCell(`F${nextRow}`).style = { font: { bold: true, size: 10, name: 'Arial' } };
 
     nextRow += 1;
-    ws.addRow(["", "", "", "", "", "İmza"]);
+    ws.addRow(["", "", "", "", "", "امضا"]);
     ws.getCell(`F${nextRow}`).style = { font: { bold: true, size: 10, name: 'Arial' } };
 };
 
@@ -732,9 +732,9 @@ const ListLeaves: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
 
@@ -801,12 +801,12 @@ const ListLeaves: React.FC = () => {
             if (res.data?.httpStatusCode === 200) setPersonnels(res.data.data || []);
             else showAlert(res.data?.message || "Personel listesi alınırken hata oluştu.", "error");
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -827,12 +827,12 @@ const ListLeaves: React.FC = () => {
                 return null;
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingData(false); }
     }, [navigate, showAlert]);
 
@@ -904,12 +904,12 @@ const ListLeaves: React.FC = () => {
                 showAlert(res.data?.message || "İzin eklenirken hata oluştu.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -1056,7 +1056,7 @@ const ListLeaves: React.FC = () => {
                 {isFormVisible && hasCreatePermission && (
                     <Grid container spacing={1}>
                         <Grid item xs={12} md={3}>
-                            <CustomFormLabel required>Personel</CustomFormLabel>
+                            <CustomFormLabel required>پرسنل</CustomFormLabel>
                             <Autocomplete
                                 options={personnels.map((p) => ({ id: String(p.id), label: `${p.name ?? ""} ${p.family ?? ""}`.trim() || String(p.id) }))}
                                 value={
@@ -1074,10 +1074,10 @@ const ListLeaves: React.FC = () => {
                         </Grid>
 
                         <Grid item xs={12} md={3}>
-                            <CustomFormLabel required>Başlangıç Tarihi</CustomFormLabel>
+                            <CustomFormLabel required>تاریخ شروع</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <DateTimePicker
-                                    label="Başlangıç Tarihi"
+                                    label="تاریخ شروع"
                                     value={startDate}
                                     onChange={(v) => setStartDate(v)}
                                     renderInput={(params) => <TextField {...params} size="small" fullWidth error={!!startError} helperText={startError} />}
@@ -1086,10 +1086,10 @@ const ListLeaves: React.FC = () => {
                         </Grid>
 
                         <Grid item xs={12} md={3}>
-                            <CustomFormLabel required>Bitiş Tarihi</CustomFormLabel>
+                            <CustomFormLabel required>تاریخ پایان</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <DateTimePicker
-                                    label="Bitiş Tarihi"
+                                    label="تاریخ پایان"
                                     value={endDate}
                                     minDate={startDate || undefined}
                                     onChange={(v) => setEndDate(v)}
@@ -1164,7 +1164,7 @@ const ListLeaves: React.FC = () => {
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} sm={3}>
                             <TextField
-                                label="Personel Ara"
+                                label="جستجوی پرسنل"
                                 variant="outlined"
                                 fullWidth
                                 value={searchTerm}
@@ -1175,8 +1175,8 @@ const ListLeaves: React.FC = () => {
                         <Grid item xs={12} sm={6}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Stack direction="row" spacing={1} alignItems="center">
-                                    <DateTimePicker label="Başlangıç Tarihi" value={filterStart} onChange={(v) => setFilterStart(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
-                                    <DateTimePicker label="Bitiş Tarihi" value={filterEnd}
+                                    <DateTimePicker label="تاریخ شروع" value={filterStart} onChange={(v) => setFilterStart(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
+                                    <DateTimePicker label="تاریخ پایان" value={filterEnd}
                                         minDate={filterEnd || undefined} onChange={(v) => setFilterEnd(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
                                     <IconButton onClick={clearDateFilters} aria-label="clear date filters"><IconX size={20} /></IconButton>
                                 </Stack>
@@ -1185,9 +1185,9 @@ const ListLeaves: React.FC = () => {
 
                         <Grid item xs={12} sm={3}>
                             {hasDownloadPermission && (
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button variant="contained" color="primary" onClick={openDownloadChooserForAll} startIcon={<IconFileDownload />}>
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             )}
@@ -1201,28 +1201,28 @@ const ListLeaves: React.FC = () => {
                             <TableRow>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "personnel"} direction={orderBy === "personnel" ? order : "asc"} onClick={() => handleRequestSort("personnel")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Personel</Typography>
+                                        <Typography variant="h6">پرسنل</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "startDate"} direction={orderBy === "startDate" ? order : "asc"} onClick={() => handleRequestSort("startDate")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Başlangıç</Typography>
+                                        <Typography variant="h6">شروع</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "endDate"} direction={orderBy === "endDate" ? order : "asc"} onClick={() => handleRequestSort("endDate")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Bitiş</Typography>
+                                        <Typography variant="h6">پایان</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "type"} direction={orderBy === "type" ? order : "asc"} onClick={() => handleRequestSort("type")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Tür</Typography>
+                                        <Typography variant="h6">نوع</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Detay</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">جزئیات</Typography></StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === "status"} direction={orderBy === "status" ? order : "asc"} onClick={() => handleRequestSort("status")} style={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell />
@@ -1259,7 +1259,7 @@ const ListLeaves: React.FC = () => {
                                                     onClick={() => handleViewDetails(row)}
                                                     startIcon={<IconSearch size={16} />}
                                                 >
-                                                    Detay
+                                                    جزئیات
                                                 </Button>
                                             </StyledTableCell>
                                             <StyledTableCell>
@@ -1267,7 +1267,7 @@ const ListLeaves: React.FC = () => {
                                             </StyledTableCell>
 
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton id={`row-menu-${row.id}`} aria-controls={openMenu ? "row-menu" : undefined} aria-haspopup="true" aria-expanded={openMenu ? "true" : undefined} onClick={(e) => handleClickMenu(e as any, row)}>
                                                         <IconDots width={18} />
                                                     </IconButton>
@@ -1278,21 +1278,21 @@ const ListLeaves: React.FC = () => {
                                                     {hasEditPermission && selectedRow?.status === 0 && (
                                                         <>
                                                             <UiMenuItem onClick={() => updateLeaveStatus(selectedRow.id, 1)}>
-                                                                <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Onayla
+                                                                <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> تأیید
                                                             </UiMenuItem>
                                                             <UiMenuItem onClick={() => updateLeaveStatus(selectedRow.id, 2)}>
-                                                                <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Reddet
+                                                                <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> رد
                                                             </UiMenuItem>
                                                         </>
                                                     )}
                                                     {hasEditPermission && selectedRow?.status === 1 && (
                                                         <UiMenuItem onClick={() => updateLeaveStatus(selectedRow.id, 2)}>
-                                                            <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Reddet
+                                                            <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> رد
                                                         </UiMenuItem>
                                                     )}
                                                     {hasEditPermission && selectedRow?.status === 2 && (
                                                         <UiMenuItem onClick={() => updateLeaveStatus(selectedRow.id, 1)}>
-                                                            <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Onayla
+                                                            <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> تأیید
                                                         </UiMenuItem>
                                                     )}
 
@@ -1332,7 +1332,7 @@ const ListLeaves: React.FC = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1346,19 +1346,19 @@ const ListLeaves: React.FC = () => {
             />
 
             <Dialog open={openDownloadModal} onClose={() => setOpenDownloadModal(false)}>
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={handleDownloadChoosePDF}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={handleDownloadChooseExcel}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadModal(false)} color="secondary">İptal</Button>
+                    <Button onClick={() => setOpenDownloadModal(false)} color="secondary">انصراف</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1370,7 +1370,7 @@ const ListLeaves: React.FC = () => {
                     {selectedLeaveDetails && (
                         <Grid container spacing={3}>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="h6" gutterBottom color="primary">Personel Bilgileri</Typography>
+                                <Typography variant="h6" gutterBottom color="primary">اطلاعات پرسنل</Typography>
                                 <Stack spacing={1}>
                                     <Typography><b>Ad Soyad:</b> {selectedLeaveDetails.personnel.name} {selectedLeaveDetails.personnel.family}</Typography>
                                     <Typography><b>T.C. Kimlik:</b> {selectedLeaveDetails.personnel.identityNumber}</Typography>
@@ -1383,10 +1383,10 @@ const ListLeaves: React.FC = () => {
                                 <Typography variant="h6" gutterBottom color="primary">İzin Detayı</Typography>
                                 <Stack spacing={1}>
                                     <Typography><b>Tür:</b> {leaveTypes.find(t => t.value === selectedLeaveDetails.type)?.label}</Typography>
-                                    <Typography><b>Başlangıç:</b> {fmtTR(selectedLeaveDetails.startDate)}</Typography>
-                                    <Typography><b>Bitiş:</b> {fmtTR(selectedLeaveDetails.endDate)}</Typography>
+                                    <Typography><b>شروع:</b> {fmtTR(selectedLeaveDetails.startDate)}</Typography>
+                                    <Typography><b>پایان:</b> {fmtTR(selectedLeaveDetails.endDate)}</Typography>
                                     <Typography><b>Süre:</b> {calculateLeaveDuration(selectedLeaveDetails.startDate, selectedLeaveDetails.endDate)}</Typography>
-                                    <Typography><b>Durum:</b> {statusToLabel(selectedLeaveDetails.status)}</Typography>
+                                    <Typography><b>وضعیت:</b> {statusToLabel(selectedLeaveDetails.status)}</Typography>
                                 </Stack>
                             </Grid>
 
@@ -1400,13 +1400,13 @@ const ListLeaves: React.FC = () => {
                                         <Grid item xs={6} sm={3}>
                                             <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1, textAlign: 'center' }}>
                                                 <Typography variant="caption">Resmi Hak</Typography>
-                                                <Typography variant="h6">{annualLeaveData.official} Gün</Typography>
+                                                <Typography variant="h6">{annualLeaveData.official} روز</Typography>
                                             </Box>
                                         </Grid>
                                         <Grid item xs={6} sm={3}>
                                             <Box sx={{ p: 2, bgcolor: 'success.light', borderRadius: 1, textAlign: 'center' }}>
                                                 <Typography variant="caption">Kalan İzin</Typography>
-                                                <Typography variant="h6">{annualLeaveData.remaining} Gün</Typography>
+                                                <Typography variant="h6">{annualLeaveData.remaining} روز</Typography>
                                             </Box>
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
@@ -1414,8 +1414,8 @@ const ListLeaves: React.FC = () => {
                                                 <Typography variant="caption">Çalışma Süresi</Typography>
                                                 <Typography variant="body1" fontWeight="bold">
                                                     {annualLeaveData.personnelWorkYearsAndMonths
-                                                        ? `${annualLeaveData.personnelWorkYearsAndMonths.years} Yıl, ${annualLeaveData.personnelWorkYearsAndMonths.months} Ay, ${annualLeaveData.personnelWorkYearsAndMonths.days} Gün`
-                                                        : `${annualLeaveData.yearOfWork} Yıl`}
+                                                        ? `${annualLeaveData.personnelWorkYearsAndMonths.years} سال، ${annualLeaveData.personnelWorkYearsAndMonths.months} ماه، ${annualLeaveData.personnelWorkYearsAndMonths.days} روز`
+                                                        : `${annualLeaveData.yearOfWork} سال`}
                                                 </Typography>
                                             </Box>
                                         </Grid>
@@ -1432,9 +1432,9 @@ const ListLeaves: React.FC = () => {
                         startIcon={<IconFileDownload />}
                         onClick={() => selectedLeaveDetails && generateLeavePDF(selectedLeaveDetails)}
                     >
-                        PDF İndir
+                        دانلود PDF
                     </Button>
-                    <Button onClick={() => setOpenDetailsModal(false)} variant="outlined">Kapat</Button>
+                    <Button onClick={() => setOpenDetailsModal(false)} variant="outlined">بستن</Button>
                 </DialogActions>
             </Dialog>
         </>

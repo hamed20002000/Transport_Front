@@ -39,8 +39,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -287,9 +287,9 @@ const ListProviders = () => {
         );
     };
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const showAlert = (message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
@@ -321,7 +321,7 @@ const ListProviders = () => {
                 });
                 setRegionMap(newRegionMap);
             } else {
-                showAlert(response.data.message || 'Bölgeler yüklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام بارگذاری مناطق خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             showAlert('Bölgeler yüklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -350,16 +350,16 @@ const ListProviders = () => {
                     firm: item.firm ? '1' : '0',
                     recordStatus: item.recordStatus,
                     createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif',
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال',
                     region: item.region
                 }));
                 setProvidersList(providersWithStatus);
             } else {
-                showAlert(response.data.message || 'Sağlayıcılar yüklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام بارگذاری تأمین‌کنندگان خطایی رخ داد.', 'error');
                 setProvidersList([]);
             }
         } catch (e: any) {
-            showAlert('Sağlayıcılar yüklenirken bir hata oluştu.', 'error');
+            showAlert('هنگام بارگذاری تأمین‌کنندگان خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -528,7 +528,7 @@ const ListProviders = () => {
             setRegionIdError(false);
         }
         if (!isValid) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         }
         return isValid;
     };
@@ -569,7 +569,7 @@ const ListProviders = () => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             showAlert(e.response?.data?.message || 'Tedarikçi eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
         } finally {
@@ -606,11 +606,11 @@ const ListProviders = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Tedarikçi güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -626,7 +626,7 @@ const ListProviders = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -644,20 +644,20 @@ const ListProviders = () => {
                 }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Direk başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Direk başarıyla ${statusText} تنظیم شد!`, 'success');
                 resetFormAndState();
                 fetchProviders();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
-            showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -800,7 +800,7 @@ const ListProviders = () => {
                 try {
                     pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
                 } catch (e) {
-                    console.error("Logo yüklenemedi", e);
+                    console.error("لوگو بارگذاری نشد", e);
                 }
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.setFontSize(14);
@@ -809,7 +809,7 @@ const ListProviders = () => {
 
                 pdfDoc.setFontSize(10);
                 pdfDoc.setFont('NotoSans', 'bold');
-                pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+                pdfDoc.text(`تاریخ گزارش:`, 15, 40);
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -824,7 +824,7 @@ const ListProviders = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
 
@@ -836,19 +836,19 @@ const ListProviders = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
             const rows = sortedAndFilteredProvidersList.map(prov => [
                 prov.name || '-',
                 prov.phoneNumber || '-',
                 prov.address || '-',
-                prov.firm === '1' ? 'Şirket İçi' : 'Şirket Dışı',
+                prov.firm === '1' ? 'داخل شرکت' : 'خارج از شرکت',
                 regionMap.get(prov.region?.id) || 'Bilinmiyor',
                 formatDateDisplay(prov.createAt),
                 prov.status || '-'
@@ -856,7 +856,7 @@ const ListProviders = () => {
 
             autoTable(doc, {
                 startY: 55,
-                head: [['İsim', 'Telefon', 'Adres', 'Firma Tipi', 'Bölge', 'Oluşturulma', 'Durum']],
+                head: [['نام', 'تلفن', 'آدرس', 'Firma Tipi', 'منطقه', 'Oluşturulma', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: {
@@ -887,10 +887,10 @@ const ListProviders = () => {
             });
 
             doc.save(`Tum_Tedarikciler_Raporu.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (error: any) {
             console.error('PDF error:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+            showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
         }
     };
 
@@ -900,7 +900,7 @@ const ListProviders = () => {
         worksheet.addRow([]);
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل',
         ];
         companyInfo.forEach(line => {
@@ -919,7 +919,7 @@ const ListProviders = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -954,7 +954,7 @@ const ListProviders = () => {
             }
             worksheet.mergeCells('A2:G2');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -962,7 +962,7 @@ const ListProviders = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['İsim', 'Telefon Numarası', 'Adres', 'Firma', 'Bölge', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام', 'شماره تلفن', 'آدرس', 'شرکت', 'منطقه', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -973,7 +973,7 @@ const ListProviders = () => {
                     prov.name,
                     prov.phoneNumber,
                     prov.address,
-                    prov.firm === '1' ? 'Şirket İçi' : 'Şirket Dışı',
+                    prov.firm === '1' ? 'داخل شرکت' : 'خارج از شرکت',
                     prov.region?.name || 'Bilinmiyor',
                     formatDateDisplay(prov.createAt),
                     prov.status,
@@ -1000,10 +1000,10 @@ const ListProviders = () => {
             const fileName = `Tüm_Tedarikciler_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -1032,7 +1032,7 @@ const ListProviders = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1051,7 +1051,7 @@ const ListProviders = () => {
                         <Typography variant="h5" mb={2}>{editingId ? 'Sağlayıcıyı Düzenle' : 'Yeni Tedarikçi Kaydı'}</Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel htmlFor="provider-name" required>İsim</CustomFormLabel>
+                                <CustomFormLabel htmlFor="provider-name" required>نام</CustomFormLabel>
                                 <CustomTextField
                                     id="provider-name"
                                     placeholder="Tedarikçi Adı"
@@ -1064,14 +1064,14 @@ const ListProviders = () => {
                                     }}
                                     inputRef={nameInputRef}
                                     error={nameError}
-                                    helperText={nameError ? "İsim alanı boş bırakılamaz!" : ""}
+                                    helperText={nameError ? "فیلد نام نمی‌تواند خالی باشد!" : ""}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel htmlFor="provider-phonenumber" required>Telefon Numarası</CustomFormLabel>
+                                <CustomFormLabel htmlFor="provider-phonenumber" required>شماره تلفن</CustomFormLabel>
                                 <CustomTextField
                                     id="provider-phonenumber"
-                                    placeholder="Telefon Numarası"
+                                    placeholder="شماره تلفن"
                                     sx={{ width: '100%' }}
                                     size="small"
                                     value={phoneNumber}
@@ -1084,16 +1084,16 @@ const ListProviders = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel htmlFor="region-selection" required>Bölge Seçimi</CustomFormLabel>
+                                <CustomFormLabel htmlFor="region-selection" required>انتخاب منطقه</CustomFormLabel>
                                 <FormControl
                                     sx={{ width: '100%' }}
                                     size="small" error={regionIdError}>
-                                    <InputLabel id="select-region-label">Bölge Seçin</InputLabel>
+                                    <InputLabel id="select-region-label">منطقه را انتخاب کنید</InputLabel>
                                     <Select
                                         labelId="select-region-label"
                                         id="select-region"
                                         value={selectedRegionId || ''}
-                                        label="Bölge Seçin"
+                                        label="منطقه را انتخاب کنید"
                                         open={isRegionSelectOpen}
                                         onOpen={handleOpenRegionSelect}
                                         onClose={handleCloseRegionSelect}
@@ -1107,19 +1107,19 @@ const ListProviders = () => {
                                     >
                                         {loadingData ? (
                                             <UiMenuItem disabled>
-                                                <CircularProgress size={20} /> Yükleniyor...
+                                                <CircularProgress size={20} /> در حال بارگذاری...
                                             </UiMenuItem>
                                         ) : regionTree.length > 0 ? (
                                             renderRegionTree(regionTree)
                                         ) : (
-                                            <UiMenuItem disabled>Hiç bölge bulunamadı.</UiMenuItem>
+                                            <UiMenuItem disabled>هیچ منطقه‌ای پیدا نشد.</UiMenuItem>
                                         )}
                                     </Select>
-                                    {regionIdError && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>Bölge seçimi zorunludur!</Typography>}
+                                    {regionIdError && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>انتخاب منطقه الزامی است!</Typography>}
                                 </FormControl>
                             </Grid>
                             <Grid item xs={12} sm={8}>
-                                <CustomFormLabel htmlFor="provider-address">Adres</CustomFormLabel>
+                                <CustomFormLabel htmlFor="provider-address">آدرس</CustomFormLabel>
                                 <CustomTextField
                                     id="provider-address"
                                     placeholder="Tedarikçi Adresi"
@@ -1130,7 +1130,7 @@ const ListProviders = () => {
                                         if (addressError && e.target.value.trim()) setAddressError(false);
                                     }}
                                     error={addressError}
-                                    helperText={addressError ? "Adres alanı boş bırakılamaz!" : ""}
+                                    helperText={addressError ? "فیلد آدرس نمی‌تواند خالی باشد!" : ""}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={4}>
@@ -1144,8 +1144,8 @@ const ListProviders = () => {
                                         if (firmError && e.target.value) setFirmError(false);
                                     }}
                                 >
-                                    <FormControlLabel value="1" control={<Radio />} label="Evet" />
-                                    <FormControlLabel value="0" control={<Radio />} label="Hayır" />
+                                    <FormControlLabel value="1" control={<Radio />} label="بله" />
+                                    <FormControlLabel value="0" control={<Radio />} label="خیر" />
                                 </RadioGroup>
                                 {firmError && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>Firma türü zorunludur!</Typography>}
                             </Grid>
@@ -1155,11 +1155,11 @@ const ListProviders = () => {
                                         <>
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili sağlayıcıyı güncelleyin" : ""}>
                                                 <Button variant="contained" color="info" onClick={editProvider} disabled={loadingButton}>
-                                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Düzenle'}
+                                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'ویرایش'}
                                                 </Button>
                                             </CustomTooltip>
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni Tedarikçi moduna dön" : ""}>
-                                                <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>İptal Et</Button>
+                                                <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>لغو</Button>
                                             </CustomTooltip>
                                         </>
                                     ) : (
@@ -1190,14 +1190,14 @@ const ListProviders = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => setOpenDownloadModal(true)}
                                         startIcon={<IconFileDownload />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -1224,9 +1224,9 @@ const ListProviders = () => {
                                 aria-label="Status filter"
                                 fullWidth
                             >
-                                <StyledToggleButton value="all" aria-label="all Providers">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" aria-label="active Providers">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" aria-label="inactive Providers">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all" aria-label="all Providers">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" aria-label="active Providers">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" aria-label="inactive Providers">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1248,7 +1248,7 @@ const ListProviders = () => {
                                             onClick={() => handleRequestSort('name')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">İsim</Typography>
+                                            <Typography variant="h6">نام</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1258,7 +1258,7 @@ const ListProviders = () => {
                                             onClick={() => handleRequestSort('phoneNumber')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Telefon Numarası</Typography>
+                                            <Typography variant="h6">شماره تلفن</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1268,7 +1268,7 @@ const ListProviders = () => {
                                             onClick={() => handleRequestSort('address')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Adres</Typography>
+                                            <Typography variant="h6">آدرس</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1278,11 +1278,11 @@ const ListProviders = () => {
                                             onClick={() => handleRequestSort('firm')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Firma</Typography>
+                                            <Typography variant="h6">شرکت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
-                                        <Typography variant="h6">Bölge</Typography>
+                                        <Typography variant="h6">منطقه</Typography>
                                     </StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel
@@ -1291,7 +1291,7 @@ const ListProviders = () => {
                                             onClick={() => handleRequestSort('createAt')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ ایجاد</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1301,7 +1301,7 @@ const ListProviders = () => {
                                             onClick={() => handleRequestSort('recordStatus')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
@@ -1331,7 +1331,7 @@ const ListProviders = () => {
                                                             setOpenAddressModal(true);
                                                         }}
                                                     >
-                                                        Adresi Gör
+                                                        دیدن آدرس
                                                     </Button>
                                                 ) : (
                                                     <Typography variant="body1">-</Typography>
@@ -1340,7 +1340,7 @@ const ListProviders = () => {
 
                                             <StyledTableCell>
                                                 <Chip
-                                                    label={row.firm === '1' ? 'Şirket İçi' : 'Şirket Dışı'}
+                                                    label={row.firm === '1' ? 'داخل شرکت' : 'خارج از شرکت'}
                                                     color={row.firm === '1' ? 'primary' : 'secondary'}
                                                 />
                                             </StyledTableCell>
@@ -1370,7 +1370,7 @@ const ListProviders = () => {
                                                 />
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1392,7 +1392,7 @@ const ListProviders = () => {
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu sağlayıcıyı pasif yap" : ""}>
                                                             <UiMenuItem onClick={handleSetInactive}>
                                                                 <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon>
-                                                                Pasif Yap
+                                                                غیرفعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1400,7 +1400,7 @@ const ListProviders = () => {
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu sağlayıcıyı aktif yap" : ""}>
                                                             <UiMenuItem onClick={handleSetActive}>
                                                                 <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon>
-                                                                Aktif Yap
+                                                                فعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1408,7 +1408,7 @@ const ListProviders = () => {
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu sağlayıcıyı düzenle" : ""}>
                                                             <UiMenuItem onClick={handleEditClick}>
                                                                 <ListItemIcon><IconEdit width={18} /></ListItemIcon>
-                                                                Düzenlemek
+                                                                ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1445,7 +1445,7 @@ const ListProviders = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1458,7 +1458,7 @@ const ListProviders = () => {
                 maxWidth="sm"
             >
                 <DialogTitle id="address-dialog-title">
-                    Adresin Tamamı
+                    آدرس کامل
                 </DialogTitle>
                 <DialogContent dividers>
                     <Typography id="address-dialog-description" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -1467,7 +1467,7 @@ const ListProviders = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenAddressModal(false)} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1483,7 +1483,7 @@ const ListProviders = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1492,7 +1492,7 @@ const ListProviders = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllProvidersPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1500,13 +1500,13 @@ const ListProviders = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

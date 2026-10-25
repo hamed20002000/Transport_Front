@@ -9,6 +9,7 @@ import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { createPlan, deletePlan, listPlans, type Plan, type PlanInput } from './api';
 
 import { currencies, type Currency } from './currencies';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 const accounts = { DRIVER: 'راننده', COMPANY: 'شرکت', BROKER: 'واسط' };
 // Broker is hidden from new plans for now; its label still names existing broker plans.
@@ -43,6 +44,7 @@ function PlansContent() {
   const [error, setError] = useState('');
   const [listError, setListError] = useState('');
   const toast = useToast();
+  const messageBox = useMessageBox();
   const [reload, setReload] = useState(0);
   const [deletingId, setDeletingId] = useState('');
   const pending = useRef(false);
@@ -111,7 +113,7 @@ function PlansContent() {
     }
   }
   async function remove(plan: Plan) {
-    if (deletingId || !window.confirm(`پلن «${plan.title}» حذف شود؟`)) return;
+    if (deletingId || !(await messageBox.confirm({ message: `پلن «${plan.title}» حذف شود؟`, tone: 'danger', confirmText: 'حذف' }))) return;
     setDeletingId(plan.id);
     setError('');
     try {

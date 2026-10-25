@@ -36,7 +36,7 @@ const formatDateDisplay = (dateString: string | null): string => {
     try {
         return format(new Date(dateString), 'dd MMMM yyyy', { locale: tr });
     } catch {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -205,7 +205,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         viewItemsData.forEach(item => {
             const qty = parseFloat(item.quantity) || 0;
             const unitWeight = parseFloat(item.weight) || 0;
-            const unit = item.unit || 'Diğer';
+            const unit = item.unit || 'سایر';
 
             if (!groups[unit]) {
                 groups[unit] = { totalQuantity: 0, totalUnitWeights: 0 };
@@ -1053,7 +1053,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         try {
             docAny.addImage(Logo, 'PNG', pageWidth - 50, 20, 30, 15);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -1062,7 +1062,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 45);
+        doc.text(`تاریخ گزارش:`, 15, 45);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 45);
 
@@ -1081,7 +1081,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -1093,11 +1093,11 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 15, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 15, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = docAny.internal.getCurrentPageInfo().pageNumber;
-        doc.text(`Sayfa ${pageNumber}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber}`, 15, pageHeight - 10);
     };
 
     const handleDownloadItemsPDF = () => {
@@ -1107,7 +1107,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
         doc.setFont('NotoSans');
 
-        const tableColumn = ["Malzeme Adı", "Miktar", "Birim", "Ağırlık (Kg)"];
+        const tableColumn = ["نام کالا", "مقدار", "واحد", "Ağırlık (Kg)"];
         const tableRows: any[] = [];
 
         viewItemsData.forEach(item => {
@@ -1160,7 +1160,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         ]);
 
         autoTable(doc, {
-            head: [['Birim', 'Top. Miktar', 'Top. Birim Ağ.', 'Sonuç (Kg)']],
+            head: [['واحد', 'مقدار کل', 'Top. Birim Ağ.', 'Sonuç (Kg)']],
             body: summaryRows,
             startY: finalY + 5,
             styles: {
@@ -1207,19 +1207,19 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
         worksheet.mergeCells('A3:D3');
         const dateCell = worksheet.getCell('A3');
-        dateCell.value = `Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`;
+        dateCell.value = `تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`;
         dateCell.alignment = { horizontal: 'center' };
 
         worksheet.addRow([]);
         worksheet.columns = [
-            { header: 'Malzeme Adı', key: 'name', width: 35 },
-            { header: 'Miktar', key: 'quantity', width: 15 },
-            { header: 'Birim', key: 'unit', width: 15 },
+            { header: 'نام کالا', key: 'name', width: 35 },
+            { header: 'مقدار', key: 'quantity', width: 15 },
+            { header: 'واحد', key: 'unit', width: 15 },
             { header: 'Ağırlık (Birim)', key: 'weight', width: 20 },
         ];
 
         const headerRow = worksheet.getRow(5);
-        headerRow.values = ['Malzeme Adı', 'Miktar', 'Birim', 'Ağırlık (Birim)'];
+        headerRow.values = ['نام کالا', 'مقدار', 'واحد', 'Ağırlık (Birim)'];
         headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
         headerRow.eachCell((cell) => {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF424242' } };
@@ -1239,7 +1239,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         const summaryTitleRow = worksheet.addRow(['ÖZET TABLOSU']);
         summaryTitleRow.font = { bold: true, size: 12 };
 
-        const summaryHeaderRow = worksheet.addRow(['Birim', 'Top. Miktar', 'Top. Birim Ağ.', 'Sonuç']);
+        const summaryHeaderRow = worksheet.addRow(['واحد', 'مقدار کل', 'Top. Birim Ağ.', 'Sonuç']);
         summaryHeaderRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
         summaryHeaderRow.eachCell((cell) => {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1976D2' } };
@@ -1350,7 +1350,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                                         </Tooltip>
                                     </StyledToolButton>
                                     <StyledToolButton value="edit" aria-label="edit">
-                                        <Tooltip placement="right" title="Düzenle">
+                                        <Tooltip placement="right" title="ویرایش">
                                             <IconPencil size={20} />
                                         </Tooltip>
                                     </StyledToolButton>
@@ -1630,7 +1630,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                                             <Box sx={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${theme.palette.primary.main}`, bgcolor: 'transparent' }} />
                                             <Typography variant="body2">MEVCUT (Boş)</Typography>
                                         </Box>
-                                        <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 1 }}>Malzeme</Typography>
+                                        <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 1 }}>کالا</Typography>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography variant="body2" component="span">🧱</Typography><Typography variant="body2">Beton Direk</Typography></Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography variant="body2" component="span">⚙️</Typography><Typography variant="body2">Demir Direk</Typography></Box>
                                         <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 1 }}>Bağlantı Tipi</Typography>
@@ -1644,10 +1644,10 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={onClose} color="primary" variant="outlined" sx={{ borderRadius: 0 }}>Kapat</Button>
+                <Button onClick={onClose} color="primary" variant="outlined" sx={{ borderRadius: 0 }}>بستن</Button>
                 <Button onClick={handleSaveChanges} color="primary" variant="contained" sx={{ borderRadius: 0 }}>Değişiklikleri Kaydet</Button>
                 <Button onClick={() => handleDownload('png')} color="secondary" variant="contained" sx={{ borderRadius: 0 }}>PNG İndir</Button>
-                <Button onClick={() => handleDownload('pdf')} color="secondary" variant="contained" sx={{ borderRadius: 0 }}>PDF İndir</Button>
+                <Button onClick={() => handleDownload('pdf')} color="secondary" variant="contained" sx={{ borderRadius: 0 }}>دانلود PDF</Button>
             </DialogActions>
 
             <style>{`@keyframes blink { 0%{opacity:1;} 50%{opacity:.5;} 100%{opacity:1;} } .blink-node { animation: blink 1s infinite; }`}</style>
@@ -1676,7 +1676,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                     {viewItemsLoading ? (
                         <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" p={5}>
                             <CircularProgress />
-                            <Typography sx={{ mt: 2 }}>Yükleniyor...</Typography>
+                            <Typography sx={{ mt: 2 }}>در حال بارگذاری...</Typography>
                         </Box>
                     ) : (
                         viewItemsData.length > 0 ? (
@@ -1688,9 +1688,9 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                                     <Table size="small" stickyHeader>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell sx={{ bgcolor: theme.palette.grey[100] }}>Malzeme Adı</TableCell>
-                                                <TableCell align="right" sx={{ bgcolor: theme.palette.grey[100] }}>Miktar</TableCell>
-                                                <TableCell align="right" sx={{ bgcolor: theme.palette.grey[100] }}>Birim</TableCell>
+                                                <TableCell sx={{ bgcolor: theme.palette.grey[100] }}>نام کالا</TableCell>
+                                                <TableCell align="right" sx={{ bgcolor: theme.palette.grey[100] }}>مقدار</TableCell>
+                                                <TableCell align="right" sx={{ bgcolor: theme.palette.grey[100] }}>واحد</TableCell>
                                                 <TableCell align="right" sx={{ bgcolor: theme.palette.grey[100], display: { xs: 'none', sm: 'table-cell' } }}>Ağırlık (Birim)</TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -1719,8 +1719,8 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                                             <Table size="small">
                                                 <TableHead sx={{ bgcolor: theme.palette.primary.dark }}>
                                                     <TableRow>
-                                                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: '0.75rem' }}>Birim</TableCell>
-                                                        <TableCell align="right" sx={{ color: '#fff', fontWeight: 'bold', fontSize: '0.75rem' }}>Top. Miktar</TableCell>
+                                                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: '0.75rem' }}>واحد</TableCell>
+                                                        <TableCell align="right" sx={{ color: '#fff', fontWeight: 'bold', fontSize: '0.75rem' }}>مقدار کل</TableCell>
                                                         <TableCell align="right" sx={{ color: '#fff', fontWeight: 'bold', fontSize: '0.75rem' }}>Sonuç (Kg)</TableCell>
                                                     </TableRow>
                                                 </TableHead>
@@ -1801,7 +1801,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                         variant="outlined"
                         color="secondary"
                     >
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1821,7 +1821,7 @@ const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => { setIsGeoModalOpen(false); setActiveTool('select'); }}>İptal</Button>
+                    <Button onClick={() => { setIsGeoModalOpen(false); setActiveTool('select'); }}>انصراف</Button>
                     <Button variant="contained" onClick={() => { setIsGeoModalOpen(false); setActiveTool('geoMode'); }}>Uygula</Button>
                 </DialogActions>
             </Dialog>

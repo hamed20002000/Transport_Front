@@ -17,7 +17,7 @@ export default function AuthOtp() {
 
   if (form.resuming) {
     return (
-      <div role="status" className="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-py-10 tw-text-sm tw-text-emerald-900">
+      <div role="status" className="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-py-10 tw-text-sm tw-text-brand-navy">
         <LoaderCircle size={20} className={styles.spinner} aria-hidden="true" />
         در حال ورود خودکار…
       </div>
@@ -46,9 +46,9 @@ export default function AuthOtp() {
                 type="button"
                 disabled={form.loading}
                 onClick={() => form.chooseAccountType(item.type)}
-                className="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-emerald-200 tw-bg-white tw-p-4 tw-text-start tw-transition-colors hover:tw-border-emerald-700 hover:tw-bg-emerald-50 disabled:tw-opacity-60"
+                className="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-text-start tw-transition-colors hover:tw-border-brand-orange hover:tw-bg-brand-orange-soft disabled:tw-opacity-60"
               >
-                <span className="tw-grid tw-h-11 tw-w-11 tw-shrink-0 tw-place-items-center tw-rounded-xl tw-bg-emerald-50 tw-text-emerald-800">
+                <span className="tw-grid tw-h-11 tw-w-11 tw-shrink-0 tw-place-items-center tw-rounded-xl tw-bg-brand-orange-soft tw-text-brand-orange-ink">
                   <Icon size={22} aria-hidden="true" />
                 </span>
                 <span className="tw-min-w-0 tw-flex-1">
@@ -107,7 +107,7 @@ export default function AuthOtp() {
         <>
           <p role="status" className={styles.description}>
             کد به <bdi dir="ltr">{form.sentTo}</bdi> پیامک شد.{' '}
-            <button type="button" onClick={form.backToPhone} className="tw-font-bold tw-text-emerald-800 tw-underline">
+            <button type="button" onClick={form.backToPhone} className="tw-font-bold tw-text-brand-orange-ink tw-underline">
               ویرایش شماره
             </button>
           </p>
@@ -160,7 +160,7 @@ export default function AuthOtp() {
 
       {form.step === 'code' &&
         (form.retryRemaining > 0 ? (
-          <p className="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-text-sm tw-text-emerald-900">
+          <p className="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-text-sm tw-text-brand-navy">
             <Clock3 size={17} aria-hidden="true" />
             ارسال دوباره‌ی کد تا <span role="timer">{clock(form.retryRemaining)}</span>
           </p>

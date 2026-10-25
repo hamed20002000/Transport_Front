@@ -11,7 +11,7 @@ export const accessManagementRoutes: RouteObject[] = [
   {
     path: '/managmentusers/system-operation',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <SystemOperation />
       </PermissionGuard>
     ),
@@ -19,7 +19,7 @@ export const accessManagementRoutes: RouteObject[] = [
   {
     path: '/managmentusers/list-roles',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListRoles />
       </PermissionGuard>
     ),
@@ -27,7 +27,7 @@ export const accessManagementRoutes: RouteObject[] = [
   {
     path: '/managmentusers/list-users',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListUsers />
       </PermissionGuard>
     ),

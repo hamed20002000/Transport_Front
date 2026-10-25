@@ -9,7 +9,7 @@ export const ordersRoutes: RouteObject[] = [
   {
     path: '/order/list-order/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListOrders />
       </PermissionGuard>
     ),

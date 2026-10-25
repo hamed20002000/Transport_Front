@@ -37,7 +37,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/warehouse/list-warehouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListWarehouses />
       </PermissionGuard>
     ),
@@ -45,7 +45,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/warehouse/list-warehouse-dispatch/:warehouseId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListWarehousesDistpach />
       </PermissionGuard>
     ),
@@ -53,7 +53,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/warehouse/list-warehouse-dispatch-return-to-center/:warehouseId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListWarehouseDispatchReturnToCenter />
       </PermissionGuard>
     ),
@@ -61,7 +61,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/warehousespatch/betweenwarehusedispatch/:warehouseId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListBetweenWarehouseDispatch />
       </PermissionGuard>
     ),
@@ -69,7 +69,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/invoice/list-invoice/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListInvoices />
       </PermissionGuard>
     ),
@@ -77,7 +77,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/invoice/list-store-invoice/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListStoreInvoice />
       </PermissionGuard>
     ),
@@ -85,7 +85,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/receipt/list-receipt/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListReceipt />
       </PermissionGuard>
     ),
@@ -93,7 +93,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/receipt/list-receipts-sended-from-store/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListReceiptsSendedFromStore />
       </PermissionGuard>
     ),
@@ -101,7 +101,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/receipt/list-receipts-destruction-sended-from-store/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListReceiptsDestructionSendedFromStore />
       </PermissionGuard>
     ),
@@ -109,7 +109,7 @@ export const warehouseRoutes: RouteObject[] = [
   {
     path: '/receipt/list-between-receipt/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListBetweenReceipt />
       </PermissionGuard>
     ),

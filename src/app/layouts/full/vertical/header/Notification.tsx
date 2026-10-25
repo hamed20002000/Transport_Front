@@ -616,7 +616,7 @@ const Notifications = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={() => setOpenAll(false)} color="primary" variant="contained">Kapat</Button>
+          <Button onClick={() => setOpenAll(false)} color="primary" variant="contained">بستن</Button>
         </DialogActions>
       </Dialog>
 
@@ -651,7 +651,7 @@ const Notifications = () => {
                               </Box>
                               {cnt > 0 && <Chip sx={{ ml: 1 }} size="small" color='success' label={cnt} />}
                               <Button variant="contained" size="small" onClick={() => goFromSelection(String(w.id), entityNotifIds)}>
-                                Görüntüle
+                                مشاهده
                               </Button>
                             </Stack>
                           </ListItemButton>
@@ -679,7 +679,7 @@ const Notifications = () => {
                               </Box>
                               {cnt > 0 && <Chip sx={{ ml: 1 }} size="small" color='success' label={cnt} />}
                               <Button variant="contained" size="small" onClick={() => goFromSelection(String(s.id), entityNotifIds)}>
-                                Görüntüle
+                                مشاهده
                               </Button>
                             </Stack>
                           </ListItemButton>
@@ -703,14 +703,14 @@ const Notifications = () => {
                                 <ListItemText
                                   primary={<Typography variant="subtitle2" noWrap>{p.title}</Typography>}
                                   secondary={[
-                                    p.startDate ? `Başlangıç: ${new Date(p.startDate).toLocaleDateString('tr-TR')}` : '',
-                                    p.endDate ? `Bitiş: ${new Date(p.endDate).toLocaleDateString('tr-TR')}` : '',
+                                    p.startDate ? `شروع: ${new Date(p.startDate).toLocaleDateString('tr-TR')}` : '',
+                                    p.endDate ? `پایان: ${new Date(p.endDate).toLocaleDateString('tr-TR')}` : '',
                                   ].filter(Boolean).join(' — ')}
                                 />
                               </Box>
                               {cnt > 0 && <Chip sx={{ ml: 1 }} size="small" color='success' label={cnt} />}
                               <Button variant="contained" size="small" onClick={() => goFromSelection(String(p.id), entityNotifIds)}>
-                                Görüntüle
+                                مشاهده
                               </Button>
                             </Stack>
                           </ListItemButton>
@@ -720,13 +720,13 @@ const Notifications = () => {
                   );
                 }
 
-                return <Typography color="text.secondary">Kayıt bulunamadı.</Typography>;
+                return <Typography color="text.secondary">رکوردی پیدا نشد.</Typography>;
               })()}
             </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSelectOpen(false)}>Kapat</Button>
+          <Button onClick={() => setSelectOpen(false)}>بستن</Button>
         </DialogActions>
       </Dialog>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Box, Grid, CircularProgress, Card, CardContent, Typography, Avatar, Chip, Divider, Stack, Link } from 'src/shared/components/compat';
-import { Business as BusinessIcon, Phone as PhoneIcon, Language as LanguageIcon, Person as PersonIcon, CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from 'src/shared/components/compat/icons';
+import { Language as LanguageIcon, Person as PersonIcon, CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from 'src/shared/components/compat/icons';
 
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Welcome from 'src/app/layouts/full/shared/welcome/Welcome';
@@ -149,7 +149,7 @@ const Modern = () => {
               </Box>
 
               <Divider sx={{ my: 3 }}>
-                <Chip label="Kullanıcı Profili" size="small" />
+                <Chip label="حساب کاربری" size="small" />
               </Divider>
 
               {userInfo ? (
@@ -195,7 +195,7 @@ const Modern = () => {
                     <Chip
                       icon={userInfo.isActive ? <CheckCircleIcon style={{ color: 'white' }} /> :
                         <CancelIcon style={{ color: 'white' }} />}
-                      label={userInfo.isActive ? "Active User" : "Inactive User"}
+                      label={userInfo.isActive ? "حساب فعال" : "حساب غیرفعال"}
                       color={userInfo.isActive ? "success" : "error"}
                       variant="filled"
                       sx={{ mt: 1, fontWeight: 'bold' }}
@@ -203,33 +203,14 @@ const Modern = () => {
                   </Stack>
                 </Box>
               ) : (
-                <Typography color="error">Kullanıcı bilgileri yüklenemedi.</Typography>
+                <Typography color="error">اطلاعات حساب دریافت نشد.</Typography>
               )}
 
               <Divider sx={{ my: 3 }}>
-                <Chip label="İletişim Bilgileri" size="small" />
+                <Chip label="ترابوت" size="small" />
               </Divider>
 
-              <Stack spacing={2} sx={{ textAlign: 'left' }}>
-
-                <Box display="flex" alignItems="flex-start" gap={2}>
-                  <BusinessIcon color="action" />
-                  <Typography variant="body2" color="textSecondary">
-                    Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR
-                  </Typography>
-                </Box>
-
-                <Box display="flex" alignItems="flex-start" gap={2}>
-                  <PhoneIcon color="action" />
-                  <Box>
-                    <Typography variant="body2" color="textSecondary" display="block">
-                      Tel: +90 (232) 347 74 74 pbx
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" display="block">
-                      Fax: +90 (232) 347 77 11
-                    </Typography>
-                  </Box>
-                </Box>
+              <Stack spacing={2} sx={{ textAlign: 'right' }}>
 
                 <Box display="flex" alignItems="flex-start" gap={2}>
                   <LanguageIcon color="action" />

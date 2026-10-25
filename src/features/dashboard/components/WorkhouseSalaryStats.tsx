@@ -56,7 +56,7 @@ const NoDataView = () => (
             <IconDatabaseOff size={40} color="#9ca3af" />
         </Avatar>
         <Typography variant="h6" fontWeight={600} color="textPrimary" gutterBottom>
-            Kayıt Bulunamadı
+            رکوردی پیدا نشد
         </Typography>
         <Typography variant="body2" color="textSecondary">
             Şu anda görüntülenecek herhangi bir maaş verisi bulunamadı.
@@ -183,7 +183,7 @@ const WorkhouseSalaryStats = () => {
                         <Typography variant="subtitle2" color="textSecondary" fontWeight={600} noWrap sx={{ maxWidth: '70%' }}>
                             {item.workhouse_name}
                         </Typography>
-                        <Chip label={`Kod: ${item.workhouse_code}`} size="small" sx={{ fontSize: '0.7rem', height: 20 }} />
+                        <Chip label={`کد: ${item.workhouse_code}`} size="small" sx={{ fontSize: '0.7rem', height: 20 }} />
                     </Stack>
                     <Stack direction="row" alignItems="center" spacing={1} mt={1}>
                         <IconWallet size={20} color="#13DEB9" />
@@ -243,7 +243,7 @@ const WorkhouseSalaryStats = () => {
                         <ToggleButton value="cards" aria-label="cards view">
                             <Stack direction="row" spacing={1} alignItems="center">
                                 <IconLayoutGrid size={18} />
-                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>Liste</Typography>
+                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>فهرست</Typography>
                             </Stack>
                         </ToggleButton>
                     </ToggleButtonGroup>

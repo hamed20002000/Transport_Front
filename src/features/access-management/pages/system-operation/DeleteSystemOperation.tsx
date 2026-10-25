@@ -23,7 +23,7 @@ const DeleteSystemOperation = ({ openModal, rowIdToDelete, onClose, onDeleteSucc
   const { isTooltipGloballyEnabled } = useTooltip();
   const handleDeleteOperation = async () => {
     if (rowIdToDelete === null) {
-      showAlert('Silinecek kayıt seçilmedi.', 'warning');
+      showAlert('رکوردی برای حذف انتخاب نشده است.', 'warning');
       onClose();
       return;
     }
@@ -44,11 +44,11 @@ const DeleteSystemOperation = ({ openModal, rowIdToDelete, onClose, onDeleteSucc
         }
       );
       if (response.data.httpStatusCode === 200) {
-        showAlert('Kayıt başarıyla silindi!', 'success');
+        showAlert('رکورد با موفقیت حذف شد!', 'success');
         onDeleteSuccess();
         onClose();
       } else {
-        showAlert(response.data.message || 'Kayıt silinirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام حذف رکورد خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       const errorMessage = (e.response?.data?.message == "Internal server error" ? "Bu işlem bir rol veya kullanıcı için kullanılmıştır ve silinemez." : "") || 'Kayıt silinirken bir hata oluştu, lütfen tekrar deneyin.';
@@ -57,7 +57,7 @@ const DeleteSystemOperation = ({ openModal, rowIdToDelete, onClose, onDeleteSucc
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
     } finally {
       setLoading(false);
@@ -72,20 +72,19 @@ const DeleteSystemOperation = ({ openModal, rowIdToDelete, onClose, onDeleteSucc
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">
-          {"Bu kaydı silmek istediğinizden emin misiniz?"}
+          {"آیا از حذف این رکورد مطمئن هستید؟"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Eğer silerseniz, geri almanın bir yolu yoktur.
-            Kaydı silmek istediğinizden eminseniz,
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+            با حذف، راه بازگشتی وجود ندارد. اگر از حذف رکورد مطمئن هستید،
+            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <CustomTooltip title={isTooltipGloballyEnabled ? "İşlemi iptal et" : ""}>
-            <Button onClick={onClose} disabled={loading}>İptal et</Button>
+          <CustomTooltip title={isTooltipGloballyEnabled ? "لغو عملیات" : ""}>
+            <Button onClick={onClose} disabled={loading}>لغو</Button>
           </CustomTooltip>
-          <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen kaydı sil" : ""}>
+          <CustomTooltip title={isTooltipGloballyEnabled ? "حذف رکورد انتخاب‌شده" : ""}>
             <Button
               color="error"
               variant="contained"

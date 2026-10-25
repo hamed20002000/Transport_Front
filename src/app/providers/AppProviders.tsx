@@ -9,6 +9,7 @@ import NotifyBootstrap from 'src/core/socket/NotifyBootstrap';
 import { ThemeProvider } from 'src/shared/components/compat';
 import { TooltipProvider } from 'src/shared/components/tooltip/TooltipContext';
 import { ToastProvider } from 'src/shared/components/toast/ToastProvider';
+import { MessageBoxProvider } from 'src/shared/components/message-box/MessageBoxProvider';
 
 function WorkspaceProviders({ children }: { children: ReactNode }) {
   const theme = ThemeSettings();
@@ -19,7 +20,9 @@ function WorkspaceProviders({ children }: { children: ReactNode }) {
       <TooltipProvider>
         <ThemeProvider theme={theme}>
           <RTL direction={direction}>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <MessageBoxProvider>{children}</MessageBoxProvider>
+            </ToastProvider>
           </RTL>
         </ThemeProvider>
       </TooltipProvider>

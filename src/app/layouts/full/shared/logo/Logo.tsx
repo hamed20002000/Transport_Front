@@ -1,57 +1,34 @@
 import { FC } from 'react';
-import { useSelector } from 'src/app/store';
 import { Link } from 'react-router-dom';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { ReactComponent as LogoDark } from 'src/shared/assets/images/logos/logo.svg';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { ReactComponent as LogoDarkRTL } from 'src/shared/assets/images/logos/logo.svg';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { ReactComponent as LogoLight } from 'src/shared/assets/images/logos/logo.svg';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { ReactComponent as LogoLightRTL } from 'src/shared/assets/images/logos/logo.svg';
-import { styled } from 'src/shared/components/compat';
-import { AppState } from 'src/app/store';
+import { useSelector, type AppState } from 'src/app/store';
+import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 
+/** Trabot's mark in the admin sidebar and header: the icon, and the name beside it unless the sidebar is collapsed. */
 const Logo: FC = () => {
   const customizer = useSelector((state: AppState) => state.customizer);
-  const LinkStyled = styled(Link)(() => ({
-    height: customizer.TopbarHeight,
-    width: customizer.isCollapse ? '40px' : '180px',
-    overflow: 'hidden',
-    display: 'block',
-  }));
-
-  if (customizer.activeDir === 'ltr') {
-    return (
-      <>
-        {customizer.activeMode === 'dark' ? (
-          <LogoLight />
-        ) : (
-          <LogoDark />
-        )}
-      </>
-
-    );
-  }
-
+  const dark = customizer.activeMode === 'dark';
   return (
-    <LinkStyled
+    <Link
       to="/dashboards/dashboard"
+      aria-label="ترابوت"
       style={{
+        height: customizer.TopbarHeight,
+        width: customizer.isCollapse ? 40 : 180,
         display: 'flex',
         alignItems: 'center',
+        gap: 10,
+        overflow: 'hidden',
+        textDecoration: 'none',
       }}
     >
-      {customizer.activeMode === 'dark' ? (
-        <LogoDarkRTL />
-      ) : (
-        <LogoLightRTL />
+      <img src={trabotIcon} alt="" width={38} height={38} style={{ borderRadius: 10, flexShrink: 0 }} />
+      {!customizer.isCollapse && (
+        <span style={{ display: 'grid', lineHeight: 1.25, whiteSpace: 'nowrap' }}>
+          <strong style={{ fontSize: 19, fontWeight: 800, color: dark ? '#fff' : '#0E1A3B' }}>ترابوت</strong>
+          <span style={{ fontSize: 11, color: dark ? '#A9B3CC' : '#6B7488' }}>دستیار هوشمند حمل‌ونقل</span>
+        </span>
       )}
-    </LinkStyled>
+    </Link>
   );
 };
 

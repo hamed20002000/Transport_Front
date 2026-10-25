@@ -86,10 +86,10 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd/MM/yyyy', { locale: tr });
     } catch (e) {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -251,9 +251,9 @@ const ListPersonnelConsigneds: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const [personnelConsigneds, setPersonnelConsigneds] = useState<PersonnelConsigned[]>([]);
     const [personnelList, setPersonnelList] = useState<PersonnelType[]>([]);
@@ -368,10 +368,10 @@ const ListPersonnelConsigneds: React.FC = () => {
                 }
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
             else showAlert(e.response?.data?.message || 'Personel listesi yüklenirken bir hata oluştu.', 'error');
 
@@ -397,7 +397,7 @@ const ListPersonnelConsigneds: React.FC = () => {
             if (e.response?.status === 500) showAlert('Mal listesi yüklenirken sunucu hatası oluştu.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
             else showAlert(e.response?.data?.message || 'Kullanılabilir Mal listesi yüklenirken bir hata oluştu.', 'error');
         }
@@ -471,10 +471,10 @@ const ListPersonnelConsigneds: React.FC = () => {
             }
         }
         catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
             else showAlert(e.response?.data?.message || 'Zimmet kayıtları yüklenirken bir hata oluştu.', 'error');
         } finally {
@@ -544,11 +544,11 @@ const ListPersonnelConsigneds: React.FC = () => {
             if (uploadResponse.data.httpStatusCode === 201) {
                 return uploadResponse.data.data.files as string[];
             } else {
-                showAlert(uploadResponse.data?.message || 'Dosya yüklenirken sunucu hatası oluştu.', 'error');
+                showAlert(uploadResponse.data?.message || 'هنگام بارگذاری فایل خطای سرور رخ داد.', 'error');
                 return null;
             }
         } catch (e: any) {
-            showAlert(e?.response?.data?.message || 'Dosya yüklenirken ağ hatası oluştu.', 'error');
+            showAlert(e?.response?.data?.message || 'هنگام بارگذاری فایل خطای شبکه رخ داد.', 'error');
             return null;
         }
     };
@@ -573,7 +573,7 @@ const ListPersonnelConsigneds: React.FC = () => {
             }
         }
 
-        if (!ok) showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+        if (!ok) showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         return ok;
     };
 
@@ -609,11 +609,11 @@ const ListPersonnelConsigneds: React.FC = () => {
         if (!validateForm()) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error'); setLoadingButton(false); return; }
 
         let fileUrls: string[] | null = [];
         if (selectedFiles.length > 0) {
-            showAlert('Dosyalar yükleniyor...', 'info');
+            showAlert('در حال بارگذاری فایل‌ها...', 'info');
             fileUrls = await uploadFiles(selectedFiles, authToken, showAlert);
             if (fileUrls === null) { setLoadingButton(false); return; }
         }
@@ -661,7 +661,7 @@ const ListPersonnelConsigneds: React.FC = () => {
 
             if (res.data.httpStatusCode === successStatus || res.data.httpStatusCode === 200) {
                 showAlert(
-                    `Kayıt başarıyla ${isReturning ? 'teslim edildi' : isEditing ? 'güncellendi' : 'eklendi'}!`,
+                    `Kayıt başarıyla ${isReturning ? 'teslim edildi' : isEditing ? 'به‌روزرسانی شد' : 'eklendi'}!`,
                     'success'
                 );
                 const submissionDetails = {
@@ -673,14 +673,14 @@ const ListPersonnelConsigneds: React.FC = () => {
                 fetchPersonnelConsigneds();
                 setPendingRecordDetails(submissionDetails);
                 resetForm();
-            } else { showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'İşlem sırasında bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -719,10 +719,10 @@ const ListPersonnelConsigneds: React.FC = () => {
     };
 
     const handleDownloadClick = (fileUrl: string) => {
-        if (!fileUrl) { showAlert('Dosya adresi geçersiz.', 'error'); return; }
+        if (!fileUrl) { showAlert('آدرس فایل نامعتبر است.', 'error'); return; }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
 
     const isFilterActive = useMemo(() => !!searchTerm.trim() || statusFilter !== 'all' || startFilter !== null || endFilter !== null, [searchTerm, statusFilter, startFilter, endFilter]);
@@ -766,8 +766,8 @@ const ListPersonnelConsigneds: React.FC = () => {
 
 
     const exportToPdf = async (rows: PersonnelConsigned[], isFiltered: boolean) => {
-        if (!rows || rows.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Rapor oluşturuluyor...', 'info');
+        if (!rows || rows.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت گزارش...', 'info');
 
         const doc = new jsPDF();
         const docAny = doc as any;
@@ -777,7 +777,7 @@ const ListPersonnelConsigneds: React.FC = () => {
         try { docAny.addFileToVFS('NotoSans-Regular.ttf', NotoSansRegular); docAny.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal'); } catch (e) { }
         docAny.setFont('NotoSans');
 
-        const columns = ['Personel', 'Mal ', 'Açıklama', 'Veriliş Tarihi', 'Teslim Tarihi'];
+        const columns = ['پرسنل', 'Mal ', 'توضیحات', 'تاریخ صدور', 'تاریخ تحویل'];
         const body = rows.map(r => [
             r.personnelName,
             r.consignmentNameWithCode,
@@ -798,14 +798,14 @@ const ListPersonnelConsigneds: React.FC = () => {
                 try {
                     docAny.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
                 } catch (e) {
-                    console.error("Logo yüklenemedi", e);
+                    console.error("لوگو بارگذاری نشد", e);
                 }
                 docAny.setFont('NotoSans', 'normal'); docAny.setFontSize(14);
                 docAny.text(title, pageWidth / 2, 15, { align: 'center' });
 
                 docAny.setFontSize(10);
                 docAny.setFont('NotoSans', 'bold');
-                docAny.text(`Rapor Tarihi:`, 15, 40);
+                docAny.text(`تاریخ گزارش:`, 15, 40);
                 docAny.setFont('NotoSans', 'normal');
                 docAny.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -814,7 +814,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                 docAny.line(15, 48, pageWidth - 15, 48);
 
                 docAny.setFont('NotoSans', 'normal'); docAny.setFontSize(8); docAny.setTextColor(0);
-                const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'دستیار هوشمند حمل‌ونقل'];
+                const companyInfo = ['ترابوت', 'ترابوت، دستیار هوشمند حمل‌ونقل', 'دستیار هوشمند حمل‌ونقل'];
                 let footerY = pageHeight - 20;
                 companyInfo.forEach(line => {
                     docAny.text(line, pageWidth / 2, footerY, { align: 'center' });
@@ -823,25 +823,25 @@ const ListPersonnelConsigneds: React.FC = () => {
 
                 docAny.setTextColor(0);
                 docAny.setFontSize(10);
-                docAny.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                docAny.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 docAny.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (docAny as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (docAny as any).internal.getNumberOfPages();
-                docAny.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                docAny.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             },
             startY: 55, showHead: 'everyPage', margin: { top: 40, bottom: 45, left: 10, right: 10 }
         });
 
         const fileName = isFiltered ? `Filtrelenmis_ZimmetRaporu_${format(new Date(), 'yyyyMMdd')}.pdf` : `Tum_ZimmetRaporu_${format(new Date(), 'yyyyMMdd')}.pdf`;
         docAny.save(fileName);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         setLoadingData(false);
     };
 
     const exportToExcel = async (rows: PersonnelConsigned[], isFiltered: boolean) => {
-        if (!rows || rows.length === 0) { showAlert('Dışa aktarılacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Excel dosyası oluşturuluyor...', 'info');
+        if (!rows || rows.length === 0) { showAlert('رکوردی برای خروجی پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -865,12 +865,12 @@ const ListPersonnelConsigneds: React.FC = () => {
             if (titleRow) { titleRow.font = { name: 'Times New Roman', size: 12, bold: true }; titleRow.getCell(1).alignment = { horizontal: 'center' }; }
             worksheet.mergeCells(`A${titleRow.number}:H${titleRow.number}`);
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) { dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false }; dateRow.getCell(1).alignment = { horizontal: 'left' }; }
             worksheet.addRow([]);
 
-            const tableHeaders = ['Personel', 'Mal ', 'Açıklama', 'Veriliş Tarihi', 'Teslim Tarihi'];
+            const tableHeaders = ['پرسنل', 'Mal ', 'توضیحات', 'تاریخ صدور', 'تاریخ تحویل'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => { cell.style = fullHeaderStyle; });
 
@@ -899,7 +899,7 @@ const ListPersonnelConsigneds: React.FC = () => {
             });
 
             worksheet.addRow([]);
-            const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11', 'دستیار هوشمند حمل‌ونقل'];
+            const companyInfo = ['ترابوت', 'ترابوت، دستیار هوشمند حمل‌ونقل', 'دستیار هوشمند حمل‌ونقل'];
             companyInfo.forEach(line => {
                 const lastRow = worksheet.addRow([line]);
                 lastRow.getCell(1).alignment = { horizontal: 'center' };
@@ -912,10 +912,10 @@ const ListPersonnelConsigneds: React.FC = () => {
             const fileName = isFiltered ? `Filtrelenmis_ZimmetRaporu_${format(new Date(), 'yyyyMMdd')}.xlsx` : `Tum_ZimmetRaporu_${format(new Date(), 'yyyyMMdd')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -939,7 +939,7 @@ const ListPersonnelConsigneds: React.FC = () => {
         let finalY = 80;
 
         doc.setFontSize(12);
-        doc.text(`Personel: ${record.personnelName}`, sideMargin, finalY);
+        doc.text(`پرسنل: ${record.personnelName}`, sideMargin, finalY);
         finalY += 16;
         doc.text(`Mal Kaydı: ${record.consignmentNameWithCode}`, sideMargin, finalY);
         finalY += 25;
@@ -950,14 +950,14 @@ const ListPersonnelConsigneds: React.FC = () => {
 
         const detailBody = [
             ["İşlem Tipi", record.returnDate ? "Teslim Alındı (İADE)" : "Teslim Edildi (EMANET)"],
-            ["Veriliş Tarihi", formatDateDisplay(record.assignmentDate)],
-            ["Teslim Tarihi", record.returnDate ? formatDateDisplay(record.returnDate) : "—"],
-            ["Açıklama", record.description || "-"],
+            ["تاریخ صدور", formatDateDisplay(record.assignmentDate)],
+            ["تاریخ تحویل", record.returnDate ? formatDateDisplay(record.returnDate) : "—"],
+            ["توضیحات", record.description || "-"],
         ];
 
         autoTable(docAny, {
             startY: finalY,
-            head: [["Alan", "Değer"]],
+            head: [["فیلد", "مقدار"]],
             body: detailBody,
             theme: "grid",
             styles: { font: "NotoSans", fontStyle: "normal", fontSize: 10, cellPadding: 5, overflow: 'linebreak' },
@@ -974,7 +974,7 @@ const ListPersonnelConsigneds: React.FC = () => {
 
                 docAny.setFontSize(10);
                 docAny.setFont('NotoSans', 'bold');
-                docAny.text(`Rapor Tarihi:`, 15, 40);
+                docAny.text(`تاریخ گزارش:`, 15, 40);
                 docAny.setFont('NotoSans', 'normal');
                 docAny.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 40);
 
@@ -985,7 +985,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                 docAny.setFontSize(8);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
                 let footerY = pageHeight - 40;
@@ -995,19 +995,19 @@ const ListPersonnelConsigneds: React.FC = () => {
                 });
 
                 docAny.setFontSize(10);
-                docAny.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                docAny.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 docAny.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = docAny.internal.getCurrentPageInfo().pageNumber;
                 const pageCount = docAny.internal.getNumberOfPages();
-                docAny.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                docAny.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             },
             margin: { top: 60, bottom: 45, left: 10, right: 10 }
         });
 
         finalY = (docAny.lastAutoTable.finalY || finalY) + 30;
         doc.setFontSize(10);
-        doc.text("Personel İmzası:", sideMargin, finalY);
+        doc.text("امضای پرسنل:", sideMargin, finalY);
         doc.line(sideMargin + 100, finalY, sideMargin + 250, finalY);
 
         doc.text("Yetkili İmzası:", sideMargin + 300, finalY);
@@ -1066,7 +1066,7 @@ const ListPersonnelConsigneds: React.FC = () => {
         if (!rowToUpdateAttachments) return;
         setAttachButtonLoading(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası.', 'error'); setAttachButtonLoading(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت.', 'error'); setAttachButtonLoading(false); return; }
 
         let fileUrls: string[] | null = [];
         if (attachFiles.length > 0) {
@@ -1101,15 +1101,15 @@ const ListPersonnelConsigneds: React.FC = () => {
                 fetchPersonnelConsigneds();
                 handleCloseAttachModal();
             } else {
-                showAlert(res.data.message || 'Ekler güncellenirken bir hata oluştu.', 'error');
+                showAlert(res.data.message || 'هنگام به‌روزرسانی پیوست‌ها خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Ekler güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی پیوست‌ها خطایی رخ داد.', 'error');
         } finally {
             setAttachButtonLoading(false);
         }
@@ -1139,12 +1139,12 @@ const ListPersonnelConsigneds: React.FC = () => {
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="stretch" justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}>
                         {!isFormVisible && hasCreatePermission && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Yeni kayıt formunu aç" : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "باز کردن فرم ثبت جدید" : ""}>
                                 <BlinkingButton variant="contained" color="primary" onClick={() => setIsFormVisible(true)} isBlinking={isBlinking}>Yeni Zimmet Ekle</BlinkingButton>
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizle" : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "پنهان کردن فرم ثبت" : ""}>
                                 <Button variant="contained" color="error" onClick={resetForm} startIcon={<IconX size={20} />}>Gizle</Button>
                             </CustomTooltip>
                         )}
@@ -1180,7 +1180,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={isAssignmentMode ? 4 : 4}>
-                                <CustomFormLabel required>Personel</CustomFormLabel>
+                                <CustomFormLabel required>پرسنل</CustomFormLabel>
                                 <Autocomplete
                                     options={personnelList}
                                     getOptionLabel={(option) => `${option.name} ${option.family} (${option.identityNumber})`}
@@ -1201,10 +1201,10 @@ const ListPersonnelConsigneds: React.FC = () => {
                                     renderInput={(params) => (
                                         <CustomTextField
                                             {...params}
-                                            label="Personel Seçin"
+                                            label="پرسنل را انتخاب کنید"
                                             size="small"
                                             error={personnelError}
-                                            helperText={personnelError ? 'Zorunlu alan!' : ''}
+                                            helperText={personnelError ? 'فیلد الزامی!' : ''}
                                         />
                                     )}
                                 />
@@ -1241,7 +1241,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                                             label="Mal Kayıt İsmi"
                                             size="small"
                                             error={consignmentError}
-                                            helperText={consignmentError ? 'Zorunlu alan!' : ''}
+                                            helperText={consignmentError ? 'فیلد الزامی!' : ''}
                                         />
                                     )}
                                     noOptionsText={!isAssignmentMode && selectedPersonnelId ? "Bu personelde iade edilebilir zimmet bulunamadı." : "Seçenek yok"}
@@ -1251,10 +1251,10 @@ const ListPersonnelConsigneds: React.FC = () => {
 
 
                             <Grid item xs={12} sm={6} md={isAssignmentMode ? 4 : 4}>
-                                <CustomFormLabel required>{isAssignmentMode ? 'Veriliş Tarihi' : 'İade Kayıt Tarihi'}</CustomFormLabel>
+                                <CustomFormLabel required>{isAssignmentMode ? 'تاریخ صدور' : 'İade Kayıt Tarihi'}</CustomFormLabel>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                     <DatePicker
-                                        label={isAssignmentMode ? 'Veriliş Tarihi' : 'İade Tarihi'}
+                                        label={isAssignmentMode ? 'تاریخ صدور' : 'İade Tarihi'}
                                         value={isAssignmentMode ? assignmentDate : returnDate}
                                         onChange={(v) => {
                                             isAssignmentMode ? setAssignmentDate(v) : setReturnDate(v);
@@ -1266,8 +1266,8 @@ const ListPersonnelConsigneds: React.FC = () => {
                                             <TextField {...params} size="small" fullWidth
                                                 error={isAssignmentMode ? assignmentDateError : returnDateError}
                                                 helperText={isAssignmentMode ?
-                                                    (assignmentDateError ? 'Zorunlu alan!' : '') :
-                                                    (returnDateError ? 'Zorunlu alan!' : '')} />
+                                                    (assignmentDateError ? 'فیلد الزامی!' : '') :
+                                                    (returnDateError ? 'فیلد الزامی!' : '')} />
                                         }
                                         inputFormat="dd/MM/yyyy"
                                     />
@@ -1276,8 +1276,8 @@ const ListPersonnelConsigneds: React.FC = () => {
 
 
                             <Grid item xs={12} >
-                                <CustomFormLabel>Açıklama</CustomFormLabel>
-                                <CustomTextField placeholder="Açıklama" size="small" fullWidth multiline rows={4} value={description}
+                                <CustomFormLabel>توضیحات</CustomFormLabel>
+                                <CustomTextField placeholder="توضیحات" size="small" fullWidth multiline rows={4} value={description}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} />
                             </Grid>
 
@@ -1299,10 +1299,10 @@ const ListPersonnelConsigneds: React.FC = () => {
                                     {editingId !== null && isAssignmentMode ? (
                                         <>
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili kaydı güncelle" : ""}>
-                                                <Button variant="contained" color="info" onClick={handleSubmitForm} disabled={loadingButton}>{loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : 'Düzenle'}</Button>
+                                                <Button variant="contained" color="info" onClick={handleSubmitForm} disabled={loadingButton}>{loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : 'ویرایش'}</Button>
                                             </CustomTooltip>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni kayıt moduna dön" : ""}>
-                                                <Button variant="outlined" color="secondary" onClick={resetForm}>İptal Et</Button>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "لغو ویرایش و بازگشت به ثبت جدید" : ""}>
+                                                <Button variant="outlined" color="secondary" onClick={resetForm}>لغو</Button>
                                             </CustomTooltip>
                                         </>
                                     ) : !isAssignmentMode ? (
@@ -1310,7 +1310,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili zimmeti iade al (Yeni teslim kaydı oluşturur)" : ""}>
                                                 <Button variant="contained" color="error" onClick={handleSubmitForm} disabled={loadingButton} startIcon={<IconDownload />}>{loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> İade Alınıyor...</> : 'Zimmeti İade Al'}</Button>
                                             </CustomTooltip>
-                                            <Button variant="outlined" color="secondary" onClick={resetForm}>İptal Et</Button>
+                                            <Button variant="outlined" color="secondary" onClick={resetForm}>لغو</Button>
                                         </>
                                     ) : (
                                         <>
@@ -1340,10 +1340,10 @@ const ListPersonnelConsigneds: React.FC = () => {
                 <Grid item xs={12} mt={2} mr={2}>
                     <Stack direction="row" spacing={3} justifyContent="flex-end" mb={2} mr={2}>
                         {isFilterActive && hasDownloadPermission && (
-                            <BlinkingButton variant="contained" color="secondary" onClick={handleOpenDownloadFilteredModal} isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />}>Filtrelenmişi İndir</BlinkingButton>
+                            <BlinkingButton variant="contained" color="secondary" onClick={handleOpenDownloadFilteredModal} isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />}>دانلود موارد فیلترشده</BlinkingButton>
                         )}
                         {hasDownloadPermission && (
-                            <Button variant="contained" color="primary" onClick={handleOpenDownloadAllModal} startIcon={<IconFileDownload />} disabled={loadingData}>Tümünü İndir</Button>
+                            <Button variant="contained" color="primary" onClick={handleOpenDownloadAllModal} startIcon={<IconFileDownload />} disabled={loadingData}>دانلود همه</Button>
                         )}
                     </Stack>
                 </Grid>
@@ -1355,22 +1355,22 @@ const ListPersonnelConsigneds: React.FC = () => {
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                <DatePicker label="Kayıt Başlangıç" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                <DatePicker label="شروع ثبت‌نام" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                             </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
-                                    <DatePicker label="Kayıt Bitiş" value={endFilter} minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                    <DatePicker label="پایان ثبت‌نام" value={endFilter} minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                                     <IconButton onClick={handleClearDateFilters} aria-label="clear date filters"><IconX size={20} /></IconButton>
                                 </Stack>
                             </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="Durum filtresi" sx={{ flexGrow: 1 }}>
-                                <StyledToggleButton value="all" data-value="all">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" data-value="active">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" data-value="inactive">Pasif</StyledToggleButton>
+                            <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="فیلتر وضعیت" sx={{ flexGrow: 1 }}>
+                                <StyledToggleButton value="all" data-value="all">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" data-value="active">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" data-value="inactive">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1380,7 +1380,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                     {loadingData ? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                             <CircularProgress />
-                            <Typography variant="h6" sx={{ ml: 2 }}>Kayıtlar yükleniyor...</Typography>
+                            <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری رکوردها...</Typography>
                         </Box>
                     ) : (
                         <Table aria-label="personnel consignments table">
@@ -1389,7 +1389,7 @@ const ListPersonnelConsigneds: React.FC = () => {
 
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'personnelName'} direction={orderBy === 'personnelName' ? order : 'asc'} onClick={() => handleRequestSort('personnelName')} sx={{ color: 'inherit' }}>
-                                            <Typography variant="h6">Personel</Typography>
+                                            <Typography variant="h6">پرسنل</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1397,15 +1397,15 @@ const ListPersonnelConsigneds: React.FC = () => {
                                             <Typography variant="h6">Mal İsmi</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'assignmentDate'} direction={orderBy === 'assignmentDate' ? order : 'asc'} onClick={() => handleRequestSort('assignmentDate')} sx={{ color: 'inherit' }}>
-                                            <Typography variant="h6">Veriliş Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ صدور</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Teslim Tarihi</Typography></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">تاریخ تحویل</Typography></StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Ekler</Typography></StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">İşlem</Typography></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">عملیات</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -1417,13 +1417,13 @@ const ListPersonnelConsigneds: React.FC = () => {
 
                                             <StyledTableCell sx={{ maxWidth: 150 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
                                                             variant="text"
                                                             style={{ fontSize: "10px", padding: "2px 5px" }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamanı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1436,13 +1436,13 @@ const ListPersonnelConsigneds: React.FC = () => {
                                             <StyledTableCell>{row.returnDate ? <Chip label={formatDateDisplay(row.returnDate)} color="error" size="small" /> : '-'}</StyledTableCell>
                                             <StyledTableCell>
                                                 {row.attachments && row.attachments.length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Ekleri görüntüle ve indir" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده و دانلود پیوست‌ها" : ""}>
                                                         <IconButton onClick={() => handleOpenAttachmentsModal(row.attachments)}><IconLink size={18} /><Chip label={row.attachments.length} color="primary" size="small" /></IconButton>
                                                     </CustomTooltip>
                                                 ) : (<Typography variant="body2" color="textSecondary">-</Typography>)}
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton onClick={(e) => handleClickMenu(e, row)}><IconDots width={18} /></IconButton>
                                                 </CustomTooltip>
                                                 <Menu anchorEl={anchorEl} open={openMenu}
@@ -1456,13 +1456,13 @@ const ListPersonnelConsigneds: React.FC = () => {
                                                         </CustomTooltip>
                                                     )}
                                                     {hasDeletePermission && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı sil" : ""}>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "حذف این رکورد" : ""}>
                                                             <UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasDownloadPermission && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kaydı indir" : ""}>
-                                                            <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir</UiMenuItem>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "دانلود رکورد" : ""}>
+                                                            <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف</UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasDownloadPermission && selectedRowForMenu && (
@@ -1482,7 +1482,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <StyledTableCell colSpan={8} align="center"><Typography variant="subtitle1" color="textSecondary">Hiç kayıt bulunamadı.</Typography></StyledTableCell>
+                                        <StyledTableCell colSpan={8} align="center"><Typography variant="subtitle1" color="textSecondary">هیچ رکوردی پیدا نشد.</Typography></StyledTableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
@@ -1490,7 +1490,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                     )}
                 </TableContainer>
 
-                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredConsigneds.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
+                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredConsigneds.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
             </BlankCard>
 
             <Dialog open={openAttachmentsModal} onClose={() => setOpenAttachmentsModal(false)} maxWidth="sm" fullWidth>
@@ -1524,39 +1524,39 @@ const ListPersonnelConsigneds: React.FC = () => {
 
 
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openDownloadAllModal} onClose={handleCloseDownloadAllModal} maxWidth="xs">
-                <DialogTitle>Tüm Kayıtları İndir</DialogTitle>
+                <DialogTitle>دانلود همه‌ی رکوردها</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseDownloadAllModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseDownloadAllModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={handleCloseDownloadFilteredModal} maxWidth="xs">
-                <DialogTitle>Filtrelenmiş Kayıtları İndir</DialogTitle>
+                <DialogTitle>دانلود رکوردهای فیلترشده</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseDownloadFilteredModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseDownloadFilteredModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={handleCloseRowDownloadModal} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
 
@@ -1566,7 +1566,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -1574,7 +1574,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1594,13 +1594,13 @@ const ListPersonnelConsigneds: React.FC = () => {
                             <Typography variant="h6">İşlem Detayları:</Typography>
                             <Grid container spacing={2}>
 
-                                <Grid item xs={12} sm={4}><Typography fontWeight="bold">Personel:</Typography></Grid>
+                                <Grid item xs={12} sm={4}><Typography fontWeight="bold">پرسنل:</Typography></Grid>
                                 <Grid item xs={12} sm={8}><Typography>{lastRecordDetail.personnelName}</Typography></Grid>
 
                                 <Grid item xs={12} sm={4}><Typography fontWeight="bold">Mal Kaydı:</Typography></Grid>
                                 <Grid item xs={12} sm={8}><Typography>{lastRecordDetail.consignmentNameWithCode}</Typography></Grid>
 
-                                <Grid item xs={12} sm={4}><Typography fontWeight="bold">Tarih:</Typography></Grid>
+                                <Grid item xs={12} sm={4}><Typography fontWeight="bold">تاریخ:</Typography></Grid>
                                 <Grid item xs={12} sm={8}>
                                     <Typography>{formatDateDisplay(lastRecordDetail.returnDate || lastRecordDetail.assignmentDate)}</Typography>
                                 </Grid>
@@ -1633,10 +1633,10 @@ const ListPersonnelConsigneds: React.FC = () => {
                             startIcon={<IconFileDownload />}
                             sx={{ mr: 1 }}
                         >
-                            Raporu İndir
+                            دانلود گزارش
                         </Button>
                     )}
-                    <Button onClick={() => setOpenLastRecordModal(false)} color="secondary" variant="outlined">Kapat</Button>
+                    <Button onClick={() => setOpenLastRecordModal(false)} color="secondary" variant="outlined">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1660,7 +1660,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseAttachModal} color="secondary" disabled={attachButtonLoading}>İptal</Button>
+                    <Button onClick={handleCloseAttachModal} color="secondary" disabled={attachButtonLoading}>انصراف</Button>
                     <Button
                         onClick={handleAttachmentUpdate}
                         color="primary"
@@ -1668,7 +1668,7 @@ const ListPersonnelConsigneds: React.FC = () => {
                         disabled={attachButtonLoading}
                         startIcon={attachButtonLoading ? <CircularProgress size={20} color="inherit" /> : <IconFileDownload />}
                     >
-                        {attachButtonLoading ? 'Güncelleniyor...' : 'Ekleri Kaydet'}
+                        {attachButtonLoading ? 'در حال به‌روزرسانی...' : 'Ekleri Kaydet'}
                     </Button>
                 </DialogActions>
             </Dialog>

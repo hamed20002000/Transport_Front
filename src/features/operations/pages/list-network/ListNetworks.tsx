@@ -39,8 +39,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -211,9 +211,9 @@ const ListNetwork = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     useEffect(() => {
         let filtered = allNetworks;
@@ -273,7 +273,7 @@ const ListNetwork = () => {
     const fetchWorkDetails = async (id: number) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -290,12 +290,12 @@ const ListNetwork = () => {
                 showAlert(response.data.message || 'Work detayları alınırken hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -327,7 +327,7 @@ const ListNetwork = () => {
                     title: item.title,
                     description: item.description,
                     createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                     recordStatus: item.recordStatus,
                     work: item.work
                 }));
@@ -337,15 +337,15 @@ const ListNetwork = () => {
                 setWorks(worksData);
 
             } else {
-                showAlert('Veri yüklenirken bir hata oluştu.', 'error');
+                showAlert('هنگام بارگذاری داده‌ها خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -354,7 +354,7 @@ const ListNetwork = () => {
     const fetchTenderDetails = async (id: number) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -371,12 +371,12 @@ const ListNetwork = () => {
                 showAlert(response.data.message || 'İhale detayları alınırken hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -384,7 +384,7 @@ const ListNetwork = () => {
         setLoadingData(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             setLoadingData(false);
             return;
@@ -404,21 +404,21 @@ const ListNetwork = () => {
                     title: item.title,
                     description: item.description,
                     createAt: item.createAt,
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                     recordStatus: item.recordStatus,
                     work: item.work
                 }));
                 setNetworks(formattedData);
             } else {
-                showAlert(response.data.message || 'Şebeke listesi alınırken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام دریافت فهرست شبکه‌ها خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -463,7 +463,7 @@ const ListNetwork = () => {
         }
 
         if (!isValid) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         }
         return isValid;
     };
@@ -489,7 +489,7 @@ const ListNetwork = () => {
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             setLoadingButton(false);
             return;
@@ -524,12 +524,12 @@ const ListNetwork = () => {
                 showAlert(response.data.message || 'Yeni Şebeke eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -543,7 +543,7 @@ const ListNetwork = () => {
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             setLoadingButton(false);
             return;
@@ -579,11 +579,11 @@ const ListNetwork = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Şebeke güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -611,7 +611,7 @@ const ListNetwork = () => {
     const sendRecordStatusUpdate = async (id: string, statusValue: number) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -628,23 +628,23 @@ const ListNetwork = () => {
                 }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : statusValue === 1 ? 'Pasif' : 'Silindi';
-                showAlert(`Şebeke başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : statusValue === 1 ? 'غیرفعال' : 'Silindi';
+                showAlert(`Şebeke başarıyla ${statusText} تنظیم شد!`, 'success');
                 if (workId) {
                     fetchNetworksByWorkId(parseInt(workId));
                 } else {
                     fetchAllNetworksAndWorks();
                 }
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
-                showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
             }
         } finally {
             handleCloseMenu();
@@ -780,7 +780,7 @@ const ListNetwork = () => {
                 try {
                     pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
                 } catch (e) {
-                    console.error("Logo yüklenemedi", e);
+                    console.error("لوگو بارگذاری نشد", e);
                 }
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.setFontSize(14);
@@ -789,13 +789,13 @@ const ListNetwork = () => {
 
                 pdfDoc.setFontSize(10);
                 pdfDoc.setFont('NotoSans', 'bold');
-                pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+                pdfDoc.text(`تاریخ گزارش:`, 15, 40);
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
                 pdfDoc.setFontSize(9);
                 if (workId) {
-                    pdfDoc.text(`İş: ${workTitleForDisplay}`, 15, 48);
+                    pdfDoc.text(`کار: ${workTitleForDisplay}`, 15, 48);
                 }
 
                 pdfDoc.setLineWidth(0.5);
@@ -809,7 +809,7 @@ const ListNetwork = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 let footerY = pageHeight - 20;
@@ -820,17 +820,17 @@ const ListNetwork = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
             const head = workId === undefined
-                ? [['Şebeke Adı', 'Bağlı İş', 'Açıklama', 'Kayıt Tarihi', 'Durum']]
-                : [['Şebeke Adı', 'Açıklama', 'Kayıt Tarihi', 'Durum']];
+                ? [['نام شبکه', 'کار مرتبط', 'توضیحات', 'تاریخ ثبت', 'وضعیت']]
+                : [['نام شبکه', 'توضیحات', 'تاریخ ثبت', 'وضعیت']];
 
             const rows = networks.map(network => {
                 const desc = network.description ? stripHtmlTags(network.description) : '-';
@@ -877,7 +877,7 @@ const ListNetwork = () => {
             });
 
             doc.save(`Sebekeler_Raporu.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (error: any) {
             console.error('PDF error:', error);
             showAlert('PDF oluşturulurken hata oluştu.', 'error');
@@ -893,7 +893,7 @@ const ListNetwork = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -924,7 +924,7 @@ const ListNetwork = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
 
@@ -945,7 +945,7 @@ const ListNetwork = () => {
             }
             worksheet.mergeCells('A1:G1');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -955,9 +955,9 @@ const ListNetwork = () => {
 
             let headers: string[];
             if (workId === undefined) {
-                headers = ['Şebeke Adı', 'Bağlı İş', 'Açıklama', 'Kayıt Tarihi', 'Durum'];
+                headers = ['نام شبکه', 'کار مرتبط', 'توضیحات', 'تاریخ ثبت', 'وضعیت'];
             } else {
-                headers = ['Şebeke Adı', 'Açıklama', 'Kayıt Tarihi', 'Durum'];
+                headers = ['نام شبکه', 'توضیحات', 'تاریخ ثبت', 'وضعیت'];
             }
 
             worksheet.addRow([]);
@@ -999,10 +999,10 @@ const ListNetwork = () => {
             const fileName = `Şebekeler_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -1039,7 +1039,7 @@ const ListNetwork = () => {
                     <Stack direction="row" spacing={1} flexWrap="wrap">
                         {tenderId && (
                             <Chip
-                                label={`İhale: ${tenderTitleForDisplay}`}
+                                label={`مناقصه: ${tenderTitleForDisplay}`}
                                 color="primary"
                                 variant="filled"
                                 size="small"
@@ -1077,7 +1077,7 @@ const ListNetwork = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1089,10 +1089,10 @@ const ListNetwork = () => {
                                 </Button>
                             </CustomTooltip>
                         )}
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                             <Button variant="outlined" color="error" onClick={() => navigate(-1)}
                                 endIcon={<IconArrowRight size={20} />}>
-                                Geri Dön
+                                بازگشت
                             </Button>
                         </CustomTooltip>
 
@@ -1124,7 +1124,7 @@ const ListNetwork = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1173,7 +1173,7 @@ const ListNetwork = () => {
                                 <CustomTextField
                                     id="network-name"
                                     name="title"
-                                    placeholder="Şebeke Adı"
+                                    placeholder="نام شبکه"
                                     fullWidth
                                     value={newNetworkData.title}
                                     onChange={handleNetworkNameChange}
@@ -1186,7 +1186,7 @@ const ListNetwork = () => {
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <CustomFormLabel htmlFor="network-description">Açıklama:</CustomFormLabel>
+                                <CustomFormLabel htmlFor="network-description">توضیحات:</CustomFormLabel>
                                 <ReactQuill
                                     theme="snow"
                                     value={newNetworkData.description}
@@ -1226,7 +1226,7 @@ const ListNetwork = () => {
                                                     disabled={loadingButton}
                                                     sx={{ ml: 2 }}
                                                 >
-                                                    İptal Et
+                                                    لغو
                                                 </Button>
                                             </CustomTooltip>
                                         </>
@@ -1271,7 +1271,7 @@ const ListNetwork = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -1279,7 +1279,7 @@ const ListNetwork = () => {
                                         fullWidth
                                         startIcon={<IconFileDownload size={20} />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -1299,7 +1299,7 @@ const ListNetwork = () => {
                                         displayEmpty
                                     >
                                         <UiMenuItem value="">
-                                            Tümü
+                                            همه
                                         </UiMenuItem>
                                         {works.map((work) => (
                                             <UiMenuItem key={work.id} value={work.id}>
@@ -1331,17 +1331,17 @@ const ListNetwork = () => {
                                 value={statusFilter}
                                 exclusive
                                 onChange={handleStatusFilterChange}
-                                aria-label="Durum filtresi"
+                                aria-label="فیلتر وضعیت"
                                 fullWidth
                             >
                                 <StyledToggleButton value="all" aria-label="Tüm Şebeke">
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton value="active" aria-label="Aktif Şebeke">
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton value="inactive" aria-label="Pasif Şebeke">
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1357,24 +1357,24 @@ const ListNetwork = () => {
                                 <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                     <TableRow>
                                         <StyledTableCell sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Şebeke Adı</Typography>
+                                            <Typography variant="h6">نام شبکه</Typography>
                                         </StyledTableCell>
                                         {workId === undefined && (
                                             <StyledTableCell sx={{ color: "#171c23" }}>
-                                                <Typography variant="h6">Bağlı İş</Typography>
+                                                <Typography variant="h6">کار مرتبط</Typography>
                                             </StyledTableCell>
                                         )}
                                         <StyledTableCell sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Açıklama</Typography>
+                                            <Typography variant="h6">توضیحات</Typography>
                                         </StyledTableCell>
                                         <StyledTableCell sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Kayıt Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ ثبت</Typography>
                                         </StyledTableCell>
                                         <StyledTableCell sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </StyledTableCell>
                                         <StyledTableCell sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Detaylar</Typography>
+                                            <Typography variant="h6">جزئیات</Typography>
                                         </StyledTableCell>
                                         <StyledTableCell></StyledTableCell>
                                     </TableRow>
@@ -1395,14 +1395,14 @@ const ListNetwork = () => {
 
                                                 <StyledTableCell sx={{ maxWidth: 150 }}>
                                                     {row.description && row.description.trim().length > 0 ? (
-                                                        <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                        <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                             <Button
 
                                                                 variant="outlined"
                                                                 style={{ fontSize: "10px", padding: "2px 5px" }}
                                                                 onClick={() => handleOpenDescriptionModal(row.description)}
                                                             >
-                                                                Açıklamayı Oku
+                                                                خواندن توضیحات
                                                             </Button>
                                                         </CustomTooltip>
                                                     ) : (
@@ -1447,12 +1447,12 @@ const ListNetwork = () => {
                                                             }}
                                                             startIcon={<IconSearch size={18} />}
                                                         >
-                                                            Detayları Görüntüle
+                                                            مشاهده‌ی جزئیات
                                                         </Button>
                                                     </CustomTooltip>
                                                 </StyledTableCell>
                                                 <StyledTableCell>
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                         <IconButton
                                                             id={`basic-button-${row.id}`}
                                                             aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1492,7 +1492,7 @@ const ListNetwork = () => {
                                                                     <ListItemIcon>
                                                                         {selectedRowForMenu?.recordStatus === 0 ? <DoNotDisturbOnRoundedIcon width={18} /> : <DoneRoundedIcon width={18} />}
                                                                     </ListItemIcon>
-                                                                    {selectedRowForMenu?.recordStatus === 0 ? 'Pasif Yap' : 'Aktif Yap'}
+                                                                    {selectedRowForMenu?.recordStatus === 0 ? 'غیرفعال کردن' : 'فعال کردن'}
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
                                                         )}
@@ -1502,7 +1502,7 @@ const ListNetwork = () => {
                                                                     <ListItemIcon>
                                                                         <IconEdit width={18} />
                                                                     </ListItemIcon>
-                                                                    Düzenlemek
+                                                                    ویرایش
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
                                                         )}
@@ -1541,7 +1541,7 @@ const ListNetwork = () => {
                         page={page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}
-                        labelRowsPerPage="Sayfa başına satır sayısı:"
+                        labelRowsPerPage="تعداد ردیف در هر صفحه:"
                         labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                     />
                 </Box>
@@ -1566,7 +1566,7 @@ const ListNetwork = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -1574,7 +1574,7 @@ const ListNetwork = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1582,7 +1582,7 @@ const ListNetwork = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1591,7 +1591,7 @@ const ListNetwork = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadNetworksPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1599,13 +1599,13 @@ const ListNetwork = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

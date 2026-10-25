@@ -19,21 +19,21 @@ interface CardType {
 const initialTopCards: CardType[] = [
   {
     icon: icon2,
-    title: 'Kullanıcı Sayısı',
+    title: 'تعداد کاربران',
     digits: '...',
     bgcolor: 'primary',
     loading: true,
   },
   {
     icon: icon3,
-    title: 'İhale Sayısı',
+    title: 'تعداد مناقصه‌ها',
     digits: '...',
     bgcolor: 'warning',
     loading: true,
   },
   {
     icon: icon4,
-    title: 'İş Sayısı',
+    title: 'تعداد کارها',
     digits: '...',
     bgcolor: 'secondary',
     loading: true,
@@ -49,12 +49,12 @@ const TopCards = () => {
   }, []);
 
   const fetchTotalUsers = useCallback(async () => {
-    setCardsData(prev => prev.map(card => card.title === 'Kullanıcı Sayısı' ? { ...card, loading: true } : card));
+    setCardsData(prev => prev.map(card => card.title === 'تعداد کاربران' ? { ...card, loading: true } : card));
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
       navigate("/");
       showAlert('Authentication required to fetch user count.', 'error');
-      setCardsData(prev => prev.map(card => card.title === 'Kullanıcı Sayısı' ? { ...card, loading: false, digits: 'N/A' } : card));
+      setCardsData(prev => prev.map(card => card.title === 'تعداد کاربران' ? { ...card, loading: false, digits: 'N/A' } : card));
       return;
     }
     try {
@@ -63,15 +63,15 @@ const TopCards = () => {
       });
       if (response.data.httpStatusCode === 200) {
         const totalUsers = response.data.data ? response.data.data.length : 0;
-        setCardsData(prev => prev.map(card => card.title === 'Kullanıcı Sayısı' ? { ...card, digits: String(totalUsers), loading: false } : card));
+        setCardsData(prev => prev.map(card => card.title === 'تعداد کاربران' ? { ...card, digits: String(totalUsers), loading: false } : card));
       } else {
         showAlert(response.data.message || 'Failed to fetch user count.', 'error');
-        setCardsData(prev => prev.map(card => card.title === 'Kullanıcı Sayısı' ? { ...card, loading: false, digits: 'Error' } : card));
+        setCardsData(prev => prev.map(card => card.title === 'تعداد کاربران' ? { ...card, loading: false, digits: 'Error' } : card));
       }
     } catch (e: any) {
       console.error("Error fetching user count:", e);
       showAlert('Error fetching user count. Please try again.', 'error');
-      setCardsData(prev => prev.map(card => card.title === 'Kullanıcı Sayısı' ? { ...card, loading: false, digits: 'Error' } : card));
+      setCardsData(prev => prev.map(card => card.title === 'تعداد کاربران' ? { ...card, loading: false, digits: 'Error' } : card));
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
@@ -80,12 +80,12 @@ const TopCards = () => {
   }, [navigate, showAlert]);
 
   const fetchTotalTenders = useCallback(async () => {
-    setCardsData(prev => prev.map(card => card.title === 'İhale Sayısı' ? { ...card, loading: true } : card));
+    setCardsData(prev => prev.map(card => card.title === 'تعداد مناقصه‌ها' ? { ...card, loading: true } : card));
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
       navigate("/");
       showAlert('Authentication required to fetch tender count.', 'error');
-      setCardsData(prev => prev.map(card => card.title === 'İhale Sayısı' ? { ...card, loading: false, digits: 'N/A' } : card));
+      setCardsData(prev => prev.map(card => card.title === 'تعداد مناقصه‌ها' ? { ...card, loading: false, digits: 'N/A' } : card));
       return;
     }
     try {
@@ -94,15 +94,15 @@ const TopCards = () => {
       });
       if (response.data.httpStatusCode === 200) {
         const activeTenders = response.data.data ? response.data.data.filter((item: any) => item.recordStatus === 0) : [];
-        setCardsData(prev => prev.map(card => card.title === 'İhale Sayısı' ? { ...card, digits: String(activeTenders.length), loading: false } : card));
+        setCardsData(prev => prev.map(card => card.title === 'تعداد مناقصه‌ها' ? { ...card, digits: String(activeTenders.length), loading: false } : card));
       } else {
         showAlert(response.data.message || 'Failed to fetch tender count.', 'error');
-        setCardsData(prev => prev.map(card => card.title === 'İhale Sayısı' ? { ...card, loading: false, digits: 'Error' } : card));
+        setCardsData(prev => prev.map(card => card.title === 'تعداد مناقصه‌ها' ? { ...card, loading: false, digits: 'Error' } : card));
       }
     } catch (e: any) {
       console.error("Error fetching tender count:", e);
       showAlert('Error fetching tender count. Please try again.', 'error');
-      setCardsData(prev => prev.map(card => card.title === 'İhale Sayısı' ? { ...card, loading: false, digits: 'Error' } : card));
+      setCardsData(prev => prev.map(card => card.title === 'تعداد مناقصه‌ها' ? { ...card, loading: false, digits: 'Error' } : card));
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
@@ -111,12 +111,12 @@ const TopCards = () => {
   }, [navigate, showAlert]);
 
   const fetchTotalWorks = useCallback(async () => {
-    setCardsData(prev => prev.map(card => card.title === 'İş Sayısı' ? { ...card, loading: true } : card));
+    setCardsData(prev => prev.map(card => card.title === 'تعداد کارها' ? { ...card, loading: true } : card));
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
       navigate("/");
       showAlert('Authentication required to fetch work count.', 'error');
-      setCardsData(prev => prev.map(card => card.title === 'İş Sayısı' ? { ...card, loading: false, digits: 'N/A' } : card));
+      setCardsData(prev => prev.map(card => card.title === 'تعداد کارها' ? { ...card, loading: false, digits: 'N/A' } : card));
       return;
     }
     try {
@@ -125,15 +125,15 @@ const TopCards = () => {
       });
       if (response.data.httpStatusCode === 200) {
         const activeWorks = response.data.data ? response.data.data.filter((item: any) => item.recordStatus === 0) : [];
-        setCardsData(prev => prev.map(card => card.title === 'İş Sayısı' ? { ...card, digits: String(activeWorks.length), loading: false } : card));
+        setCardsData(prev => prev.map(card => card.title === 'تعداد کارها' ? { ...card, digits: String(activeWorks.length), loading: false } : card));
       } else {
         showAlert(response.data.message || 'Failed to fetch work count.', 'error');
-        setCardsData(prev => prev.map(card => card.title === 'İş Sayısı' ? { ...card, loading: false, digits: 'Error' } : card));
+        setCardsData(prev => prev.map(card => card.title === 'تعداد کارها' ? { ...card, loading: false, digits: 'Error' } : card));
       }
     } catch (e: any) {
       console.error("Error fetching work count:", e);
       showAlert('Error fetching work count. Please try again.', 'error');
-      setCardsData(prev => prev.map(card => card.title === 'İş Sayısı' ? { ...card, loading: false, digits: 'Error' } : card));
+      setCardsData(prev => prev.map(card => card.title === 'تعداد کارها' ? { ...card, loading: false, digits: 'Error' } : card));
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");

@@ -149,7 +149,7 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -158,7 +158,7 @@ const getStatusTextAndColor = (status: 0 | 1 | 2): { text: string, color: 'defau
         case 0:
             return { text: 'Beklemede', color: 'warning' };
         case 1:
-            return { text: 'Onaylandı', color: 'success' };
+            return { text: 'تأیید شد', color: 'success' };
         case 2:
             return { text: 'Reddedildi', color: 'error' };
         default:
@@ -309,7 +309,7 @@ const ListStoreDispatchToCenter = () => {
     const fetchVehicles = useCallback(async (driverId: string) => {
         setLoadingData(true);
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             setLoadingData(false);
             return;
         }
@@ -345,12 +345,12 @@ const ListStoreDispatchToCenter = () => {
                 setSelectedVehicleName(null);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -369,12 +369,12 @@ const ListStoreDispatchToCenter = () => {
                 setStoreItems([]);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate, storeId, showAlert, authToken]);
 
@@ -411,15 +411,15 @@ const ListStoreDispatchToCenter = () => {
                 const allDispatches: StoreDispatchToCenterType[] = dispatchesRes.data.data;
                 setDispatchList(allDispatches);
             } else {
-                showAlert(dispatchesRes.data?.message || 'Sevk belgeleri yüklenirken bir hata oluştu.', 'error');
+                showAlert(dispatchesRes.data?.message || 'هنگام بارگذاری اسناد ارسال خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -530,7 +530,7 @@ const ListStoreDispatchToCenter = () => {
         }
 
         if (!isValid) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         }
 
         return isValid;
@@ -577,19 +577,19 @@ const ListStoreDispatchToCenter = () => {
         try {
             const response = await axios.post(server.baseurl + server.warehouse + "create-store-dispatch-to-center", payload, { headers: { "Authorization": `Bearer ${authToken}`, "Content-Type": "application/json" } });
             if (response.data.httpStatusCode === 201) {
-                showAlert('Yeni sevk belgesi başarıyla eklendi!', 'success');
+                showAlert('سند ارسال جدید با موفقیت اضافه شد!', 'success');
                 resetFormAndState();
                 fetchDispatches();
             } else {
-                showAlert(response.data.message || 'Sevk belgesi eklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام افزودن سند ارسال خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -619,22 +619,22 @@ const ListStoreDispatchToCenter = () => {
         try {
             const response = await axios.put(server.baseurl + server.warehouse + "update-store-dispatch-to-center", payload, { headers: { "Authorization": `Bearer ${authToken}`, "Content-Type": "application/json" } });
             if (response.data.httpStatusCode === 200) {
-                showAlert('Sevk belgesi başarıyla güncellendi!', 'success');
+                showAlert('سند ارسال با موفقیت به‌روزرسانی شد!', 'success');
                 resetFormAndState();
                 fetchDispatches();
             } else {
-                showAlert(response.data.message || 'Sevk belgesi güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی سند ارسال خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert(e.response?.data?.message || 'Sevk belgesi güncellenirken bir hata oluştu.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ارسال خطایی رخ داد.', 'error');
 
             }
         } finally {
@@ -739,10 +739,10 @@ const ListStoreDispatchToCenter = () => {
                 const numValue = Number(value);
 
                 if (isNaN(numValue) || numValue < 0) {
-                    showAlert('Miktar negatif olamaz veya geçersiz bir değer içeremez!', 'warning');
+                    showAlert('مقدار نمی‌تواند منفی یا نامعتبر باشد!', 'warning');
                     updatedDetail.quantity = 0;
                 } else if (numValue > maxAllowedQuantity) {
-                    showAlert(`Girdiğiniz miktar stoktan fazla! Maksimum: ${maxAllowedQuantity}`, 'warning');
+                    showAlert(`مقدار واردشده بیشتر از موجودی است! حداکثر: ${maxAllowedQuantity}`, 'warning');
                     updatedDetail.quantity = maxAllowedQuantity;
                 } else {
                     updatedDetail.quantity = numValue;
@@ -793,10 +793,10 @@ const ListStoreDispatchToCenter = () => {
                 setOpenStatusModal(false);
                 fetchDispatches();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+            showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -815,9 +815,9 @@ const ListStoreDispatchToCenter = () => {
     };
 
     const exportDispatchesToPdf = (data: StoreDispatchToCenterType[], title: string, subtitle?: string) => {
-        if (!data || data.length === 0) { showAlert('PDF oluşturulacak sevk belgesi bulunamadı.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('سند ارسالی برای ساخت PDF پیدا نشد.', 'warning'); return; }
 
-        showAlert('PDF oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل PDF...', 'info');
         const doc = new jsPDF();
         const docAny = doc as any;
 
@@ -840,7 +840,7 @@ const ListStoreDispatchToCenter = () => {
             try {
                 doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
             } catch (e) {
-                console.error("Logo yüklenemedi", e);
+                console.error("لوگو بارگذاری نشد", e);
             }
 
             doc.setFont('NotoSans', 'normal');
@@ -849,7 +849,7 @@ const ListStoreDispatchToCenter = () => {
 
             doc.setFontSize(10);
             doc.setFont('NotoSans', 'bold');
-            doc.text(`Rapor Tarihi:`, 15, 35);
+            doc.text(`تاریخ گزارش:`, 15, 35);
             doc.setFont('NotoSans', 'normal');
             doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
             if (subtitle) doc.text(subtitle, 70, 52);
@@ -868,7 +868,7 @@ const ListStoreDispatchToCenter = () => {
 
             const companyInfo = [
                 'ترابوت',
-                'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                'ترابوت، دستیار هوشمند حمل‌ونقل',
                 'دستیار هوشمند حمل‌ونقل'
             ];
 
@@ -880,12 +880,12 @@ const ListStoreDispatchToCenter = () => {
 
             doc.setTextColor(0);
             doc.setFontSize(10);
-            doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+            doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
             doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
             const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
             const pageCount = (doc as any).internal.getNumberOfPages();
-            doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+            doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
         };
 
 
@@ -896,13 +896,13 @@ const ListStoreDispatchToCenter = () => {
 
 
             doc.setFontSize(10);
-            doc.text(`Kaynak Şantiyenin Depo: ${dispatch.store?.name || '-'}`, 15, yPos); yPos += 7;
-            doc.text(`Hedef Merkez Depo: ${dispatch.destinationWarehouse?.name || '-'}`, 15, yPos); yPos += 7;
-            doc.text(`Şoför: ${dispatch.driver?.name || ''} ${dispatch.driver?.family || ''}`, 15, yPos); yPos += 7;
-            doc.text(`Araç: ${dispatch.driverVehicle?.name || '-'} (${dispatch.driverVehicle?.plaque || '-'})`, 15, yPos); yPos += 7;
+            doc.text(`انبار کارگاه مبدأ: ${dispatch.store?.name || '-'}`, 15, yPos); yPos += 7;
+            doc.text(`انبار مرکزی مقصد: ${dispatch.destinationWarehouse?.name || '-'}`, 15, yPos); yPos += 7;
+            doc.text(`راننده: ${dispatch.driver?.name || ''} ${dispatch.driver?.family || ''}`, 15, yPos); yPos += 7;
+            doc.text(`خودرو: ${dispatch.driverVehicle?.name || '-'} (${dispatch.driverVehicle?.plaque || '-'})`, 15, yPos); yPos += 7;
             doc.text(`Belge Tarihi: ${formatDateDisplay(dispatch.docDate)}`, 15, yPos); yPos += 7;
 
-            doc.text(`Genel Açıklama: ${dispatch.description || '-'}`, 15, yPos);
+            doc.text(`توضیحات کلی: ${dispatch.description || '-'}`, 15, yPos);
             yPos += 15;
 
             const detailsRows = (dispatch.storeDispatchDetails || []).map(d => [
@@ -914,7 +914,7 @@ const ListStoreDispatchToCenter = () => {
 
             autoTable(docAny, {
                 startY: yPos,
-                head: [['Malzeme', 'Miktar', 'Birim', 'Açıklama']],
+                head: [['کالا', 'مقدار', 'واحد', 'توضیحات']],
                 body: detailsRows,
                 theme: 'grid',
                 styles: { font: 'NotoSans', fontStyle: 'normal', fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
@@ -930,17 +930,17 @@ const ListStoreDispatchToCenter = () => {
             const finalY = docAny.lastAutoTable.finalY || yPos;
             doc.setFontSize(10);
             const totalQuantity = (dispatch.storeDispatchDetails || []).reduce((sum, detail) => sum + Number(detail.quantity), 0);
-            doc.text(`Toplam Miktar: ${totalQuantity}`, 15, finalY + 5);
+            doc.text(`مقدار کل: ${totalQuantity}`, 15, finalY + 5);
         });
 
         doc.save(`${title.replace(/ /g, '_')}.pdf`);
-        showAlert('PDF başarıyla oluşturuldu.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
     };
 
     const exportDispatchesToExcel = (data: StoreDispatchToCenterType[], title: string) => {
-        if (!data || data.length === 0) { showAlert('Excel oluşturulacak sevk belgesi bulunamadı.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('سند ارسالی برای ساخت Excel پیدا نشد.', 'warning'); return; }
 
-        showAlert('Excel oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
         const workbook = new Excel.Workbook();
 
         const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength: number) => {
@@ -949,7 +949,7 @@ const ListStoreDispatchToCenter = () => {
             titleRow.font = { name: 'NotoSans', size: 14, bold: true };
             worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
             titleRow.getCell(1).alignment = { horizontal: 'center' };
-            const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+            const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
             dateRow.font = { name: 'NotoSans', size: 10, bold: false };
             dateRow.getCell(1).alignment = { horizontal: 'left' };
             worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -959,7 +959,7 @@ const ListStoreDispatchToCenter = () => {
         const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
             const companyInfo = [
                 'ترابوت',
-                'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                'ترابوت، دستیار هوشمند حمل‌ونقل',
                 'دستیار هوشمند حمل‌ونقل',
             ];
             let rowNum = startRow;
@@ -977,19 +977,19 @@ const ListStoreDispatchToCenter = () => {
             const worksheetTitle = `Sevk_${dispatch.code}`.replace(/[\\/*?:[\]]/g, '_');
             const worksheet = workbook.addWorksheet(worksheetTitle);
 
-            const detailsColumns = ['Malzeme', 'Miktar', 'Birim', 'Açıklama'];
+            const detailsColumns = ['کالا', 'مقدار', 'واحد', 'توضیحات'];
             const totalColumns = detailsColumns.length;
 
             addExcelHeader(worksheet, title, totalColumns);
 
             worksheet.addRow([`Sevk Belgesi Kodu:`, dispatch.code]);
-            worksheet.addRow([`Kaynak Şantiyenin Depo:`, dispatch.store?.name || '-']);
-            worksheet.addRow([`Hedef Merkez Depo:`, dispatch.destinationWarehouse?.name || '-']);
-            worksheet.addRow([`Şoför:`, `${dispatch.driver?.name || ''} ${dispatch.driver?.family || ''}`]);
-            worksheet.addRow([`Araç:`, `${dispatch.driverVehicle?.name || '-'} (${dispatch.driverVehicle?.plaque || ''})`]);
+            worksheet.addRow([`انبار کارگاه مبدأ:`, dispatch.store?.name || '-']);
+            worksheet.addRow([`انبار مرکزی مقصد:`, dispatch.destinationWarehouse?.name || '-']);
+            worksheet.addRow([`راننده:`, `${dispatch.driver?.name || ''} ${dispatch.driver?.family || ''}`]);
+            worksheet.addRow([`خودرو:`, `${dispatch.driverVehicle?.name || '-'} (${dispatch.driverVehicle?.plaque || ''})`]);
             worksheet.addRow([`Belge Tarihi:`, formatDateDisplay(dispatch.docDate)]);
 
-            worksheet.addRow(['Genel Açıklama', dispatch.description || '-']);
+            worksheet.addRow(['توضیحات کلی', dispatch.description || '-']);
             worksheet.addRow([]);
 
             const headerRow = worksheet.addRow(detailsColumns);
@@ -1006,7 +1006,7 @@ const ListStoreDispatchToCenter = () => {
             });
 
             const totalQuantity = (dispatch.storeDispatchDetails || []).reduce((sum, detail) => sum + Number(detail.quantity), 0);
-            const totalRow = worksheet.addRow([`Toplam Miktar`, totalQuantity, '', '']);
+            const totalRow = worksheet.addRow([`مقدار کل`, totalQuantity, '', '']);
             totalRow.font = { name: 'NotoSans', bold: true };
             totalRow.getCell(2).numFmt = '0';
 
@@ -1017,14 +1017,14 @@ const ListStoreDispatchToCenter = () => {
         const fileName = `${title.replace(/ /g, '_')}.xlsx`;
         workbook.xlsx.writeBuffer().then(buffer => {
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد.', 'success');
         });
     };
 
     const handleDownload = (format: 'pdf' | 'excel', isFiltered: boolean) => {
         const dataToDownload = isFiltered ? displayedDispatches : dispatchList;
         const title = isFiltered ? 'Filtrelenmiş Merkez Sevk Raporu' : 'Tüm Merkez Sevk Raporu';
-        const subtitle = isFiltered ? `Tarih Aralığı: ${formatDateDisplay(startDate ? startDate.toISOString() : null)} - ${formatDateDisplay(endDate ? endDate.toISOString() : new Date().toISOString())}` : undefined;
+        const subtitle = isFiltered ? `بازه‌ی زمانی: ${formatDateDisplay(startDate ? startDate.toISOString() : null)} - ${formatDateDisplay(endDate ? endDate.toISOString() : new Date().toISOString())}` : undefined;
 
         if (format === 'pdf') {
             exportDispatchesToPdf(dataToDownload, title, subtitle);
@@ -1042,7 +1042,7 @@ const ListStoreDispatchToCenter = () => {
     const handleDownloadSingleDispatch = (format: 'pdf' | 'excel') => {
         if (!selectedDispatchForDownload) return;
         const data = [selectedDispatchForDownload];
-        const title = `Sevk Belgesi Detayları: ${selectedDispatchForDownload.code}`;
+        const title = `جزئیات سند ارسال: ${selectedDispatchForDownload.code}`;
 
         if (format === 'pdf') {
             exportDispatchesToPdf(data, title);
@@ -1167,7 +1167,7 @@ const ListStoreDispatchToCenter = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1181,7 +1181,7 @@ const ListStoreDispatchToCenter = () => {
                             </CustomTooltip>
                         )}
 
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                             <Button
                                 variant="outlined"
                                 color="error"
@@ -1189,7 +1189,7 @@ const ListStoreDispatchToCenter = () => {
                                 endIcon={<IconArrowRight size={20} />}
                                 fullWidth={false}
                             >
-                                Geri Dön
+                                بازگشت
                             </Button>
                         </CustomTooltip>
                     </Stack>
@@ -1199,7 +1199,7 @@ const ListStoreDispatchToCenter = () => {
                         <Typography variant="h5" mb={2}>{editingId ? 'Merkez Sevk Belgesini Düzenle' : 'Yeni Merkez Sevk Belgesi'}</Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel required>Şoför</CustomFormLabel>
+                                <CustomFormLabel required>راننده</CustomFormLabel>
                                 <Autocomplete
                                     id="driver-select"
                                     options={drivers}
@@ -1222,16 +1222,16 @@ const ListStoreDispatchToCenter = () => {
                                             {...params}
                                             fullWidth
                                             size="small"
-                                            placeholder="Şoför Seçin"
+                                            placeholder="راننده را انتخاب کنید"
                                             error={driverIdError}
-                                            helperText={driverIdError ? "Şoför seçimi zorunludur!" : ""}
+                                            helperText={driverIdError ? "انتخاب راننده الزامی است!" : ""}
                                         />
                                     )}
                                 />
                                 {selectedVehicleName && (
                                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 1 }}>
-                                        <Chip label={`Seçilen Araç: ${selectedVehicleName}`} color="info" />
-                                        <CustomTooltip title={isTooltipGloballyEnabled ? "Aracı değiştir" : ""}>
+                                        <Chip label={`خودروی انتخاب‌شده: ${selectedVehicleName}`} color="info" />
+                                        <CustomTooltip title={isTooltipGloballyEnabled ? "تغییر خودرو" : ""}>
                                             <IconButton onClick={() => setOpenVehicleModal(true)} size="small">
                                                 <IconEdit size={18} />
                                             </IconButton>
@@ -1285,7 +1285,7 @@ const ListStoreDispatchToCenter = () => {
                                                 fullWidth
                                                 size="small"
                                                 error={docDateError}
-                                                helperText={docDateError ? "Tarih alanı boş bırakılamaz!" : ""}
+                                                helperText={docDateError ? "فیلد تاریخ نمی‌تواند خالی باشد!" : ""}
                                             />
                                         )}
                                     />
@@ -1294,7 +1294,7 @@ const ListStoreDispatchToCenter = () => {
 
 
                             <Grid item xs={12}>
-                                <CustomFormLabel htmlFor="invoice-general-description">Açıklama</CustomFormLabel>
+                                <CustomFormLabel htmlFor="invoice-general-description">توضیحات</CustomFormLabel>
                                 <TextField
                                     id="invoice-general-description"
                                     label="Merkez Depo Sevk için genel açıklama giriniz"
@@ -1343,7 +1343,7 @@ const ListStoreDispatchToCenter = () => {
                         )}
                         <Box mt={4}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                                <Typography variant="h6">Sevk Detayları</Typography>
+                                <Typography variant="h6">جزئیات ارسال</Typography>
                                 <Stack direction="row" spacing={1}>
                                     <Button
                                         variant="outlined"
@@ -1352,7 +1352,7 @@ const ListStoreDispatchToCenter = () => {
                                         startIcon={<IconPlus />}
                                         disabled={newItem !== null}
                                     >
-                                        Tek Tek Ekle
+                                        افزودن تک‌به‌تک
                                     </Button>
                                     <Button
                                         variant="outlined"
@@ -1361,7 +1361,7 @@ const ListStoreDispatchToCenter = () => {
                                         startIcon={dispatchDetails.length > 0 ? <IconTrash /> : <IconPlus />}
                                         disabled={storeItems.length === 0}
                                     >
-                                        {dispatchDetails.length > 0 ? "Tümünü Kaldır" : "Tümünü Ekle (Stoktan)"}
+                                        {dispatchDetails.length > 0 ? "حذف همه" : "Tümünü Ekle (Stoktan)"}
                                     </Button>
                                 </Stack>
                             </Stack>
@@ -1390,7 +1390,7 @@ const ListStoreDispatchToCenter = () => {
                                             </Grid>
                                             <Grid item xs={6} sm={3}>
                                                 <TextField
-                                                    label={`Miktar (Max: ${newItem.balance})`}
+                                                    label={`مقدار (حداکثر: ${newItem.balance})`}
                                                     type="number"
                                                     size="small"
                                                     fullWidth
@@ -1408,7 +1408,7 @@ const ListStoreDispatchToCenter = () => {
                                             </Grid>
                                             <Grid item xs={6} sm={4}>
                                                 <TextField
-                                                    label="Açıklama"
+                                                    label="توضیحات"
                                                     size="small"
                                                     fullWidth
                                                     value={newItem.description}
@@ -1433,7 +1433,7 @@ const ListStoreDispatchToCenter = () => {
                                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center" sx={{ borderBottom: '1px solid #eee', pb: 1 }}>
                                                 <Box sx={{ flexGrow: 1, minWidth: '200px' }}>
                                                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                                        {detail.item?.name || 'Ürün Adı'}
+                                                        {detail.item?.name || 'نام کالا'}
                                                     </Typography>
                                                 </Box>
                                                 <CustomTextField
@@ -1444,7 +1444,7 @@ const ListStoreDispatchToCenter = () => {
                                                     sx={{ width: { xs: '100%', sm: '150px' } }}
                                                 />
                                                 <CustomTextField
-                                                    placeholder="Açıklama"
+                                                    placeholder="توضیحات"
                                                     value={detail.description}
                                                     onChange={(e: any) => handleDispatchDetailChange(index, 'description', e.target.value)}
                                                     sx={{ flexGrow: 1 }}
@@ -1462,13 +1462,13 @@ const ListStoreDispatchToCenter = () => {
                             {editingId ? (
                                 <>
                                     <Button variant="contained" color="info" onClick={editDispatch} disabled={loadingButton || !isFormValid}>
-                                        {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Düzenle'}
+                                        {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'ویرایش'}
                                     </Button>
-                                    <Button variant="outlined" color="secondary" onClick={handleCancelEdit} disabled={loadingButton}>İptal Et</Button>
+                                    <Button variant="outlined" color="secondary" onClick={handleCancelEdit} disabled={loadingButton}>لغو</Button>
                                 </>
                             ) : (
                                 hasCreatePermission && (
-                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm alanları doldurarak sevk belgesini kaydedin." : ""}>
+                                    <CustomTooltip title={isTooltipGloballyEnabled ? "با پر کردن همه‌ی فیلدها سند ارسال را ثبت کنید." : ""}>
                                         <span>
                                             <BlinkingButton
                                                 variant="contained"
@@ -1477,7 +1477,7 @@ const ListStoreDispatchToCenter = () => {
                                                 disabled={!isFormValid || loadingButton}
                                                 isBlinking={isFormValid && !loadingButton}
                                             >
-                                                {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Yeni Sevk Belgesi Ekle'}
+                                                {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'افزودن سند ارسال جدید'}
                                             </BlinkingButton>
                                         </span>
                                     </CustomTooltip>
@@ -1504,7 +1504,7 @@ const ListStoreDispatchToCenter = () => {
                                     isBlinking={false}
                                     disabled={loadingData || displayedDispatches.length === 0}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
@@ -1516,7 +1516,7 @@ const ListStoreDispatchToCenter = () => {
                                 startIcon={<IconFileDownload />}
                                 disabled={loadingData || dispatchList.length === 0}
                             >
-                                Tümünü İndir
+                                دانلود همه
                             </Button>
                         )}
                     </Stack>
@@ -1550,7 +1550,7 @@ const ListStoreDispatchToCenter = () => {
                         <Grid container spacing={2} alignItems="center">
                             <Grid item xs={12} sm={6} md={3}>
                                 <TextField
-                                    label="Sevk Belgesi Ara"
+                                    label="جستجوی سند ارسال"
                                     variant="outlined"
                                     fullWidth
                                     value={searchTerm}
@@ -1562,14 +1562,14 @@ const ListStoreDispatchToCenter = () => {
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <DatePicker
-                                            label="Başlangıç Tarihi"
+                                            label="تاریخ شروع"
                                             value={startDate}
                                             inputFormat="dd/MM/yyyy"
                                             onChange={(newValue) => setStartDate(newValue)}
                                             renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                                         />
                                         <DatePicker
-                                            label="Bitiş Tarihi"
+                                            label="تاریخ پایان"
                                             value={endDate}
                                             inputFormat="dd/MM/yyyy"
                                             onChange={(newValue) => setEndDate(newValue)}
@@ -1588,9 +1588,9 @@ const ListStoreDispatchToCenter = () => {
                                     onChange={(_, newFilter) => newFilter && setStatusFilter(newFilter)}
                                     fullWidth
                                 >
-                                    <StyledToggleButton value="all">Tümü</StyledToggleButton>
-                                    <StyledToggleButton value="active">Aktif</StyledToggleButton>
-                                    <StyledToggleButton value="inactive">Pasif</StyledToggleButton>
+                                    <StyledToggleButton value="all">همه</StyledToggleButton>
+                                    <StyledToggleButton value="active">فعال</StyledToggleButton>
+                                    <StyledToggleButton value="inactive">غیرفعال</StyledToggleButton>
                                 </ToggleButtonGroup>
                             </Grid>
                         </Grid>
@@ -1605,15 +1605,15 @@ const ListStoreDispatchToCenter = () => {
                             <Table aria-label="store dispatch to center table">
                                 <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                     <TableRow>
-                                        <StyledTableCell><Typography variant="h6">Kod</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">کد</Typography></StyledTableCell>
                                         <StyledTableCell><Typography variant="h6">Kaynak Depo</Typography></StyledTableCell>
                                         <StyledTableCell><Typography variant="h6">Hedef Merkez</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Şoför</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">راننده</Typography></StyledTableCell>
                                         <StyledTableCell><Typography variant="h6">Araç</Typography></StyledTableCell>
                                         <StyledTableCell><Typography variant="h6">Belge Tarihi</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Sevk Detayları</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">جزئیات ارسال</Typography></StyledTableCell>
                                         <StyledTableCell></StyledTableCell>
                                     </TableRow>
                                 </TableHead>
@@ -1631,14 +1631,14 @@ const ListStoreDispatchToCenter = () => {
                                                     <StyledTableCell><Typography variant="body1">{formatDateDisplay(row.docDate)}</Typography></StyledTableCell>
                                                     <StyledTableCell sx={{ maxWidth: 150 }}>
                                                         {row.description && row.description.trim().length > 0 ? (
-                                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                            <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                                 <Button
 
                                                                     variant="outlined"
                                                                     style={{ fontSize: "10px", padding: "2px 5px" }}
                                                                     onClick={() => handleOpenDescriptionModalT(row.description)}
                                                                 >
-                                                                    Açıklamayı Oku
+                                                                    خواندن توضیحات
                                                                 </Button>
                                                             </CustomTooltip>
                                                         ) : (
@@ -1668,7 +1668,7 @@ const ListStoreDispatchToCenter = () => {
                                                     </StyledTableCell>
                                                     <StyledTableCell>
                                                         <Stack direction="row" spacing={1} alignItems="center">
-                                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Detayları Görüntüle" : ""}>
+                                                            <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی جزئیات" : ""}>
                                                                 <Button
                                                                     variant="outlined"
                                                                     startIcon={<IconEye />}
@@ -1677,7 +1677,7 @@ const ListStoreDispatchToCenter = () => {
                                                                         handleOpenDetailsModal(row.storeDispatchDetails || [])
                                                                     }}
                                                                 >
-                                                                    Görünüm
+                                                                    نما
                                                                 </Button>
                                                             </CustomTooltip>
                                                         </Stack>
@@ -1697,7 +1697,7 @@ const ListStoreDispatchToCenter = () => {
                                                             onClose={handleCloseMenu}
                                                         >
                                                             {hasEditPermission && row.status === 0 && (
-                                                                <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</UiMenuItem>
+                                                                <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>
                                                             )}
                                                             {hasDeletePermission && row.status === 0 && (
                                                                 <UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>
@@ -1708,21 +1708,21 @@ const ListStoreDispatchToCenter = () => {
                                                                     {row.status === 0 && (
                                                                         <>
                                                                             <UiMenuItem onClick={() => handleStatusUpdateClick('approve')}>
-                                                                                <ListItemIcon><IconCheck width={18} /></ListItemIcon>Onayla
+                                                                                <ListItemIcon><IconCheck width={18} /></ListItemIcon>تأیید
                                                                             </UiMenuItem>
                                                                             <UiMenuItem onClick={() => handleStatusUpdateClick('reject')}>
-                                                                                <ListItemIcon><IconX width={18} /></ListItemIcon>Reddet
+                                                                                <ListItemIcon><IconX width={18} /></ListItemIcon>رد
                                                                             </UiMenuItem>
                                                                         </>
                                                                     )}
                                                                     {row.status === 1 && (
                                                                         <UiMenuItem onClick={() => handleStatusUpdateClick('reject')}>
-                                                                            <ListItemIcon><IconX width={18} /></ListItemIcon>Reddet
+                                                                            <ListItemIcon><IconX width={18} /></ListItemIcon>رد
                                                                         </UiMenuItem>
                                                                     )}
                                                                     {row.status === 2 && (
                                                                         <UiMenuItem onClick={() => handleStatusUpdateClick('approve')}>
-                                                                            <ListItemIcon><IconCheck width={18} /></ListItemIcon>Onayla
+                                                                            <ListItemIcon><IconCheck width={18} /></ListItemIcon>تأیید
                                                                         </UiMenuItem>
                                                                     )}
                                                                 </>
@@ -1730,7 +1730,7 @@ const ListStoreDispatchToCenter = () => {
                                                             {hasDownloadPermission && (
                                                                 <UiMenuItem onClick={() => handleOpenRowDownloadModal(selectedRowForMenu!)}>
                                                                     <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>
-                                                                    Bu satırı indir
+                                                                    دانلود این ردیف
                                                                 </UiMenuItem>
                                                             )}
                                                         </Menu>
@@ -1742,7 +1742,7 @@ const ListStoreDispatchToCenter = () => {
                                         <TableRow>
                                             <StyledTableCell colSpan={9} align="center">
                                                 <Typography variant="subtitle1" color="textSecondary">
-                                                    Hiç sevk belgesi bulunamadı.
+                                                    هیچ سند ارسالی پیدا نشد.
                                                 </Typography>
                                             </StyledTableCell>
                                         </TableRow>
@@ -1759,13 +1759,13 @@ const ListStoreDispatchToCenter = () => {
                         page={page}
                         onPageChange={(_, newPage) => setPage(newPage)}
                         onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                        labelRowsPerPage="Satır başına:"
+                        labelRowsPerPage="تعداد در هر صفحه:"
                     />
                 </BlankCard>
             </Box>
 
             <Dialog open={openVehicleModal} onClose={() => setOpenVehicleModal(false)}>
-                <DialogTitle>Araç Seçin</DialogTitle>
+                <DialogTitle>خودرو را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <FormControl component="fieldset">
                         <RadioGroup
@@ -1794,10 +1794,10 @@ const ListStoreDispatchToCenter = () => {
                         }
                         setOpenVehicleModal(false);
                     }} color="primary" variant="contained">
-                        Seç
+                        انتخاب
                     </Button>
                     <Button onClick={() => setOpenVehicleModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1821,7 +1821,7 @@ const ListStoreDispatchToCenter = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => { setOpenStatusModal(false); setStatusDescriptionError(false); }} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                     <Button
                         onClick={handleStatusUpdate}
@@ -1836,30 +1836,30 @@ const ListStoreDispatchToCenter = () => {
             </Dialog>
 
             <Dialog open={openDescriptionModal} onClose={() => setOpenDescriptionModal(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Durum Açıklaması</DialogTitle>
+                <DialogTitle>توضیح وضعیت</DialogTitle>
                 <DialogContent dividers>
                     <Typography variant="body1">
                         {currentStatusDescription}
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDescriptionModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenDescriptionModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
 
             <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Sevk Detayları</DialogTitle>
+                <DialogTitle>جزئیات ارسال</DialogTitle>
                 <DialogContent>
                     {detailsToShow.length > 0 ? (
                         <TableContainer component={Paper}>
-                            <Table aria-label="Ürün detayları tablosu">
+                            <Table aria-label="جدول جزئیات کالا">
                                 <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                     <TableRow>
-                                        <StyledTableCell><Typography variant="h6">Malzeme</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Miktar</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Birim</Typography></StyledTableCell>
-                                        <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">کالا</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">مقدار</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">واحد</Typography></StyledTableCell>
+                                        <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -1876,13 +1876,13 @@ const ListStoreDispatchToCenter = () => {
                         </TableContainer>
                     ) : (
                         <Typography variant="body1" sx={{ p: 2, textAlign: 'center' }}>
-                            Bu sevk belgesi için detay bulunamadı.
+                            جزئیاتی برای این سند ارسال پیدا نشد.
                         </Typography>
                     )}
                     {detailsToShow.length > 0 && (
                         <Box sx={{ mt: 2, p: 1, borderTop: '1px solid #eee' }}>
                             <Typography variant="h6" align="right">
-                                Toplam Miktar: {totalQuantityInDetailsModal.toFixed(2)}
+                                مقدار کل: {totalQuantityInDetailsModal.toFixed(2)}
                             </Typography>
                         </Box>
                     )}
@@ -1906,7 +1906,7 @@ const ListStoreDispatchToCenter = () => {
                                     }
                                 }}
                             >
-                                PDF İndir
+                                دانلود PDF
                             </Button>
 
                             <Button
@@ -1921,7 +1921,7 @@ const ListStoreDispatchToCenter = () => {
                                     }
                                 }}
                             >
-                                Excel İndir
+                                دانلود Excel
                             </Button>
                         </Stack>
 
@@ -1932,72 +1932,72 @@ const ListStoreDispatchToCenter = () => {
                             fullWidth
                             sx={{ flex: 1 }}
                         >
-                            Kapat
+                            بستن
                         </Button>
                     </Stack>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadAllModal} onClose={() => setOpenDownloadAllModal(false)} maxWidth="xs">
-                <DialogTitle>Tüm Sevk Belgelerini İndir</DialogTitle>
+                <DialogTitle>دانلود همه‌ی اسناد ارسال</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button variant="contained" color="primary" startIcon={<IconFileText />}
                             onClick={() => { handleDownload('pdf', false); setOpenDownloadAllModal(false); }}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
                             onClick={() => { handleDownload('excel', false); setOpenDownloadAllModal(false); }}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
-                <DialogTitle>Filtrelenmiş Sevk Belgelerini İndir</DialogTitle>
+                <DialogTitle>دانلود اسناد ارسال فیلترشده</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button variant="contained" color="primary" startIcon={<IconFileText />}
                             onClick={() => { handleDownload('pdf', true); setOpenDownloadFilteredModal(false); }}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
                             onClick={() => { handleDownload('excel', true); setOpenDownloadFilteredModal(false); }}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={() => setOpenRowDownloadModal(false)} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button variant="contained" color="primary" startIcon={<IconFileText />}
                             onClick={() => handleDownloadSingleDispatch('pdf')}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
                             onClick={() => handleDownloadSingleDispatch('excel')}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2007,7 +2007,7 @@ const ListStoreDispatchToCenter = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -2015,7 +2015,7 @@ const ListStoreDispatchToCenter = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

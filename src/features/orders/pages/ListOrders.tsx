@@ -51,7 +51,7 @@ const ListOrders = () => {
                 <ToggleButton value="excel">
                     <Stack direction={{ xs: 'column', sm: 'row' }} alignItems="center" spacing={1}>
                         <IconFileSpreadsheet />
-                        <Typography>Excel İçe Aktar</Typography>
+                        <Typography>ورود از Excel</Typography>
                     </Stack>
                 </ToggleButton>
                 <ToggleButton value="compare">

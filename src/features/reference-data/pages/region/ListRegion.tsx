@@ -49,8 +49,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -255,9 +255,9 @@ const ListRegion = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const findRegionById = useCallback((regions: ApiRegionType[], id: string): ApiRegionType | undefined => {
@@ -281,7 +281,7 @@ const ListRegion = () => {
                 name: reg.name,
                 createAt: reg.createAt,
                 recordStatus: reg.recordStatus,
-                status: reg.recordStatus === 0 ? 'Aktif' : reg.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                status: reg.recordStatus === 0 ? 'فعال' : reg.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                 parentId: reg.parentId,
                 depth: reg.depth,
             }));
@@ -293,7 +293,7 @@ const ListRegion = () => {
                     name: reg.name,
                     createAt: reg.createAt,
                     recordStatus: reg.recordStatus,
-                    status: reg.recordStatus === 0 ? 'Aktif' : reg.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: reg.recordStatus === 0 ? 'فعال' : reg.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                     parentId: reg.parentId,
                     depth: reg.depth,
                 }));
@@ -388,9 +388,9 @@ const ListRegion = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+            console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingData(false);
             return false;
         }
@@ -409,14 +409,14 @@ const ListRegion = () => {
                 setRawApiRegions(response.data.data);
                 return true;
             } else {
-                showAlert(response.data.message || 'Bölgeler yüklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام بارگذاری مناطق خطایی رخ داد.', 'error');
                 return false;
             }
         } catch (e: any) {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 console.error("Bölgeler getirilirken hata oluştu:", e);
                 showAlert('Bölgeler yüklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -432,7 +432,7 @@ const ListRegion = () => {
         if (!name.trim()) {
             setNameError(true);
             setNameHelperText('Bölge adı boş bırakılamaz!');
-            showAlert('İsim boş bırakılamaz!', 'warning');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         setNameError(false);
@@ -444,7 +444,7 @@ const ListRegion = () => {
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+            showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -480,7 +480,7 @@ const ListRegion = () => {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 console.error("Bölge eklenirken hata:", e);
                 showAlert('Bölge eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -495,7 +495,7 @@ const ListRegion = () => {
         if (!name.trim()) {
             setNameError(true);
             setNameHelperText('Bölge adı boş bırakılamaz!');
-            showAlert('İsim boş bırakılamaz!', 'warning');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         setNameError(false);
@@ -508,7 +508,7 @@ const ListRegion = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+            showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -541,11 +541,11 @@ const ListRegion = () => {
 
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 console.error("Bölge güncellenirken hata:", e);
@@ -560,7 +560,7 @@ const ListRegion = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+            showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
             return;
         }
         if (!selectedRowForMenu) {
@@ -588,20 +588,20 @@ const ListRegion = () => {
             });
 
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Direk başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Direk başarıyla ${statusText} تنظیم شد!`, 'success');
                 await fetchRegions();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 console.error("Durum güncellenirken hata:", e);
-                showAlert('Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert('هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
             }
         } finally {
             handleCloseMenu();
@@ -681,7 +681,7 @@ const ListRegion = () => {
             name: selectedRegion.name,
             createAt: selectedRegion.createAt,
             recordStatus: selectedRegion.recordStatus,
-            status: selectedRegion.recordStatus === 0 ? 'Aktif' : selectedRegion.recordStatus === 1 ? 'Pasif' : 'Silindi',
+            status: selectedRegion.recordStatus === 0 ? 'فعال' : selectedRegion.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
             parentId: selectedRegion.parentId,
             depth: selectedRegion.depth,
         } : null);
@@ -754,7 +754,7 @@ const ListRegion = () => {
             const row = [
                 fullRegionName,
                 formatDateDisplay(region.createAt),
-                region.recordStatus === 0 ? 'Aktif' : 'Pasif'
+                region.recordStatus === 0 ? 'فعال' : 'غیرفعال'
             ];
             rows.push(row);
 
@@ -788,7 +788,7 @@ const ListRegion = () => {
                 try {
                     pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
                 } catch (e) {
-                    console.error("Logo yüklenemedi", e);
+                    console.error("لوگو بارگذاری نشد", e);
                 }
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.setFontSize(14);
@@ -797,7 +797,7 @@ const ListRegion = () => {
 
                 pdfDoc.setFontSize(10);
                 pdfDoc.setFont('NotoSans', 'bold');
-                pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+                pdfDoc.text(`تاریخ گزارش:`, 15, 40);
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -812,7 +812,7 @@ const ListRegion = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
 
@@ -824,19 +824,19 @@ const ListRegion = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
             const rows = flattenAndPrepareRegionsForPdf(rawApiRegions);
 
             autoTable(doc, {
                 startY: 55,
-                head: [['Bölge Adı', 'Oluşturulma Tarihi', 'Durum']],
+                head: [['نام منطقه', 'تاریخ ایجاد', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: {
@@ -864,10 +864,10 @@ const ListRegion = () => {
             });
 
             doc.save(`Tum_Bolgeler_Raporu.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (error: any) {
             console.error('PDF error:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+            showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
         }
     };
 
@@ -880,7 +880,7 @@ const ListRegion = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -911,7 +911,7 @@ const ListRegion = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 companyInfo.forEach(line => {
@@ -933,7 +933,7 @@ const ListRegion = () => {
             }
             worksheet.mergeCells('A2:D2');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -941,7 +941,7 @@ const ListRegion = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['Bölge Adı', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام منطقه', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -974,10 +974,10 @@ const ListRegion = () => {
             const fileName = `Tüm_Bölgeler_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -1013,7 +1013,7 @@ const ListRegion = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1058,13 +1058,13 @@ const ListRegion = () => {
                     <Grid container spacing={1}>
                         <Grid item xs={12} sm={1} display="flex" alignItems="center">
                             <CustomFormLabel htmlFor="region-name" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                                İsim
+                                نام
                             </CustomFormLabel>
                         </Grid>
                         <Grid item xs={12} sm={7}>
                             <CustomTextField
                                 id="region-name"
-                                placeholder={currentParentRegion ? "Şehir Adı" : "Bölge Adı"}
+                                placeholder={currentParentRegion ? "Şehir Adı" : "نام منطقه"}
 
                                 sx={{ width: '100%' }}
                                 size="small"
@@ -1095,12 +1095,12 @@ const ListRegion = () => {
                                             >
                                                 {loadingButton ? <>
                                                     <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                                                </> : 'Düzenlemek'}
+                                                </> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni bölge moduna dön" : ""}>
                                             <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                                İptal Et
+                                                لغو
                                             </Button>
                                         </CustomTooltip>
                                     </>
@@ -1142,14 +1142,14 @@ const ListRegion = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => setOpenDownloadModal(true)}
                                         startIcon={<IconFileDownload />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -1186,19 +1186,19 @@ const ListRegion = () => {
                                     value="all"
                                     aria-label="all regions"
                                 >
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="active"
                                     aria-label="active regions"
                                 >
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="inactive"
                                     aria-label="inactive regions"
                                 >
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1220,7 +1220,7 @@ const ListRegion = () => {
                                             onClick={() => handleRequestSort('name')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">İsim</Typography>
+                                            <Typography variant="h6">نام</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1230,7 +1230,7 @@ const ListRegion = () => {
                                             onClick={() => handleRequestSort('createAt')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ ایجاد</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1240,7 +1240,7 @@ const ListRegion = () => {
                                             onClick={() => handleRequestSort('status')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell style={{ color: "#171c23" }}>
@@ -1302,7 +1302,7 @@ const ListRegion = () => {
                                                 </CustomTooltip>
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1328,7 +1328,7 @@ const ListRegion = () => {
                                                                 <ListItemIcon>
                                                                     <DoNotDisturbOnRoundedIcon width={18} />
                                                                 </ListItemIcon>
-                                                                Pasif Yap
+                                                                غیرفعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1338,7 +1338,7 @@ const ListRegion = () => {
                                                                 <ListItemIcon>
                                                                     <DoneRoundedIcon width={18} />
                                                                 </ListItemIcon>
-                                                                Aktif Yap
+                                                                فعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1348,7 +1348,7 @@ const ListRegion = () => {
                                                                 <ListItemIcon>
                                                                     <IconEdit width={18} />
                                                                 </ListItemIcon>
-                                                                Düzenlemek
+                                                                ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1370,7 +1370,7 @@ const ListRegion = () => {
                                     <TableRow>
                                         <StyledTableCell colSpan={5} align="center">
                                             <Typography variant="subtitle1" color="textSecondary">
-                                                Hiç bölge bulunamadı.
+                                                هیچ منطقه‌ای پیدا نشد.
                                             </Typography>
                                         </StyledTableCell>
                                     </TableRow>
@@ -1387,7 +1387,7 @@ const ListRegion = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1403,7 +1403,7 @@ const ListRegion = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1412,7 +1412,7 @@ const ListRegion = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllRegionsPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1420,13 +1420,13 @@ const ListRegion = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

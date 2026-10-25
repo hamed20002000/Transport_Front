@@ -81,7 +81,7 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
 
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت.', 'error'); setLoadingButton(false); return; }
 
         try {
             const payload = {
@@ -91,17 +91,17 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
             const response = await axios.put(server.baseurl + server.hr + "update-request-status", payload, { headers: { "Authorization": `Bearer ${authToken}`, "Content-Type": "application/json" } });
 
             if (response.data.httpStatusCode === 200) {
-                showAlert(`Malzeme talebi başarıyla ${newStatus === 1 ? 'Onaylandı' : 'Reddedildi'}!`, 'success');
+                showAlert(`Malzeme talebi başarıyla ${newStatus === 1 ? 'تأیید شد' : 'Reddedildi'}!`, 'success');
                 handleCloseStatusModal();
                 fetchRequests();
-            } else { showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
         finally { setLoadingButton(false); }
     };
@@ -124,12 +124,12 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                     <Table aria-label="Malzeme Talep Listesi">
                         <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                             <TableRow>
-                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Başlık</Typography></StyledTableCell>
-                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Açıklama</Typography></StyledTableCell>
-                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Talep Eden</Typography></StyledTableCell>
-                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Durum</Typography></StyledTableCell>
+                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">عنوان</Typography></StyledTableCell>
+                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">توضیحات</Typography></StyledTableCell>
+                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">درخواست‌دهنده</Typography></StyledTableCell>
+                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">وضعیت</Typography></StyledTableCell>
                                 <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Ekler</Typography></StyledTableCell>
-                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Detay</Typography></StyledTableCell>
+                                <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">جزئیات</Typography></StyledTableCell>
                                 <StyledTableCell></StyledTableCell>
                             </TableRow>
                         </TableHead>
@@ -141,14 +141,14 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
 
                                         <StyledTableCell sx={{ maxWidth: 150 }}>
                                             {row.description && row.description.trim().length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                     <Button
 
                                                         variant="outlined"
                                                         style={{ fontSize: "10px", padding: "2px 5px" }}
                                                         onClick={() => props.handleOpenDescriptionModal(row.description)}
                                                     >
-                                                        Açıklamayı Oku
+                                                        خواندن توضیحات
                                                     </Button>
                                                 </CustomTooltip>
                                             ) : (
@@ -161,7 +161,7 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                                         <StyledTableCell>
                                             <Stack direction="row" alignItems="center" spacing={1}>
                                                 <Chip label={statusToLabel(row.status)} color={statusToColor(row.status)} size="small" />
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Durum Geçmişini Gör" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی تاریخچه‌ی وضعیت" : ""}>
                                                     <IconButton size="small" onClick={() => props.handleOpenHistoryModal(row.requestStatusHistories || [])}>
                                                         <IconInfoCircle size={18} />
                                                     </IconButton>
@@ -170,7 +170,7 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                                         </StyledTableCell>
                                         <StyledTableCell>
                                             {row.attachments && row.attachments.length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Ekleri görüntüle ve indir" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده و دانلود پیوست‌ها" : ""}>
                                                     <IconButton onClick={() => props.handleOpenAttachmentsModal(row.attachments)}><IconLink size={18} /><Chip label={row.attachments.length} color="primary"></Chip></IconButton>
                                                 </CustomTooltip>
                                             ) : (<Typography variant="body2" color="textSecondary">-</Typography>)}
@@ -184,20 +184,20 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                                                 startIcon={<IconInfoCircle size={16} />}
                                                 sx={{ fontSize: '10px' }}
                                             >
-                                                Detay
+                                                جزئیات
                                             </Button>
                                         </StyledTableCell>
                                         <StyledTableCell>
                                             <IconButton onClick={(event) => handleClickMenu(event, row)}><IconDots width={18} /></IconButton>
                                             <Menu anchorEl={anchorEl} open={openMenu && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
                                                 {hasStatusUpdatePermission && (row.status === 0 || row.status === 2) && (
-                                                    <UiMenuItem onClick={() => handleOpenStatusModal(1, row)}><ListItemIcon><IconChecks width={18} /></ListItemIcon> Onayla</UiMenuItem>
+                                                    <UiMenuItem onClick={() => handleOpenStatusModal(1, row)}><ListItemIcon><IconChecks width={18} /></ListItemIcon> تأیید</UiMenuItem>
                                                 )}
                                                 {hasStatusUpdatePermission && (row.status === 0 || row.status === 1) && (
-                                                    <UiMenuItem onClick={() => handleOpenStatusModal(2, row)}><ListItemIcon><IconX width={18} /></ListItemIcon> Reddet</UiMenuItem>
+                                                    <UiMenuItem onClick={() => handleOpenStatusModal(2, row)}><ListItemIcon><IconX width={18} /></ListItemIcon> رد</UiMenuItem>
                                                 )}
                                                 {hasDownloadPermission && (
-                                                    <UiMenuItem onClick={() => { setSelectedRowForMenu(row); setOpenDownloadSingleModal(true); handleCloseMenu(); }}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir</UiMenuItem>
+                                                    <UiMenuItem onClick={() => { setSelectedRowForMenu(row); setOpenDownloadSingleModal(true); handleCloseMenu(); }}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف</UiMenuItem>
                                                 )}
                                             </Menu>
                                         </StyledTableCell>
@@ -214,13 +214,13 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
             <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div"
                 count={requestsList.length} rowsPerPage={rowsPerPage} page={page}
                 onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
+                labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
             />
 
             <Dialog open={openStatusModal} onClose={handleCloseStatusModal} maxWidth="sm" fullWidth>
                 <DialogTitle>{newStatus === 1 ? 'Talebi Onayla' : 'Talebi Reddet'}</DialogTitle>
                 <DialogContent dividers>
-                    <CustomFormLabel required={newStatus === 2}>Açıklama</CustomFormLabel>
+                    <CustomFormLabel required={newStatus === 2}>توضیحات</CustomFormLabel>
                     <TextField fullWidth multiline rows={3} value={statusDescription} onChange={(e) => setStatusDescription(e.target.value)}
                         placeholder={newStatus === 1 ? 'Onayınızla ilgili kısa bir not girin (isteğe bağlı)' : 'Reddetme nedenini açıklayın (zorunlu)'}
                         error={newStatus === 2 && !statusDescription.trim()}
@@ -228,36 +228,36 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseStatusModal} color="secondary" disabled={loadingButton}>İptal</Button>
+                    <Button onClick={handleCloseStatusModal} color="secondary" disabled={loadingButton}>انصراف</Button>
                     <Button onClick={submitStatusUpdate} color={newStatus === 1 ? 'success' : 'error'} variant="contained"
                         disabled={loadingButton || (newStatus === 2 && !statusDescription.trim())}
                     >
-                        {loadingButton ? <CircularProgress size={24} color={newStatus === 1 ? 'success' : 'error'} /> : (newStatus === 1 ? 'Onayla' : 'Reddet')}
+                        {loadingButton ? <CircularProgress size={24} color={newStatus === 1 ? 'success' : 'error'} /> : (newStatus === 1 ? 'تأیید' : 'رد')}
                     </Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadSingleModal} onClose={() => setOpenDownloadSingleModal(false)} maxWidth="xs">
-                <DialogTitle>Talep Raporunu İndir</DialogTitle>
+                <DialogTitle>دانلود گزارش درخواست</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 1 }}>
-                        <Button variant="contained" color="primary" onClick={() => { if (selectedRowForMenu) { exportRequestPdf(selectedRowForMenu, 'Malzeme Talep Detay Raporu'); } setOpenDownloadSingleModal(false); }} startIcon={<IconFileDownload />}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" onClick={() => { if (selectedRowForMenu) { exportRequestExcel(selectedRowForMenu, 'Malzeme Talep Detayları'); } setOpenDownloadSingleModal(false); }} startIcon={<IconFileDownload />}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" onClick={() => { if (selectedRowForMenu) { exportRequestPdf(selectedRowForMenu, 'گزارش جزئیات درخواست کالا'); } setOpenDownloadSingleModal(false); }} startIcon={<IconFileDownload />}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" onClick={() => { if (selectedRowForMenu) { exportRequestExcel(selectedRowForMenu, 'جزئیات درخواست کالا'); } setOpenDownloadSingleModal(false); }} startIcon={<IconFileDownload />}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadSingleModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadSingleModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
 
             <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)} maxWidth="sm" fullWidth>
                 <DialogTitle sx={{ bgcolor: 'info.main', color: 'white' }}>
-                    Malzeme Talep Detayları
+                    جزئیات درخواست کالا
                 </DialogTitle>
                 <DialogContent dividers>
                     {viewingRow && (
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <Box display="flex" justifyContent="space-between">
-                                <Typography fontWeight="bold">Başlık:</Typography>
+                                <Typography fontWeight="bold">عنوان:</Typography>
                                 <Typography>{viewingRow.subject}</Typography>
                             </Box>
                             <Box display="flex" justifyContent="space-between">
@@ -265,15 +265,15 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                                 <Typography>{viewingRow.user?.username || '-'}</Typography>
                             </Box>
                             <Box display="flex" justifyContent="space-between">
-                                <Typography fontWeight="bold">Tarih:</Typography>
+                                <Typography fontWeight="bold">تاریخ:</Typography>
                                 <Typography>{new Date(viewingRow.createAt).toLocaleDateString('tr-TR')}</Typography>
                             </Box>
 
                             <Divider />
 
-                            <Typography fontWeight="bold">Açıklama:</Typography>
+                            <Typography fontWeight="bold">توضیحات:</Typography>
                             <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f9f9f9', minHeight: '100px' }}>
-                                <div dangerouslySetInnerHTML={{ __html: viewingRow.description || 'Açıklama belirtilmemiş.' }} />
+                                <div dangerouslySetInnerHTML={{ __html: viewingRow.description || 'توضیحی ثبت نشده است.' }} />
                             </Paper>
 
                             <Divider sx={{ my: 1 }} />
@@ -283,24 +283,24 @@ const MaterialReceiptList: React.FC<MaterialReceiptListProps> = (props) => {
                                     variant="outlined"
                                     color="primary"
                                     startIcon={<IconFileDownload />}
-                                    onClick={() => exportRequestPdf(viewingRow, 'Malzeme Talep Raporu')}
+                                    onClick={() => exportRequestPdf(viewingRow, 'گزارش درخواست کالا')}
                                 >
-                                    PDF İndir
+                                    دانلود PDF
                                 </Button>
                                 <Button
                                     variant="outlined"
                                     color="success"
                                     startIcon={<IconFileDownload />}
-                                    onClick={() => exportRequestExcel(viewingRow, 'Malzeme Talep Detayları')}
+                                    onClick={() => exportRequestExcel(viewingRow, 'جزئیات درخواست کالا')}
                                 >
-                                    Excel İndir
+                                    دانلود Excel
                                 </Button>
                             </Stack>
                         </Stack>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDetailsModal(false)} variant="contained" color="inherit">Kapat</Button>
+                    <Button onClick={() => setOpenDetailsModal(false)} variant="contained" color="inherit">بستن</Button>
                 </DialogActions>
             </Dialog>
 

@@ -54,8 +54,8 @@ const formatDateDisplay = (dateString: string | null): string => {
     const date = new Date(dateString);
     return format(date, 'dd MMMM yyyy', { locale: tr });
   } catch (e) {
-    console.log("Tarih biçimlendirilirken hata oluştu:", e);
-    return "Geçersiz Tarih";
+    console.log("خطا در قالب‌بندی تاریخ:", e);
+    return "تاریخ نامعتبر";
   }
 };
 
@@ -486,9 +486,9 @@ const ListItemComponent = () => {
   };
 
   const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-  const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+  const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
   const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-  const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+  const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
   const categoryTreeForSelect = useMemo(() => {
@@ -691,7 +691,7 @@ const ListItemComponent = () => {
     }
 
     if (hasError) {
-      showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning');
+      showAlert('لطفاً همه‌ی فیلدهای الزامی را درست پر کنید!', 'warning');
       return;
     }
 
@@ -700,9 +700,9 @@ const ListItemComponent = () => {
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       setLoadingButton(false);
       return;
     }
@@ -739,7 +739,7 @@ const ListItemComponent = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         showAlert(e.response?.data?.message == "The item already exist" ? "Bu isimle bir öğe zaten var. Aynı adla yeni bir birim kaydedemezsiniz." : 'Ürün eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
       }
@@ -787,7 +787,7 @@ const ListItemComponent = () => {
       setCategoryIdHelperText('');
     }
     if (hasError) {
-      showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning');
+      showAlert('لطفاً همه‌ی فیلدهای الزامی را درست پر کنید!', 'warning');
       return;
     }
 
@@ -807,9 +807,9 @@ const ListItemComponent = () => {
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       setLoadingButton(false);
       return;
     }
@@ -845,11 +845,11 @@ const ListItemComponent = () => {
 
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       } else {
         console.log("Error inserting item:", e);
@@ -865,9 +865,9 @@ const ListItemComponent = () => {
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       return;
     }
 
@@ -886,21 +886,21 @@ const ListItemComponent = () => {
       );
 
       if (response.data && response.data.success) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`Ürün başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`Ürün başarıyla ${statusText} تنظیم شد!`, 'success');
         getListItem();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
 
     } catch (e: any) {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Error updating status:", e);
-        showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
       }
     } finally {
       handleCloseMenu();
@@ -922,9 +922,9 @@ const ListItemComponent = () => {
     setLoadingUnits(true);
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       setLoadingUnits(false);
       return;
     }
@@ -950,7 +950,7 @@ const ListItemComponent = () => {
       if (axios.isAxiosError(e) && e.response?.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Error fetching units:", e);
         showAlert('Ölçüler sunucudan alınamadı.', 'error');
@@ -963,9 +963,9 @@ const ListItemComponent = () => {
     setLoadingCategories(true);
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       setLoadingCategories(false);
       return;
     }
@@ -1012,7 +1012,7 @@ const ListItemComponent = () => {
       if (axios.isAxiosError(e) && e.response?.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Error fetching categories:", e);
         showAlert('Kategoriler sunucudan alınamadı.', 'error');
@@ -1025,9 +1025,9 @@ const ListItemComponent = () => {
     setLoadingItems(true);
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+      console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
       navigate("/");
-      showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+      showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       setLoadingItems(false);
       return;
     }
@@ -1063,22 +1063,22 @@ const ListItemComponent = () => {
 
             createAt: item.unit.createAt,
           },
-          status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+          status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
         }));
 
         setItemsList(processedData as ItemType[]);
       } else {
         console.error("Failed to fetch items:", response.data.message);
-        showAlert('Ürünler yüklenmedi.', 'error');
+        showAlert('کالاها بارگذاری نشدند.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         console.error("Error fetching items:", e);
-        showAlert('Ürünler sunucudan alınamadı', 'error');
+        showAlert('کالاها از سرور دریافت نشدند', 'error');
       }
     } finally {
       setLoadingItems(false);
@@ -1211,7 +1211,7 @@ const ListItemComponent = () => {
         try {
           pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
         } catch (e) {
-          console.error("Logo yüklenemedi", e);
+          console.error("لوگو بارگذاری نشد", e);
         }
         pdfDoc.setFont('NotoSans', 'normal');
         pdfDoc.setFontSize(14);
@@ -1220,7 +1220,7 @@ const ListItemComponent = () => {
 
         pdfDoc.setFontSize(10);
         pdfDoc.setFont('NotoSans', 'bold');
-        pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+        pdfDoc.text(`تاریخ گزارش:`, 15, 40);
         pdfDoc.setFont('NotoSans', 'normal');
         pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -1235,7 +1235,7 @@ const ListItemComponent = () => {
 
         const companyInfo = [
           'ترابوت',
-          'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+          'ترابوت، دستیار هوشمند حمل‌ونقل',
           'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -1247,12 +1247,12 @@ const ListItemComponent = () => {
 
         pdfDoc.setTextColor(0);
         pdfDoc.setFontSize(10);
-        pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-        pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
       };
 
       const rows = sortedAndFilteredItems.map(item => [
@@ -1269,7 +1269,7 @@ const ListItemComponent = () => {
 
       autoTable(doc, {
         startY: 55,
-        head: [['Ürün Adı', 'Kod', 'Ölçü', 'Kategori', 'Kıs.', 'Ağırlık', 'Açıklama', 'Tarih', 'Durum']],
+        head: [['نام کالا', 'کد', 'واحد اندازه‌گیری', 'دسته‌بندی', 'Kıs.', 'وزن', 'توضیحات', 'تاریخ', 'وضعیت']],
         body: rows,
         theme: 'grid',
         styles: {
@@ -1298,10 +1298,10 @@ const ListItemComponent = () => {
       });
 
       doc.save(`Tum_Urunler_Raporu.pdf`);
-      showAlert('PDF başarıyla oluşturuldu.', 'success');
+      showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
     } catch (error: any) {
       console.error('PDF error:', error);
-      showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+      showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
     }
   };
 
@@ -1310,7 +1310,7 @@ const ListItemComponent = () => {
     worksheet.addRow([]);
     const companyInfo = [
       'ترابوت',
-      'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+      'ترابوت، دستیار هوشمند حمل‌ونقل',
       'دستیار هوشمند حمل‌ونقل',
     ];
     companyInfo.forEach(line => {
@@ -1329,7 +1329,7 @@ const ListItemComponent = () => {
       return;
     }
 
-    showAlert('Excel dosyası oluşturuluyor...', 'info');
+    showAlert('در حال ساخت فایل Excel...', 'info');
 
     try {
       const workbook = new Excel.Workbook();
@@ -1404,7 +1404,7 @@ const ListItemComponent = () => {
       }
       worksheet.mergeCells('A2:H2');
 
-      worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+      worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
 
       const dateRow = worksheet.lastRow;
       if (dateRow) {
@@ -1414,7 +1414,7 @@ const ListItemComponent = () => {
 
       worksheet.addRow([]);
 
-      const tableHeaders = ['Ürün Adı', 'Ürün Kodu', 'Ölçü', 'Kategori', 'Kısaltma', 'Ağırlık', 'Açıklama', 'Oluşturulma Tarihi', 'Durum'];
+      const tableHeaders = ['نام کالا', 'کد کالا', 'واحد اندازه‌گیری', 'دسته‌بندی', 'اختصار', 'وزن', 'توضیحات', 'تاریخ ایجاد', 'وضعیت'];
       const headerRow = worksheet.addRow(tableHeaders);
       headerRow.eachCell((cell) => {
         cell.style = fullHeaderStyle;
@@ -1455,7 +1455,7 @@ const ListItemComponent = () => {
         if (lastRow) {
           lastRow.getCell(1).font = { name: 'Times New Roman', size: 12, bold: true };
         }
-        const summaryHeaders = ['Ölçü', 'Toplam Ağırlık'];
+        const summaryHeaders = ['واحد اندازه‌گیری', 'Toplam Ağırlık'];
         worksheet.addRow(summaryHeaders).eachCell((cell) => cell.style = fullHeaderStyle);
 
         Array.from(totalWeightMap.entries()).forEach(([unit, totalWeight]) => {
@@ -1487,10 +1487,10 @@ const ListItemComponent = () => {
       const fileName = `Tüm_Ürünler_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
       saveAs(new Blob([buffer]), fileName);
 
-      showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+      showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
     } catch (error) {
-      console.error("Excel dışa aktarılırken hata:", error);
-      showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+      console.error("خطا در خروجی Excel:", error);
+      showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
     }
   };
 
@@ -1532,7 +1532,7 @@ const ListItemComponent = () => {
               </CustomTooltip>
             )}
             {isFormVisible && (
-              <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+              <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                 <Button
                   variant="contained"
                   color="error"
@@ -1551,10 +1551,10 @@ const ListItemComponent = () => {
         {((isFormVisible && hasCreatePermission) || (editingId && hasEditPermission)) && (
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
-              <CustomFormLabel htmlFor="item-name" required>Ürün Adı</CustomFormLabel>
+              <CustomFormLabel htmlFor="item-name" required>نام کالا</CustomFormLabel>
               <CustomTextField
                 id="item-name"
-                placeholder="Ürün Adı"
+                placeholder="نام کالا"
                 fullWidth
                 value={name}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1570,10 +1570,10 @@ const ListItemComponent = () => {
               />
             </Grid>
             <Grid item xs={12} md={4}>
-              <CustomFormLabel htmlFor="item-code" required>Ürün Kodu</CustomFormLabel>
+              <CustomFormLabel htmlFor="item-code" required>کد کالا</CustomFormLabel>
               <CustomTextField
                 id="item-code"
-                placeholder="Ürün Kodu"
+                placeholder="کد کالا"
                 fullWidth
                 value={code}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1589,14 +1589,14 @@ const ListItemComponent = () => {
             </Grid>
 
             <Grid item xs={12} md={4}>
-              <CustomFormLabel htmlFor="select-unit" required>Ölçü</CustomFormLabel>
+              <CustomFormLabel htmlFor="select-unit" required>واحد اندازه‌گیری</CustomFormLabel>
               <FormControl fullWidth error={unitIdError}>
-                <InputLabel id="select-unit-label">Ölçü Seçin</InputLabel>
+                <InputLabel id="select-unit-label">واحد را انتخاب کنید</InputLabel>
                 <Select
                   labelId="select-unit-label"
                   id="select-unit"
                   value={selectedUnitId || ''}
-                  label="Ölçü Seçin"
+                  label="واحد را انتخاب کنید"
                   onChange={(e) => {
                     setSelectedUnitId(e.target.value as string);
                     if (unitIdError) {
@@ -1632,7 +1632,7 @@ const ListItemComponent = () => {
                   />
                   {loadingUnits ? (
                     <UiMenuItem disabled>
-                      <CircularProgress size={20} /> Yükleniyor...
+                      <CircularProgress size={20} /> در حال بارگذاری...
                     </UiMenuItem>
                   ) : filteredUnitOptions.length > 0 ? (
                     filteredUnitOptions.map((unit) => (
@@ -1649,7 +1649,7 @@ const ListItemComponent = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12} md={4}>
-              <CustomFormLabel htmlFor="select-category" required>Kategori</CustomFormLabel>
+              <CustomFormLabel htmlFor="select-category" required>دسته‌بندی</CustomFormLabel>
               <FormControl fullWidth error={categoryIdError}>
                 <InputLabel id="select-category-label">Kategori Seçin</InputLabel>
                 <Select
@@ -1695,7 +1695,7 @@ const ListItemComponent = () => {
 
                   {loadingCategories ? (
                     <UiMenuItem disabled>
-                      <CircularProgress size={20} /> Yükleniyor...
+                      <CircularProgress size={20} /> در حال بارگذاری...
                     </UiMenuItem>
                   ) : categoryTreeForSelect.length > 0 ? (
                     categoryTreeForSelect.map((node) => (
@@ -1720,7 +1720,7 @@ const ListItemComponent = () => {
               <CustomTooltip title={isTooltipGloballyEnabled ? "Ürünün 4 karakterlik kısaltmasını girin" : ""}>
                 <CustomTextField
                   id="abbreviation"
-                  placeholder="Kısaltma"
+                  placeholder="اختصار"
                   fullWidth
                   value={abbreviation}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1740,7 +1740,7 @@ const ListItemComponent = () => {
               <CustomFormLabel htmlFor="weight">Ürün Birim Ağırlığı</CustomFormLabel>
               <CustomTextField
                 id="weight"
-                placeholder="Ağırlık"
+                placeholder="وزن"
                 fullWidth
                 type="number"
                 value={weight}
@@ -1760,7 +1760,7 @@ const ListItemComponent = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <CustomFormLabel htmlFor="description">Açıklama</CustomFormLabel>
+              <CustomFormLabel htmlFor="description">توضیحات</CustomFormLabel>
               <ReactQuill
                 theme="snow"
                 value={description}
@@ -1804,12 +1804,12 @@ const ListItemComponent = () => {
                       >
                         {loadingButton ? <>
                           <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                        </> : 'Düzenlemek'}
+                        </> : 'ویرایش'}
                       </Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni ürün moduna dön" : ""}>
                       <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                        İptal Et
+                        لغو
                       </Button>
                     </CustomTooltip>
                   </>
@@ -1852,14 +1852,14 @@ const ListItemComponent = () => {
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             {hasDownloadPermission && (
               <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                   <Button
                     variant="contained"
                     color="primary"
                     onClick={() => setOpenDownloadModal(true)}
                     startIcon={<IconFileDownload />}
                   >
-                    Tümünü İndir
+                    دانلود همه
                   </Button>
                 </CustomTooltip>
               </Grid>
@@ -1897,19 +1897,19 @@ const ListItemComponent = () => {
                   value="all"
                   aria-label="all items"
                 >
-                  Tümü
+                  همه
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="active"
                   aria-label="active items"
                 >
-                  Aktif
+                  فعال
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="inactive"
                   aria-label="inactive items"
                 >
-                  Pasif
+                  غیرفعال
                 </StyledToggleButton>
               </ToggleButtonGroup>
             </Grid>
@@ -1926,7 +1926,7 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('name')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Ürün Adı</Typography>
+                    <Typography variant="h6">نام کالا</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
                 <StyledTableCell>
@@ -1936,7 +1936,7 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('code')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Ürün Kodu</Typography>
+                    <Typography variant="h6">کد کالا</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
 
@@ -1947,7 +1947,7 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('unit.title')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Ölçü</Typography>
+                    <Typography variant="h6">واحد اندازه‌گیری</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
                 <StyledTableCell>
@@ -1957,7 +1957,7 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('category.name')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Kategori</Typography>
+                    <Typography variant="h6">دسته‌بندی</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
                 <StyledTableCell>
@@ -1967,11 +1967,11 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('weight')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Ağırlık</Typography>
+                    <Typography variant="h6">وزن</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
                 <StyledTableCell style={{ color: "#171c23" }}>
-                  <Typography variant="h6">Açıklama</Typography>
+                  <Typography variant="h6">توضیحات</Typography>
                 </StyledTableCell>
                 <StyledTableCell>
                   <TableSortLabel
@@ -1980,7 +1980,7 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('createAt')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                    <Typography variant="h6">تاریخ ایجاد</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
                 <StyledTableCell>
@@ -1990,7 +1990,7 @@ const ListItemComponent = () => {
                     onClick={() => handleRequestSort('status')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Durum</Typography>
+                    <Typography variant="h6">وضعیت</Typography>
                   </TableSortLabel>
                 </StyledTableCell>
                 <StyledTableCell></StyledTableCell>
@@ -2018,14 +2018,14 @@ const ListItemComponent = () => {
 
                     <StyledTableCell sx={{ maxWidth: 150 }}>
                       {row.description && row.description.trim().length > 0 ? (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                           <Button
 
                             variant="outlined"
                             style={{ fontSize: "10px", padding: "2px 5px" }}
                             onClick={() => handleOpenDescriptionModal(row.description)}
                           >
-                            Açıklamayı Oku
+                            خواندن توضیحات
                           </Button>
                         </CustomTooltip>
                       ) : (
@@ -2056,7 +2056,7 @@ const ListItemComponent = () => {
                       />
                     </StyledTableCell>
                     <StyledTableCell>
-                      <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                      <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                         <IconButton
                           id={`basic-button-${row.id}`}
                           aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -2084,7 +2084,7 @@ const ListItemComponent = () => {
                               <ListItemIcon>
                                 <DoNotDisturbOnRoundedIcon width={18} />
                               </ListItemIcon>
-                              Pasif Yap
+                              غیرفعال کردن
                             </UiMenuItem>
                           </CustomTooltip>
 
@@ -2096,7 +2096,7 @@ const ListItemComponent = () => {
                               <ListItemIcon>
                                 <DoneRoundedIcon width={18} />
                               </ListItemIcon>
-                              Aktif Yap
+                              فعال کردن
                             </UiMenuItem>
                           </CustomTooltip>
                         )}
@@ -2107,7 +2107,7 @@ const ListItemComponent = () => {
                               <ListItemIcon>
                                 <IconEdit width={18} />
                               </ListItemIcon>
-                              Düzenlemek
+                              ویرایش
                             </UiMenuItem>
                           </CustomTooltip>
                         )}
@@ -2146,7 +2146,7 @@ const ListItemComponent = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Satır başına düşen:"
+          labelRowsPerPage="تعداد در هر صفحه:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
         />
       </BlankCard>
@@ -2165,7 +2165,7 @@ const ListItemComponent = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+        <DialogTitle>توضیحات کامل</DialogTitle>
         <DialogContent dividers>
           <DialogContentText>
             <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -2173,7 +2173,7 @@ const ListItemComponent = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDescriptionModal} color="primary">
-            Kapat
+            بستن
           </Button>
         </DialogActions>
       </Dialog>
@@ -2182,7 +2182,7 @@ const ListItemComponent = () => {
         open={openDownloadModal}
         onClose={() => setOpenDownloadModal(false)}
       >
-        <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+        <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
         <DialogContent>
           <Stack direction="column" spacing={2}>
             <Button
@@ -2191,7 +2191,7 @@ const ListItemComponent = () => {
               startIcon={<IconFileDownload />}
               onClick={handlePrintAllItems}
             >
-              PDF Olarak İndir
+              دانلود PDF
             </Button>
             <Button
               variant="contained"
@@ -2199,13 +2199,13 @@ const ListItemComponent = () => {
               startIcon={<IconFileDownload />}
               onClick={handleExportExcel}
             >
-              Excel Olarak İndir
+              دانلود Excel
             </Button>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-            İptal
+            انصراف
           </Button>
         </DialogActions>
       </Dialog>

@@ -32,7 +32,7 @@ const DeleteReceiptsSendedFromStore = ({ openModal, receiptIdToDelete, receiptCo
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return;
         }
 
@@ -63,7 +63,7 @@ const DeleteReceiptsSendedFromStore = ({ openModal, receiptIdToDelete, receiptCo
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 const errorMessage = e.response?.data?.message || 'Giriş belgesi silinirken beklenmeyen bir hata oluştu, lütfen tekrar deneyin.';
@@ -93,12 +93,12 @@ const DeleteReceiptsSendedFromStore = ({ openModal, receiptIdToDelete, receiptCo
                     <DialogContentText id="alert-dialog-description">
                         <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>{receiptCodeToDelete}</span> kodlu giriş belgesini silerseniz, geri almanın bir yolu yoktur.
                         Kaydı silmek istediğinizden eminseniz,
-                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "Silme işlemini iptal et" : ""}>
-                        <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "لغو حذف" : ""}>
+                        <Button onClick={onClose} disabled={loading}>لغو</Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen giriş belgesini sil" : ""}>
                         <Button
@@ -136,7 +136,7 @@ const DeleteReceiptsSendedFromStore = ({ openModal, receiptIdToDelete, receiptCo
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseInUseModal} autoFocus>
-                        Tamam
+                        باشه
                     </Button>
                 </DialogActions>
             </Dialog>

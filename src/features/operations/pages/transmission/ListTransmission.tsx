@@ -65,9 +65,9 @@ const ListTransmission = () => {
 
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const [networkTitleForDisplay, setNetworkTitleForDisplay] = useState('Yükleniyor...');
-    const [workTitleForDisplay, setWorkTitleForDisplay] = useState('Yükleniyor...');
-    const [tenderTitleForDisplay, setTenderTitleForDisplay] = useState('Yükleniyor...');
+    const [networkTitleForDisplay, setNetworkTitleForDisplay] = useState('در حال بارگذاری...');
+    const [workTitleForDisplay, setWorkTitleForDisplay] = useState('در حال بارگذاری...');
+    const [tenderTitleForDisplay, setTenderTitleForDisplay] = useState('در حال بارگذاری...');
     const [displayTitlesLoaded, setDisplayTitlesLoaded] = useState(false);
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
@@ -312,7 +312,7 @@ const ListTransmission = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             setLoadingFormOptions(false);
             return;
         }
@@ -333,15 +333,15 @@ const ListTransmission = () => {
                 }));
                 setAllProductTypes(formattedData);
             } else {
-                showAlert(response.data.message || 'Ürün türleri listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست انواع کالا دریافت نشد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingFormOptions(false);
         }
@@ -351,9 +351,9 @@ const ListTransmission = () => {
         setLoadingItems(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            console.warn("Kimlik doğrulama belirteci bulunamadı, oturum açma sayfasına yönlendiriliyor.");
+            console.warn("توکن احراز هویت پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingItems(false);
             return;
         }
@@ -386,7 +386,7 @@ const ListTransmission = () => {
                         recordStatus: item.unit.recordStatus !== undefined && item.unit.recordStatus !== null ? item.unit.recordStatus : 0,
                         createAt: item.unit.createAt,
                     },
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                 }));
 
                 setItemsList(processedData);
@@ -400,15 +400,15 @@ const ListTransmission = () => {
 
             } else {
                 console.error("Failed to fetch items:", response.data.message);
-                showAlert('Ürünler yüklenmedi.', 'error');
+                showAlert('کالاها بارگذاری نشدند.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingItems(false);
         }
@@ -416,7 +416,7 @@ const ListTransmission = () => {
 
     const fetchNetworkDetails = useCallback(async (id: string) => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Oturumunuzun süresi doldu.', 'error'); navigate("/"); return; }
+        if (!authToken) { showAlert('نشست شما منقضی شده است.', 'error'); navigate("/"); return; }
         try {
             const response = await axios.get(server.baseurl + server.initialoperations + `get-network-by-id/${id}`, {
                 headers: { "Accept": "application/json", "Authorization": `Bearer ${authToken}` }
@@ -439,18 +439,18 @@ const ListTransmission = () => {
                 showAlert(response.data.message || 'Ağ detayları alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate, showAlert]);
 
     const fetchWorkDetails = useCallback(async (id: string) => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Oturumunuzun süresi doldu.', 'error'); navigate("/"); return; }
+        if (!authToken) { showAlert('نشست شما منقضی شده است.', 'error'); navigate("/"); return; }
         try {
             const response = await axios.get(server.baseurl + server.initialoperations + `get-work-by-id/${id}`, {
                 headers: { "Accept": "application/json", "Authorization": `Bearer ${authToken}` }
@@ -463,18 +463,18 @@ const ListTransmission = () => {
                 showAlert(response.data.message || 'İş detayları alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate, showAlert]);
 
     const fetchTenderDetails = useCallback(async (id: string) => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Oturumunuzun süresi doldu.', 'error'); navigate("/"); return; }
+        if (!authToken) { showAlert('نشست شما منقضی شده است.', 'error'); navigate("/"); return; }
         try {
             const response = await axios.get(server.baseurl + server.initialoperations + `get-tender-by-id/${id}`, {
                 headers: { "Accept": "application/json", "Authorization": `Bearer ${authToken}` }
@@ -486,12 +486,12 @@ const ListTransmission = () => {
                 showAlert(response.data.message || 'İhale detayları alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate, showAlert]);
 
@@ -500,7 +500,7 @@ const ListTransmission = () => {
         setLoadingList(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
             setLoadingList(false);
             return;
@@ -656,7 +656,7 @@ const ListTransmission = () => {
     const fetchDataForModal = useCallback(async (workId: string) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
             setLoadingList(false);
             return;
@@ -681,7 +681,7 @@ const ListTransmission = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             return;
         }
         try {
@@ -707,7 +707,7 @@ const ListTransmission = () => {
 
     const handleRegisterNewTrafo = useCallback(async (name: string, type: number) => {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Oturumunuzun süresi doldu.', 'error'); navigate("/"); return; }
+        if (!authToken) { showAlert('نشست شما منقضی شده است.', 'error'); navigate("/"); return; }
         try {
             const payload = {
                 productTypeName: name,
@@ -725,7 +725,7 @@ const ListTransmission = () => {
                 throw new Error(response.data.message || 'TRAFO kaydedilirken bir hata oluştu.');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Sunucu hatası.', 'error');
+            showAlert(e.response?.data?.message || 'خطای سرور.', 'error');
             throw e;
         }
     }, [showAlert, navigate, fetchProductTypes]);
@@ -772,9 +772,9 @@ const ListTransmission = () => {
     }, [networkId, fetchTransmissionList, loadingFormOptions]);
 
     useEffect(() => {
-        const checkAllLoaded = networkTitleForDisplay !== 'Yükleniyor...' &&
-            workTitleForDisplay !== 'Yükleniyor...' &&
-            tenderTitleForDisplay !== 'Yükleniyor...';
+        const checkAllLoaded = networkTitleForDisplay !== 'در حال بارگذاری...' &&
+            workTitleForDisplay !== 'در حال بارگذاری...' &&
+            tenderTitleForDisplay !== 'در حال بارگذاری...';
         if (networkId && workId && tenderId && checkAllLoaded) {
             setDisplayTitlesLoaded(true);
         } else if (!networkId && !workId && !tenderId) {
@@ -911,7 +911,7 @@ const ListTransmission = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -1038,7 +1038,7 @@ const ListTransmission = () => {
             if (e?.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate('/');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(
                     e?.response?.data?.message || 'Kayıtlar gönderilirken bir hata oluştu.',
@@ -1079,11 +1079,11 @@ const ListTransmission = () => {
 
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Kayıtlar silinirken bir hata oluştu.', 'error');
@@ -1132,8 +1132,8 @@ const ListTransmission = () => {
         setFormulaTitle(row.formulaTitle);
         setAddedItems(row.items || []);
 
-        const validMiktarTypes = ['Yeni YG', 'Yeni AG', 'DMM YG', 'DMM AG'];
-        const newMiktarTipi = validMiktarTypes.includes(row.miktarTipi as string) ? row.miktarTipi : 'Yeni YG';
+        const validMiktarTypes = ['فشار قوی جدید', 'فشار ضعیف جدید', 'DMM YG', 'DMM AG'];
+        const newMiktarTipi = validMiktarTypes.includes(row.miktarTipi as string) ? row.miktarTipi : 'فشار قوی جدید';
         setMiktarTipi(newMiktarTipi as any);
         setIsFormVisible(true);
 
@@ -1314,19 +1314,19 @@ const ListTransmission = () => {
                 <Grid item xs={12} sm={3} md={3}>
                     <Stack direction="column" alignItems="flex-start" flexWrap="wrap" gap={1} mb={2}>
                         <Chip
-                            label={`Şebeke: ${networkTitleForDisplay}`}
+                            label={`شبکه: ${networkTitleForDisplay}`}
                             color="primary"
                             variant="filled"
                             size="small"
                         />
                         <Chip
-                            label={`İş: ${workTitleForDisplay}`}
+                            label={`کار: ${workTitleForDisplay}`}
                             color="success"
                             variant="filled"
                             size="small"
                         />
                         <Chip
-                            label={`İhale: ${tenderTitleForDisplay}`}
+                            label={`مناقصه: ${tenderTitleForDisplay}`}
                             color="info"
                             variant="filled"
                             size="small"
@@ -1368,7 +1368,7 @@ const ListTransmission = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained"
                                 color="error"
@@ -1380,10 +1380,10 @@ const ListTransmission = () => {
                             </Button>
                         </CustomTooltip>
                     )}
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                         <Button variant="outlined" color="error" onClick={() => navigate(-1)}
                             endIcon={<IconArrowRight size={20} />}>
-                            Geri Dön
+                            بازگشت
                         </Button>
                     </CustomTooltip>
 
@@ -1442,7 +1442,7 @@ const ListTransmission = () => {
                                         setFromProductType(newValue);
                                         setToProductType(null);
                                     }}
-                                    renderInput={(params) => <TextField {...params} label="Seç" variant="outlined" size="small" />}
+                                    renderInput={(params) => <TextField {...params} label="انتخاب" variant="outlined" size="small" />}
                                     onOpen={() => handleAutocompleteOpen(fromProductTypeRef)}
                                     sx={{ '& .UiAutocomplete-inputRoot': { py: 0.5 } }}
                                     onInputChange={(_event) => { }}
@@ -1458,7 +1458,7 @@ const ListTransmission = () => {
                                     isOptionEqualToValue={(option, value) => option.id === value.id}
                                     value={toProductType}
                                     onChange={(_e, newValue) => setToProductType(newValue)}
-                                    renderInput={(params) => <TextField {...params} label="Seç" variant="outlined" size="small" />}
+                                    renderInput={(params) => <TextField {...params} label="انتخاب" variant="outlined" size="small" />}
                                     onOpen={() => handleAutocompleteOpen(toProductTypeRef)}
                                     sx={{ '& .UiAutocomplete-inputRoot': { py: 0.5 } }}
                                     onInputChange={(_event) => { }}
@@ -1485,17 +1485,17 @@ const ListTransmission = () => {
                             <Grid item xs={12} sm={6}>
                                 <CustomFormLabel component="legend">Miktar Tipi</CustomFormLabel>
                                 <RadioGroup row name="miktar-tipi" value={miktarTipi} onChange={(e) => setMiktarTipi(e.target.value as 'Yeni YG' | 'Yeni AG' | 'DMM YG' | 'DMM AG')}>
-                                    <FormControlLabel value="Yeni YG" control={<Radio size="small" />} label="Yeni YG" disabled={isFormDisabled} />
-                                    <FormControlLabel value="Yeni AG" control={<Radio size="small" />} label="Yeni AG" disabled={isFormDisabled} />
+                                    <FormControlLabel value="Yeni YG" control={<Radio size="small" />} label="فشار قوی جدید" disabled={isFormDisabled} />
+                                    <FormControlLabel value="Yeni AG" control={<Radio size="small" />} label="فشار ضعیف جدید" disabled={isFormDisabled} />
                                     <FormControlLabel value="DMM YG" control={<Radio size="small" />} label="DMM YG" disabled={isFormDisabled} />
                                     <FormControlLabel value="DMM AG" control={<Radio size="small" />} label="DMM AG" disabled={isFormDisabled} />
                                 </RadioGroup>
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <CustomFormLabel htmlFor="formula-title">Formül Başlığı</CustomFormLabel>
+                                <CustomFormLabel htmlFor="formula-title">عنوان فرمول</CustomFormLabel>
                                 <TextField
                                     id="formula-title"
-                                    placeholder="Formül Başlığı"
+                                    placeholder="عنوان فرمول"
                                     fullWidth
                                     value={formulaTitle}
                                     onChange={(e) => setFormulaTitle(e.target.value)}
@@ -1518,7 +1518,7 @@ const ListTransmission = () => {
                                         isOptionEqualToValue={(option, value) => option.id === value.id}
                                         value={selectedItem}
                                         onChange={(_e, newValue) => setSelectedItem(newValue)}
-                                        renderInput={(params) => <TextField {...params} label="Şebeke Seçin" variant="outlined" size="small" />}
+                                        renderInput={(params) => <TextField {...params} label="شبکه را انتخاب کنید" variant="outlined" size="small" />}
                                         sx={{ flexGrow: 1 }}
                                         disabled={loadingItems}
                                     />
@@ -1532,7 +1532,7 @@ const ListTransmission = () => {
                                         )}
                                         <TextField
                                             id="item-quantity"
-                                            label="Miktar"
+                                            label="مقدار"
                                             type="number"
                                             size="small"
                                             fullWidth
@@ -1552,7 +1552,7 @@ const ListTransmission = () => {
                                                 disabled={!selectedItem || !itemQuantity || parseFloat(itemQuantity) <= 0}
                                                 startIcon={<IconEdit size={20} />}
                                             >
-                                                Güncelle
+                                                به‌روزرسانی
                                             </Button>
                                             <Button
                                                 variant="outlined"
@@ -1560,7 +1560,7 @@ const ListTransmission = () => {
                                                 onClick={handleCancelEditItem}
                                                 startIcon={<IconX size={20} />}
                                             >
-                                                İptal
+                                                انصراف
                                             </Button>
                                         </Stack>
                                     ) : (
@@ -1573,7 +1573,7 @@ const ListTransmission = () => {
                                                     disabled={!selectedItem || !itemQuantity || parseFloat(itemQuantity) <= 0}
                                                     startIcon={loadingItems ? <CircularProgress size={20} color="inherit" /> : <IconPlus size={20} />}
                                                 >
-                                                    Ekle
+                                                    افزودن
                                                 </Button>
 
                                             )}
@@ -1638,7 +1638,7 @@ const ListTransmission = () => {
                                             disabled={loadingButton || !isFormComplete}
                                             startIcon={loadingButton ? <CircularProgress size={20} color="inherit" /> : <IconEdit />}
                                         >
-                                            Güncelle
+                                            به‌روزرسانی
                                         </Button>
                                         <Button
                                             variant="outlined"
@@ -1647,7 +1647,7 @@ const ListTransmission = () => {
                                             disabled={loadingButton}
                                             startIcon={<IconX />}
                                         >
-                                            İptal
+                                            انصراف
                                         </Button>
                                     </>
                                 ) : (
@@ -1658,7 +1658,7 @@ const ListTransmission = () => {
                                         disabled={loadingButton || !isFormComplete}
                                         startIcon={loadingButton ? <CircularProgress size={20} color="inherit" /> : <IconPlus />}
                                     >
-                                        Ekle
+                                        افزودن
                                     </Button>
                                 )}
                             </Stack>
@@ -1777,7 +1777,7 @@ const ListTransmission = () => {
                                 </TableCell>
                                 <TableCell>
                                     <TableSortLabel active={orderBy === 'formulaTitle'} direction={orderBy === 'formulaTitle' ? order : 'asc'} onClick={() => handleRequestSort('formulaTitle')}>
-                                        <Typography variant="h6">Formül Başlığı</Typography>
+                                        <Typography variant="h6">عنوان فرمول</Typography>
                                     </TableSortLabel>
                                 </TableCell>
                                 <TableCell style={{ color: "#171c23", width: '50px' }}></TableCell>
@@ -1788,7 +1788,7 @@ const ListTransmission = () => {
                                 <TableRow>
                                     <TableCell colSpan={8} align="center">
                                         <CircularProgress size={20} />
-                                        <Typography color="textSecondary" ml={2}>Veriler yükleniyor...</Typography>
+                                        <Typography color="textSecondary" ml={2}>در حال بارگذاری داده‌ها...</Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (paginatedTransmissionList.length === 0 ? (
@@ -1828,7 +1828,7 @@ const ListTransmission = () => {
                                             </TableCell>
                                             <TableCell>{row.formulaTitle}</TableCell>
                                             <TableCell sx={{ width: '50px' }}>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1854,7 +1854,7 @@ const ListTransmission = () => {
                                                                 <ListItemIcon>
                                                                     <IconEdit width={18} />
                                                                 </ListItemIcon>
-                                                                Düzenlemek
+                                                                ویرایش
                                                             </MenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1911,7 +1911,7 @@ const ListTransmission = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -2036,7 +2036,7 @@ const ListTransmission = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenSelectTrafoModal(false)} color="error">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

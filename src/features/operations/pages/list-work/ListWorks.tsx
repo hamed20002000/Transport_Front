@@ -34,8 +34,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -226,7 +226,7 @@ const ListWorks = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
 
          const handleRefreshAI=()=>{
@@ -358,7 +358,7 @@ const ListWorks = () => {
             setTenderIdError(false);
         }
         if (!isValid) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         }
         return isValid;
     };
@@ -397,12 +397,12 @@ const ListWorks = () => {
                 showAlert(response.data.message || 'Yeni iş eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -425,7 +425,7 @@ const ListWorks = () => {
         try {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
-                showAlert('Lütfen giriş yapın.', 'warning');
+                showAlert('لطفاً وارد شوید.', 'warning');
                 navigate("/");
                 return;
             }
@@ -454,11 +454,11 @@ const ListWorks = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'İş güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -472,7 +472,7 @@ const ListWorks = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -489,20 +489,20 @@ const ListWorks = () => {
                 }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`İş başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`İş başarıyla ${statusText} تنظیم شد!`, 'success');
                 getListWork();
                 resetFormAndState();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -518,7 +518,7 @@ const ListWorks = () => {
         const startDate = new Date(workForEnd.startDate);
         if (endWorkDate < startDate) {
             setEndWorkError(true);
-            showAlert('Bitiş tarihi başlangıç tarihinden önce olamaz!', 'error');
+            showAlert('تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد!', 'error');
             return;
         }
 
@@ -544,12 +544,12 @@ const ListWorks = () => {
                 showAlert(response.data.message || 'İş sonlandırılırken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -604,9 +604,9 @@ const ListWorks = () => {
                 const formattedData: WorkType[] = rawData.map((item: any) => {
                     let recordStatusText = '';
                     if (item.recordStatus === 0) {
-                        recordStatusText = 'Aktif';
+                        recordStatusText = 'فعال';
                     } else if (item.recordStatus === 1) {
-                        recordStatusText = 'Pasif';
+                        recordStatusText = 'غیرفعال';
                     }
                     return {
                         id: item.id,
@@ -631,7 +631,7 @@ const ListWorks = () => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert('İş listesi yüklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
             }
@@ -669,12 +669,12 @@ const ListWorks = () => {
                 showAlert(response.data.message || 'İhale seçenekleri yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
     useEffect(() => {
@@ -767,7 +767,7 @@ const ListWorks = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained"
                                 color="error"
@@ -859,7 +859,7 @@ const ListWorks = () => {
                         <Grid item xs={12} sm={4}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <CustomFormLabel htmlFor="start-date" required>
-                                    Başlangıç Tarihi
+                                    تاریخ شروع
                                 </CustomFormLabel>
                                 <DatePicker
                                     label=""
@@ -868,7 +868,7 @@ const ListWorks = () => {
                                         setStartDate(newValue);
                                         if (startDateError && newValue) setStartDateError(false);
                                         if (endDate && newValue && newValue > endDate) {
-                                            setFormErrors("Bitiş tarihi başlangıç tarihinden önce olamaz!");
+                                            setFormErrors("تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد!");
                                         } else {
                                             setFormErrors(null);
                                         }
@@ -881,7 +881,7 @@ const ListWorks = () => {
 
                                             size="small"
                                             error={startDateError}
-                                            helperText={startDateError ? "Başlangıç tarihi boş olamaz!" : ""}
+                                            helperText={startDateError ? "تاریخ شروع نمی‌تواند خالی باشد!" : ""}
                                         />
                                     )}
                                 />
@@ -901,12 +901,12 @@ const ListWorks = () => {
                                             >
                                                 {loadingButton ? <>
                                                     <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...
-                                                </> : 'Düzenle'}
+                                                </> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni iş moduna dön" : ""}>
                                             <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                                İptal Et
+                                                لغو
                                             </Button>
                                         </CustomTooltip>
                                     </>
@@ -981,19 +981,19 @@ const ListWorks = () => {
                                     value="all"
                                     aria-label="all works"
                                 >
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="active"
                                     aria-label="active works"
                                 >
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="inactive"
                                     aria-label="inactive works"
                                 >
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1016,7 +1016,7 @@ const ListWorks = () => {
                                             onClick={() => handleRequestSort('title')}
                                             sx={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Başlık</Typography>
+                                            <Typography variant="h6">عنوان</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1026,7 +1026,7 @@ const ListWorks = () => {
                                             onClick={() => handleRequestSort('tenderId')}
                                             sx={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">İhale</Typography>
+                                            <Typography variant="h6">مناقصه</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1036,7 +1036,7 @@ const ListWorks = () => {
                                             onClick={() => handleRequestSort('startDate')}
                                             sx={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Başlangıç Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ شروع</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1046,7 +1046,7 @@ const ListWorks = () => {
                                             onClick={() => handleRequestSort('endDate')}
                                             sx={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Bitiş Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ پایان</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1056,7 +1056,7 @@ const ListWorks = () => {
                                             onClick={() => handleRequestSort('status')}
                                             sx={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1122,7 +1122,7 @@ const ListWorks = () => {
                                                 </CustomTooltip>
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1171,7 +1171,7 @@ const ListWorks = () => {
                                                                 <ListItemIcon>
                                                                     {selectedRowForMenu?.recordStatus === 0 ? <DoNotDisturbOnRoundedIcon width={18} /> : <DoneRoundedIcon width={18} />}
                                                                 </ListItemIcon>
-                                                                {selectedRowForMenu?.recordStatus === 0 ? 'Pasif Yap' : 'Aktif Yap'}
+                                                                {selectedRowForMenu?.recordStatus === 0 ? 'غیرفعال کردن' : 'فعال کردن'}
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1181,7 +1181,7 @@ const ListWorks = () => {
                                                                 <ListItemIcon>
                                                                     <IconEdit width={18} />
                                                                 </ListItemIcon>
-                                                                Düzenlemek
+                                                                ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1221,7 +1221,7 @@ const ListWorks = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Sayfa başına satır sayısı:"
+                    labelRowsPerPage="تعداد ردیف در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1233,13 +1233,13 @@ const ListWorks = () => {
                     {workForEnd && (
                         <Stack spacing={2}>
                             <Typography variant="h6">İş Başlığı: {workForEnd.title}</Typography>
-                            <Typography variant="body2">İhale: {workForEnd.tenderTitle || `ID: ${workForEnd.tenderId}`}</Typography>
-                            <Typography variant="body2">Başlangıç Tarihi: {formatDateDisplay(workForEnd.startDate)}</Typography>
+                            <Typography variant="body2">مناقصه: {workForEnd.tenderTitle || `ID: ${workForEnd.tenderId}`}</Typography>
+                            <Typography variant="body2">تاریخ شروع: {formatDateDisplay(workForEnd.startDate)}</Typography>
 
-                            <CustomFormLabel required>Bitiş Tarihi Seçin</CustomFormLabel>
+                            <CustomFormLabel required>تاریخ پایان را انتخاب کنید</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <DatePicker
-                                    label="Bitiş Tarihi"
+                                    label="تاریخ پایان"
                                     value={endWorkDate}
                                     onChange={(v) => { setEndWorkDate(v); setEndWorkError(false); }}
                                     inputFormat="dd/MM/yyyy"
@@ -1257,10 +1257,10 @@ const ListWorks = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEndWorkModal(false)} color="secondary" disabled={loadingButton}>
-                        İptal
+                        انصراف
                     </Button>
                     <Button onClick={submitEndWork} color="error" disabled={loadingButton || !endWorkDate}>
-                        {loadingButton ? 'Kaydediliyor...' : 'Sonlandır'}
+                        {loadingButton ? 'Kaydediliyor...' : 'پایان دادن'}
                     </Button>
                 </DialogActions>
             </Dialog>

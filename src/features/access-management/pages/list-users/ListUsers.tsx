@@ -36,8 +36,8 @@ const formatDateDisplay = (dateString: string | null): string => {
     const date = new Date(dateString);
     return format(date, 'dd MMMM yyyy', { locale: tr });
   } catch (e) {
-    console.log("Tarih biçimlendirilirken hata oluştu:", e);
-    return "Geçersiz Tarih";
+    console.log("خطا در قالب‌بندی تاریخ:", e);
+    return "تاریخ نامعتبر";
   }
 };
 
@@ -243,7 +243,7 @@ const ListUsers = () => {
 
   const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
   const hasChangeRoleOpPermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-  const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+  const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
   const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
 
 
@@ -275,7 +275,7 @@ const ListUsers = () => {
           email: item.email,
           createAt: item.createAt,
           recordStatus: item.recordStatus !== undefined && item.recordStatus !== null ? item.recordStatus : 0,
-          status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+          status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
           imageUrl: item.imageSrc || DEFAULT_IMAGE_URL,
           roles: (item.roles || []).map((role: any) => ({
             id: String(role.id),
@@ -286,13 +286,13 @@ const ListUsers = () => {
         setUsersList(formattedData as UserType[]);
         setLoadingData(false);
       } else {
-        showAlert(result.data.message || 'Kullanıcı listesi alınırken bir hata oluştu.', 'error');
+        showAlert(result.data.message || 'هنگام دریافت فهرست کاربران خطایی رخ داد.', 'error');
       }
     }).catch((e) => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         showAlert('Kullanıcı listesi alınırken bir hata oluştu, lütfen tekrar deney .', 'error');
       }
@@ -321,14 +321,14 @@ const ListUsers = () => {
         showAlert(response.data.message || 'Roller alınırken bir hata oluştu.', 'error');
       }
     } catch (e: any) {
-      if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+      if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
       else if (e.response?.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
       }
       else {
 
-        showAlert('Kullanıcı güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert('هنگام به‌روزرسانی کاربر خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
       }
     }
   }, [showAlert]);
@@ -499,11 +499,11 @@ const ListUsers = () => {
     if (!username.trim()) { setUsernameError(true); setUsernameHelperText('Kullanıcı adı boş bırakılamaz.'); hasValidationError = true; } else { setUsernameError(false); setUsernameHelperText(''); }
     if (selectedRoles.length === 0) { setRoleError(true); setRoleHelperText('rol seçilmelidir!'); hasValidationError = true; } else { setRoleError(false); setRoleHelperText(''); }
 
-    if (hasValidationError) { showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning'); return; }
+    if (hasValidationError) { showAlert('لطفاً همه‌ی فیلدهای الزامی را درست پر کنید!', 'warning'); return; }
 
     clearAlert();
     const authToken = localStorage.getItem('authToken');
-    if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); navigate("/"); return; }
+    if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); navigate("/"); return; }
 
     let finalImageSrc = '';
 
@@ -548,17 +548,17 @@ const ListUsers = () => {
       }
     }
     catch (e: any) {
-      if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+      if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
       else if (e.response?.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
       }
       else if (e.response?.data?.message == "username must be longer than or equal to 5 characters") {
         showAlert('Kullanıcı adı 5 karakterden uzun veya 5 karaktere eşit olmalıdır.', 'error');
       }
       else {
 
-        showAlert('Kullanıcı güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert('هنگام به‌روزرسانی کاربر خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
       }
     } finally {
       setLoadingButton(false);
@@ -572,11 +572,11 @@ const ListUsers = () => {
     if (!username.trim()) { setUsernameError(true); setUsernameHelperText('Kullanıcı adı boş olamaz!'); hasValidationError = true; } else { setUsernameError(false); setUsernameHelperText(''); }
     if (selectedRoles.length === 0) { setRoleError(true); setRoleHelperText('Lütfen en az bir rol seçin!'); hasValidationError = true; } else { setRoleError(false); setRoleHelperText(''); }
 
-    if (hasValidationError) { showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning'); return; }
+    if (hasValidationError) { showAlert('لطفاً همه‌ی فیلدهای الزامی را درست پر کنید!', 'warning'); return; }
 
     clearAlert();
     const authToken = localStorage.getItem('authToken');
-    if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); navigate("/"); return; }
+    if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); navigate("/"); return; }
 
     let finalImageSrc = profileImageUrl;
     debugger
@@ -601,7 +601,7 @@ const ListUsers = () => {
     } = {
       id: editingUserId,
       username: username,
-      imageSrc: finalImageSrc.replace("https://setasportal.com",""),
+      imageSrc: finalImageSrc,
     };
 
     setLoadingButton(true);
@@ -626,17 +626,17 @@ const ListUsers = () => {
         showAlert(response.data.message || 'Kullanıcı güncellenirken bir hata oluştu.', 'error');
       }
     } catch (e: any) {
-      if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+      if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
       else if (e.response?.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
       }
       else if (e.response?.data?.message == "username must be longer than or equal to 5 characters") {
         showAlert('Kullanıcı adı 5 karakterden uzun veya 5 karaktere eşit olmalıdır.', 'error');
       }
       else {
 
-        showAlert('Kullanıcı güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert('هنگام به‌روزرسانی کاربر خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
       }
     } finally {
       setLoadingButton(false);
@@ -647,7 +647,7 @@ const ListUsers = () => {
     clearAlert();
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      showAlert('Lütfen giriş yapın.', 'warning');
+      showAlert('لطفاً وارد شوید.', 'warning');
       navigate("/");
       return;
     }
@@ -665,9 +665,9 @@ const ListUsers = () => {
       );
 
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
         getListUsers();
-        showAlert(`Kullanıcı başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        showAlert(`Kullanıcı başarıyla ${statusText} تنظیم شد!`, 'success');
       } else {
         showAlert(response.data.message || 'Kullanıcı durumu güncellenirken bir hata oluştu.', 'error');
       }
@@ -675,7 +675,7 @@ const ListUsers = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
       showAlert(e.response?.data?.message || 'Kullanıcı durumu güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
     } finally {
@@ -796,7 +796,7 @@ const ListUsers = () => {
               </CustomTooltip>
             )}
             {isFormVisible && (
-              <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+              <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                 <Button
                   variant="contained"
                   color="error"
@@ -817,11 +817,11 @@ const ListUsers = () => {
               <Grid item xs={12} sm={9}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={6}>
-                    <CustomFormLabel htmlFor="username" required>Kullanıcı Adı</CustomFormLabel>
+                    <CustomFormLabel htmlFor="username" required>نام کاربری</CustomFormLabel>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Kullanıcı adını girin" : ""}>
                       <CustomTextField
                         id="username"
-                        placeholder="Kullanıcı Adı"
+                        placeholder="نام کاربری"
                         fullWidth
                         value={username}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -847,7 +847,7 @@ const ListUsers = () => {
                       <CustomTooltip title={isTooltipGloballyEnabled ? "Kullanıcının rollerini seçin" : ""}>
                         <FormControl fullWidth
                           error={roleError}>
-                          <InputLabel id="roles-multiple-checkbox-label">Rolleri Seç</InputLabel>
+                          <InputLabel id="roles-multiple-checkbox-label">انتخاب نقش‌ها</InputLabel>
                           <Select
                             labelId="roles-multiple-checkbox-label"
                             id="select-roles"
@@ -860,7 +860,7 @@ const ListUsers = () => {
                                 setRoleHelperText('');
                               }
                             }}
-                            input={<OutlinedInput id="select-multiple-chip" label="Rolleri Seç" />}
+                            input={<OutlinedInput id="select-multiple-chip" label="انتخاب نقش‌ها" />}
                             renderValue={(selected: RoleType['id'][]) => (
                               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                 {selected.map((value) => {
@@ -930,7 +930,7 @@ const ListUsers = () => {
                     onClick={() => fileInputRef.current?.click()}
                     size="small"
                   >
-                    {profileImageUrl !== DEFAULT_IMAGE_URL ? "Resmi Değiştir" : "Resim Seç"}
+                    {profileImageUrl !== DEFAULT_IMAGE_URL ? "Resmi Değiştir" : "انتخاب تصویر"}
                   </Button>
                 </CustomTooltip>
               </Grid>
@@ -954,7 +954,7 @@ const ListUsers = () => {
                   </CustomTooltip>
                   <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni kullanıcı moduna dön" : ""}>
                     <Button variant="outlined" color="secondary" onClick={resetFormAndState}>
-                      İptal Et
+                      لغو
                     </Button>
                   </CustomTooltip>
                 </>
@@ -1016,7 +1016,7 @@ const ListUsers = () => {
                   label="Rol Fİltrele"
                   onChange={handleRoleFilterChange}
                 >
-                  <UiMenuItem value="all">Tümü</UiMenuItem>
+                  <UiMenuItem value="all">همه</UiMenuItem>
                   {allRoles.filter(role => role.recordStatus === 0 && role.name !== HIDDEN_ROLE).map(role => (
                     <UiMenuItem key={role.id} value={role.id}>
                       {role.name}
@@ -1037,19 +1037,19 @@ const ListUsers = () => {
                   value="all"
                   aria-label="all units"
                 >
-                  Tümü
+                  همه
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="active"
                   aria-label="active units"
                 >
-                  Aktif
+                  فعال
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="inactive"
                   aria-label="inactive units"
                 >
-                  Pasif
+                  غیرفعال
                 </StyledToggleButton>
               </ToggleButtonGroup>
             </Grid>
@@ -1075,7 +1075,7 @@ const ListUsers = () => {
                       onClick={() => handleRequestSort('username')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Kullanıcı Adı</Typography>
+                      <Typography variant="h6">نام کاربری</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell style={{ color: "#171c23" }}>
@@ -1088,7 +1088,7 @@ const ListUsers = () => {
                       onClick={() => handleRequestSort('createAt')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                      <Typography variant="h6">تاریخ ایجاد</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell>
@@ -1098,7 +1098,7 @@ const ListUsers = () => {
                       onClick={() => handleRequestSort('status')}
                       style={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Durum</Typography>
+                      <Typography variant="h6">وضعیت</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell></StyledTableCell>
@@ -1180,7 +1180,7 @@ const ListUsers = () => {
                         />
                       </StyledTableCell>
                       <StyledTableCell>
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                           <IconButton
                             id={`basic-button-${row.id}`}
                             aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1202,7 +1202,7 @@ const ListUsers = () => {
                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcıyı pasif yap" : ""}>
                               <UiMenuItem onClick={() => sendStatusUpdate(selectedUserForMenu.id, 1)}>
                                 <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon>
-                                Pasif Yap
+                                غیرفعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1210,7 +1210,7 @@ const ListUsers = () => {
                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcıyı aktif yap" : ""}>
                               <UiMenuItem onClick={() => sendStatusUpdate(selectedUserForMenu!.id, 0)}>
                                 <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon>
-                                Aktif Yap
+                                فعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1219,7 +1219,7 @@ const ListUsers = () => {
                               <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcının rollerini yönet" : ""}>
                                 <UiMenuItem onClick={handleClickOpenRoleModal}>
                                   <ListItemIcon><IconUsersGroup width={18} /></ListItemIcon>
-                                  Rolleri Seç
+                                  انتخاب نقش‌ها
                                 </UiMenuItem>
                               </CustomTooltip>
                               <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcının operasyonlarını yönet" : ""}>
@@ -1234,7 +1234,7 @@ const ListUsers = () => {
                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kullanıcı bilgilerini düzenle" : ""}>
                               <UiMenuItem onClick={handleEditItemClick}>
                                 <ListItemIcon><IconEdit width={18} /></ListItemIcon>
-                                Düzenlemek
+                                ویرایش
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1271,7 +1271,7 @@ const ListUsers = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Satır başına düşen:"
+          labelRowsPerPage="تعداد در هر صفحه:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
         />
       </BlankCard>

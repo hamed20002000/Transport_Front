@@ -87,7 +87,7 @@ const MaterialRequestForm: React.FC<MaterialRequestFormProps> = ({
                 localStorage.removeItem('authToken');
                 navigate("/");
             }
-            showAlert('Şantiyeler yüklenirken bir hata oluştu.', 'error');
+            showAlert('هنگام بارگذاری کارگاه‌ها خطایی رخ داد.', 'error');
         } finally {
             setLoadingWorkhouses(false);
         }
@@ -192,7 +192,7 @@ const MaterialRequestForm: React.FC<MaterialRequestFormProps> = ({
                 onSuccess();
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Hata oluştu.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -263,7 +263,7 @@ const MaterialRequestForm: React.FC<MaterialRequestFormProps> = ({
 
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
-                    <CustomFormLabel required>Şantiye</CustomFormLabel>
+                    <CustomFormLabel required>کارگاه</CustomFormLabel>
                     <Autocomplete
                         options={workhousesList}
                         getOptionLabel={(o) => o.name}
@@ -305,7 +305,7 @@ const MaterialRequestForm: React.FC<MaterialRequestFormProps> = ({
                 </Grid>
 
                 <Grid item xs={12}>
-                    <CustomFormLabel>Açıklama</CustomFormLabel>
+                    <CustomFormLabel>توضیحات</CustomFormLabel>
                     <CustomTextField
                         placeholder="Talep detaylarını buraya yazınız..."
                         multiline
@@ -357,7 +357,7 @@ const MaterialRequestForm: React.FC<MaterialRequestFormProps> = ({
 
             <Stack direction="row" spacing={2} justifyContent="flex-end" mt={4}>
                 <Button variant="outlined" color="error" onClick={onCancel} startIcon={<IconX size={20} />}>
-                    İptal
+                    انصراف
                 </Button>
                 <Button
                     variant="contained"
@@ -366,7 +366,7 @@ const MaterialRequestForm: React.FC<MaterialRequestFormProps> = ({
                     disabled={loadingButton}
                     startIcon={loadingButton ? <CircularProgress size={20} /> : <IconDeviceFloppy size={20} />}
                 >
-                    {loadingButton ? 'İşleniyor...' : (isEditing ? 'Güncelle' : 'Kaydet')}
+                    {loadingButton ? 'İşleniyor...' : (isEditing ? 'به‌روزرسانی' : 'ذخیره')}
                 </Button>
             </Stack>
         </Paper>

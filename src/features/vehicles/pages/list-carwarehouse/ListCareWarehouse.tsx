@@ -45,9 +45,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString.length === 10 ? dateString : String(dateString));
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 const descendingComparator = <T, Key extends keyof T>(a: T, b: T, orderBy: Key): number => {
@@ -97,7 +97,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -106,7 +106,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -124,7 +124,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -136,12 +136,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -151,14 +151,14 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     titleRow.font = { name: 'NotoSans', size: 14, bold: true };
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
     worksheet.addRow([]);
 };
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
-    const companyInfo = ['ترابوت', 'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR'];
+    const companyInfo = ['ترابوت', 'ترابوت'];
     let rowNum = startRow;
     companyInfo.forEach(line => {
         const row = worksheet.getRow(rowNum);
@@ -344,9 +344,9 @@ const ListCarWarehouse: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -431,8 +431,8 @@ const ListCarWarehouse: React.FC = () => {
                     newRegionMap.set(region.id, region.label);
                 });
                 setRegionMap(newRegionMap);
-            } else { showAlert(response.data.message || 'Bölgeler yüklenirken bir hata oluştu.', 'error'); }
-        } catch (e) { showAlert('Bölgeler yüklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام بارگذاری مناطق خطایی رخ داد.', 'error'); }
+        } catch (e) { showAlert('هنگام بارگذاری مناطق خطایی رخ داد.', 'error'); }
     }, [navigate, showAlert]);
 
 
@@ -461,12 +461,12 @@ const ListCarWarehouse: React.FC = () => {
                 const rawRows = (res.data.data as CarWarehouseApiData[]).map(mapApiDataToCarWarehouse);
                 setCarWarehouses(rawRows);
             } else {
-                showAlert(res.data.message || 'Kayıtlar yüklenirken bir hata oluştu.', 'error');
+                showAlert(res.data.message || 'هنگام بارگذاری رکوردها خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
-            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
+            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -486,7 +486,7 @@ const ListCarWarehouse: React.FC = () => {
         if (!address.trim()) { setAddressError(true); ok = false; }
         if (!selectedRegionId) { setRegionError(true); ok = false; }
 
-        if (!ok) { showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning'); }
+        if (!ok) { showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning'); }
         return ok;
     };
 
@@ -504,7 +504,7 @@ const ListCarWarehouse: React.FC = () => {
         if (!validateForm() || !selectedRegionId) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت.', 'error'); setLoadingButton(false); return; }
 
         const isEditing = editingId !== null;
         const payload = {
@@ -525,14 +525,14 @@ const ListCarWarehouse: React.FC = () => {
             const successStatus = isEditing ? 200 : 201;
 
             if (res.data.httpStatusCode === successStatus || res.data.httpStatusCode === 200) {
-                showAlert(`Araç Depo kaydı başarıyla ${isEditing ? 'güncellendi' : 'eklendi'}!`, 'success');
+                showAlert(`Araç Depo kaydı başarıyla ${isEditing ? 'به‌روزرسانی شد' : 'eklendi'}!`, 'success');
                 resetForm();
                 fetchCarWarehouses();
-            } else { showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
-            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
+            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -557,7 +557,7 @@ const ListCarWarehouse: React.FC = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -574,17 +574,17 @@ const ListCarWarehouse: React.FC = () => {
                 }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Şantiye başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Şantiye başarıyla ${statusText} تنظیم شد!`, 'success');
                 resetForm();
                 fetchCarWarehouses();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
-            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
+            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -632,8 +632,8 @@ const ListCarWarehouse: React.FC = () => {
 
 
     const exportStoresToPdf = (data: CarWarehouse[], title: string) => {
-        if (!data || data.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Rapor oluşturuluyor...', 'info');
+        if (!data || data.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت گزارش...', 'info');
 
         const doc = new jsPDF();
         const docAny = doc as any;
@@ -643,7 +643,7 @@ const ListCarWarehouse: React.FC = () => {
         (docAny as any).addFont("NotoSans-Regular.ttf", "NotoSans", "normal");
         docAny.setFont("NotoSans", "normal");
 
-        const columns = ['Ad', 'Kod', 'Adres', 'Bölge', 'Kayıt Tarihi'];
+        const columns = ['نام', 'کد', 'آدرس', 'منطقه', 'تاریخ ثبت'];
         const body = data.map(r => [
             r.name || '-',
             r.code || '-',
@@ -666,24 +666,24 @@ const ListCarWarehouse: React.FC = () => {
 
             const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.pdf`;
             docAny.save(fileName);
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("PDF dışa aktarılırken hata:", error);
-            showAlert('PDF dışa aktarılırken bir hata oluştu.', 'error');
+            console.error("خطا در خروجی PDF:", error);
+            showAlert('هنگام خروجی PDF خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
     };
 
     const exportStoresToExcel = (data: CarWarehouse[], title: string) => {
-        if (!data || data.length === 0) { showAlert('Excel oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Excel dosyası oluşturuluyor...', 'info');
+        if (!data || data.length === 0) { showAlert('رکوردی برای ساخت Excel پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
             const worksheet = workbook.addWorksheet(title.substring(0, 31));
 
-            const columns = ['Ad', 'Kod', 'Adres', 'Bölge', 'Kayıt Tarihi'];
+            const columns = ['نام', 'کد', 'آدرس', 'منطقه', 'تاریخ ثبت'];
             addExcelHeader(worksheet, title, columns.length);
 
             const headerRow = worksheet.addRow(columns);
@@ -709,11 +709,11 @@ const ListCarWarehouse: React.FC = () => {
             const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`;
             workbook.xlsx.writeBuffer().then(buffer => {
                 saveAs(new Blob([buffer]), fileName);
-                showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+                showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
             });
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -744,12 +744,12 @@ const ListCarWarehouse: React.FC = () => {
 
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'stretch', sm: 'flex-end' }}>
                         {!isFormVisible && hasCreatePermission && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Yeni kayıt formunu aç" : ""}>
-                                <BlinkingButton variant="contained" color="primary" onClick={() => setIsFormVisible(true)} isBlinking={isBlinking} size="small" fullWidth={false}>Yeni Kayıt Ekle</BlinkingButton>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "باز کردن فرم ثبت جدید" : ""}>
+                                <BlinkingButton variant="contained" color="primary" onClick={() => setIsFormVisible(true)} isBlinking={isBlinking} size="small" fullWidth={false}>افزودن رکورد جدید</BlinkingButton>
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizle" : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "پنهان کردن فرم ثبت" : ""}>
                                 <Button variant="contained" color="error" onClick={resetForm} startIcon={<IconX size={20} />} size="small" fullWidth={false}>Gizle</Button>
                             </CustomTooltip>
                         )}
@@ -760,13 +760,13 @@ const ListCarWarehouse: React.FC = () => {
                     <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Ad</CustomFormLabel>
+                                <CustomFormLabel required>نام</CustomFormLabel>
                                 <CustomTextField placeholder="Adı Girin" size="small"
                                     inputRef={nameInputRef}
                                     fullWidth value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setName(e.target.value); setNameError(false); }} error={nameError} helperText={nameError ? 'Bu alan zorunludur!' : ''} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Kod</CustomFormLabel>
+                                <CustomFormLabel required>کد</CustomFormLabel>
                                 <CustomTextField placeholder="Kodu Girin"  size="small" fullWidth value={code}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                     const newValue = e.target.value;
@@ -781,14 +781,14 @@ const ListCarWarehouse: React.FC = () => {
                                  error={codeError} helperText={codeError ? 'Lütfen geçerli bir değer girin. En fazla 10 karakter kullanabilirsiniz' :''} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Bölge Seçimi</CustomFormLabel>
+                                <CustomFormLabel required>انتخاب منطقه</CustomFormLabel>
                                 <FormControl size="small" error={regionError} fullWidth>
-                                    <InputLabel id="select-region-label">Bölge Seçin</InputLabel>
+                                    <InputLabel id="select-region-label">منطقه را انتخاب کنید</InputLabel>
                                     <Select
                                         labelId="select-region-label"
                                         id="select-region"
                                         value={selectedRegionId || ''}
-                                        label="Bölge Seçin"
+                                        label="منطقه را انتخاب کنید"
                                         open={isRegionSelectOpen}
                                         onOpen={() => setIsRegionSelectOpen(true)}
                                         onClose={handleCloseRegionSelect}
@@ -803,7 +803,7 @@ const ListCarWarehouse: React.FC = () => {
                                             autoFocus
                                             fullWidth
                                             size="small"
-                                            placeholder="Bölge Ara..."
+                                            placeholder="جستجوی منطقه..."
                                             value={regionSearchQuery}
                                             onChange={(e) => setRegionSearchQuery(e.target.value)}
                                             onClick={(e) => e.stopPropagation()}
@@ -813,7 +813,7 @@ const ListCarWarehouse: React.FC = () => {
                                         />
 
                                         {loadingData ? (
-                                            <UiMenuItem disabled><CircularProgress size={20} /> Yükleniyor...</UiMenuItem>
+                                            <UiMenuItem disabled><CircularProgress size={20} /> در حال بارگذاری...</UiMenuItem>
                                         ) : filteredRegionTree.length > 0 ? (
                                             filteredRegionTree.map(node => (
                                                 <RegionTreeSelectMenuItem
@@ -826,24 +826,24 @@ const ListCarWarehouse: React.FC = () => {
                                                 />
                                             ))
                                         ) : (
-                                            <UiMenuItem disabled>Hiç bölge bulunamadı.</UiMenuItem>
+                                            <UiMenuItem disabled>هیچ منطقه‌ای پیدا نشد.</UiMenuItem>
                                         )}
                                     </Select>
                                     {regionError && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>Bu alan zorunludur!</Typography>}
                                 </FormControl>
                             </Grid>
                             <Grid item xs={12} sm={12} md={12}>
-                                <CustomFormLabel required>Adres</CustomFormLabel>
+                                <CustomFormLabel required>آدرس</CustomFormLabel>
                                 <CustomTextField placeholder="Adresi Girin" size="small" fullWidth value={address} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setAddress(e.target.value); setAddressError(false); }} error={addressError} helperText={addressError ? 'Bu alan zorunludur!' : ''} />
                             </Grid>
 
                             <Grid item xs={12}>
                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                                     <Button variant="contained" color={editingId ? "info" : "success"} onClick={handleSubmitForm} disabled={loadingButton} size="small">
-                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'Düzenle' : 'Yeni Kayıt Ekle'}
+                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'ویرایش' : 'افزودن رکورد جدید'}
                                     </Button>
                                     {editingId ? (
-                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">İptal Et</Button>
+                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">لغو</Button>
 
                                     ) : (
                                         <></>
@@ -868,12 +868,12 @@ const ListCarWarehouse: React.FC = () => {
                     <Stack direction="row" spacing={3} justifyContent="flex-end" mb={2} mr={2}>
                         {isFilterActive && hasDownloadPermission && (
                             <CustomTooltip title={isTooltipGloballyEnabled ? "Uygulanan filtrelerle Araç Depo indirin" : ""}>
-                                <BlinkingButton variant="contained" color="secondary" onClick={() => setOpenDownloadFilteredModal(true)} isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />} size="small">Filtrelenmişi İndir</BlinkingButton>
+                                <BlinkingButton variant="contained" color="secondary" onClick={() => setOpenDownloadFilteredModal(true)} isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />} size="small">دانلود موارد فیلترشده</BlinkingButton>
                             </CustomTooltip>
                         )}
                         {hasDownloadPermission && (
                             <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm Araç Depo indirin" : ""}>
-                                <Button variant="contained" color="primary" onClick={() => setOpenDownloadAllModal(true)} startIcon={<IconFileDownload />} disabled={loadingData} size="small">Tümünü İndir</Button>
+                                <Button variant="contained" color="primary" onClick={() => setOpenDownloadAllModal(true)} startIcon={<IconFileDownload />} disabled={loadingData} size="small">دانلود همه</Button>
                             </CustomTooltip>
                         )}
                     </Stack>
@@ -886,22 +886,22 @@ const ListCarWarehouse: React.FC = () => {
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                <DatePicker label="Kayıt Başlangıç" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                <DatePicker label="شروع ثبت‌نام" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                             </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
-                                    <DatePicker label="Kayıt Bitiş" value={endFilter} inputFormat="dd/MM/yyyy" minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                    <DatePicker label="پایان ثبت‌نام" value={endFilter} inputFormat="dd/MM/yyyy" minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                                     <IconButton onClick={handleClearDateFilters} aria-label="clear date filters" size="small"><IconX size={20} /></IconButton>
                                 </Stack>
                             </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="Durum filtresi" sx={{ flexGrow: 1 }}>
-                                <StyledToggleButton value="all" data-value="all" size="small">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" data-value="active" size="small">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" data-value="inactive" size="small">Pasif</StyledToggleButton>
+                            <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="فیلتر وضعیت" sx={{ flexGrow: 1 }}>
+                                <StyledToggleButton value="all" data-value="all" size="small">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" data-value="active" size="small">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" data-value="inactive" size="small">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -910,25 +910,25 @@ const ListCarWarehouse: React.FC = () => {
                 <TableContainer>
                     {loadingData ? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                            <CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>Kayıtlar yükleniyor...</Typography>
+                            <CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری رکوردها...</Typography>
                         </Box>
                     ) : (
                         <Table aria-label="car warehouses table">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'code'} direction={orderBy === 'code' ? order : 'asc'} onClick={() => handleRequestSort('code')} sx={{ color: 'inherit' }}><Typography variant="h6">Kod</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'asc'} onClick={() => handleRequestSort('name')} sx={{ color: 'inherit' }}><Typography variant="h6">Ad</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'address'} direction={orderBy === 'address' ? order : 'asc'} onClick={() => handleRequestSort('address')} sx={{ color: 'inherit' }}><Typography variant="h6">Adres</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'code'} direction={orderBy === 'code' ? order : 'asc'} onClick={() => handleRequestSort('code')} sx={{ color: 'inherit' }}><Typography variant="h6">کد</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'asc'} onClick={() => handleRequestSort('name')} sx={{ color: 'inherit' }}><Typography variant="h6">نام</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'address'} direction={orderBy === 'address' ? order : 'asc'} onClick={() => handleRequestSort('address')} sx={{ color: 'inherit' }}><Typography variant="h6">آدرس</Typography></TableSortLabel></StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'regionName'} direction={orderBy === 'regionName' ? order : 'asc'} onClick={() => handleRequestSort('regionName')} sx={{ color: 'inherit' }}>
-                                            <Typography variant="h6">Bölge</Typography>
+                                            <Typography variant="h6">منطقه</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'createAt'} direction={orderBy === 'createAt' ? order : 'asc'} onClick={() => handleRequestSort('createAt')} sx={{ color: 'inherit' }}><Typography variant="h6">Kayıt Tarihi</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><TableSortLabel active={orderBy === 'createAt'} direction={orderBy === 'createAt' ? order : 'asc'} onClick={() => handleRequestSort('createAt')} sx={{ color: 'inherit' }}><Typography variant="h6">تاریخ ثبت</Typography></TableSortLabel></StyledTableCell>
 
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'recordStatus'} direction={orderBy === 'recordStatus' ? order : 'asc'} onClick={() => handleRequestSort('recordStatus')} sx={{ color: "#171c23" }}>
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
@@ -944,61 +944,61 @@ const ListCarWarehouse: React.FC = () => {
                                             <StyledTableCell>{row.regionName || '-'}</StyledTableCell>
                                             <StyledTableCell>{formatDateDisplay(row.createAt || null)}</StyledTableCell>
                                             <StyledTableCell>
-                                                <Chip label={row.recordStatus === 0 ? 'Aktif' : 'Pasif'} color={row.recordStatus === 0 ? 'success' : 'error'} size="small" />
+                                                <Chip label={row.recordStatus === 0 ? 'فعال' : 'غیرفعال'} color={row.recordStatus === 0 ? 'success' : 'error'} size="small" />
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton onClick={(e) => handleClickMenu(e, row)} size="small"><IconDots width={18} /></IconButton>
                                                 </CustomTooltip>
                                                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
 
-                                                    {hasEditPermission && (<CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı düzenle" : ""}><UiMenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenlemek</UiMenuItem></CustomTooltip>)}
+                                                    {hasEditPermission && (<CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "ویرایش این رکورد" : ""}><UiMenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem></CustomTooltip>)}
                                                     {hasEditPermission && (
                                                         selectedRowForMenu?.recordStatus === 0 ? (
                                                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu Şantiyenin Depo pasif yap" : ""}>
                                                                 <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}>
-                                                                    <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap
+                                                                    <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
                                                         ) : (
                                                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu Şantiyenin Depo aktif yap" : ""}>
                                                                 <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}>
-                                                                    <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap
+                                                                    <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
                                                         )
                                                     )}
-                                                    {hasDeletePermission && (<CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı sil" : ""}><UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem></CustomTooltip>)}
-                                                    {hasDownloadPermission && (<CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kaydı indir" : ""}><UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir</UiMenuItem></CustomTooltip>)}
+                                                    {hasDeletePermission && (<CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "حذف این رکورد" : ""}><UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem></CustomTooltip>)}
+                                                    {hasDownloadPermission && (<CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "دانلود رکورد" : ""}><UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف</UiMenuItem></CustomTooltip>)}
                                                 </Menu>
                                             </StyledTableCell>
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <TableRow><StyledTableCell colSpan={6} align="center"><Typography variant="subtitle1" color="textSecondary">Hiç kayıt bulunamadı.</Typography></StyledTableCell></TableRow>
+                                    <TableRow><StyledTableCell colSpan={6} align="center"><Typography variant="subtitle1" color="textSecondary">هیچ رکوردی پیدا نشد.</Typography></StyledTableCell></TableRow>
                                 )}
                             </TableBody>
                         </Table>
                     )}
                 </TableContainer>
 
-                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredCarWarehouses.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
+                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredCarWarehouses.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
             </BlankCard>
 
             <Dialog open={openDownloadAllModal} onClose={() => setOpenDownloadAllModal(false)} maxWidth="xs">
-                <DialogTitle>Tüm Kayıtları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>دانلود همه‌ی رکوردها</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
-                <DialogTitle>Filtrelenmiş Kayıtları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>Excel Olarak İlarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>دانلود رکوردهای فیلترشده</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>Excel Olarak İlarak İndir</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openRowDownloadModal} onClose={() => setOpenRowDownloadModal(false)} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <DeleteCarWarehouse

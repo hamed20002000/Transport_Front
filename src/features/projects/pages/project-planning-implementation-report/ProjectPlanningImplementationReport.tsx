@@ -69,7 +69,7 @@ const statusFieldKeys: Array<keyof Omit<ReportRow, 'ProjectId' | 'ProjectName' |
 ];
 
 const labelMap: Record<string, string> = {
-    ProjectId: "Proje ID", ProjectName: "Proje", StartDate: "Başlangıç", EndDate: "Bitiş",
+    ProjectId: "Proje ID", ProjectName: "پروژه", StartDate: "شروع", EndDate: "پایان",
     KaziYapilanDirekDurumu: "Kazı Yapılan Direk", AltMontajiYapilan: "Alt Montaj",
     BetonAtilanDirekDurumu: "Beton Atılan Direk", UstMontajiOrulenDirekDurumu: "Üst Montaj Örülen",
     UstMontajiKurulanDirekDurumu: "Üst Montaj Kurulan", DikilenBetonDirekDurumu: "Dikilen Beton Direk",
@@ -186,7 +186,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
         const pageWidth = doc.internal.pageSize.getWidth();
         try { doc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18); } catch { }
         doc.setFontSize(14).text(title, pageWidth / 2, 25, { align: 'center' });
-        doc.setFontSize(10).text(`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`, 15, 35);
+        doc.setFontSize(10).text(`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`, 15, 35);
         doc.line(15, 40, pageWidth - 15, 40);
     };
 
@@ -200,7 +200,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
         let footerY = pageHeight - 40;
@@ -211,19 +211,19 @@ const ProjectPlanningImplementationReport: React.FC = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
     const exportTableExcel = async () => {
         const wb = new Excel.Workbook();
-        const ws = wb.addWorksheet("Rapor");
-        ws.addRow(["Proje", "Dönem", ...statusFieldKeys.map(k => labelMap[k]), "Günlük %", "Genel %"]);
+        const ws = wb.addWorksheet("گزارش");
+        ws.addRow(["پروژه", "Dönem", ...statusFieldKeys.map(k => labelMap[k]), "٪ روزانه", "Genel %"]);
         filtered
             .filter(r => getProgressForDate(r).daily > 0)
             .forEach(r => {
@@ -243,7 +243,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
     const exportTablePDF = (data: ReportRow[]) => {
         const doc = new jsPDF("l", "pt", "a4");
         addPdfHeader(doc, "Proje Uygulama Planlama Tablo Raporu");
-        const headers = ["Dönem", ...statusFieldKeys.map(k => labelMap[k]), "Günlük %", "Genel %"];
+        const headers = ["Dönem", ...statusFieldKeys.map(k => labelMap[k]), "٪ روزانه", "Genel %"];
         const body = data
             .filter(r => getProgressForDate(r).daily > 0)
             .map(r => {
@@ -279,7 +279,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
 
             autoTable(doc, {
                 startY: 100,
-                head: [["Aktivite", "Miktar"]],
+                head: [["Aktivite", "مقدار"]],
                 body: statusFieldKeys
                     .filter(k => n0(r[k]) > 0)
                     .map(k => [labelMap[k], n0(r[k])]),
@@ -357,12 +357,12 @@ const ProjectPlanningImplementationReport: React.FC = () => {
                     </Grid>
                     <Grid item xs={12} md={3} mt={1}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={tr}>
-                            <DatePicker label="Başlangıç" value={fromDate} onChange={setFromDate} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
+                            <DatePicker label="شروع" value={fromDate} onChange={setFromDate} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
                         </LocalizationProvider>
                     </Grid>
                     <Grid item xs={12} md={3} mt={1}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={tr}>
-                            <DatePicker label="Bitiş" value={toDate} onChange={setToDate} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
+                            <DatePicker label="پایان" value={toDate} onChange={setToDate} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
                         </LocalizationProvider>
                     </Grid>
                 </Grid>
@@ -406,7 +406,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
                                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                     <IconButton color="primary" onClick={() => exportCardsPDF([r])}><IconDownload size={18} /></IconButton>
                                                     <Button size="small" endIcon={isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />} onClick={() => toggleCard(key)} sx={{ fontSize: '0.65rem' }}>
-                                                        {isOpen ? "Gizle" : "Detaylar"}
+                                                        {isOpen ? "Gizle" : "جزئیات"}
                                                     </Button>
                                                 </Box>
                                                 <Collapse in={isOpen}>
@@ -432,7 +432,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
                                     <TableRow>
                                         <TableCell>Dönem</TableCell>
                                         {statusFieldKeys.map(k => <TableCell key={String(k)}>{labelMap[k]}</TableCell>)}
-                                        <TableCell>Günlük %</TableCell>
+                                        <TableCell>٪ روزانه</TableCell>
                                         <TableCell>Genel %</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -474,7 +474,7 @@ const ProjectPlanningImplementationReport: React.FC = () => {
                                     <YAxis tick={{ fontSize: 9 }} domain={[0, 100]} />
                                     <Tooltip />
                                     <Legend />
-                                    <Bar dataKey="daily" fill={orange[400]} name="Günlük %" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="daily" fill={orange[400]} name="٪ روزانه" radius={[4, 4, 0, 0]} />
                                     <Bar dataKey="overall" fill={blue[500]} name="Genel %" radius={[4, 4, 0, 0]} />
                                 </ComposedChart>
                             </ResponsiveContainer>

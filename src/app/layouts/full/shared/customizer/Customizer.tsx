@@ -1,12 +1,9 @@
 import { FC, useState } from 'react';
-import { Fab, Drawer, Grid, Slider, Divider, styled, IconButton, Typography, Tooltip, Stack } from 'src/shared/components/compat';
+import { Fab, Drawer, Slider, Divider, styled, IconButton, Typography, Tooltip, Stack } from 'src/shared/components/compat';
 import { useSelector, useDispatch } from 'src/app/store';
 import { Box, BoxProps } from 'src/shared/components/compat';
-import { SmartToyOutlined as SmartToyOutlinedIcon } from 'src/shared/components/compat/icons';
-import { IconX, IconSettings, IconCheck } from '@tabler/icons-react';
+import { IconX, IconSettings } from '@tabler/icons-react';
 import {
-  setTheme,
-  setDir,
   setDarkMode,
   toggleLayout,
   toggleSidebar,
@@ -18,24 +15,15 @@ import { AppState } from 'src/app/store';
 import Scrollbar from 'src/shared/components/scrollbar/Scrollbar';
 import { WbSunnyTwoTone as WbSunnyTwoToneIcon } from 'src/shared/components/compat/icons';
 import { DarkModeTwoTone as DarkModeTwoToneIcon } from 'src/shared/components/compat/icons';
-import { SwipeLeftAltTwoTone as SwipeLeftAltTwoToneIcon } from 'src/shared/components/compat/icons';
-import { SwipeRightAltTwoTone as SwipeRightAltTwoToneIcon } from 'src/shared/components/compat/icons';
 import { AspectRatioTwoTone as AspectRatioTwoToneIcon } from 'src/shared/components/compat/icons';
 import { CallToActionTwoTone as CallToActionTwoToneIcon } from 'src/shared/components/compat/icons';
 import { ViewSidebarTwoTone as ViewSidebarTwoToneIcon } from 'src/shared/components/compat/icons';
 import { WebAssetTwoTone as WebAssetTwoToneIcon } from 'src/shared/components/compat/icons';
 import { ViewComfyTwoTone, PaddingTwoTone, BorderOuter } from 'src/shared/components/compat/icons';
-import AiAgentPage from 'src/features/ai-agent/pages/AiAgentPage';
 
 const SidebarWidth = '320px';
-interface colors {
-  id: number;
-  bgColor: string;
-  disp?: string;
-}
 const Customizer: FC = () => {
   const [showDrawer, setShowDrawer] = useState(false);
-  const [showAi, setShowAi] = useState(false);
   const customizer = useSelector((state: AppState) => state.customizer);
 
   const dispatch = useDispatch();
@@ -53,38 +41,6 @@ const Customizer: FC = () => {
     },
   }));
 
-  const thColors: colors[] = [
-    {
-      id: 1,
-      bgColor: '#5D87FF',
-      disp: 'BLUE_THEME',
-    },
-    {
-      id: 2,
-      bgColor: '#0074BA',
-      disp: 'AQUA_THEME',
-    },
-    {
-      id: 3,
-      bgColor: '#763EBD',
-      disp: 'PURPLE_THEME',
-    },
-    {
-      id: 4,
-      bgColor: '#0A7EA4',
-      disp: 'GREEN_THEME',
-    },
-    {
-      id: 5,
-      bgColor: '#01C0C8',
-      disp: 'CYAN_THEME',
-    },
-    {
-      id: 6,
-      bgColor: '#FA896B',
-      disp: 'ORANGE_THEME',
-    },
-  ];
 
 
 
@@ -97,45 +53,17 @@ const Customizer: FC = () => {
         <Fab
           color="primary"
           aria-label="settings"
-          sx={{ position: 'fixed', right: '25px', bottom: '15px' }}
+          sx={{ position: 'fixed', left: '25px', bottom: '15px' }}
           onClick={() => setShowDrawer(true)}
         >
           <IconSettings stroke={1.5} />
         </Fab>
       </Tooltip>
 
-      <Tooltip title="دستیار هوشمند">
-        <Fab
-          color="primary"
-          aria-label="ai"
-          sx={{
-            position: 'fixed',
-            right: '25px',
-            bottom: '85px',
-            width: 54,
-            height: 54,
-            minHeight: 54,
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%)',
-            color: '#ffffff',
-            boxShadow: '0 12px 24px rgba(99, 102, 241, 0.38)',
-            border: '1px solid rgba(255,255,255,0.4)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 42%, #1d4ed8 100%)',
-              boxShadow: '0 16px 28px rgba(99, 102, 241, 0.45)',
-            },
-          }}
-          onClick={() => setShowAi(true)}
-          className="ai_shortcut"
-        >
-          <SmartToyOutlinedIcon sx={{ fontSize: 26, color: '#ffffff' }} />
-        </Fab>
-      </Tooltip>
-
-      {showAi ? <AiAgentPage onClose={() => setShowAi(false)} /> : null}
 
 
       <Drawer
-        anchor="right"
+        anchor="left"
         open={showDrawer}
         onClose={() => setShowDrawer(false)}
         PaperProps={{
@@ -179,60 +107,7 @@ const Customizer: FC = () => {
             </Stack>
 
             <Box pt={3} />
-            {/* ------------------------------------------- */}
-            {/* ------------ RTL theme setting -------------*/}
-            {/* ------------------------------------------- */}
-            <Typography variant="h6" gutterBottom>
-              Tema Yönü
-            </Typography>
-            <Stack direction={'row'} gap={2} my={2}>
-              <StyledBox onClick={() => dispatch(setDir('ltr'))} display="flex" gap={1}>
-                <SwipeLeftAltTwoToneIcon
-                  color={customizer.activeDir === 'ltr' ? 'primary' : 'inherit'}
-                />{' '}
-                sola Sağdan
-              </StyledBox>
-              <StyledBox onClick={() => dispatch(setDir('rtl'))} display="flex" gap={1}>
-                <SwipeRightAltTwoToneIcon
-                  color={customizer.activeDir === 'rtl' ? 'primary' : 'inherit'}
-                />{' '}
-                Sağdan sola
-              </StyledBox>
-            </Stack>
-
-            <Box pt={3} />
-            {/* ------------------------------------------- */}
-            {/* ------------ Theme Color setting ------------- */}
-            {/* ------------------------------------------- */}
-            <Typography variant="h6" gutterBottom>
-              Tema Renkleri
-            </Typography>
-            <Grid container spacing={2}>
-              {thColors.map((thcolor) => (
-                <Grid item xs={4} key={thcolor.id}>
-                  <StyledBox onClick={() => dispatch(setTheme(thcolor.disp))}>
-                    <Tooltip title={`${thcolor.disp}`} placement="top">
-                      <Box
-                        sx={{
-                          backgroundColor: thcolor.bgColor,
-                          width: '25px',
-                          height: '25px',
-                          borderRadius: '60px',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          display: 'flex',
-                          color: 'white',
-                        }}
-                        aria-label={`${thcolor.bgColor}`}
-                      >
-                        {customizer.activeTheme === thcolor.disp ? <IconCheck width={13} /> : ''}
-                      </Box>
-                    </Tooltip>
-                  </StyledBox>
-                </Grid>
-              ))}
-            </Grid>
-            <Box pt={4} />
+            {/* Direction (right-to-left) and colour (the brand orange) are fixed for Trabot; no options here. */}
             {/* ------------------------------------------- */}
             {/* ------------ Layout Horizontal / Vertical ------------- */}
             {/* ------------------------------------------- */}

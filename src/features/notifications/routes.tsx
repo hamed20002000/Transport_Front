@@ -9,7 +9,7 @@ export const notificationsRoutes: RouteObject[] = [
   {
     path: '/notif/list-notif',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListNotif />
       </PermissionGuard>
     ),

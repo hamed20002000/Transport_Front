@@ -70,7 +70,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -79,7 +79,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'normal');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 80, 35);
 
@@ -97,7 +97,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -109,12 +109,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -151,30 +151,30 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, data, onExport
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <Typography variant="subtitle2" color="primary" gutterBottom>Personel Bilgileri</Typography>
+                        <Typography variant="subtitle2" color="primary" gutterBottom>اطلاعات پرسنل</Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField label="Adı Soyadı" fullWidth size="small" value={`${data.personnel_name} ${data.personnel_family}`} InputProps={{ readOnly: true }} />
+                        <TextField label="نام و نام خانوادگی" fullWidth size="small" value={`${data.personnel_name} ${data.personnel_family}`} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField label="TC Kimlik No" fullWidth size="small" value={data.personnel_identity_number} InputProps={{ readOnly: true }} />
+                        <TextField label="کد ملی" fullWidth size="small" value={data.personnel_identity_number} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField label="Baba Adı" fullWidth size="small" value={data.personnel_father_name} InputProps={{ readOnly: true }} />
+                        <TextField label="نام پدر" fullWidth size="small" value={data.personnel_father_name} InputProps={{ readOnly: true }} />
                     </Grid>
 
                     <Grid item xs={12} mt={1}>
                         <Typography variant="subtitle2" color="secondary" gutterBottom>Şantiye ve Tarih</Typography>
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField label="Şantiye" fullWidth size="small" value={data.workhouse} InputProps={{ readOnly: true }} />
+                        <TextField label="کارگاه" fullWidth size="small" value={data.workhouse} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField label="Tarih" fullWidth size="small" value={format(parseISO(data.rollcall_date), 'dd/MM/yyyy')} InputProps={{ readOnly: true }} />
+                        <TextField label="تاریخ" fullWidth size="small" value={format(parseISO(data.rollcall_date), 'dd/MM/yyyy')} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={6}>
                         <TextField
-                            label="Durum"
+                            label="وضعیت"
                             fullWidth
                             size="small"
                             value={data.rollcall_absence ? "Gelmedi (YOK)" : "Geldi (VAR)"}
@@ -198,7 +198,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, data, onExport
                     <Button variant="outlined" color="success" size="small" startIcon={<IconFileSpreadsheet />} onClick={() => onExportExcel(data)}>Excel</Button>
                     <Button variant="outlined" color="error" size="small" startIcon={<IconFileDownload />} onClick={() => onExportPdf(data)}>PDF</Button>
                 </Stack>
-                <Button onClick={onClose} color="inherit">Kapat</Button>
+                <Button onClick={onClose} color="inherit">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -247,7 +247,7 @@ const ListRollCallsReport = () => {
             localStorage.removeItem('authToken');
             navigate("/");
         } else {
-            showAlert('Bir hata oluştu.', 'error');
+            showAlert('خطایی رخ داد.', 'error');
         }
     }, [navigate, showAlert]);
 
@@ -285,7 +285,7 @@ const ListRollCallsReport = () => {
                 setReportData(response.data.data);
             } else {
                 setReportData([]);
-                showAlert('Veri bulunamadı.', 'warning');
+                showAlert('داده‌ای پیدا نشد.', 'warning');
             }
         } catch (e: any) {
             setReportData([]);
@@ -339,7 +339,7 @@ const ListRollCallsReport = () => {
     const visibleRows = useMemo(() => processedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [processedData, page, rowsPerPage]);
 
     const handleExportExcelAll = async () => {
-        if (processedData.length === 0) return showAlert('Veri yok.', 'warning');
+        if (processedData.length === 0) return showAlert('داده‌ای نیست.', 'warning');
         showAlert('Tüm liste Excel olarak hazırlanıyor...', 'info');
         try {
             const Excel = (await import('exceljs')).default;
@@ -347,7 +347,7 @@ const ListRollCallsReport = () => {
             const workbook = new Excel.Workbook();
             const sheet = workbook.addWorksheet('Yoklama Listesi');
 
-            const headers = ["Şantiye", "Personel Adı", "TC No", "Tarih", "Giriş", "Çıkış", "Durum"];
+            const headers = ["کارگاه", "نام پرسنل", "کد ملی", "تاریخ", "Giriş", "Çıkış", "وضعیت"];
             const headerRow = sheet.addRow(headers);
             headerRow.font = { bold: true };
             headerRow.eachCell(cell => {
@@ -371,11 +371,11 @@ const ListRollCallsReport = () => {
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Yoklama_Listesi_${format(new Date(), 'yyyyMMdd')}.xlsx`);
             showAlert('Excel indirildi.', 'success');
-        } catch (e) { showAlert('Hata oluştu.', 'error'); }
+        } catch (e) { showAlert('خطایی رخ داد.', 'error'); }
     };
 
     const handleExportPdfAll = async () => {
-        if (processedData.length === 0) return showAlert('Veri yok.', 'warning');
+        if (processedData.length === 0) return showAlert('داده‌ای نیست.', 'warning');
         showAlert('Tüm liste PDF olarak hazırlanıyor...', 'info');
         try {
             const jsPDF = (await import('jspdf')).default;
@@ -393,7 +393,7 @@ const ListRollCallsReport = () => {
             ]);
 
             autoTable(doc, {
-                head: [["Şantiye", "Personel", "TC No", "Tarih", "Giriş", "Çıkış", "Durum"]],
+                head: [["کارگاه", "پرسنل", "کد ملی", "تاریخ", "Giriş", "Çıkış", "وضعیت"]],
                 body: body,
                 startY: 50,
                 theme: 'grid',
@@ -414,7 +414,7 @@ const ListRollCallsReport = () => {
             showAlert('PDF indirildi.', 'success');
         } catch (e) {
             console.error(e);
-            showAlert('Hata oluştu.', 'error');
+            showAlert('خطایی رخ داد.', 'error');
         }
     };
 
@@ -423,16 +423,16 @@ const ListRollCallsReport = () => {
             const Excel = (await import('exceljs')).default;
             const { saveAs } = await import('file-saver');
             const workbook = new Excel.Workbook();
-            const sheet = workbook.addWorksheet('Detay');
+            const sheet = workbook.addWorksheet('جزئیات');
 
             const dataRows = [
-                ['Şantiye', row.workhouse],
-                ['Personel', `${row.personnel_name} ${row.personnel_family}`],
+                ['کارگاه', row.workhouse],
+                ['پرسنل', `${row.personnel_name} ${row.personnel_family}`],
                 ['TC Kimlik', row.personnel_identity_number],
-                ['Tarih', format(parseISO(row.rollcall_date), 'dd/MM/yyyy')],
+                ['تاریخ', format(parseISO(row.rollcall_date), 'dd/MM/yyyy')],
                 ['Giriş Saati', row.rollcall_start_time],
                 ['Çıkış Saati', row.rollcall_end_time],
-                ['Durum', row.rollcall_absence ? 'YOK' : 'VAR']
+                ['وضعیت', row.rollcall_absence ? 'YOK' : 'VAR']
             ];
 
             sheet.addRows(dataRows);
@@ -442,7 +442,7 @@ const ListRollCallsReport = () => {
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Yoklama_${row.personnel_name}.xlsx`);
             showAlert('Excel indirildi.', 'success');
-        } catch (e) { showAlert('Hata oluştu.', 'error'); }
+        } catch (e) { showAlert('خطایی رخ داد.', 'error'); }
     };
 
     const handleExportPdfSingle = async (row: RollCallRowType) => {
@@ -453,13 +453,13 @@ const ListRollCallsReport = () => {
             addPdfHeader(doc, `Yoklama Detayı: ${row.personnel_name} ${row.personnel_family}`);
 
             const body = [
-                ['Şantiye', row.workhouse],
-                ['Personel', `${row.personnel_name} ${row.personnel_family}`],
-                ['TC No', row.personnel_identity_number],
-                ['Tarih', format(parseISO(row.rollcall_date), 'dd/MM/yyyy')],
+                ['کارگاه', row.workhouse],
+                ['پرسنل', `${row.personnel_name} ${row.personnel_family}`],
+                ['کد ملی', row.personnel_identity_number],
+                ['تاریخ', format(parseISO(row.rollcall_date), 'dd/MM/yyyy')],
                 ['Giriş', row.rollcall_start_time],
                 ['Çıkış', row.rollcall_end_time],
-                ['Durum', row.rollcall_absence ? 'GELMEDİ (YOK)' : 'GELDİ (VAR)']
+                ['وضعیت', row.rollcall_absence ? 'GELMEDİ (YOK)' : 'GELDİ (VAR)']
             ];
 
             autoTable(doc, {
@@ -475,7 +475,7 @@ const ListRollCallsReport = () => {
 
             doc.save(`Yoklama_${row.personnel_name}.pdf`);
             showAlert('PDF indirildi.', 'success');
-        } catch (e) { showAlert('Hata oluştu.', 'error'); }
+        } catch (e) { showAlert('خطایی رخ داد.', 'error'); }
     };
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>, row: RollCallRowType) => {
         setAnchorEl(event.currentTarget);
@@ -511,13 +511,13 @@ const ListRollCallsReport = () => {
                             value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null}
                             onChange={(_, v) => setFilterParams(prev => ({ ...prev, workhouseId: v?.id || null }))}
                             isOptionEqualToValue={(o, v) => o.id === v.id}
-                            renderInput={(params) => (<TextField {...params} label="Şantiye" fullWidth size="small" />)}
+                            renderInput={(params) => (<TextField {...params} label="کارگاه" fullWidth size="small" />)}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Başlangıç Tarihi"
+                                label="تاریخ شروع"
                                 value={startDate}
                                 onChange={(v) => setStartDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -555,7 +555,7 @@ const ListRollCallsReport = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Bitiş Tarihi"
+                                label="تاریخ پایان"
                                 value={endDate}
                                 onChange={(v) => setEndDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -617,7 +617,7 @@ const ListRollCallsReport = () => {
                                 color="primary"
                             >
                                 <StyledToggleButton value="all" sx={{ px: 3 }}>
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton value="present">
                                     Gelenler
@@ -636,7 +636,7 @@ const ListRollCallsReport = () => {
                                 onClick={() => handleExportExcelAll()}
                                 disabled={loadingData || processedData.length === 0}
                             >
-                                Tüm Veriyi Excel İndir
+                                دانلود همه‌ی داده‌ها در Excel
                             </Button>
                             <Button
                                 variant="outlined"
@@ -645,7 +645,7 @@ const ListRollCallsReport = () => {
                                 onClick={() => handleExportPdfAll()}
                                 disabled={loadingData || processedData.length === 0}
                             >
-                                Tüm Veriyi PDF İndir
+                                دانلود همه‌ی داده‌ها در PDF
                             </Button>
                         </Grid>
                     </Grid>
@@ -660,13 +660,13 @@ const ListRollCallsReport = () => {
                     <Table>
                         <TableHead sx={{ background: "#f4f6f8" }}>
                             <TableRow>
-                                <StyledTableCell><TableSortLabel active={orderBy === 'workhouse'} direction={orderBy === 'workhouse' ? order : 'asc'} onClick={() => { setOrder(order === 'asc' ? 'desc' : 'asc'); setOrderBy('workhouse'); }}>Şantiye</TableSortLabel></StyledTableCell>
-                                <StyledTableCell><TableSortLabel active={orderBy === 'personnel_name'} direction={orderBy === 'personnel_name' ? order : 'asc'} onClick={() => { setOrder(order === 'asc' ? 'desc' : 'asc'); setOrderBy('personnel_name'); }}>Personel</TableSortLabel></StyledTableCell>
-                                <StyledTableCell>TC No</StyledTableCell>
-                                <StyledTableCell><TableSortLabel active={orderBy === 'rollcall_date'} direction={orderBy === 'rollcall_date' ? order : 'asc'} onClick={() => { setOrder(order === 'asc' ? 'desc' : 'asc'); setOrderBy('rollcall_date'); }}>Tarih</TableSortLabel></StyledTableCell>
+                                <StyledTableCell><TableSortLabel active={orderBy === 'workhouse'} direction={orderBy === 'workhouse' ? order : 'asc'} onClick={() => { setOrder(order === 'asc' ? 'desc' : 'asc'); setOrderBy('workhouse'); }}>کارگاه</TableSortLabel></StyledTableCell>
+                                <StyledTableCell><TableSortLabel active={orderBy === 'personnel_name'} direction={orderBy === 'personnel_name' ? order : 'asc'} onClick={() => { setOrder(order === 'asc' ? 'desc' : 'asc'); setOrderBy('personnel_name'); }}>پرسنل</TableSortLabel></StyledTableCell>
+                                <StyledTableCell>کد ملی</StyledTableCell>
+                                <StyledTableCell><TableSortLabel active={orderBy === 'rollcall_date'} direction={orderBy === 'rollcall_date' ? order : 'asc'} onClick={() => { setOrder(order === 'asc' ? 'desc' : 'asc'); setOrderBy('rollcall_date'); }}>تاریخ</TableSortLabel></StyledTableCell>
                                 <StyledTableCell>Saatler</StyledTableCell>
-                                <StyledTableCell align="center">Durum</StyledTableCell>
-                                <StyledTableCell align="center">İşlemler</StyledTableCell>
+                                <StyledTableCell align="center">وضعیت</StyledTableCell>
+                                <StyledTableCell align="center">عملیات</StyledTableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -690,7 +690,7 @@ const ListRollCallsReport = () => {
                                             />
                                         </StyledTableCell>
                                         <StyledTableCell align="center">
-                                            <Tooltip title="İşlemler">
+                                            <Tooltip title="عملیات">
                                                 <IconButton size="small" onClick={(e) => handleMenuClick(e, row)}>
                                                     <IconDots size={18} />
                                                 </IconButton>
@@ -699,7 +699,7 @@ const ListRollCallsReport = () => {
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow><TableCell colSpan={7} align="center">Veri bulunamadı.</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={7} align="center">داده‌ای پیدا نشد.</TableCell></TableRow>
                             )}
                         </TableBody>
                         <TableFooter>
@@ -725,7 +725,7 @@ const ListRollCallsReport = () => {
                 onClose={handleMenuClose}
             >
                 <MenuItem onClick={() => selectedRowMenu && handleOpenDetail(selectedRowMenu)}>
-                    <ListItemIcon><IconRuler size={18} /></ListItemIcon> Detaylar
+                    <ListItemIcon><IconRuler size={18} /></ListItemIcon> جزئیات
                 </MenuItem>
                 <MenuItem onClick={() => { if (selectedRowMenu) handleExportPdfSingle(selectedRowMenu); handleMenuClose(); }}>
                     <ListItemIcon><IconFileDownload size={18} /></ListItemIcon> PDF İndir (Tekli)

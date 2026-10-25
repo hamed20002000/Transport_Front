@@ -31,7 +31,7 @@ const formatDateDisplay = (dateString: string | null | undefined): string => {
     try {
         return format(new Date(dateString), 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -158,7 +158,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -167,7 +167,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -185,7 +185,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -197,12 +197,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -214,7 +214,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
 
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -225,7 +225,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل',
     ];
     let rowNum = startRow;
@@ -340,9 +340,9 @@ const ListRollCalls = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const showAlert = useCallback((message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
         setAlertMessage(message);
@@ -489,7 +489,7 @@ const ListRollCalls = () => {
                     personnelIdentity: r.personnelWorkPlace.personnel?.identityNumber || '-',
                     positionTitle: r.personnelWorkPlace.position?.title || '-',
                     placeName: r.personnelWorkPlace.workhouse?.name || r.personnelWorkPlace.store?.name || '-',
-                    status: Number(r.recordStatus) === 0 ? 'Aktif' : 'Pasif'
+                    status: Number(r.recordStatus) === 0 ? 'فعال' : 'غیرفعال'
                 }));
                 setRollCallsList(mappedData);
                 fetchPersonnelWorkPlaces(mappedData, selectedDailyDate);
@@ -497,12 +497,12 @@ const ListRollCalls = () => {
                 showAlert('Yoklama listesi yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -568,7 +568,7 @@ const ListRollCalls = () => {
                 showAlert(response.data.message || 'Kayıt eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Hata oluştu.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد.', 'error');
         } finally {
             setIsDailyRegisterLoading(prev => ({ ...prev, [row.id]: false }));
         }
@@ -647,10 +647,10 @@ const ListRollCalls = () => {
                 handleCloseEditModal();
                 fetchRollCalls();
             } else {
-                showAlert(response.data.message || 'Hata oluştu.', 'error');
+                showAlert(response.data.message || 'خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Hata oluştu.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -742,9 +742,9 @@ const ListRollCalls = () => {
 
 
     const exportRollCallsToPdf = async (data: RollCallType[], isFiltered: boolean) => {
-        if (!data || data.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
         setLoadingData(true);
-        showAlert('Rapor oluşturuluyor...', 'info');
+        showAlert('در حال ساخت گزارش...', 'info');
 
         const doc = new jsPDF();
         const docAny = doc as any;
@@ -758,7 +758,7 @@ const ListRollCalls = () => {
         }
 
         const columns = [
-            "Personel", "TC Kimlik", "Pozisyon", "Tarih", "Başlangıç", "Bitiش", "Durum"
+            "پرسنل", "TC Kimlik", "Pozisyon", "تاریخ", "شروع", "Bitiش", "وضعیت"
         ];
         const rows = data.map(row => [
             row.personnelName,
@@ -787,20 +787,20 @@ const ListRollCalls = () => {
             margin: { top: 65, bottom: 45, left: 10, right: 10 }
         });
         docAny.save(isFiltered ? 'Filtrelenmis_Yoklamalar.pdf' : 'Tum_Yoklamalar.pdf');
-        showAlert('PDF başarıyla oluşturuldu.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         setLoadingData(false);
     };
 
     const exportRollCallsToExcel = async (data: RollCallType[], isFiltered: boolean) => {
-        if (!data || data.length === 0) { showAlert('Excel oluşturulacak kayıt bulunamadı.', 'warning'); return; }
+        if (!data || data.length === 0) { showAlert('رکوردی برای ساخت Excel پیدا نشد.', 'warning'); return; }
         setLoadingData(true);
-        showAlert('Rapor oluşturuluyor...', 'info');
+        showAlert('در حال ساخت گزارش...', 'info');
 
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet('Yoklamalar');
 
         const columns = [
-            "Personel", "TC Kimlik", "Pozisyon", "Tarih", "Başlangıç Saati", "Bitiش Saati", "Durum"
+            "پرسنل", "TC Kimlik", "Pozisyon", "تاریخ", "Başlangıç Saati", "Bitiش Saati", "وضعیت"
         ];
         const headerTitle = isFiltered ? "Filtrelenmiş Yoklama Raporu" : "Tüm Yoklama Raporu";
         addExcelHeader(worksheet, headerTitle, columns.length);
@@ -839,7 +839,7 @@ const ListRollCalls = () => {
         const fileName = isFiltered ? 'Filtrelenmis_Yoklamalar.xlsx' : 'Tum_Yoklamalar.xlsx';
         workbook.xlsx.writeBuffer().then(buffer => {
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد.', 'success');
         });
         setLoadingData(false);
     };
@@ -933,7 +933,7 @@ const ListRollCalls = () => {
 
                     {dailyFilterType === 'workhouse' && (
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel>Şantiye Seçin</CustomFormLabel>
+                            <CustomFormLabel>کارگاه را انتخاب کنید</CustomFormLabel>
                             <TextField
                                 select
                                 fullWidth
@@ -999,8 +999,8 @@ const ListRollCalls = () => {
                             <TableRow>
                                 <StyledTableCell>Personel (TC)</StyledTableCell>
                                 <StyledTableCell>Pozisyon</StyledTableCell>
-                                <StyledTableCell>Tarih</StyledTableCell>
-                                <StyledTableCell>Başlangıç</StyledTableCell>
+                                <StyledTableCell>تاریخ</StyledTableCell>
+                                <StyledTableCell>شروع</StyledTableCell>
                                 <StyledTableCell>Bitiش</StyledTableCell>
                                 <StyledTableCell>Eylem</StyledTableCell>
                             </TableRow>
@@ -1055,7 +1055,7 @@ const ListRollCalls = () => {
                                                         disabled={isRegistered || isDailyRegisterLoading[row.id]}
                                                         startIcon={<IconCheck size={16} />}
                                                     >
-                                                        Var
+                                                        دارد
                                                     </Button>
                                                     <Button
                                                         variant={isRegistered && row.todayAbsenceStatus ? "contained" : "outlined"}
@@ -1065,7 +1065,7 @@ const ListRollCalls = () => {
                                                         disabled={isRegistered || isDailyRegisterLoading[row.id]}
                                                         startIcon={<IconUserOff size={16} />}
                                                     >
-                                                        Yok
+                                                        ندارد
                                                     </Button>
                                                 </Stack>
                                             </StyledTableCell>
@@ -1075,7 +1075,7 @@ const ListRollCalls = () => {
                             ) : (
                                 <TableRow>
                                     <StyledTableCell colSpan={6} align="center">
-                                        <Typography color="textSecondary">Kayıt bulunamadı.</Typography>
+                                        <Typography color="textSecondary">رکوردی پیدا نشد.</Typography>
                                     </StyledTableCell>
                                 </TableRow>
                             )}
@@ -1117,7 +1117,7 @@ const ListRollCalls = () => {
                             disabled={loadingData}
                             fullWidth={true}
                         >
-                            Tümünü İndir
+                            دانلود همه
                         </Button>
 
                         {(searchTerm.trim() !== '' || startDate || endDate) && hasDownloadPermission && (
@@ -1153,14 +1153,14 @@ const ListRollCalls = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={startDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(v) => { setStartDate(v); setPage(0); }}
                                         renderInput={(p) => (<TextField {...p} size="small" fullWidth />)}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={endDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(v) => { setEndDate(v); setPage(0); }}
@@ -1184,23 +1184,23 @@ const ListRollCalls = () => {
                     {loadingData ? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                             <CircularProgress />
-                            <Typography variant="h6" sx={{ ml: 2 }}>Kayıtlar yükleniyor...</Typography>
+                            <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری رکوردها...</Typography>
                         </Box>
                     ) : (
                         <Table aria-label="roll call table">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
-                                        <TableSortLabel active={orderBy === 'personnelName'} direction={orderBy === 'personnelName' ? order : 'asc'} onClick={() => handleRequestSort('personnelName')}>Personel</TableSortLabel>
+                                        <TableSortLabel active={orderBy === 'personnelName'} direction={orderBy === 'personnelName' ? order : 'asc'} onClick={() => handleRequestSort('personnelName')}>پرسنل</TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>TC Kimlik</StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>Pozisyon</StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
-                                        <TableSortLabel active={orderBy === 'date'} direction={orderBy === 'date' ? order : 'asc'} onClick={() => handleRequestSort('date')}>Tarih</TableSortLabel>
+                                        <TableSortLabel active={orderBy === 'date'} direction={orderBy === 'date' ? order : 'asc'} onClick={() => handleRequestSort('date')}>تاریخ</TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}>Durum</StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}>Başlangıç</StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}>Bitiş</StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}>وضعیت</StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}>شروع</StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}>پایان</StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1229,7 +1229,7 @@ const ListRollCalls = () => {
                                                     onClose={handleCloseMenu}
                                                 >
                                                     {hasEditPermission && (
-                                                        <UiMenuItem onClick={handleOpenEditModal}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</UiMenuItem>
+                                                        <UiMenuItem onClick={handleOpenEditModal}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>
                                                     )}
                                                     {hasDeletePermission && (
                                                         <UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>
@@ -1315,46 +1315,46 @@ const ListRollCalls = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseEditModal} color="secondary">İptal Et</Button>
+                    <Button onClick={handleCloseEditModal} color="secondary">لغو</Button>
                     <Button onClick={editRollCall} color="info" disabled={loadingButton} variant="contained">
-                        {loadingButton ? 'Güncelleniyor...' : 'Kaydet'}
+                        {loadingButton ? 'در حال به‌روزرسانی...' : 'ذخیره'}
                     </Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadAllModal} onClose={handleCloseDownloadAllModal} maxWidth="xs">
-                <DialogTitle>Tüm Kayıtları İndir</DialogTitle>
+                <DialogTitle>دانلود همه‌ی رکوردها</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Typography variant="subtitle2" color="textSecondary">Toplam Kayıt Sayısı: {rollCallsList.length}</Typography>
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleDownloadAll('pdf', false)}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleDownloadAll('excel', false)}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDownloadAllModal} color="secondary">Kapat</Button>
+                    <Button onClick={handleCloseDownloadAllModal} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={handleCloseDownloadFilteredModal} maxWidth="xs">
-                <DialogTitle>Filtrelenmiş Kayıtları İndir</DialogTitle>
+                <DialogTitle>دانلود رکوردهای فیلترشده</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Typography variant="subtitle2" color="textSecondary">Filtrelenmiş Kayıt Sayısı: {displayedRollCalls.length}</Typography>
                         <Button variant="contained" color="primary" startIcon={<IconFileDownload />} onClick={() => handleDownloadAll('pdf', true)}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileDownload />} onClick={() => handleDownloadAll('excel', true)}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDownloadFilteredModal} color="secondary">Kapat</Button>
+                    <Button onClick={handleCloseDownloadFilteredModal} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1374,7 +1374,7 @@ const ListRollCalls = () => {
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseRowDownloadModal} color="secondary">Kapat</Button>
+                    <Button onClick={handleCloseRowDownloadModal} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 

@@ -58,14 +58,14 @@ export const StyledTableCell = styled(UiTableCell)(({ theme }) => ({
 }));
 
 export const statusToLabel = (s: number) => {
-    switch (s) { case 0: return "Beklemede"; case 1: return "Onaylandı"; case 2: return "Reddedildi"; default: return "-"; }
+    switch (s) { case 0: return "Beklemede"; case 1: return "تأیید شد"; case 2: return "Reddedildi"; default: return "-"; }
 };
 export const statusToColor = (s: number): 'warning' | 'success' | 'error' | 'primary' => {
     switch (s) { case 0: return "warning"; case 1: return "success"; case 2: return "error"; default: return "primary"; }
 };
 export const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
-    try { const date = new Date(dateString); return format(date, 'dd MMMM yyyy', { locale: tr }); } catch (e) { return "Geçersiz Tarih"; }
+    try { const date = new Date(dateString); return format(date, 'dd MMMM yyyy', { locale: tr }); } catch (e) { return "تاریخ نامعتبر"; }
 };
 export const stripHtml = (htmlString: string): string => {
     if (!htmlString) return '';
@@ -90,7 +90,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     // @ts-ignore
@@ -98,7 +98,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     doc.text(title, pageWidth / 2, 15, { align: 'center' });
     doc.setFontSize(10);
     // @ts-ignore
-    doc.setFont('Arial', 'normal'); doc.text(`Tarih Raporu:`, 15, 35);
+    doc.setFont('Arial', 'normal'); doc.text(`گزارش تاریخ:`, 15, 35);
     // @ts-ignore
     doc.setFont('Arial', 'normal'); doc.text(`${formatDateDisplay(new Date().toISOString())}`, 45, 35);
 
@@ -118,7 +118,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -130,12 +130,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -149,24 +149,24 @@ export const exportRequestPdf = (requestData: CommonRequestType, title: string) 
     const rentalData = requestData as WorkhouseRentRequest;
 
     const tableData = [
-        ['Başlık', isMaterial ? (requestData as MaterialRequestType).subject : rentalData.title],
-        ['Talep Eden', requestData.user?.username || '-'],
-        ['Durum', statusToLabel(requestData.status)],
-        ['Tarih', new Date(requestData.createAt).toLocaleDateString('tr-TR')],
-        ['Açıklama', stripHtml(requestData.description) || '-'],
+        ['عنوان', isMaterial ? (requestData as MaterialRequestType).subject : rentalData.title],
+        ['درخواست‌دهنده', requestData.user?.username || '-'],
+        ['وضعیت', statusToLabel(requestData.status)],
+        ['تاریخ', new Date(requestData.createAt).toLocaleDateString('tr-TR')],
+        ['توضیحات', stripHtml(requestData.description) || '-'],
 
         ...(isRental ? [
-            ['Şantiye', rentalData.workhouseName || rentalData.workhouse?.name || '-'],
-            ['Başlangıç Tarihi', formatDateDisplay(rentalData.rentStartDate)],
-            ['Bitiş Tarihi', formatDateDisplay(rentalData.rentEndDate)],
-            ['Fiyat', cleanPrice(rentalData.price)],
-            ['Şirket', rentalData.company || '-'],
-            ['Şoför Bilgisi', rentalData.driverInfo || '-'],
+            ['کارگاه', rentalData.workhouseName || rentalData.workhouse?.name || '-'],
+            ['تاریخ شروع', formatDateDisplay(rentalData.rentStartDate)],
+            ['تاریخ پایان', formatDateDisplay(rentalData.rentEndDate)],
+            ['قیمت', cleanPrice(rentalData.price)],
+            ['شرکت', rentalData.company || '-'],
+            ['اطلاعات راننده', rentalData.driverInfo || '-'],
         ] : []),
     ];
 
     autoTable(doc, {
-        startY: 55, head: [['Özellik', 'Değer']], body: tableData, theme: 'grid',
+        startY: 55, head: [['ویژگی', 'مقدار']], body: tableData, theme: 'grid',
         // @ts-ignore
         styles: { font: 'Arial', fontStyle: 'normal', fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
         headStyles: { fillColor: [242, 242, 242], textColor: [0, 0, 0] },
@@ -187,10 +187,10 @@ export const exportRequestExcel = async (requestData: CommonRequestType, title: 
 
     worksheet.addRow(['ترابوت']).font = { bold: true, size: 12 };
     worksheet.addRow(['Rapor Başlığı:', title]).font = { bold: true };
-    worksheet.addRow(['Rapor Tarihi:', new Date().toLocaleDateString('tr-TR')]);
+    worksheet.addRow(['تاریخ گزارش:', new Date().toLocaleDateString('tr-TR')]);
     worksheet.addRow([]); worksheet.addRow([]);
 
-    worksheet.columns = [{ header: 'Özellik', key: 'key', width: 25 }, { header: 'Değer', key: 'value', width: 60 }];
+    worksheet.columns = [{ header: 'ویژگی', key: 'key', width: 25 }, { header: 'مقدار', key: 'value', width: 60 }];
     const isMaterial = (requestData as MaterialRequestType).subject !== undefined;
 
     worksheet.addRow({ key: 'Başlık', value: isMaterial ? (requestData as MaterialRequestType).subject : (requestData as WorkhouseRentRequest).title });
@@ -214,10 +214,10 @@ export const exportRequestExcel = async (requestData: CommonRequestType, title: 
     worksheet.addRow(['Ekler']).font = { bold: true, size: 12 };
     // @ts-ignore
     if (requestData.attachments && requestData.attachments.length > 0) {
-        worksheet.addRow(['Dosya Adı', 'URL']).font = { bold: true };
+        worksheet.addRow(['نام فایل', 'URL']).font = { bold: true };
         requestData.attachments.forEach(att => { worksheet.addRow([att.fileUrl.split('/').pop() || '-', att.fileUrl]); });
     } else {
-        worksheet.addRow(['Piyes bulunamadı']);
+        worksheet.addRow(['قطعه پیدا نشد']);
     }
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -266,10 +266,10 @@ const RequestReceiptTabs: React.FC = () => {
         setOpenDescriptionModal(true);
     }, []);
     const handleDownloadClick = (fileUrl: string) => {
-        if (!fileUrl) { showAlert('Dosya adresi geçersiz.', 'error'); return; }
+        if (!fileUrl) { showAlert('آدرس فایل نامعتبر است.', 'error'); return; }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
 
     const fetchMaterialRequests = useCallback(async () => {
@@ -340,7 +340,7 @@ const RequestReceiptTabs: React.FC = () => {
                     workhouse: r.workhouse,
                 }));
                 setRentalRequests(mappedData);
-            } else { setRentalRequests([]); showAlert(response.data.message || 'Kiralama talepleri alınamadı.', 'error'); }
+            } else { setRentalRequests([]); showAlert(response.data.message || 'درخواست‌های اجاره دریافت نشدند.', 'error'); }
         } catch (e: any) { setRentalRequests([]); showAlert('Kiralama talepleri yüklenirken bir hata oluştu.', 'error'); } finally { setLoadingData(false); }
     }, [showAlert]);
 
@@ -388,7 +388,7 @@ const RequestReceiptTabs: React.FC = () => {
                     <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}><IconInbox style={{ marginRight: 8 }} /> Talep Onay Yönetimi</Typography>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: { xs: 2, sm: 0 } }}>
                         <TabList onChange={handleTabChange} aria-label="Talep Türü Filtresi">
-                            <Tab label="Malzeme Talepleri" value="material" />
+                            <Tab label="درخواست‌های کالا" value="material" />
                             <Tab label="Kiralama Talepleri" value="rental" />
                         </TabList>
                     </Box>
@@ -426,7 +426,7 @@ const RequestReceiptTabs: React.FC = () => {
                 </TabPanel>
             </TabContext>
             <Dialog open={openHistoryModal} onClose={() => setOpenHistoryModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Talep Durum Geçmişi</DialogTitle>
+                <DialogTitle>تاریخچه‌ی وضعیت درخواست</DialogTitle>
                 <DialogContent dividers>
                     <Stack spacing={2}>
                         {historyData.length > 0 ? (
@@ -437,22 +437,22 @@ const RequestReceiptTabs: React.FC = () => {
                                         <Typography variant="caption" color="textSecondary">{new Date(h.createAt).toLocaleString('tr-TR')}</Typography>
                                     </Box>
                                     <Divider sx={{ my: 1 }} />
-                                    <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 1 }}>Açıklama: {h.statusDescription || '—'}</Typography>
-                                    <Typography variant="body2">İşlem Yapan: {h.user?.username || '-'}</Typography>
+                                    <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 1 }}>توضیحات: {h.statusDescription || '—'}</Typography>
+                                    <Typography variant="body2">انجام‌دهنده: {h.user?.username || '-'}</Typography>
                                 </Paper>
                             ))
-                        ) : (<Typography>Henüz durum geçmişi yok.</Typography>)}
+                        ) : (<Typography>هنوز تاریخچه‌ی وضعیتی وجود ندارد.</Typography>)}
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenHistoryModal(false)}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenHistoryModal(false)}>بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDescriptionModal} onClose={() => setOpenDescriptionModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText><div dangerouslySetInnerHTML={{ __html: fullDescriptionContent || '' }} /></DialogContentText>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDescriptionModal(false)} color="primary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDescriptionModal(false)} color="primary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openAttachmentsModal} onClose={() => setOpenAttachmentsModal(false)} maxWidth="sm" fullWidth>
@@ -482,7 +482,7 @@ const RequestReceiptTabs: React.FC = () => {
                         );
                     })}
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary">بستن</Button></DialogActions>
             </Dialog>
         </Box>
     );

@@ -149,7 +149,7 @@ interface ApiResponse<T> {
 const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "N/A";
     try { return format(new Date(dateString), 'dd MMMM yyyy', { locale: tr }); }
-    catch { return "Geçersiz Tarih"; }
+    catch { return "تاریخ نامعتبر"; }
 };
 const getStatus = (recordStatus: number): { text: 'Aktif' | 'Pasif', color: 'success' | 'error' } =>
     (recordStatus === 0 ? { text: 'Aktif', color: 'success' } : { text: 'Pasif', color: 'error' });
@@ -170,7 +170,7 @@ const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -179,7 +179,7 @@ const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
     if (subtitle) doc.text(subtitle, 70, 52);
@@ -198,7 +198,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -210,12 +210,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -233,7 +233,7 @@ const getTotalsByUnit = (details: any[]) => {
 };
 
 const exportReceiptsToPdf = (data: SendedReceiptType[], title: string, subtitle?: string) => {
-    if (!data?.length) throw new Error('PDF oluşturulacak veri bulunamadı.');
+    if (!data?.length) throw new Error('داده‌ای برای ساخت PDF پیدا نشد.');
     const doc = new jsPDF();
     const docAny = doc as any;
 
@@ -243,13 +243,13 @@ const exportReceiptsToPdf = (data: SendedReceiptType[], title: string, subtitle?
         addPdfHeader(doc, title, subtitle);
 
         doc.setFontSize(10);
-        doc.text(`Giriş Depo: ${receipt.warehouse?.name || '-'}`, 15, yPos);
+        doc.text(`انبار ورودی: ${receipt.warehouse?.name || '-'}`, 15, yPos);
         doc.text(`Belge Kodu: ${receipt.code || '-'}`, 15, yPos + 5);
         doc.text(`Belge Tarihi: ${formatDateDisplay(receipt.docDate)}`, 15, yPos + 10);
-        doc.text(`Genel Açıklama: ${receipt.description || '-'}`, 15, yPos + 15);
+        doc.text(`توضیحات کلی: ${receipt.description || '-'}`, 15, yPos + 15);
         yPos += 20;
 
-        const head = ['Malzeme', 'Miktar', 'Birim', 'Açıklama', 'Sevk Kodu'];
+        const head = ['کالا', 'مقدار', 'واحد', 'توضیحات', 'Sevk Kodu'];
         const body = (receipt.receiptDetails || []).map(d => [
             d.item?.name || '-',
             Number(d.quantity).toLocaleString('tr-TR'),
@@ -260,7 +260,7 @@ const exportReceiptsToPdf = (data: SendedReceiptType[], title: string, subtitle?
 
         const totals = getTotalsByUnit(receipt.receiptDetails || []);
         const footRows = Object.entries(totals).map(([unit, qty]) => [
-            'Toplam:',
+            'جمع:',
             qty.toLocaleString('tr-TR'),
             unit,
             '',
@@ -284,18 +284,18 @@ const exportReceiptsToPdf = (data: SendedReceiptType[], title: string, subtitle?
 };
 
 const exportReceiptsToExcel = async (data: SendedReceiptType[], title: string) => {
-    if (!data?.length) throw new Error('Excel oluşturulacak veri bulunamadı.');
+    if (!data?.length) throw new Error('داده‌ای برای ساخت Excel پیدا نشد.');
 
     const wb = new Excel.Workbook();
     data.forEach(receipt => {
-        const ws = wb.addWorksheet(`Giriş_${receipt.code}`.replace(/[\\/*?:[\]]/g, '_').substring(0, 30));
-        const head = ['Malzeme', 'Miktar', 'Birim', 'Açıklama', 'Sevk Kodu'];
+        const ws = wb.addWorksheet(`ورود_${receipt.code}`.replace(/[\\/*?:[\]]/g, '_').substring(0, 30));
+        const head = ['کالا', 'مقدار', 'واحد', 'توضیحات', 'Sevk Kodu'];
         addExcelHeader(ws, title, head.length);
 
         ws.addRow([`Belge Kodu:`, receipt.code]);
-        ws.addRow([`Giriş Depo:`, receipt.warehouse?.name || '-']);
+        ws.addRow([`انبار ورودی:`, receipt.warehouse?.name || '-']);
         ws.addRow([`Belge Tarihi:`, formatDateDisplay(receipt.docDate)]);
-        ws.addRow(['Genel Açıklama', receipt.description || '-']);
+        ws.addRow(['توضیحات کلی', receipt.description || '-']);
         ws.addRow([]);
 
         const hr = ws.addRow(head);
@@ -313,12 +313,12 @@ const exportReceiptsToExcel = async (data: SendedReceiptType[], title: string) =
         });
 
         ws.addRow([]);
-        const summaryTitle = ws.addRow(["Birim Bazlı Toplamlar"]);
+        const summaryTitle = ws.addRow(["جمع بر اساس واحد"]);
         summaryTitle.font = { name: 'NotoSans', bold: true, underline: true };
 
         const totals = getTotalsByUnit(receipt.receiptDetails || []);
         Object.entries(totals).forEach(([unit, total]) => {
-            const tr = ws.addRow(['Toplam:', total, unit]);
+            const tr = ws.addRow(['جمع:', total, unit]);
             tr.getCell(1).font = { name: 'NotoSans', bold: true };
             tr.getCell(1).alignment = { horizontal: 'right' };
             tr.getCell(2).font = { name: 'NotoSans', bold: true };
@@ -343,7 +343,7 @@ const addExcelHeader = (ws: Excel.Worksheet, title: string, colLen: number) => {
     ws.views = [{ rightToLeft: true }];
     const t = ws.addRow([title]); t.font = { name: 'NotoSans', size: 14, bold: true };
     ws.mergeCells(t.number, 1, t.number, colLen); t.getCell(1).alignment = { horizontal: 'center' };
-    const d = ws.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const d = ws.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     d.font = { name: 'NotoSans', size: 10 }; ws.mergeCells(d.number, 1, d.number, colLen);
     ws.addRow([]);
 };
@@ -351,7 +351,7 @@ const addExcelHeader = (ws: Excel.Worksheet, title: string, colLen: number) => {
 const addExcelCompanyInfo = (ws: Excel.Worksheet, startRow: number, colLen: number) => {
     const lines = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل',
     ];
     let r = startRow;
@@ -484,9 +484,9 @@ const ListReceiptsDestructionSendedFromStore = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const showAlert = useCallback((message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
         setAlertMessage(message); setAlertSeverity(severity);
@@ -518,14 +518,14 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 const active = res.data.data.filter(s => s.recordStatus === 0).map(s => ({ ...s, id: Number(s.id) }));
                 setWarehouses(active);
                 return active;
-            } else { showAlert(res.data.message || 'Depolar yüklenirken bir hata oluştu.', 'error'); return []; }
+            } else { showAlert(res.data.message || 'هنگام بارگذاری انبارها خطایی رخ داد.', 'error'); return []; }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate, showAlert]);
 
@@ -556,14 +556,14 @@ const ListReceiptsDestructionSendedFromStore = () => {
                     status: Number(i.recordStatus) === 0 ? 'Aktif' : 'Pasif',
                 }));
                 setWorkhousesList(normalized.filter(w => w.recordStatus === 0));
-            } else showAlert(response.data?.message || 'Şantiyeler yüklenirken bir hata oluştu.', 'error');
+            } else showAlert(response.data?.message || 'هنگام بارگذاری کارگاه‌ها خطایی رخ داد.', 'error');
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
         finally { setLoadingWorkhouses(false); }
     }, [navigate, showAlert]);
@@ -581,12 +581,12 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 setStoresList(active); return active;
             } else { showAlert(res.data.message || 'Şantiye Depoları yüklenirken bir hata oluştu.', 'error'); setStoresList([]); return []; }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
         finally { setLoadingStores(false); }
     }, [authToken, navigate, showAlert]);
@@ -603,17 +603,17 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 setDispatchHeadersList(all);
                 return all;
             } else {
-                showAlert(res.data?.message || 'Sevk belgeleri yüklenirken bir hata oluştu.', 'error');
+                showAlert(res.data?.message || 'هنگام بارگذاری اسناد ارسال خطایی رخ داد.', 'error');
                 setDispatchHeadersList([]); return [];
             }
         }
         catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
             return [];
         } finally { setLoadingDispatches(false); }
     }, [authToken, showAlert, navigate]);
@@ -648,12 +648,12 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 showAlert(receiptsRes.data?.message || 'Giriş belgeleri yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
         finally { setLoadingData(false); }
     }, [authToken, fetchWarehouses, fetchWorkhouses, navigate, showAlert]);
@@ -831,17 +831,17 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 payload, { headers: { "Authorization": `Bearer ${authToken}`, "Content-Type": "application/json" } }
             );
             if (res.data.httpStatusCode === 201) {
-                showAlert('Yeni giriş belgesi başarıyla eklendi!', 'success');
+                showAlert('سند ورود جدید با موفقیت اضافه شد!', 'success');
                 setOpenIsEndModal(true);
                 await fetchInitialData();
-            } else showAlert(res.data.message || 'Giriş belgesi eklenirken bir hata oluştu.', 'error');
+            } else showAlert(res.data.message || 'هنگام افزودن سند ورود خطایی رخ داد.', 'error');
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -868,13 +868,13 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 payload, { headers: { "Authorization": `Bearer ${authToken}`, "Content-Type": "application/json" } }
             );
             if (res.data.httpStatusCode === 200) {
-                showAlert('Giriş belgesi başarıyla güncellendi!', 'success');
+                showAlert('سند ورود با موفقیت به‌روزرسانی شد!', 'success');
                 resetFormAndState(); fetchInitialData();
-            } else showAlert(res.data.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            } else showAlert(res.data.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
-            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
+            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -893,18 +893,18 @@ const ListReceiptsDestructionSendedFromStore = () => {
             }
             const res = await updateDispatchIsEnd(Number(selectedDispatchId), true);
             if (res?.httpStatusCode === 200) {
-                showAlert(`Sevk Belgesi ${selectedDispatchCode ?? ''} sonlandırıldı.`, 'success');
+                showAlert(`Sevk Belgesi ${selectedDispatchCode ?? ''} پایان یافت.`, 'success');
                 setOpenIsEndModal(false);
                 if (selectedStoreId) await fetchDispatchHeadersByStoreId(selectedStoreId);
                 resetFormAndState();
             } else showAlert(res?.message || 'Sevk Belgesi sonlandırılamadı.', 'error');
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -950,8 +950,8 @@ const ListReceiptsDestructionSendedFromStore = () => {
 
             if (field === 'quantity') {
                 const num = Number(value);
-                if (isNaN(num) || num < 0) { showAlert('Miktar negatif olamaz veya geçersiz bir değer içeremez!', 'warning'); row.quantity = 0; }
-                else if (num > max) { showAlert(`Girdiğiniz miktar sevk miktarından (${max}) fazla olamaz!`, 'warning'); row.quantity = max; }
+                if (isNaN(num) || num < 0) { showAlert('مقدار نمی‌تواند منفی یا نامعتبر باشد!', 'warning'); row.quantity = 0; }
+                else if (num > max) { showAlert(`مقدار واردشده از مقدار ارسال (${max}) fazla olamaz!`, 'warning'); row.quantity = max; }
                 else row.quantity = num;
             } else if (field === 'description') row.description = value;
 
@@ -964,28 +964,28 @@ const ListReceiptsDestructionSendedFromStore = () => {
     const handleDownloadSingleReceipt = async (format: 'pdf' | 'excel') => {
         if (!selectedReceiptForDownload) return;
         const data = [selectedReceiptForDownload];
-        const title = `Giriş Belgesi Detayları: ${selectedReceiptForDownload.code}`;
-        showAlert('Rapor oluşturuluyor...', 'info');
+        const title = `جزئیات سند ورود: ${selectedReceiptForDownload.code}`;
+        showAlert('در حال ساخت گزارش...', 'info');
         try {
             if (format === 'pdf') exportReceiptsToPdf(data, title);
             else await exportReceiptsToExcel(data, title);
-            showAlert('Rapor başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { showAlert(e.message || 'Rapor oluşturulurken bir hata oluştu.', 'error'); }
+            showAlert('گزارش با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { showAlert(e.message || 'هنگام ساخت گزارش خطایی رخ داد.', 'error'); }
         finally { setOpenRowDownloadModal(false); }
     };
 
     const handleDownload = async (format: 'pdf' | 'excel', isFiltered: boolean) => {
         const data = isFiltered ? displayedReceipts : receiptList;
-        const title = isFiltered ? 'Filtrelenmiş Depo Giriş Raporu' : 'Tüm Depo Giriş Raporu';
+        const title = isFiltered ? 'گزارش ورودهای فیلترشده‌ی انبار' : 'گزارش همه‌ی ورودهای انبار';
         const end = endDate || new Date();
-        const subtitle = isFiltered ? `Tarih Aralığı: ${formatDateDisplay(startDate ? startDate.toISOString() : null)} - ${formatDateDisplay(end.toISOString())}` : undefined;
+        const subtitle = isFiltered ? `بازه‌ی زمانی: ${formatDateDisplay(startDate ? startDate.toISOString() : null)} - ${formatDateDisplay(end.toISOString())}` : undefined;
 
-        showAlert('Rapor oluşturuluyor...', 'info');
+        showAlert('در حال ساخت گزارش...', 'info');
         try {
             if (format === 'pdf') exportReceiptsToPdf(data, title, subtitle);
             else await exportReceiptsToExcel(data, title);
-            showAlert('Rapor başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { showAlert(e.message || 'Rapor oluşturulurken bir hata oluştu.', 'error'); }
+            showAlert('گزارش با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { showAlert(e.message || 'هنگام ساخت گزارش خطایی رخ داد.', 'error'); }
     };
 
     const handleClearDateFilters = () => { setStartDate(null); setEndDate(null); };
@@ -1024,14 +1024,14 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 <Typography variant="h5">Depoya Gelen (İmha/İade) Sevk Girişleri</Typography>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="stretch" flexGrow={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
                     {!isFormVisible && hasCreatePermission && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Yeni Giriş Belgesi kaydetmek için tıklayınız" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای ثبت سند ورود جدید کلیک کنید" : ""}>
                             <BlinkingButton variant="contained" color="primary" onClick={() => setIsFormVisible(true)} isBlinking={isBlinking} startIcon={<IconPlus />}>
-                                Yeni Giriş Kaydet
+                                ثبت ورود جدید
                             </BlinkingButton>
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button variant="contained" color="error" onClick={resetFormAndState} disabled={loadingButton} startIcon={<IconX size={20} />}>
                                 Gizle
                             </Button>
@@ -1042,11 +1042,11 @@ const ListReceiptsDestructionSendedFromStore = () => {
 
             {((isFormVisible && hasCreatePermission) || (editingId && hasEditPermission)) && (
                 <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-                    <Typography variant="h5" mb={2}>{editingId ? 'Depo Giriş Belgesini Düzenle' : 'Yeni Depo Giriş Belgesi'}</Typography>
+                    <Typography variant="h5" mb={2}>{editingId ? 'ویرایش سند ورود انبار' : 'سند ورود انبار جدید'}</Typography>
 
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel required>Şantiye</CustomFormLabel>
+                            <CustomFormLabel required>کارگاه</CustomFormLabel>
                             <Autocomplete
                                 options={workhousesList}
                                 value={workhousesList.find(w => Number(w.id) === selectedWorkhouseId) || null}
@@ -1061,7 +1061,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                         </Grid>
 
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel required>Şantiye Depo</CustomFormLabel>
+                            <CustomFormLabel required>انبار کارگاه</CustomFormLabel>
                             <Autocomplete
                                 options={storesList}
                                 value={storesList.find(s => Number(s.id) === selectedStoreId) || null}
@@ -1087,7 +1087,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                             onClick={() => openManageModal(false)}
                                             disabled={!dispatchHeadersList.length}
                                         >
-                                            Listeyi Göster
+                                            نمایش فهرست
                                         </Button>
                                     </span>
                                 </CustomTooltip>
@@ -1105,7 +1105,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <CustomFormLabel required>Giriş Depo</CustomFormLabel>
+                            <CustomFormLabel required>انبار ورودی</CustomFormLabel>
                             <Autocomplete
                                 id="warehouse-select"
                                 options={warehouses.filter(w => (w.recordStatus ?? 0) === 0)}
@@ -1114,7 +1114,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                 onChange={(_, newValue) => { const newId = newValue ? Number(newValue.id) : null; setSelectedWarehouseId(newId); if (warehouseIdError && newValue) setWarehouseIdError(false); }}
                                 isOptionEqualToValue={(option, value) => Number(option.id) === Number(value.id)}
                                 renderInput={(params) => (
-                                    <TextField {...params} fullWidth size="small" placeholder="Giriş Depo Seçin" error={warehouseIdError} helperText={warehouseIdError ? "Depo seçimi zorunludur!" : ""} />
+                                    <TextField {...params} fullWidth size="small" placeholder="Giriş Depo Seçin" error={warehouseIdError} helperText={warehouseIdError ? "انتخاب انبار الزامی است!" : ""} />
                                 )}
                             />
                         </Grid>
@@ -1128,7 +1128,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                     inputRef={nameInputRef}
                                     onChange={(v) => { setDocDate(v); if (docDateError && v) setDocDateError(false); }}
                                     inputFormat="dd/MM/yyyy"
-                                    renderInput={(params) => <TextField {...params} fullWidth size="small" error={docDateError} helperText={docDateError ? "Tarih alanı boş bırakılamaz!" : ""} />}
+                                    renderInput={(params) => <TextField {...params} fullWidth size="small" error={docDateError} helperText={docDateError ? "فیلد تاریخ نمی‌تواند خالی باشد!" : ""} />}
                                 />
                             </LocalizationProvider>
                         </Grid>
@@ -1136,7 +1136,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
 
 
                         <Grid item xs={12}>
-                            <CustomFormLabel htmlFor="invoice-general-description">Açıklama</CustomFormLabel>
+                            <CustomFormLabel htmlFor="invoice-general-description">توضیحات</CustomFormLabel>
                             <TextField
                                 id="invoice-general-description"
                                 label="Depoya Gelen (İmha/İade) Sevk için genel açıklama giriniz"
@@ -1153,7 +1153,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
 
                     <Box mt={4}>
                         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2} gap={1} flexWrap="wrap">
-                            <Typography variant="h6">Giriş Detayları</Typography>
+                            <Typography variant="h6">جزئیات ورود</Typography>
 
                         </Stack>
 
@@ -1164,7 +1164,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                     {removedReceiptDetails.map((detail, idx) => (
                                         <Chip
                                             key={idx}
-                                            label={`${detail?.item?.name || 'Ürün'} (${detail.quantity} ${detail?.item?.unit?.title || 'Birim'})`}
+                                            label={`${detail?.item?.name || 'کالا'} (${detail.quantity} ${detail?.item?.unit?.title || 'واحد'})`}
                                             color="error" variant="outlined"
                                             onClick={() => handleRestoreRemovedDetail(idx)}
                                             onDelete={() => handleRestoreRemovedDetail(idx)}
@@ -1186,8 +1186,8 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                 ) : (
                                     receiptDetails.map((detail, index) => {
                                         const max = detail.maxDispatchQuantity;
-                                        const itemLabel = detail.item?.name || 'Ürün Adı Bulunamadı';
-                                        const unitLabel = detail.item?.unit?.title || 'Birim';
+                                        const itemLabel = detail.item?.name || 'نام کالا پیدا نشد';
+                                        const unitLabel = detail.item?.unit?.title || 'واحد';
                                         return (
                                             <Grid item xs={12} key={index}>
                                                 <Paper variant="outlined" sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -1199,7 +1199,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                                     <Grid container spacing={2}>
                                                         <Grid item xs={12} sm={4} md={3}>
                                                             <CustomTextField
-                                                                type="number" label="Miktar" placeholder="Miktar"
+                                                                type="number" label="مقدار" placeholder="مقدار"
                                                                 value={detail.quantity}
                                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDispatchDetailChange(index, 'quantity', e.target.value)}
                                                                 fullWidth size="small"
@@ -1210,7 +1210,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                                         </Grid>
                                                         <Grid item xs={11} sm={7} md={8}>
                                                             <CustomTextField
-                                                                label="Açıklama" placeholder="Açıklama"
+                                                                label="توضیحات" placeholder="توضیحات"
                                                                 value={detail.description}
                                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDispatchDetailChange(index, 'description', e.target.value)}
                                                                 fullWidth size="small"
@@ -1236,16 +1236,16 @@ const ListReceiptsDestructionSendedFromStore = () => {
                         {editingId ? (
                             <>
                                 <Button variant="contained" color="info" onClick={editReceipt} disabled={loadingButton}>
-                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Düzenle'}
+                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'ویرایش'}
                                 </Button>
-                                <Button variant="outlined" color="secondary" onClick={handleCancelEdit} disabled={loadingButton}>İptal Et</Button>
+                                <Button variant="outlined" color="secondary" onClick={handleCancelEdit} disabled={loadingButton}>لغو</Button>
                             </>
                         ) : (
                             hasCreatePermission && (
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm alanları doldurarak giriş belgesini kaydedin." : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "با پر کردن همه‌ی فیلدها سند ورود را ثبت کنید." : ""}>
                                     <span>
                                         <BlinkingButton variant="contained" color="success" onClick={insertReceipt} disabled={!isFormValid || loadingButton} isBlinking={isFormValid && !loadingButton}>
-                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Yeni Giriş Belgesi Ekle'}
+                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'افزودن سند ورود جدید'}
                                         </BlinkingButton>
                                     </span>
                                 </CustomTooltip>
@@ -1264,15 +1264,15 @@ const ListReceiptsDestructionSendedFromStore = () => {
             <BlankCard>
                 <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2} mb={2} mr={2}>
                     {isFilterActive && hasDownloadPermission && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Uygulanan filtrelerle girişleri indirin" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود ورودها با فیلترهای اعمال‌شده" : ""}>
                             <BlinkingButton variant="contained" color="secondary" onClick={() => setOpenDownloadFilteredModal(true)} startIcon={<IconFileDownload />} isBlinking={true} disabled={loadingData || displayedReceipts.length === 0}>
-                                Filtrelenmişi İndir
+                                دانلود موارد فیلترشده
                             </BlinkingButton>
                         </CustomTooltip>
                     )}
                     {hasDownloadPermission && (
                         <Button variant="contained" color="primary" onClick={() => setOpenDownloadAllModal(true)} startIcon={<IconFileDownload />} disabled={loadingData || receiptList.length === 0}>
-                            Tümünü İndir
+                            دانلود همه
                         </Button>
                     )}
                 </Stack>
@@ -1281,7 +1281,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} sm={6} md={4}>
                             <TextField
-                                label="Giriş Belgesi Ara" variant="outlined" fullWidth
+                                label="جستجوی سند ورود" variant="outlined" fullWidth
                                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                                 InputProps={{ startAdornment: (<InputAdornment position="start"><IconSearch size={20} /></InputAdornment>) }}
                             />
@@ -1289,8 +1289,8 @@ const ListReceiptsDestructionSendedFromStore = () => {
                         <Grid item xs={12} sm={6} md={8}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
-                                    <DatePicker label="Başlangıç Tarihi" value={startDate} inputFormat="dd/MM/yyyy" onChange={(v) => setStartDate(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
-                                    <DatePicker label="Bitiş Tarihi" value={endDate} inputFormat="dd/MM/yyyy" onChange={(v) => setEndDate(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
+                                    <DatePicker label="تاریخ شروع" value={startDate} inputFormat="dd/MM/yyyy" onChange={(v) => setStartDate(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
+                                    <DatePicker label="تاریخ پایان" value={endDate} inputFormat="dd/MM/yyyy" onChange={(v) => setEndDate(v)} renderInput={(p) => <TextField {...p} size="small" fullWidth />} />
                                     <IconButton onClick={handleClearDateFilters} aria-label="clear date filters"><IconX size={20} /></IconButton>
                                 </Stack>
                             </LocalizationProvider>
@@ -1301,19 +1301,19 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 {loadingData ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                         <CircularProgress />
-                        <Typography variant="h6" sx={{ ml: 2 }}>Depo giriş belgeleri yükleniyor...</Typography>
+                        <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری اسناد ورود انبار...</Typography>
                     </Box>
                 ) : (
                     <TableContainer component={Paper}>
                         <Table aria-label="sended receipt table">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Kod</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Giriş Depo</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">کد</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">انبار ورودی</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Belge Tarihi</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Detaylar</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">جزئیات</Typography></StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1326,14 +1326,14 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                             <StyledTableCell><Typography variant="body1">{formatDateDisplay(row.docDate)}</Typography></StyledTableCell>
                                             <StyledTableCell sx={{ maxWidth: 150 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
 
                                                             variant="outlined"
                                                             style={{ fontSize: "10px", padding: "2px 5px" }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamayı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1344,14 +1344,14 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                             </StyledTableCell>
                                             <StyledTableCell>
                                                 {row.recordStatus === 0 ? (
-                                                    <Chip label="Aktif" color="success" size="small" />
+                                                    <Chip label="فعال" color="success" size="small" />
                                                 ) : (
-                                                    <Chip label="Pasif" color="error" size="small" />
+                                                    <Chip label="غیرفعال" color="error" size="small" />
                                                 )}
                                             </StyledTableCell>
 
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Detayları Görüntüle" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی جزئیات" : ""}>
                                                     <Button
                                                         variant="outlined"
                                                         startIcon={<IconEye />}
@@ -1361,7 +1361,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                                             setOpenDetailsModal(true);
                                                         }}
                                                     >
-                                                        Görünüm
+                                                        نما
                                                     </Button>
                                                 </CustomTooltip>
                                             </StyledTableCell>
@@ -1426,7 +1426,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                                                 nameInputRef.current?.focus();
                                                             }, 100);
                                                         }}>
-                                                            <ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle
+                                                            <ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش
                                                         </UiMenuItem>
                                                     )}
                                                     {hasDeletePermission && (
@@ -1436,7 +1436,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                                     )}
                                                     {hasDownloadPermission && (
                                                         <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}>
-                                                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>Bu satırı indir
+                                                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>دانلود این ردیف
                                                         </UiMenuItem>
                                                     )}
                                                 </Menu>
@@ -1446,7 +1446,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                 ) : (
                                     <TableRow>
                                         <StyledTableCell colSpan={6} align="center">
-                                            <Typography variant="subtitle1" color="textSecondary">Hiç giriş belgesi bulunamadı.</Typography>
+                                            <Typography variant="subtitle1" color="textSecondary">هیچ سند ورودی پیدا نشد.</Typography>
                                         </StyledTableCell>
                                     </TableRow>
                                 )}
@@ -1460,13 +1460,13 @@ const ListReceiptsDestructionSendedFromStore = () => {
                     count={displayedReceipts.length} rowsPerPage={rowsPerPage} page={page}
                     onPageChange={(_, p) => setPage(p)}
                     onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                    labelRowsPerPage="Satır başına:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                 />
             </BlankCard>
 
             <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)} maxWidth="md" fullWidth>
                 <DialogTitle>
-                    Giriş Detayları
+                    جزئیات ورود
                     {viewedReceipt && (
                         <Typography component="span" variant="subtitle1" color="text.secondary" sx={{ ml: 1 }}>
                             ({viewedReceipt.code})
@@ -1477,13 +1477,13 @@ const ListReceiptsDestructionSendedFromStore = () => {
                     {detailsToShow.length > 0 ? (
                         <>
                             <TableContainer component={Paper}>
-                                <Table aria-label="Ürün detayları tablosu" size="small">
+                                <Table aria-label="جدول جزئیات کالا" size="small">
                                     <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                         <TableRow>
-                                            <StyledTableCell><Typography variant="h6">Malzeme</Typography></StyledTableCell>
-                                            <StyledTableCell><Typography variant="h6">Miktar</Typography></StyledTableCell>
-                                            <StyledTableCell><Typography variant="h6">Birim</Typography></StyledTableCell>
-                                            <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="h6">کالا</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="h6">مقدار</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="h6">واحد</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -1505,7 +1505,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                         <TableHead sx={{ bgcolor: '#f5f5f5' }}>
                                             <TableRow>
                                                 <StyledTableCell align="center" colSpan={2}>
-                                                    <Typography variant="subtitle2" fontWeight="bold">Birim Bazlı Toplamlar</Typography>
+                                                    <Typography variant="subtitle2" fontWeight="bold">جمع بر اساس واحد</Typography>
                                                 </StyledTableCell>
                                             </TableRow>
                                         </TableHead>
@@ -1513,7 +1513,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                             {Object.entries(getTotalsByUnit(detailsToShow)).map(([unit, total]) => (
                                                 <TableRow key={unit}>
                                                     <StyledTableCell sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
-                                                        Toplam {unit}:
+                                                        جمع {unit}:
                                                     </StyledTableCell>
                                                     <StyledTableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.1em' }}>
                                                         {total.toLocaleString()}
@@ -1526,7 +1526,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                             </Box>
                         </>
                     ) : (
-                        <Typography variant="body1" sx={{ p: 2, textAlign: 'center' }}>Bu giriş belgesi için detay bulunamadı.</Typography>
+                        <Typography variant="body1" sx={{ p: 2, textAlign: 'center' }}>جزئیاتی برای این سند ورود پیدا نشد.</Typography>
                     )}
                 </DialogContent>
 
@@ -1545,13 +1545,13 @@ const ListReceiptsDestructionSendedFromStore = () => {
                             disabled={!viewedReceipt}
                             onClick={() => {
                                 if (viewedReceipt) {
-                                    showAlert('PDF oluşturuluyor...', 'info');
-                                    exportReceiptsToPdf([viewedReceipt], `Giriş Belgesi Detayları: ${viewedReceipt.code}`);
+                                    showAlert('در حال ساخت فایل PDF...', 'info');
+                                    exportReceiptsToPdf([viewedReceipt], `جزئیات سند ورود: ${viewedReceipt.code}`);
                                     showAlert('PDF indiriliyor.', 'success');
                                 }
                             }}
                         >
-                            PDF İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1562,17 +1562,17 @@ const ListReceiptsDestructionSendedFromStore = () => {
                             disabled={!viewedReceipt}
                             onClick={async () => {
                                 if (viewedReceipt) {
-                                    showAlert('Excel oluşturuluyor...', 'info');
-                                    await exportReceiptsToExcel([viewedReceipt], `Giriş Belgesi Detayları: ${viewedReceipt.code}`);
+                                    showAlert('در حال ساخت فایل Excel...', 'info');
+                                    await exportReceiptsToExcel([viewedReceipt], `جزئیات سند ورود: ${viewedReceipt.code}`);
                                     showAlert('Excel indiriliyor.', 'success');
                                 }
                             }}
                         >
-                            Excel İndir
+                            دانلود Excel
                         </Button>
                         <Button onClick={() => setOpenDetailsModal(false)} color="secondary" variant="outlined"
                             fullWidth
-                            sx={{ flex: 1 }} >Kapat</Button>
+                            sx={{ flex: 1 }} >بستن</Button>
 
                     </Stack>
                 </DialogActions>
@@ -1582,33 +1582,33 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 <DialogTitle>Tüm Giriş Belgelerini İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload('pdf', false); setOpenDownloadAllModal(false); }}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload('excel', false); setOpenDownloadAllModal(false); }}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload('pdf', false); setOpenDownloadAllModal(false); }}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload('excel', false); setOpenDownloadAllModal(false); }}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
                 <DialogTitle>Filtrelenmiş Giriş Belgelerini İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload('pdf', true); setOpenDownloadFilteredModal(false); }}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload('excel', true); setOpenDownloadFilteredModal(false); }}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload('pdf', true); setOpenDownloadFilteredModal(false); }}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload('excel', true); setOpenDownloadFilteredModal(false); }}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={() => setOpenRowDownloadModal(false)} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadSingleReceipt('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadSingleReceipt('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadSingleReceipt('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadSingleReceipt('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <DeleteReceiptsDestructionSendedFromStore
@@ -1620,7 +1620,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 showAlert={showAlert}
             />
             <Dialog open={openIsEndModal} onClose={() => setOpenIsEndModal(false)}>
-                <DialogTitle>Fatura Durumu Onayı</DialogTitle>
+                <DialogTitle>تأیید وضعیت فاکتور</DialogTitle>
                 <DialogContent>
                     <Typography>
                         Fişi kaydettiniz. Bu faturanın ilgili <b>Sevk Belgesi</b>'ni Sonlandırmak
@@ -1631,7 +1631,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => handleFinalToggleDispatch(false)} color="error">Hayır</Button>
+                    <Button onClick={() => handleFinalToggleDispatch(false)} color="error">خیر</Button>
                     <Button onClick={() => handleFinalToggleDispatch(true)} color="primary" variant="contained" autoFocus>Evet (Sevk Belgesi’ni Sonlandır)</Button>
                 </DialogActions>
             </Dialog>
@@ -1643,9 +1643,9 @@ const ListReceiptsDestructionSendedFromStore = () => {
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Kod</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Tarih</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">کد</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تاریخ</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
                                     <StyledTableCell align="right"><Typography variant="h6">Aktif / Sonlandırılmış</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1657,7 +1657,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                             <StyledTableCell>{d.code}</StyledTableCell>
                                             <StyledTableCell>{formatDateDisplay(d.docDate)}</StyledTableCell>
                                             <StyledTableCell>
-                                                {d.isEnd ? <Chip label="Sonlandırılmış" color="error" size="small" /> : <Chip label="Aktif" color="success" size="small" />}
+                                                {d.isEnd ? <Chip label="پایان‌یافته" color="error" size="small" /> : <Chip label="فعال" color="success" size="small" />}
                                             </StyledTableCell>
                                             <StyledTableCell align="right">
                                                 <RadioGroup
@@ -1669,8 +1669,8 @@ const ListReceiptsDestructionSendedFromStore = () => {
                                                         handleChangeDispatchActiveState(d, makeActive);
                                                     }}
                                                 >
-                                                    <FormControlLabel value="active" control={<Radio />} label="Açık" />
-                                                    <FormControlLabel value="inactive" control={<Radio />} label="Sonlandırılmış" />
+                                                    <FormControlLabel value="active" control={<Radio />} label="باز" />
+                                                    <FormControlLabel value="inactive" control={<Radio />} label="پایان‌یافته" />
                                                 </RadioGroup>
                                             </StyledTableCell>
                                         </TableRow>
@@ -1680,7 +1680,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                     </TableContainer>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDispatchManageModal(false)}>Kapat</Button>
+                    <Button onClick={() => setOpenDispatchManageModal(false)}>بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1690,7 +1690,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -1698,7 +1698,7 @@ const ListReceiptsDestructionSendedFromStore = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

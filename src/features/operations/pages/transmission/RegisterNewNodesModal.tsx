@@ -30,7 +30,7 @@ const RegisterNewNodesModal: React.FC<RegisterNewNodesModalProps> = ({
         setLoading(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             setLoading(false);
             onClose();
             return;
@@ -95,7 +95,7 @@ const RegisterNewNodesModal: React.FC<RegisterNewNodesModalProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} disabled={loading} color="error">
-                    İptal Et
+                    لغو
                 </Button>
                 <Button
                     onClick={handleRegister}

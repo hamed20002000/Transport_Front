@@ -49,7 +49,7 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
             const date = new Date(dateString);
             return format(date, 'dd MMMM yyyy', { locale: tr });
         } catch {
-            return "Geçersiz Tarih";
+            return "تاریخ نامعتبر";
         }
     };
 
@@ -98,15 +98,15 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                 setAllInvoices(statusOk);
                 setInvoicesList(openForCombo);
             } else {
-                showAlert(response.data.message || 'Faturalar yüklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام بارگذاری فاکتورها خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert('Faturalar yüklenirken bir hata oluştu.', 'error');
+                showAlert('هنگام بارگذاری فاکتورها خطایی رخ داد.', 'error');
             }
         }
     }, [showAlert, navigate]);
@@ -224,7 +224,7 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                             onClick={() => setOpenInvoiceListModal(true)}
                             startIcon={<ListIcon />}
                         >
-                            Listeyi Göster
+                            نمایش فهرست
                         </Button>
                     </CustomTooltip>
                 </Stack>
@@ -244,7 +244,7 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label="Fatura"
+                        label="فاکتور"
                         variant="outlined"
                         size="small"
                         helperText={isInvoiceComboDisabled ? "Fatura, sonlandırılmış bir fişe bağlıdır ve değiştirilemez." : ""}
@@ -283,14 +283,14 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                 <Table stickyHeader aria-label="receipt items table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Fatura No</TableCell>
-                            <TableCell>Tedarikçi</TableCell>
-                            <TableCell>Firma</TableCell>
-                            <TableCell>Ürün</TableCell>
-                            <TableCell>Miktar</TableCell>
-                            <TableCell>Birim</TableCell>
-                            <TableCell>Açıklama</TableCell>
-                            <TableCell align="right">İşlemler</TableCell>
+                            <TableCell>شماره فاکتور</TableCell>
+                            <TableCell>تأمین‌کننده</TableCell>
+                            <TableCell>شرکت</TableCell>
+                            <TableCell>کالا</TableCell>
+                            <TableCell>مقدار</TableCell>
+                            <TableCell>واحد</TableCell>
+                            <TableCell>توضیحات</TableCell>
+                            <TableCell align="right">عملیات</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -299,7 +299,7 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                                 <TableRow key={item.id}>
                                     <TableCell>{item.invoiceNo || '-'}</TableCell>
                                     <TableCell>{item.providerName || '-'}</TableCell>
-                                    <TableCell>{item.firm ? 'Şirket İçi' : 'Şirket Dışı'}</TableCell>
+                                    <TableCell>{item.firm ? 'داخل شرکت' : 'خارج از شرکت'}</TableCell>
                                     <TableCell><Typography>{item.itemName || '-'}</Typography></TableCell>
                                     <TableCell>
                                         {editingItem?.id === item.id ? (
@@ -338,12 +338,12 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                                     <TableCell align="right">
                                         {editingItem?.id === item.id ? (
                                             <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kaydet" : ""}>
+                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "ذخیره" : ""}>
                                                     <IconButton color="success" onClick={handleSaveEdit}>
                                                         <IconCheck size={20} />
                                                     </IconButton>
                                                 </CustomTooltip>
-                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "İptal" : ""}>
+                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "انصراف" : ""}>
                                                     <IconButton color="error" onClick={handleCancelEdit}>
                                                         <IconX size={20} />
                                                     </IconButton>
@@ -384,10 +384,10 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell><Typography variant="h6">Kod</Typography></TableCell>
-                                    <TableCell><Typography variant="h6">Tarih</Typography></TableCell>
-                                    <TableCell><Typography variant="h6">Durum</Typography></TableCell>
-                                    <TableCell align="center"><Typography variant="h6">Aç/Kapat</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">کد</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">تاریخ</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">وضعیت</Typography></TableCell>
+                                    <TableCell align="center"><Typography variant="h6">باز/بسته</Typography></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -397,8 +397,8 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                                         <TableCell>{formatDateDisplay(row.docDate)}</TableCell>
                                         <TableCell>
                                             {row.isEnd
-                                                ? <Chip size="small" label="Sonlandırılmış" color="error" />
-                                                : <Chip size="small" label="Açık" color="success" />}
+                                                ? <Chip size="small" label="پایان‌یافته" color="error" />
+                                                : <Chip size="small" label="باز" color="success" />}
                                         </TableCell>
                                         <TableCell align="center">
                                             <RadioGroup
@@ -406,8 +406,8 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                                                 value={row.isEnd ? 'ended' : 'open'}
                                                 onChange={(_, val) => handleToggleInvoiceRow(row, val as 'open' | 'ended')}
                                             >
-                                                <FormControlLabel value="open" control={<Radio />} label="Açık" />
-                                                <FormControlLabel value="ended" control={<Radio />} label="Sonlandırılmış" />
+                                                <FormControlLabel value="open" control={<Radio />} label="باز" />
+                                                <FormControlLabel value="ended" control={<Radio />} label="پایان‌یافته" />
                                             </RadioGroup>
                                         </TableCell>
                                     </TableRow>
@@ -421,7 +421,7 @@ const ReceiptItemsTable: React.FC<ReceiptItemsTableProps> = ({
                     </TableContainer>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenInvoiceListModal(false)}>Kapat</Button>
+                    <Button onClick={() => setOpenInvoiceListModal(false)}>بستن</Button>
                 </DialogActions>
             </Dialog>
         </Paper>

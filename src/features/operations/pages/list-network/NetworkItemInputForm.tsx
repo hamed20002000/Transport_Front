@@ -163,12 +163,12 @@ const NetworkItemInputForm: React.FC<WorkItemInputFormProps> = ({
                 <Grid container spacing={2} alignItems="flex-end">
                     <Grid item xs={12} sm={8}>
                         <FormControl fullWidth error={itemError}>
-                            <InputLabel id="select-item-label">Öğe Seçin</InputLabel>
+                            <InputLabel id="select-item-label">آیتم را انتخاب کنید</InputLabel>
                             <Select
                                 labelId="select-item-label"
                                 id="select-item"
                                 value={selectedItemId}
-                                label="Öğe Seçin"
+                                label="آیتم را انتخاب کنید"
                                 onChange={(e) => {
                                     const newId = e.target.value as string;
                                     const selectedItem = availableItems.find(item => item.id === newId);
@@ -231,7 +231,7 @@ const NetworkItemInputForm: React.FC<WorkItemInputFormProps> = ({
                                 ref={selectRef}
                             >
                                 {loadingAvailableItems ? (
-                                    <UiMenuItem disabled>Yükleniyor...</UiMenuItem>
+                                    <UiMenuItem disabled>در حال بارگذاری...</UiMenuItem>
                                 ) : (
                                     selectableItems.length > 0 ? (
                                         selectableItems.map((item) => (
@@ -262,7 +262,7 @@ const NetworkItemInputForm: React.FC<WorkItemInputFormProps> = ({
                                 </Typography>
                             )}
                             <TextField
-                                label="Miktar"
+                                label="مقدار"
                                 variant="outlined"
                                 value={inputValue}
                                 onChange={(e) => {
@@ -375,7 +375,7 @@ const NetworkItemInputForm: React.FC<WorkItemInputFormProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteConfirm} color="primary">
-                        İptal
+                        انصراف
                     </Button>
                     <Button onClick={handleConfirmDelete} color="error" autoFocus>
                         Silmek

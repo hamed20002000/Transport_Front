@@ -80,7 +80,7 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
             if (!endDateError) setFormError(null);
         }
         if (hasError) {
-            showAlert("Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.", "warning");
+            showAlert("لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.", "warning");
             return;
         }
         setLoading(true);
@@ -90,7 +90,7 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
             navigate("/");
             setLoading(false);
             showAlert(
-                "Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.",
+                "نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.",
                 "error"
             );
             return;
@@ -129,7 +129,7 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
                 localStorage.removeItem("authToken");
                 navigate("/");
                 showAlert(
-                    "Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.",
+                    "نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.",
                     "error"
                 );
             } else {
@@ -179,7 +179,7 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
                         />
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Başlangıç Tarihi"
+                                label="تاریخ شروع"
                                 value={startDate}
                                 onChange={(newValue) => {
                                     setStartDate(newValue);
@@ -215,7 +215,7 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose} color="secondary" disabled={loading}>
-                        İptal
+                        انصراف
                     </Button>
                     <Button
                         onClick={handleSaveWork}
@@ -223,7 +223,7 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
                         variant="contained"
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} /> : "Kaydet"}
+                        {loading ? <CircularProgress size={24} /> : "ذخیره"}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -241,10 +241,10 @@ const DefineWorkModal: React.FC<DefineWorkModalProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleConfirmNo} color="secondary">
-                        Hayır
+                        خیر
                     </Button>
                     <Button onClick={handleConfirmYes} color="primary" variant="contained">
-                        Evet
+                        بله
                     </Button>
                 </DialogActions>
             </Dialog>

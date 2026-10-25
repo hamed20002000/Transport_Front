@@ -49,9 +49,9 @@ const formatDateTimeDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy HH:mm', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 
@@ -60,9 +60,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 
@@ -70,9 +70,9 @@ const formatDateDisplaySimple = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 const descendingComparator = <T, Key extends keyof T>(a: T, b: T, orderBy: Key): number => {
@@ -116,7 +116,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -125,7 +125,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -143,7 +143,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -155,12 +155,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength: number) => {
@@ -169,7 +169,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     titleRow.font = { name: 'NotoSans', size: 14, bold: true };
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplaySimple(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplaySimple(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -178,7 +178,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
     let rowNum = startRow;
@@ -192,20 +192,20 @@ const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, colum
     });
 };
 const exportDetailsToPdf = (data: CourseParticipant[], title: string, showAlert: (m: string, s: 'success' | 'error' | 'warning' | 'info') => void) => {
-    if (!data || data.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
+    if (!data || data.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
 
     const doc = new jsPDF("p", "pt", "a4");
     const docAny = doc as any;
 
     try { docAny.addFileToVFS('NotoSans-Regular.ttf', NotoSansRegular); docAny.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal'); doc.setFont('NotoSans'); } catch (e) { }
 
-    const columns = ['Personel Adı Soyadı', 'TC Kimlik', 'Kurs Zamanı Başlangıç', 'Kurs Zamanı Bitiş', 'Durum'];
+    const columns = ['نام و نام خانوادگی پرسنل', 'TC Kimlik', 'Kurs Zamanı Başlangıç', 'Kurs Zamanı Bitiş', 'وضعیت'];
     const body = data.map(r => [
         `${r.personnel.name} ${r.personnel.family}`,
         r.personnel.identityNumber,
         formatDateTimeDisplay(r.courseDateTime.startDateTime),
         formatDateTimeDisplay(r.courseDateTime.endDateTime),
-        r.isParticipated ? 'Katıldı' : 'Katılmadı',
+        r.isParticipated ? 'شرکت کرد' : 'شرکت نکرد',
     ]);
 
     try {
@@ -223,20 +223,20 @@ const exportDetailsToPdf = (data: CourseParticipant[], title: string, showAlert:
 
         const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.pdf`;
         docAny.save(fileName);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
     } catch (error) {
-        showAlert('PDF dışا aktarılırken bir hata oluştu.', 'error');
+        showAlert('هنگام خروجی PDF خطایی رخ داد.', 'error');
     }
 };
 
 const exportDetailsToExcel = async (data: CourseParticipant[], title: string, showAlert: (m: string, s: 'success' | 'error' | 'warning' | 'info') => void) => {
-    if (!data || data.length === 0) { showAlert('Excel oluşturulacak kayıt bulunamadı.', 'warning'); return; }
+    if (!data || data.length === 0) { showAlert('رکوردی برای ساخت Excel پیدا نشد.', 'warning'); return; }
 
     try {
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet(title.substring(0, 31));
 
-        const columns = ['Personel Adı Soyadı', 'TC Kimlik', 'Kurs Başlangıç (Tarih/Saat)', 'Kurs Bitiş (Tarih/Saat)', 'Durum'];
+        const columns = ['نام و نام خانوادگی پرسنل', 'TC Kimlik', 'Kurs Başlangıç (Tarih/Saat)', 'Kurs Bitiş (Tarih/Saat)', 'وضعیت'];
         addExcelHeader(worksheet, title, columns.length);
 
         const headerRow = worksheet.addRow(columns);
@@ -249,7 +249,7 @@ const exportDetailsToExcel = async (data: CourseParticipant[], title: string, sh
                 r.personnel.identityNumber,
                 formatDateTimeDisplay(r.courseDateTime.startDateTime),
                 formatDateTimeDisplay(r.courseDateTime.endDateTime),
-                r.isParticipated ? 'Katıldı' : 'Katılmadı',
+                r.isParticipated ? 'شرکت کرد' : 'شرکت نکرد',
             ]);
         });
 
@@ -268,10 +268,10 @@ const exportDetailsToExcel = async (data: CourseParticipant[], title: string, sh
         const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`;
         workbook.xlsx.writeBuffer().then(buffer => {
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         });
     } catch (error) {
-        showAlert('Excel dışا aktarılırken bir hata oluştu.', 'error');
+        showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
     }
 };
 
@@ -347,12 +347,12 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                 }
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [courseId, authToken, showAlert, onClose]);
 
@@ -368,7 +368,7 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                 setPersonnelList(activePersonnel);
             }
         } catch (e) {
-            showAlert('Personel listesi alınamadı.', 'error');
+            showAlert('فهرست پرسنل دریافت نشد.', 'error');
         }
     }, [authToken, showAlert]);
 
@@ -441,7 +441,7 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
             ok = false;
         }
 
-        if (!ok) { internalShowAlert('Lütfen tüm zorunlu alanları doldurun.', 'warning'); }
+        if (!ok) { internalShowAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید.', 'warning'); }
         return ok;
     };
 
@@ -531,12 +531,12 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
             const res = await axios.request({ method: finalMethod, url: finalUrl, data: finalDataToSend, headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' } });
 
             if (res.data.httpStatusCode === 200 || res.data.httpStatusCode === 201) {
-                const message = isEditing ? 'güncellendi' : 'eklendi';
+                const message = isEditing ? 'به‌روزرسانی شد' : 'eklendi';
                 showAlert(`Katılımcı başarıyla ${message}.`, 'success');
                 resetForm();
                 fetchParticipants();
             } else {
-                showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             showAlert(e?.response?.data?.message || 'İşlem sırasında bir ağ hatası oluştu.', 'error');
@@ -645,21 +645,21 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                                     isOptionEqualToValue={(option, value) => option.id === value.id}
                                     value={selectedDateTime}
                                     onChange={(_, newValue) => { setSelectedDateTime(newValue); setDateTimeError(false); }}
-                                    renderInput={(params) => <TextField {...params} label="Tarih Aralığı Seçin" error={dateTimeError} helperText={dateTimeError ? 'Zorunlu alan.' : ''} />}
+                                    renderInput={(params) => <TextField {...params} label="Tarih Aralığı Seçin" error={dateTimeError} helperText={dateTimeError ? 'فیلد الزامی.' : ''} />}
 
                                 />
                             </Grid>
 
                             {tabValue === 'single' && !editingId && (
                                 <Grid item xs={12} sm={6}>
-                                    <CustomFormLabel required>Personel</CustomFormLabel>
+                                    <CustomFormLabel required>پرسنل</CustomFormLabel>
                                     <Autocomplete
                                         size="small" options={personnelList}
                                         getOptionLabel={(option) => `${option.name} ${option.family} (${option.identityNumber})`}
                                         isOptionEqualToValue={(option, value) => option.id === value.id}
                                         value={selectedPersonnel}
                                         onChange={(_, newValue) => { setSelectedPersonnel(newValue); setPersonnelError(false); }}
-                                        renderInput={(params) => <TextField {...params} label="Personel Seçin" error={personnelError} helperText={personnelError ? 'Zorunlu alan.' : ''} />}
+                                        renderInput={(params) => <TextField {...params} label="پرسنل را انتخاب کنید" error={personnelError} helperText={personnelError ? 'فیلد الزامی.' : ''} />}
                                     />
                                 </Grid>
                             )}
@@ -676,7 +676,7 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                                         value={selectedPersonnelMulti}
                                         onChange={(_, newValue) => { setSelectedPersonnelMulti(newValue); setPersonnelMultiError(false); }}
                                         renderInput={(params) => (
-                                            <TextField {...params} label="Personel Seçin" error={personnelMultiError} helperText={personnelMultiError ? 'En az bir personel seçin.' : ''} />
+                                            <TextField {...params} label="پرسنل را انتخاب کنید" error={personnelMultiError} helperText={personnelMultiError ? 'En az bir personel seçin.' : ''} />
                                         )}
                                     />
                                 </Grid>
@@ -691,9 +691,9 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                                         disabled={loadingButton || !courseId}
                                         size="small"
                                     >
-                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'Düzenle' : 'Katılımcı Ekle'}
+                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'ویرایش' : 'Katılımcı Ekle'}
                                     </Button>
-                                    {editingId && <Button variant="outlined" color="secondary" onClick={resetForm} size="small">İptal Et</Button>}
+                                    {editingId && <Button variant="outlined" color="secondary" onClick={resetForm} size="small">لغو</Button>}
                                 </Stack>
                             </Grid>
                         </Grid>
@@ -709,13 +709,13 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                                 <TableRow sx={{ background: "#f5f5f5" }}>
                                     <TableCell><TableSortLabel active={orderBy === 'personnelId'}
                                         direction={orderBy === 'personnelId' ? order : 'asc'}
-                                        onClick={() => handleRequestSort('personnelId')}>Personel</TableSortLabel>
+                                        onClick={() => handleRequestSort('personnelId')}>پرسنل</TableSortLabel>
                                     </TableCell>
                                     <TableCell><TableSortLabel active={orderBy === 'courseDateTimeId'}
                                         direction={orderBy === 'courseDateTimeId' ? order : 'asc'}
                                         onClick={() => handleRequestSort('courseDateTimeId')}>Kurs Zamanı</TableSortLabel>
                                     </TableCell>
-                                    <TableCell align="center">Durum</TableCell>
+                                    <TableCell align="center">وضعیت</TableCell>
                                     <TableCell align="right"></TableCell>
                                 </TableRow>
                             </TableHead>
@@ -730,11 +730,11 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                                                     : '-'
                                                 }
                                             </TableCell>
-                                            <TableCell align="center"><Chip label={row.isParticipated ? 'Katıldı' : 'Katılmadı'} color="success" size="small" /></TableCell>
+                                            <TableCell align="center"><Chip label={row.isParticipated ? 'شرکت کرد' : 'شرکت نکرد'} color="success" size="small" /></TableCell>
                                             <TableCell align="right">
                                                 <IconButton onClick={(e) => handleClickMenu(e, row)} size="small"><IconDots width={18} /></IconButton>
                                                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
-                                                    <MenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</MenuItem>
+                                                    <MenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</MenuItem>
                                                     <MenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</MenuItem>
                                                 </Menu>
                                             </TableCell>
@@ -747,21 +747,21 @@ const ListCourseParticipants: React.FC<{ open: boolean, courseId: number | null,
                         </Table>
                     )}
                 </TableContainer>
-                <TablePagination rowsPerPageOptions={[5, 10]} component="div" count={participants.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" />
+                <TablePagination rowsPerPageOptions={[5, 10]} component="div" count={participants.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" disabled={loadingButton}>Kapat</Button>
+                <Button onClick={onClose} color="secondary" disabled={loadingButton}>بستن</Button>
             </DialogActions>
 
             <Dialog open={openDownloadModal} onClose={() => setOpenDownloadModal(false)} maxWidth="xs">
                 <DialogTitle>Tüm Katılımcıları İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <DeleteCourseParticipants

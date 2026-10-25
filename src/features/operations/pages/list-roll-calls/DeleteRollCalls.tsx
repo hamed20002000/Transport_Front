@@ -29,7 +29,7 @@ const DeleteRollCalls: React.FC<DeleteProps> = ({ openModal, itemToDelete, onClo
 
     const handleDelete = async () => {
         if (itemToDelete === null || itemToDelete.id === undefined || itemToDelete.id === null) {
-            showAlert('Silinecek kayıt seçilmedi.', 'warning');
+            showAlert('رکوردی برای حذف انتخاب نشده است.', 'warning');
             onClose();
             return;
         }
@@ -37,7 +37,7 @@ const DeleteRollCalls: React.FC<DeleteProps> = ({ openModal, itemToDelete, onClo
         const idToDelete = itemToDelete.id;
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return;
         }
 
@@ -49,23 +49,23 @@ const DeleteRollCalls: React.FC<DeleteProps> = ({ openModal, itemToDelete, onClo
             });
 
             if (response.data.httpStatusCode === 200) {
-                showAlert('Kayıt başarıyla silindi!', 'success');
+                showAlert('رکورد با موفقیت حذف شد!', 'success');
                 onDeleteSuccess();
                 onClose();
             } else {
-                showAlert(response.data.message || 'Kayıt silinirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام حذف رکورد خطایی رخ داد.', 'error');
                 onClose();
             }
 
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt başka bir işlemde kullanıldığı için silinemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف نیست.', 'error');
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate('/');
             } else {
-                showAlert(e.response?.data?.message || 'Kayıt silinirken beklenmeyen bir hata oluştu.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام حذف رکورد خطای غیرمنتظره‌ای رخ داد.', 'error');
             }
         } finally {
             setLoading(false);
@@ -78,20 +78,20 @@ const DeleteRollCalls: React.FC<DeleteProps> = ({ openModal, itemToDelete, onClo
 
     return (
         <Dialog open={openModal} onClose={onClose} aria-labelledby="delete-rollcall-title" aria-describedby="delete-rollcall-desc">
-            <DialogTitle id="delete-rollcall-title">Bu kaydı silmek istediğinizden emin misiniz?</DialogTitle>
+            <DialogTitle id="delete-rollcall-title">آیا از حذف این رکورد مطمئن هستید؟</DialogTitle>
             <DialogContent>
                 <DialogContentText id="delete-rollcall-desc">
                     <span style={{ fontSize: 18, fontWeight: 'bold', color: '#FA896B', margin: '5px 5px', display: 'inline-block' }}>{nameToDisplay}</span>
-                    kaydını silerseniz geri alamazsınız. Silmek için
-                    <span style={{ fontSize: 18, fontWeight: 'bold', color: '#FA896B', margin: '0 5px' }}>Silmek</span> butonuna tıklayın.
+                    را اگر حذف کنید قابل بازگشت نیست. برای حذف
+                    <span style={{ fontSize: 18, fontWeight: 'bold', color: '#FA896B', margin: '0 5px' }}>Silmek</span> را بزنید.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 <CustomTooltip title={isTooltipGloballyEnabled ? 'Silmeyi iptal et' : ''}>
-                    <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                    <Button onClick={onClose} disabled={loading}>لغو</Button>
                 </CustomTooltip>
 
-                <CustomTooltip title={isTooltipGloballyEnabled ? 'Seçilen kaydı sil' : ''}>
+                <CustomTooltip title={isTooltipGloballyEnabled ? 'حذف رکورد انتخاب‌شده' : ''}>
                     <Button color="error" variant="contained" onClick={handleDelete} autoFocus disabled={loading}>
                         {loading ? (<><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</>) : (
                             <>

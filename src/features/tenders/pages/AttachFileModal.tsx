@@ -64,7 +64,7 @@ const AttachFileModal: React.FC<AttachFileModalProps> = ({ open, onClose, tender
         }
 
         setUploading(true);
-        showAlert('Dosyalar yükleniyor...', 'info');
+        showAlert('در حال بارگذاری فایل‌ها...', 'info');
         const formData = new FormData();
         selectedFiles.forEach(sFile => {
             formData.append('files', sFile.file);
@@ -131,7 +131,7 @@ const AttachFileModal: React.FC<AttachFileModalProps> = ({ open, onClose, tender
 
     return (
         <Dialog open={open} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-            <DialogTitle>Dosya Ekle</DialogTitle>
+            <DialogTitle>افزودن فایل</DialogTitle>
             <DialogContent dividers>
                 <Typography variant="body2" color="textSecondary" mb={2}>
                     Lütfen Excel (.xlsx, .xls) veya PDF (.pdf) formatında dosyalar seçin. Birden fazla dosya seçebilirsiniz.
@@ -174,7 +174,7 @@ const AttachFileModal: React.FC<AttachFileModalProps> = ({ open, onClose, tender
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleCloseModal} disabled={uploading}>İptal</Button>
+                <Button onClick={handleCloseModal} disabled={uploading}>انصراف</Button>
                 <Button
                     onClick={handleUploadFiles}
                     variant="contained"

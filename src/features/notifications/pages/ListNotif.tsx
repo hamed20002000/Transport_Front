@@ -98,7 +98,7 @@ export default function ListNotif() {
         const formattedData = result.data.data.map((item: any) => ({
           id: item.id,
           name: item.name,
-          status: item.recordStatus === 0 ? 'Aktif' : 'Pasif',
+          status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال',
         }));
         setRolesList(formattedData);
       }

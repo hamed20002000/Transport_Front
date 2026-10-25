@@ -681,7 +681,7 @@ const TenderDetails = () => {
         setLoadingTree(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             navigate("/");
             setLoadingTree(false);
             setIsTreeDataLoaded(false);
@@ -707,7 +707,7 @@ const TenderDetails = () => {
         setLoadingTree(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             navigate("/");
             setLoadingTree(false);
             return;
@@ -741,7 +741,7 @@ const TenderDetails = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             navigate("/");
             setLoading(false);
             return;
@@ -858,7 +858,7 @@ const TenderDetails = () => {
             if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             showAlert('İhale detayları yüklenirken bir hata oluştu.', 'error');
             setGridData([]);
@@ -881,7 +881,7 @@ const TenderDetails = () => {
     const addNewItemToApi = useCallback(async (itemName: string): Promise<number | null> => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             navigate("/");
             return null;
         }
@@ -908,7 +908,7 @@ const TenderDetails = () => {
             if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             showAlert(`Yeni ürün eklenirken bir hata oluştu: ${error.response?.data?.message || error.message}`, 'error');
             return null;
@@ -1102,7 +1102,7 @@ const TenderDetails = () => {
                 if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
                     localStorage.removeItem('authToken');
                     navigate("/");
-                    showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                    showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
                 }
                 showAlert('Excel dosyası işlenirken bir hata oluştu. Lütfen dosyanın formatını kontrol edin.', 'error');
                 setFileUploadedSuccessfully(false);
@@ -1152,7 +1152,7 @@ const TenderDetails = () => {
     const fetchItemUnitById = useCallback(async (itemId: string): Promise<string | null> => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             navigate("/");
             return null;
         }
@@ -1169,7 +1169,7 @@ const TenderDetails = () => {
             if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             showAlert('Ölçü bilgisi yüklenirken bir hata oluştu.', 'error');
             return null;
@@ -1838,7 +1838,7 @@ const TenderDetails = () => {
         setIsLoading(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturumunuzun süresi doldu.', 'error');
+            showAlert('نشست شما منقضی شده است.', 'error');
             navigate("/");
             setIsLoading(false);
             return;
@@ -1984,7 +1984,7 @@ const TenderDetails = () => {
             if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             showAlert(`İhale detayları güncellenirken bir hata oluştu: ${error.response?.data?.message || error.message || 'Sunucuya ulaşılamıyor.'}`, 'error');
         } finally {
@@ -2024,7 +2024,7 @@ const TenderDetails = () => {
             return;
         }
 
-        showAlert('Excel oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -2197,8 +2197,8 @@ const TenderDetails = () => {
 
             showAlert('Excel başarıyla dışa aktarıldı!', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     }, [processedAndFilteredGridData, totalMalzemeTutariTl, totalMontajTutariTl, totalDemontajTutariTl, totalDmmTutariTl, totalKesifBedeliTl, tenderId, showAlert]);
 
@@ -2290,17 +2290,17 @@ const TenderDetails = () => {
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                 <Stack direction="row" mb={4} spacing={1} flexWrap="wrap">
                     <Chip
-                        label={`İhale: ${tenderTitle}`}
+                        label={`مناقصه: ${tenderTitle}`}
                         color="primary"
                         variant="filled"
                         size="small"
                     />
                 </Stack>
 
-                <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                     <Button variant="outlined" color="error" onClick={() => navigate(-1)}
                         endIcon={<IconArrowRight size={20} />}>
-                        Geri Dön
+                        بازگشت
                     </Button>
                 </CustomTooltip>
             </Stack>
@@ -2343,7 +2343,7 @@ const TenderDetails = () => {
                                     sx={{ width: { xs: '100%', sm: 'auto' } }}
                                     disabled={loading || isSavingAll || editingRowId !== null || isLoading}
                                 >
-                                    Şablonu İndir
+                                    دانلود قالب
                                 </Button>
                             </CustomTooltip>
                             {loading && (
@@ -2483,7 +2483,7 @@ const TenderDetails = () => {
                                         <Typography variant="subtitle2" fontWeight="600">MALZEME VEYA İŞİN CİNSİ</Typography>
                                     </TableCell>
                                     <TableCell sx={{ minWidth: 100, borderRight: '1px solid ' + theme.palette.divider }}>
-                                        <Typography variant="subtitle2" fontWeight="600">ÖLÇÜ</Typography>
+                                        <Typography variant="subtitle2" fontWeight="600">واحد اندازه‌گیری</Typography>
                                     </TableCell>
                                     <TableCell colSpan={5} align="center" sx={{ borderBottom: 'none', borderRight: '1px solid ' + theme.palette.divider, minWidth: 500 }}>
                                         <Typography variant="subtitle2" fontWeight="600">MİKTAR</Typography>
@@ -2615,7 +2615,7 @@ const TenderDetails = () => {
                                                     />
                                                 </Box>
                                                 {loadingTree ? (
-                                                    <UiMenuItem disabled><CircularProgress size={20} sx={{ mr: 1 }} /> Yükleniyor...</UiMenuItem>
+                                                    <UiMenuItem disabled><CircularProgress size={20} sx={{ mr: 1 }} /> در حال بارگذاری...</UiMenuItem>
                                                 ) : (
                                                     <List component="div" disablePadding>
                                                         {filteredTreeForNewRecordDisplay.map((node) => (
@@ -2652,7 +2652,7 @@ const TenderDetails = () => {
                                             value={newRecordRow.olcuBrimi || ''}
                                             disabled={true}
                                             sx={{ width: 90, '& input': { textAlign: 'center' } }}
-                                            placeholder="Ölçü"
+                                            placeholder="واحد اندازه‌گیری"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -2986,7 +2986,7 @@ const TenderDetails = () => {
                                                                 />
                                                             </Box>
                                                             {loadingTree ? (
-                                                                <UiMenuItem disabled><CircularProgress size={20} sx={{ mr: 1 }} /> Yükleniyor...</UiMenuItem>
+                                                                <UiMenuItem disabled><CircularProgress size={20} sx={{ mr: 1 }} /> در حال بارگذاری...</UiMenuItem>
                                                             ) : (
                                                                 <List component="div" disablePadding>
                                                                     {filteredTreeForEditingRowDisplay.map((node) => (
@@ -3423,7 +3423,7 @@ const TenderDetails = () => {
                                 <TableRow sx={{ backgroundColor: (theme) => theme.palette.grey[100] }}>
                                     <TableCell>Tip</TableCell>
                                     <TableCell>Açıklama (İsim)</TableCell>
-                                    <TableCell>Birim</TableCell>
+                                    <TableCell>واحد</TableCell>
                                     <TableCell align="center">Aksiyon</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -3432,9 +3432,9 @@ const TenderDetails = () => {
                                     <TableRow key={row.id}>
                                         <TableCell>
                                             {row.isCategory ? (
-                                                <Chip label="Kategori" color="primary" size="small" variant="outlined" />
+                                                <Chip label="دسته‌بندی" color="primary" size="small" variant="outlined" />
                                             ) : (
-                                                <Chip label="Ürün" color="default" size="small" variant="outlined" />
+                                                <Chip label="کالا" color="default" size="small" variant="outlined" />
                                             )}
                                         </TableCell>
                                         <TableCell>{row.description}</TableCell>
@@ -3450,7 +3450,7 @@ const TenderDetails = () => {
                                                 }}
                                                 startIcon={<IconPlus size={16} />}
                                             >
-                                                Ekle
+                                                افزودن
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -3461,7 +3461,7 @@ const TenderDetails = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenUnregisteredListModal(false)} color="secondary" variant="outlined">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

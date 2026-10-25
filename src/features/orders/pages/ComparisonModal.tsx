@@ -87,9 +87,9 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ open, onClose, onConf
                                                     onChange={(_, checked) => setSelectedItems(checked ? comparisonData : [])}
                                                 />
                                             </TableCell>
-                                            <TableCell>Durum</TableCell>
-                                            <TableCell>Ürün Adı</TableCell>
-                                            <TableCell>Birim</TableCell>
+                                            <TableCell>وضعیت</TableCell>
+                                            <TableCell>نام کالا</TableCell>
+                                            <TableCell>واحد</TableCell>
                                             <TableCell>İhale Miktarı</TableCell>
                                             <TableCell>Depo Stok Miktarı</TableCell>
                                         </TableRow>
@@ -125,7 +125,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ open, onClose, onConf
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">İptal</Button>
+                <Button onClick={onClose} color="secondary">انصراف</Button>
                 <Button onClick={handleConfirm} variant="contained" disabled={selectedItems.length === 0}>
                     Seçilenleri Ekle
                 </Button>

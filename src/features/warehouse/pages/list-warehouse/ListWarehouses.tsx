@@ -38,8 +38,8 @@ export const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -388,9 +388,9 @@ const ListWarehouses = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const filteredRegionTree = useMemo(() => {
         return filterRegionTree(regionTree, regionSearchQuery);
@@ -421,15 +421,15 @@ const ListWarehouses = () => {
                 });
                 setRegionMap(newRegionMap);
             } else {
-                showAlert(response.data.message || 'Bölgeler yüklenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام بارگذاری مناطق خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -456,19 +456,19 @@ const ListWarehouses = () => {
                 const allWarehouses = response.data.data as WarehouseType[];
                 const WarehousesWithStatus = allWarehouses.map((item) => ({
                     ...item,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif'
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال'
                 }));
                 setWarehousesList(WarehousesWithStatus);
             } else {
                 showAlert(response.data.message || 'İşler yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -613,7 +613,7 @@ const ListWarehouses = () => {
             setRegionIdError(false);
         }
         if (!isValid) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         }
         return isValid;
     };
@@ -649,12 +649,12 @@ const ListWarehouses = () => {
                 showAlert(response.data.message || 'depo eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -688,11 +688,11 @@ const ListWarehouses = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message == "Warehouse with this code already exists!" ? "Bu koda sahip depo zaten mevcut!" :
@@ -709,7 +709,7 @@ const ListWarehouses = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -726,23 +726,23 @@ const ListWarehouses = () => {
                 }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Depo başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Depo başarıyla ${statusText} تنظیم شد!`, 'success');
                 resetFormAndState();
                 fetchWarehouses();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
             }
         } finally {
             handleCloseMenu();
@@ -873,7 +873,7 @@ const ListWarehouses = () => {
         try {
             pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         pdfDoc.setFont('NotoSans', 'normal');
@@ -882,7 +882,7 @@ const ListWarehouses = () => {
         pdfDoc.text(title, pageWidth / 2, 25, { align: 'center' });
         pdfDoc.setFontSize(10);
         pdfDoc.setFont('NotoSans', 'bold');
-        pdfDoc.text('Rapor Tarihi:', 15, 40);
+        pdfDoc.text('تاریخ گزارش:', 15, 40);
         pdfDoc.setFont('NotoSans', 'normal');
         const dateText = formatDateDisplay(new Date().toISOString());
         pdfDoc.text(dateText, 40, 40);
@@ -893,7 +893,7 @@ const ListWarehouses = () => {
         pdfDoc.setTextColor(100);
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -906,9 +906,9 @@ const ListWarehouses = () => {
         const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (pdfDoc as any).internal.getNumberOfPages();
         pdfDoc.setTextColor(40);
-        pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
         pdfDoc.setFont('NotoSans', 'normal');
-        pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         pdfDoc.setFont('NotoSans', 'normal');
 
         pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
@@ -937,7 +937,7 @@ const ListWarehouses = () => {
 
             autoTable(doc, {
                 startY: 55,
-                head: [['İsim', 'Kod', 'Adres', 'Bölge', 'Tarih', 'Durum']],
+                head: [['نام', 'کد', 'آدرس', 'منطقه', 'تاریخ', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: { font: 'NotoSans', fontStyle: 'normal', fontSize: 8, cellPadding: 3 },
@@ -946,7 +946,7 @@ const ListWarehouses = () => {
             });
 
             doc.save('Tum_Depolar_Raporu.pdf');
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (error: any) {
             showAlert('Hata: ' + error.message, 'error');
         }
@@ -976,7 +976,7 @@ const ListWarehouses = () => {
 
             autoTable(doc, {
                 startY: 55,
-                head: [['İsim', 'Kod', 'Adres', 'Bölge', 'Tarih', 'Durum']],
+                head: [['نام', 'کد', 'آدرس', 'منطقه', 'تاریخ', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: { font: 'NotoSans', fontStyle: 'normal', fontSize: 8 },
@@ -984,7 +984,7 @@ const ListWarehouses = () => {
                 didDrawPage: () => {
                     applyPdfLayout(doc, 'Filtrelenmiş Depolar Raporu');
                     doc.setFontSize(8);
-                    doc.text(`Filtre: ${searchTerm || 'Yok'} | Durum: ${statusFilter}`, 15, 52);
+                    doc.text(`Filtre: ${searchTerm || 'ندارد'} | Durum: ${statusFilter}`, 15, 52);
                 }
             });
 
@@ -1009,7 +1009,7 @@ const ListWarehouses = () => {
 
             autoTable(doc, {
                 startY: 55,
-                head: [['Ürün Adı', 'Miktar']],
+                head: [['نام کالا', 'مقدار']],
                 body: rows,
                 theme: 'grid',
                 styles: { font: 'NotoSans', fontStyle: 'normal', fontSize: 9 },
@@ -1032,7 +1032,7 @@ const ListWarehouses = () => {
             showAlert('Dışa aktarılacak depo bulunamadı.', 'warning');
             return;
         }
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -1063,7 +1063,7 @@ const ListWarehouses = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 const mergeRangeEndColumn = String.fromCharCode(65 + columnCount - 1);
@@ -1083,7 +1083,7 @@ const ListWarehouses = () => {
             }
             worksheet.mergeCells('A1:G1');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -1093,12 +1093,12 @@ const ListWarehouses = () => {
 
             let filterInfo = '';
             if (isFiltered) {
-                if (searchTerm) filterInfo += `Arama: ${searchTerm} | `;
-                if (statusFilter !== 'all') filterInfo += `Durum: ${statusFilter === 'active' ? 'Aktif' : 'Pasif'} | `;
+                if (searchTerm) filterInfo += `جستجو: ${searchTerm} | `;
+                if (statusFilter !== 'all') filterInfo += `وضعیت: ${statusFilter === 'active' ? 'فعال' : 'غیرفعال'} | `;
                 if (startDate || endDate) {
                     const startStr = startDate ? format(startDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
                     const endStr = endDate ? format(endDate, 'dd.MM.yyyy') : formatDateDisplay(new Date().toISOString());
-                    filterInfo += `Tarih Aralığı: ${startStr} - ${endStr}`;
+                    filterInfo += `بازه‌ی زمانی: ${startStr} - ${endStr}`;
                 }
             }
             if (filterInfo) {
@@ -1112,7 +1112,7 @@ const ListWarehouses = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['İsim', 'Kod', 'Adres', 'Bölge', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام', 'کد', 'آدرس', 'منطقه', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -1152,10 +1152,10 @@ const ListWarehouses = () => {
             const fileName = `${fileNamePrefix}_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -1187,7 +1187,7 @@ const ListWarehouses = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 const mergeRangeEndColumn = String.fromCharCode(65 + columnCount - 1);
@@ -1206,7 +1206,7 @@ const ListWarehouses = () => {
             }
             worksheet.mergeCells('A1:C1');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -1216,7 +1216,7 @@ const ListWarehouses = () => {
 
             worksheet.addRow([]);
 
-            const tableHeaders = ['Ürün Adı', 'Miktar'];
+            const tableHeaders = ['نام کالا', 'مقدار'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -1253,8 +1253,8 @@ const ListWarehouses = () => {
 
             showAlert('Envanter Excel dosyası başarıyla oluşturuldu ve indiriliyor.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -1328,7 +1328,7 @@ const ListWarehouses = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained"
                                 color="error"
@@ -1349,7 +1349,7 @@ const ListWarehouses = () => {
 
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel htmlFor="Warehouse-name" required>İsim</CustomFormLabel>
+                            <CustomFormLabel htmlFor="Warehouse-name" required>نام</CustomFormLabel>
                             <CustomTextField
                                 id="Warehouse-name"
                                 placeholder="Depo Adı"
@@ -1361,12 +1361,12 @@ const ListWarehouses = () => {
                                 }}
                                 inputRef={nameInputRef}
                                 error={nameError}
-                                helperText={nameError ? "İsim alanı boş bırakılamaz!" : ""}
+                                helperText={nameError ? "فیلد نام نمی‌تواند خالی باشد!" : ""}
                                 sx={{ width: '100%' }}
                             />
                         </Grid>
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel htmlFor="Warehouse-code" required>Kod</CustomFormLabel>
+                            <CustomFormLabel htmlFor="Warehouse-code" required>کد</CustomFormLabel>
                             <CustomTextField
                                 id="Warehouse-code"
                                 placeholder="Depo Kodu"
@@ -1377,21 +1377,21 @@ const ListWarehouses = () => {
                                     if (codeError && e.target.value.trim()) setCodeError(false);
                                 }}
                                 error={codeError}
-                                helperText={codeError ? "Kod alanı boş bırakılamaz!" : ""}
+                                helperText={codeError ? "فیلد کد نمی‌تواند خالی باشد!" : ""}
                                 sx={{ width: '100%' }}
                             />
                         </Grid>
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel htmlFor="region-selection" required>Bölge Seçimi</CustomFormLabel>
+                            <CustomFormLabel htmlFor="region-selection" required>انتخاب منطقه</CustomFormLabel>
                             <FormControl
                                 size="small" error={regionIdError}
                                 sx={{ width: '100%' }}>
-                                <InputLabel id="select-region-label">Bölge Seçin</InputLabel>
+                                <InputLabel id="select-region-label">منطقه را انتخاب کنید</InputLabel>
                                 <Select
                                     labelId="select-region-label"
                                     id="select-region"
                                     value={selectedRegionId || ''}
-                                    label="Bölge Seçin"
+                                    label="منطقه را انتخاب کنید"
                                     open={isRegionSelectOpen}
                                     onOpen={handleOpenRegionSelect}
                                     onClose={handleCloseRegionSelect}
@@ -1412,7 +1412,7 @@ const ListWarehouses = () => {
                                         autoFocus
                                         fullWidth
                                         size="small"
-                                        placeholder="Bölge Ara..."
+                                        placeholder="جستجوی منطقه..."
                                         value={regionSearchQuery}
                                         onChange={(e) => setRegionSearchQuery(e.target.value)}
                                         onClick={(e) => e.stopPropagation()}
@@ -1424,7 +1424,7 @@ const ListWarehouses = () => {
                                     />
                                     {loadingData ? (
                                         <UiMenuItem disabled>
-                                            <CircularProgress size={20} /> Yükleniyor...
+                                            <CircularProgress size={20} /> در حال بارگذاری...
                                         </UiMenuItem>
                                     ) : filteredRegionTree.length > 0 ? (
                                         filteredRegionTree.map(node => (
@@ -1440,14 +1440,14 @@ const ListWarehouses = () => {
                                             />
                                         ))
                                     ) : (
-                                        <UiMenuItem disabled>Hiç bölge bulunamadı.</UiMenuItem>
+                                        <UiMenuItem disabled>هیچ منطقه‌ای پیدا نشد.</UiMenuItem>
                                     )}
                                 </Select>
-                                {regionIdError && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>Bölge seçimi zorunludur!</Typography>}
+                                {regionIdError && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>انتخاب منطقه الزامی است!</Typography>}
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} sm={12}>
-                            <CustomFormLabel htmlFor="Warehouse-address" required>Adres</CustomFormLabel>
+                            <CustomFormLabel htmlFor="Warehouse-address" required>آدرس</CustomFormLabel>
                             <CustomTextField
                                 id="Warehouse-address"
                                 placeholder="Depo Adresi"
@@ -1458,7 +1458,7 @@ const ListWarehouses = () => {
                                     if (addressError && e.target.value.trim()) setAddressError(false);
                                 }}
                                 error={addressError}
-                                helperText={addressError ? "Adres alanı boş bırakılamaz!" : ""}
+                                helperText={addressError ? "فیلد آدرس نمی‌تواند خالی باشد!" : ""}
                             />
                         </Grid>
 
@@ -1468,11 +1468,11 @@ const ListWarehouses = () => {
                                     <>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili depoyu güncelleyin" : ""}>
                                             <Button variant="contained" color="info" onClick={editWarehouse} disabled={loadingButton}>
-                                                {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Düzenle'}
+                                                {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni depo moduna dön" : ""}>
-                                            <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>İptal Et</Button>
+                                            <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>لغو</Button>
                                         </CustomTooltip>
                                     </>
                                 ) : (
@@ -1510,7 +1510,7 @@ const ListWarehouses = () => {
                                     isBlinking={isFilterActive}
                                     disabled={loadingData}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
@@ -1523,7 +1523,7 @@ const ListWarehouses = () => {
                                     startIcon={<IconFileDownload />}
                                     disabled={loadingData}
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         )}
@@ -1545,14 +1545,14 @@ const ListWarehouses = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={startDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setStartDate(newValue)}
                                         renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={endDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setEndDate(newValue)}
@@ -1572,9 +1572,9 @@ const ListWarehouses = () => {
                                 aria-label="Status filter"
                                 fullWidth
                             >
-                                <StyledToggleButton value="all" aria-label="all Warehouses">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" aria-label="active Warehouses">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" aria-label="inactive Warehouses">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all" aria-label="all Warehouses">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" aria-label="active Warehouses">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" aria-label="inactive Warehouses">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1596,7 +1596,7 @@ const ListWarehouses = () => {
                                             onClick={() => handleRequestSort('name')}
                                             sx={{ color: "inherit" }}
                                         >
-                                            <Typography variant="h6">İsim</Typography>
+                                            <Typography variant="h6">نام</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1606,7 +1606,7 @@ const ListWarehouses = () => {
                                             onClick={() => handleRequestSort('code')}
                                             sx={{ color: "inherit" }}
                                         >
-                                            <Typography variant="h6">Kod</Typography>
+                                            <Typography variant="h6">کد</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1616,11 +1616,11 @@ const ListWarehouses = () => {
                                             onClick={() => handleRequestSort('address')}
                                             sx={{ color: "inherit" }}
                                         >
-                                            <Typography variant="h6">Adres</Typography>
+                                            <Typography variant="h6">آدرس</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
-                                        <Typography variant="h6">Bölge</Typography>
+                                        <Typography variant="h6">منطقه</Typography>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel
@@ -1629,7 +1629,7 @@ const ListWarehouses = () => {
                                             onClick={() => handleRequestSort('createAt')}
                                             sx={{ color: "inherit" }}
                                         >
-                                            <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ ایجاد</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1639,7 +1639,7 @@ const ListWarehouses = () => {
                                             onClick={() => handleRequestSort('recordStatus')}
                                             sx={{ color: "inherit" }}
                                         >
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
@@ -1666,7 +1666,7 @@ const ListWarehouses = () => {
                                                             setOpenAddressModal(true);
                                                         }}
                                                     >
-                                                        Adresi Gör
+                                                        دیدن آدرس
                                                     </Button>
                                                 ) : (
                                                     <Typography variant="body1">-</Typography>
@@ -1698,7 +1698,7 @@ const ListWarehouses = () => {
                                                 />
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1751,14 +1751,14 @@ const ListWarehouses = () => {
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu Depoyu pasif yap" : ""}>
                                                             <UiMenuItem onClick={handleSetInactive}>
                                                                 <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon>
-                                                                Pasif Yap
+                                                                غیرفعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     ) : (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu Depoyu aktif yap" : ""}>
                                                             <UiMenuItem onClick={handleSetActive}>
                                                                 <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon>
-                                                                Aktif Yap
+                                                                فعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1766,7 +1766,7 @@ const ListWarehouses = () => {
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu Depoyu düzenle" : ""}>
                                                             <UiMenuItem onClick={handleEditClick}>
                                                                 <ListItemIcon><IconEdit width={18} /></ListItemIcon>
-                                                                Düzenlemek
+                                                                ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1804,7 +1804,7 @@ const ListWarehouses = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1816,7 +1816,7 @@ const ListWarehouses = () => {
                 maxWidth="sm"
             >
                 <DialogTitle id="address-dialog-title">
-                    Adresin Tamamı
+                    آدرس کامل
                 </DialogTitle>
                 <DialogContent dividers>
                     <Typography id="address-dialog-description" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -1825,7 +1825,7 @@ const ListWarehouses = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenAddressModal(false)} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1858,7 +1858,7 @@ const ListWarehouses = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllWarehousesPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1866,13 +1866,13 @@ const ListWarehouses = () => {
                             startIcon={<IconFileDownload />}
                             onClick={() => handleExportExcel(WarehousesList, false)}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenAllDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1890,7 +1890,7 @@ const ListWarehouses = () => {
                                 startIcon={<IconFileDownload />}
                                 onClick={handleDownloadFilteredPDF}
                             >
-                                PDF Olarak İndir
+                                دانلود PDF
                             </Button>
                             <Button
                                 variant="contained"
@@ -1898,13 +1898,13 @@ const ListWarehouses = () => {
                                 startIcon={<IconFileDownload />}
                                 onClick={() => handleExportExcel(filteredAndSortedWarehousesList, true)}
                             >
-                                Excel Olarak İndir
+                                دانلود Excel
                             </Button>
                         </Stack>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={() => setOpenFilteredDownloadModal(false)} color="secondary">
-                            İptal
+                            انصراف
                         </Button>
                     </DialogActions>
                 </Dialog>

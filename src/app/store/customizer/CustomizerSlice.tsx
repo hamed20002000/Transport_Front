@@ -18,9 +18,10 @@ interface StateType {
 }
 
 const initialState: StateType = {
-  activeDir: 'ltr',
+  // Trabot is a Persian app: menus on the right, in the brand orange (store/index.ts migrates saved settings)
+  activeDir: 'rtl',
   activeMode: 'light', // This can be light or dark
-  activeTheme: 'BLUE_THEME', // BLUE_THEME, GREEN_THEME, BLACK_THEME, PURPLE_THEME, ORANGE_THEME
+  activeTheme: 'ORANGE_THEME',
   SidebarWidth: 270,
   MiniSidebarWidth: 87,
   TopbarHeight: 70,
@@ -29,7 +30,7 @@ const initialState: StateType = {
   isSidebarHover: false,
   isMobileSidebar: false,
   isHorizontal: false,
-  isLanguage: 'en',
+  isLanguage: 'fa',
   isCardShadow: true,
   borderRadius: 7,
 };

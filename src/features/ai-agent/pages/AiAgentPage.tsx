@@ -35,6 +35,40 @@ const conversations = [
 ];
 
 const MINIMIZED_PANEL_WIDTH = 380;
+// the normal panel: a comfortable chat size (history column + workspace)
+const NORMAL_PANEL_MAX_WIDTH = 840;
+const NORMAL_PANEL_MAX_HEIGHT = 640;
+// the maximized panel is never larger than this, even on a big screen
+const MAXIMIZED_PANEL_MAX_WIDTH = 1040;
+const MAXIMIZED_PANEL_MAX_HEIGHT = 760;
+// on a small screen either panel keeps this gap to the window edges
+const SCREEN_MARGIN = 24;
+// how far the maximized panel's bar must be dragged before it lets go of the full screen
+const RESTORE_DRAG_THRESHOLD = 6;
+// the window bar's height (CSS .agent-dialog-header) and the gap the dragged panel keeps from the screen edge
+const HEADER_HEIGHT = 52;
+const DRAG_MARGIN = 8;
+// below this width the panel is docked by CSS (AiAgentPage.css "MOBILE PANEL") and is not dragged
+const MOBILE_PANEL_QUERY = '(max-width: 800px)';
+
+type PanelState = 'normal' | 'minimized' | 'maximized';
+
+/**
+ * Where the desktop panel sits in a state: its top-left corner and size in pixels (height null = fits its
+ * content). Every state is placed the same way (one translate + width/height), so switching between them moves
+ * the corner in a straight line while the size changes; nothing pulls the other way and the panel never bounces.
+ * offset: the normal panel's distance from the centre, or the minimized panel's own corner.
+ */
+function panelBox(state: PanelState, offset: { x: number; y: number }) {
+    const { innerWidth: vw, innerHeight: vh } = window;
+    if (state === 'minimized') return { x: offset.x, y: offset.y, width: MINIMIZED_PANEL_WIDTH, height: null as number | null };
+    const maximized = state === 'maximized';
+    const width = Math.min(vw - 2 * SCREEN_MARGIN, maximized ? MAXIMIZED_PANEL_MAX_WIDTH : NORMAL_PANEL_MAX_WIDTH);
+    const height = Math.min(vh - 2 * SCREEN_MARGIN, maximized ? MAXIMIZED_PANEL_MAX_HEIGHT : NORMAL_PANEL_MAX_HEIGHT);
+    // the maximized panel is centred; the normal one sits where it was dragged
+    const shift = maximized ? { x: 0, y: 0 } : offset;
+    return { x: (vw - width) / 2 + shift.x, y: (vh - height) / 2 + shift.y, width, height };
+}
 
 type AiAgentPageProps = {
     onClose?: () => void;
@@ -96,7 +130,6 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
     const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
     const [minimizedPosition, setMinimizedPosition] = useState(() => ({
         top: 20,
         left: typeof window !== 'undefined'
@@ -105,14 +138,25 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
     }));
     const debounceRef = useRef<number | null>(null);
     const shellRef = useRef<HTMLDivElement | null>(null);
-    // Measure the compact content so mobile can animate to a numeric height, including new answers.
+    // phones get the docked panel from CSS; the desktop panel is placed by panelBox
+    const [isDesktop, setIsDesktop] = useState(() => typeof window === 'undefined' || !window.matchMedia(MOBILE_PANEL_QUERY).matches);
+    useEffect(() => {
+        const query = window.matchMedia(MOBILE_PANEL_QUERY);
+        const onChange = () => setIsDesktop(!query.matches);
+        query.addEventListener('change', onChange);
+        return () => query.removeEventListener('change', onChange);
+    }, []);
+    // Measure the compact content so the panel can animate to a numeric height, including new answers.
     useLayoutEffect(() => {
         if (!isMinimized) return;
         const shell = shellRef.current;
         const content = shell?.querySelector<HTMLElement>('.minimized-view');
         if (!shell || !content) return;
         const measure = () => {
-            shell.style.setProperty('--compact-panel-height', `${content.getBoundingClientRect().height + 56}px`);
+            // offsetHeight: the laid-out height, not shrunk by an animation's scale. The content's height is its own
+            // (CSS height: auto), never the panel's, or a measurement would feed itself and only ever shrink.
+            const header = shell.querySelector<HTMLElement>('.agent-dialog-header')?.offsetHeight ?? HEADER_HEIGHT;
+            shell.style.setProperty('--compact-panel-height', `${content.offsetHeight + header}px`);
         };
         measure();
         const observer = new ResizeObserver(measure);
@@ -159,7 +203,6 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         };
     }, []);
 
-    const dragStateRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
     const progressStagesRef = useRef<string[]>([]);
     const progressResetTimerRef = useRef<number | null>(null);
     const pendingSessionRef = useRef<Promise<string> | null>(null);
@@ -382,75 +425,179 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         return resultViewLink[key as keyof typeof resultViewLink] ?? "";
     }
 
-    const handleDialogDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
-        if ((event.target as HTMLElement).closest('button')) {
-            return;
-        }
-
-        if (isMaximized) {
-            return;
-        }
+    /**
+     * Moves the panel by its header with mouse, pen or touch. While dragging, the position is written straight
+     * to the element once per frame (no re-render of this large component) and kept inside the screen, so the
+     * header can always be grabbed again; React state gets the final position on release.
+     * Dragging the maximized panel restores it to its normal size under the pointer first, like a desktop window.
+     * On phones (≤800px) the panel is docked by CSS, so there is nothing to drag.
+     */
+    const handleDialogDragStart = (event: React.PointerEvent<HTMLDivElement>) => {
+        const shell = shellRef.current;
+        if (!shell || !event.isPrimary || event.button !== 0) return;
+        if ((event.target as HTMLElement).closest('button, a, input, textarea')) return;
+        if (!isDesktop) return;
 
         event.preventDefault();
-        setIsDragging(true);
+        const header = event.currentTarget;
+        const pointerId = event.pointerId;
+        header.setPointerCapture(pointerId);
 
-        if (isMinimized) {
-            dragStateRef.current = {
-                startX: event.clientX,
-                startY: event.clientY,
-                originX: minimizedPosition.left,
-                originY: minimizedPosition.top,
+        const minimized = isMinimized;
+        let restoring = isMaximized;
+        let start = { x: event.clientX, y: event.clientY };
+        let origin = minimized ? { x: minimizedPosition.left, y: minimizedPosition.top } : { ...dialogPosition };
+        let rect = { left: 0, top: 0, right: 0, bottom: 0 };
+        let next = origin;
+        let frame = 0;
+
+        // a data attribute, not a class: React rewrites className when the panel leaves the maximized state
+        const begin = () => {
+            shell.dataset.dragging = '';
+            const box = shell.getBoundingClientRect();
+            rect = { left: box.left, top: box.top, right: box.right, bottom: box.bottom };
+        };
+        const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max));
+
+        const paint = () => {
+            frame = 0;
+            const box = panelBox(minimized ? 'minimized' : 'normal', next);
+            shell.style.transform = `translate3d(${box.x}px, ${box.y}px, 0)`;
+        };
+
+        /** Leaves the maximized state with the normal-size panel's header under the pointer. */
+        const restore = (pointerX: number, pointerY: number) => {
+            const box = shell.getBoundingClientRect();
+            const centred = panelBox('normal', { x: 0, y: 0 });
+            const width = centred.width;
+            const height = centred.height as number;
+            // the pointer keeps its place along the bar (grabbed near the close button, it stays near it)
+            const left = pointerX - ((pointerX - box.left) / box.width) * width;
+            const top = pointerY - HEADER_HEIGHT / 2;
+            origin = { x: left - centred.x, y: top - centred.y };
+            rect = { left, top, right: left + width, bottom: top + height };
+            start = { x: pointerX, y: pointerY };
+            next = origin;
+            shell.dataset.dragging = '';
+            setIsMaximized(false);
+            setDialogPosition(origin);
+        };
+
+        const handleMove = (moveEvent: PointerEvent) => {
+            if (moveEvent.pointerId !== pointerId) return;
+            if (restoring) {
+                // a click (or a tiny wobble) on the bar of the maximized panel leaves it as it is
+                if (Math.hypot(moveEvent.clientX - start.x, moveEvent.clientY - start.y) < RESTORE_DRAG_THRESHOLD) return;
+                restoring = false;
+                restore(moveEvent.clientX, moveEvent.clientY);
+            }
+            next = {
+                x: origin.x + clamp(moveEvent.clientX - start.x, DRAG_MARGIN - rect.left, window.innerWidth - DRAG_MARGIN - rect.right),
+                y: origin.y + clamp(moveEvent.clientY - start.y, DRAG_MARGIN - rect.top, window.innerHeight - DRAG_MARGIN - rect.bottom),
             };
+            if (!frame) frame = requestAnimationFrame(paint);
+        };
 
-            const handleMove = (moveEvent: MouseEvent) => {
-                const dragState = dragStateRef.current;
-                if (!dragState) return;
+        const handleEnd = () => {
+            if (frame) cancelAnimationFrame(frame);
+            header.removeEventListener('pointermove', handleMove);
+            header.removeEventListener('pointerup', handleEnd);
+            header.removeEventListener('pointercancel', handleEnd);
+            delete shell.dataset.dragging;
+            if (restoring) return; // never moved far enough: still maximized, nothing to save
+            paint();
+            if (minimized) setMinimizedPosition({ left: next.x, top: next.y });
+            else setDialogPosition(next);
+        };
 
-                setMinimizedPosition({
-                    left: dragState.originX + (moveEvent.clientX - dragState.startX),
-                    top: dragState.originY + (moveEvent.clientY - dragState.startY),
-                });
-            };
-
-            const handleUp = () => {
-                dragStateRef.current = null;
-                setIsDragging(false);
-                window.removeEventListener('mousemove', handleMove);
-                window.removeEventListener('mouseup', handleUp);
-            };
-
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleUp);
-        } else {
-            dragStateRef.current = {
-                startX: event.clientX,
-                startY: event.clientY,
-                originX: dialogPosition.x,
-                originY: dialogPosition.y,
-            };
-
-            const handleMove = (moveEvent: MouseEvent) => {
-                const dragState = dragStateRef.current;
-                if (!dragState) return;
-
-                setDialogPosition({
-                    x: dragState.originX + (moveEvent.clientX - dragState.startX),
-                    y: dragState.originY + (moveEvent.clientY - dragState.startY),
-                });
-            };
-
-            const handleUp = () => {
-                dragStateRef.current = null;
-                setIsDragging(false);
-                window.removeEventListener('mousemove', handleMove);
-                window.removeEventListener('mouseup', handleUp);
-            };
-
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleUp);
-        }
+        if (!restoring) begin();
+        header.addEventListener('pointermove', handleMove);
+        header.addEventListener('pointerup', handleEnd);
+        header.addEventListener('pointercancel', handleEnd);
     };
+
+    // a smaller window (or a rotated tablet) must not leave the panel stranded off-screen
+    useEffect(() => {
+        const onResize = () => {
+            setMinimizedPosition((current) => ({
+                left: Math.min(Math.max(current.left, DRAG_MARGIN), Math.max(DRAG_MARGIN, window.innerWidth - MINIMIZED_PANEL_WIDTH - DRAG_MARGIN)),
+                top: Math.min(Math.max(current.top, DRAG_MARGIN), Math.max(DRAG_MARGIN, window.innerHeight - HEADER_HEIGHT - DRAG_MARGIN)),
+            }));
+            setDialogPosition({ x: 0, y: 0 });
+        };
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+    const desktopPanelStyle = (): React.CSSProperties => {
+        const state: PanelState = isMaximized ? 'maximized' : isMinimized ? 'minimized' : 'normal';
+        const box = panelBox(state, isMinimized ? { x: minimizedPosition.left, y: minimizedPosition.top } : dialogPosition);
+        return {
+            top: 0,
+            left: 0,
+            right: 'auto',
+            bottom: 'auto',
+            transform: `translate3d(${box.x}px, ${box.y}px, 0)`,
+            transformOrigin: '0 0',
+            width: box.width,
+            height: box.height ?? 'var(--compact-panel-height, 180px)',
+            maxHeight: 'none',
+        };
+    };
+
+    // The panel's box just before a minimize/maximize, so the layout effect below can animate from it.
+    const stateChangeRef = useRef<{ from: DOMRect; kind: 'resize' | 'swap' } | null>(null);
+    const rememberBox = (kind: 'resize' | 'swap') => {
+        const shell = shellRef.current;
+        stateChangeRef.current = shell && isDesktop ? { from: shell.getBoundingClientRect(), kind } : null;
+    };
+
+    /**
+     * Desktop state changes never animate width/height (a big panel slowly shrinking while its content reflows):
+     *  - maximize / back: the same content grows or shrinks; played with transform only (FLIP), no relayout per frame.
+     *  - opening from the compact panel: the full panel, already laid out, is revealed from where the compact one
+     *    was (its top-right corner, where the title is) by a growing clip, so it opens without stretching anything.
+     *  - going compact: the small panel glides from the big one's corner to its own place.
+     */
+    useLayoutEffect(() => {
+        const change = stateChangeRef.current;
+        const shell = shellRef.current;
+        stateChangeRef.current = null;
+        if (!change || !shell || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const { from } = change;
+        const to = shell.getBoundingClientRect();
+        const at = (x: number, y: number) => `translate3d(${x}px, ${y}px, 0)`;
+        const timing = { easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+        if (change.kind === 'resize') {
+            shell.animate(
+                [
+                    { transform: `${at(from.left, from.top)} scale(${from.width / to.width}, ${from.height / to.height})` },
+                    { transform: `${at(to.left, to.top)} scale(1, 1)` },
+                ],
+                { ...timing, duration: 280 },
+            );
+        } else if (to.width > from.width) {
+            const radius = getComputedStyle(shell).borderTopRightRadius;
+            const hidden = `inset(0px 0px ${Math.max(0, to.height - from.height)}px ${Math.max(0, to.width - from.width)}px round ${radius})`;
+            shell.animate(
+                [
+                    { transform: at(from.right - to.width, from.top), clipPath: hidden },
+                    { transform: at(to.left, to.top), clipPath: `inset(0px 0px 0px 0px round ${radius})` },
+                ],
+                { ...timing, duration: 360 },
+            );
+        } else {
+            shell.animate(
+                [
+                    { transform: at(from.right - to.width, from.top), opacity: 0.5 },
+                    { transform: at(to.left, to.top), opacity: 1 },
+                ],
+                { ...timing, duration: 280 },
+            );
+        }
+    }, [isMinimized, isMaximized]);
+
     const handleToggleMinimize = () => {
+        rememberBox('swap');
         setIsMinimized((prev) => !prev);
         if (isMaximized) {
             setIsMaximized(false);
@@ -458,6 +605,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
     };
 
     const handleToggleMaximize = () => {
+        rememberBox(isMinimized ? 'swap' : 'resize');
         setIsMaximized((prev) => !prev);
         if (isMinimized) {
             setIsMinimized(false);
@@ -864,29 +1012,9 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                 ref={shellRef}
                 dir="rtl"
                 className={`agent-modal-shell ${isMinimized ? "is-minimized" : ""} ${isMaximized ? "is-maximized" : ""}`}
-                style={
-                    isMinimized
-                        ? {
-                            position: "fixed" as const,
-                            top: `${minimizedPosition.top}px`,
-                            left: `${minimizedPosition.left}px`,
-                            right: "auto",
-                            bottom: "auto",
-                            transform: "none",
-                            transition: isDragging ? "none" : undefined,
-                        }
-                        : {
-                            top: "50%",
-                            left: "50%",
-                            right: "auto",
-                            bottom: "auto",
-                            transform: `translate3d(calc(-50% + ${dialogPosition.x}px), calc(-50% + ${dialogPosition.y}px), 0)`,
-                            transformOrigin: "center center",
-                            transition: isDragging ? "none" : undefined,
-                        }
-                }
+                style={isDesktop ? desktopPanelStyle() : undefined}
             >
-                <div className="agent-dialog-header" onMouseDown={handleDialogDragStart}>
+                <div className="agent-dialog-header" onPointerDown={handleDialogDragStart}>
                     <div className="agent-window-bar">
                         <div className="agent-window-title">دستیار هوشمند</div>
 

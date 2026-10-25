@@ -29,7 +29,7 @@ export const projectsRoutes: RouteObject[] = [
   {
     path: '/project/list-projects/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListProjects />
       </PermissionGuard>
     ),
@@ -37,7 +37,7 @@ export const projectsRoutes: RouteObject[] = [
   {
     path: '/project/project-planing/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListProjectPlanning />
       </PermissionGuard>
     ),
@@ -45,7 +45,7 @@ export const projectsRoutes: RouteObject[] = [
   {
     path: '/project/project-planing/:projectId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListProjectPlanning />
       </PermissionGuard>
     ),
@@ -53,7 +53,7 @@ export const projectsRoutes: RouteObject[] = [
   {
     path: '/project/project-planing-implementation/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListProjectPlanningImplementation />
       </PermissionGuard>
     ),
@@ -61,7 +61,7 @@ export const projectsRoutes: RouteObject[] = [
   {
     path: '/project/project-planing-implementation-report/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ProjectPlanningImplementationReport />
       </PermissionGuard>
     ),
@@ -69,7 +69,7 @@ export const projectsRoutes: RouteObject[] = [
   {
     path: '/project/set-project-planing-implementation/:dateId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListSetProjectPlanningImplementation />
       </PermissionGuard>
     ),

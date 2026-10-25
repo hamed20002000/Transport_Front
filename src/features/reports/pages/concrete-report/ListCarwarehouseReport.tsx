@@ -162,21 +162,21 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="primary">Araç ve Kullanım Bilgileri</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Plaka" size="small" fullWidth value={report.plaque} disabled />
+                            <CustomTextField label="پلاک" size="small" fullWidth value={report.plaque} disabled />
                             <CustomTextField label="Marka / Model" size="small" fullWidth value={`${report.brand} / ${report.model}`} disabled />
-                            <CustomTextField label="Şantiye" size="small" fullWidth value={report.workhouse_name || '-'} disabled />
+                            <CustomTextField label="کارگاه" size="small" fullWidth value={report.workhouse_name || '-'} disabled />
                             <CustomTextField label="Proje / İş" size="small" fullWidth value={report.work_title || '-'} disabled />
-                            <CustomTextField label="Personel Adı" size="small" fullWidth value={personnelFullName} disabled />
+                            <CustomTextField label="نام پرسنل" size="small" fullWidth value={personnelFullName} disabled />
                         </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="success.main">Yakıt Detayları</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Yakıt Tipi" size="small" fullWidth value={report.fuel_type} disabled />
-                            <CustomTextField label="Yakıt Tarihi" size="small" fullWidth value={format(new Date(report.fuel_date), 'dd/MM/yyyy HH:mm')} disabled />
+                            <CustomTextField label="نوع سوخت" size="small" fullWidth value={report.fuel_type} disabled />
+                            <CustomTextField label="تاریخ سوخت‌گیری" size="small" fullWidth value={format(new Date(report.fuel_date), 'dd/MM/yyyy HH:mm')} disabled />
                             <CustomTextField label="Miktar (Litre)" size="small" fullWidth value={`${report.fuel_amount}`} disabled />
-                            <CustomTextField label="Birim Fiyat" size="small" fullWidth value={`${fuelFeeNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })}`} disabled />
-                            <CustomTextField label="Toplam Maliyet" size="small" fullWidth value={`${totalCostNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })}`} disabled />
+                            <CustomTextField label="قیمت واحد" size="small" fullWidth value={`${fuelFeeNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })}`} disabled />
+                            <CustomTextField label="هزینه‌ی کل" size="small" fullWidth value={`${totalCostNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })}`} disabled />
                         </Stack>
                     </Grid>
 
@@ -185,18 +185,18 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                         <Stack direction="row" spacing={2}>
                             <Button variant="contained" color="success" startIcon={<IconFileDownload />}
                                 onClick={() => onExportPdf(report)} fullWidth>
-                                PDF Olarak İndir
+                                دانلود PDF
                             </Button>
                             <Button variant="contained" color="primary" startIcon={<IconFileDownload />}
                                 onClick={() => onExportExcel(report)} fullWidth>
-                                Excel Olarak İndir
+                                دانلود Excel
                             </Button>
                         </Stack>
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">Kapat</Button>
+                <Button onClick={onClose} color="secondary">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -266,9 +266,9 @@ const ListCarwarehouseReport = () => {
     }, []);
     const clearAlert = () => { setAlertMessage(null); };
 
-    const handleApiError = useCallback((e: any, defaultMessage: string = 'Bir hata oluştu.') => {
-        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-        else if (e.response?.status === 500) { showAlert('Sistem hatası oluştu, lütfen deneyin.', 'error'); }
+    const handleApiError = useCallback((e: any, defaultMessage: string = 'خطایی رخ داد.') => {
+        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+        else if (e.response?.status === 500) { showAlert('خطای سیستمی رخ داد، لطفاً دوباره تلاش کنید.', 'error'); }
         else { console.error("API Error:", e); showAlert(e.response?.data?.message || defaultMessage, 'error'); }
     }, [navigate, showAlert]);
 
@@ -319,9 +319,9 @@ const ListCarwarehouseReport = () => {
 
                 setWorkhousesList([noWorkhouseOption, ...activeWorkhouses]);
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
-        } catch (e: any) { handleApiError(e, 'Şantiye listesi alınamadı.'); }
+        } catch (e: any) { handleApiError(e, 'فهرست کارگاه‌ها دریافت نشد.'); }
     }, [navigate, showAlert, handleApiError, authToken]);
 
     const fetchCarwarehouseReportData = useCallback(async () => {
@@ -355,7 +355,7 @@ const ListCarwarehouseReport = () => {
             }
         } catch (e: any) {
             setReportData(null);
-            handleApiError(e, 'Rapor verileri alınırken bir sorun oluştu.');
+            handleApiError(e, 'هنگام دریافت داده‌های گزارش مشکلی پیش آمد.');
         } finally {
             setLoadingData(false);
         }
@@ -451,7 +451,7 @@ const ListCarwarehouseReport = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -460,7 +460,7 @@ const ListCarwarehouseReport = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -478,7 +478,7 @@ const ListCarwarehouseReport = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -490,19 +490,19 @@ const ListCarwarehouseReport = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
 
     const handleExportPdfSingle = async (report: CarReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('PDF raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش PDF در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const doc = new jsPDF('portrait', 'pt', 'a4');
@@ -516,16 +516,16 @@ const ListCarwarehouseReport = () => {
 
             addPdfHeader(doc, `Yakıt Kaydı Detayı: ${report.plaque}`);
 
-            const tableColumn = ["Alan (Field)", "Değer (Value)"];
+            const tableColumn = ["فیلد", "مقدار"];
             const tableRows = [
-                ["Plaka", report.plaque], ["Marka / Model", `${report.brand} / ${report.model}`],
-                ["Şantiye", report.workhouse_name || '-'], ["Proje / İş", report.work_title || '-'],
-                ["Personel", personnelFullName],
-                ["Yakıt Tipi", report.fuel_type],
-                ["Yakıt Tarihi", format(new Date(report.fuel_date), 'dd/MM/yyyy HH:mm')],
+                ["پلاک", report.plaque], ["Marka / Model", `${report.brand} / ${report.model}`],
+                ["کارگاه", report.workhouse_name || '-'], ["Proje / İş", report.work_title || '-'],
+                ["پرسنل", personnelFullName],
+                ["نوع سوخت", report.fuel_type],
+                ["تاریخ سوخت‌گیری", format(new Date(report.fuel_date), 'dd/MM/yyyy HH:mm')],
                 ["Miktar (Litre)", report.fuel_amount],
-                ["Birim Fiyat", fuelFeeNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })],
-                ["Toplam Maliyet", totalCostNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })],
+                ["قیمت واحد", fuelFeeNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })],
+                ["هزینه‌ی کل", totalCostNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY' })],
             ];
 
             autoTable(doc, {
@@ -537,9 +537,9 @@ const ListCarwarehouseReport = () => {
             });
 
             doc.save(`Yakıt_Detay_${report.plaque}_${format(new Date(), 'yyyyMMddHHmm')}.pdf`);
-            showAlert('PDF raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('گزارش PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
 
-        } catch (e: any) { handleApiError(e, 'PDF raporu oluşturulurken bir hata oluştu.'); }
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش PDF خطایی رخ داد.'); }
     };
 
     const fetchAllFilteredData = useCallback(async () => {
@@ -599,7 +599,7 @@ const ListCarwarehouseReport = () => {
 
         const allData = await fetchAllFilteredData();
         if (!allData || allData.length === 0) {
-            showAlert('Dışa aktarılacak veri bulunamadı.', 'warning');
+            showAlert('داده‌ای برای خروجی پیدا نشد.', 'warning');
             return;
         }
 
@@ -612,8 +612,8 @@ const ListCarwarehouseReport = () => {
             addPdfHeader(doc, `Araç Yakıt Genel Raporu (${format(new Date(), 'dd/MM/yyyy')})`);
 
             const tableColumn = [
-                "Plaka", "Marka/Model", "Şantiye", "Personel",
-                "Yakıt Tipi", "Yakıt Tarihi", "Miktar (L)", "Birim Fiyat", "Toplam Maliyet"
+                "پلاک", "Marka/Model", "کارگاه", "پرسنل",
+                "نوع سوخت", "تاریخ سوخت‌گیری", "Miktar (L)", "قیمت واحد", "هزینه‌ی کل"
             ];
 
             const tableRows = allData.map(row => {
@@ -644,14 +644,14 @@ const ListCarwarehouseReport = () => {
             });
 
             doc.save(`Tum_Yakıt_Raporu_${format(new Date(), 'yyyyMMddHHmm')}.pdf`);
-            showAlert('PDF raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('گزارش PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) { handleApiError(e, 'Toplu PDF raporu oluşturulurken bir hata oluştu.'); }
     };
 
 
     const handleExportExcelSingle = async (report: CarReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('Excel raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش Excel در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -662,21 +662,21 @@ const ListCarwarehouseReport = () => {
             const fuelFeeNumber = parseCurrencyToNumber(report.fuel_fee);
 
             const data = [
-                ['Plaka', report.plaque], ['Marka / Model', `${report.brand} / ${report.model}`],
-                ['Şantiye', report.workhouse_name || '-'], ['Proje / İş', report.work_title || '-'],
-                ['Personel', personnelFullName],
-                ['Yakıt Tipi', report.fuel_type],
-                ['Yakıt Tarihi', format(new Date(report.fuel_date), 'dd/MM/yyyy HH:mm')],
+                ['پلاک', report.plaque], ['Marka / Model', `${report.brand} / ${report.model}`],
+                ['کارگاه', report.workhouse_name || '-'], ['Proje / İş', report.work_title || '-'],
+                ['پرسنل', personnelFullName],
+                ['نوع سوخت', report.fuel_type],
+                ['تاریخ سوخت‌گیری', format(new Date(report.fuel_date), 'dd/MM/yyyy HH:mm')],
                 ['Miktar (Litre)', report.fuel_amount],
-                ['Birim Fiyat', fuelFeeNumber],
-                ['Toplam Maliyet', totalCostNumber],
+                ['قیمت واحد', fuelFeeNumber],
+                ['هزینه‌ی کل', totalCostNumber],
             ];
 
             const titleRow = sheet.addRow(['Araç Yakıt Kaydı Detayı']);
             titleRow.font = { name: 'Calibri', size: 14, bold: true };
             sheet.mergeCells('A1:B1'); sheet.addRow([]);
 
-            const headerRow = sheet.addRow(['Alan (Field)', 'Değer (Value)']);
+            const headerRow = sheet.addRow(['فیلد', 'مقدار']);
             headerRow.eachCell((cell) => {
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; cell.font = { bold: true };
                 cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
@@ -686,14 +686,14 @@ const ListCarwarehouseReport = () => {
                 const newRow = sheet.addRow(row);
                 newRow.eachCell((cell) => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }; });
                 const fieldName = row[0] as string;
-                if (fieldName.includes('Maliyet') || fieldName.includes('Birim Fiyat')) { newRow.getCell(2).numFmt = '₺ #,##0.00'; }
+                if (fieldName.includes('Maliyet') || fieldName.includes('قیمت واحد')) { newRow.getCell(2).numFmt = '₺ #,##0.00'; }
             });
 
             sheet.columns[0].width = 25; sheet.columns[1].width = 35;
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Yakıt_Detay_${report.plaque}_${format(new Date(), 'yyyyMMddHHmm')}.xlsx`);
-            showAlert('Excel raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'Excel raporu oluşturulurken bir hata oluştu.'); }
+            showAlert('گزارش Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش Excel خطایی رخ داد.'); }
     };
 
 
@@ -702,7 +702,7 @@ const ListCarwarehouseReport = () => {
 
         const allData = await fetchAllFilteredData();
         if (!allData || allData.length === 0) {
-            showAlert('Dışa aktarılacak veri bulunamadı.', 'warning');
+            showAlert('داده‌ای برای خروجی پیدا نشد.', 'warning');
             return;
         }
 
@@ -711,8 +711,8 @@ const ListCarwarehouseReport = () => {
             const sheet = workbook.addWorksheet('Tüm Yakıt Kayıtları', { views: [{ rightToLeft: false }] });
 
             const tableColumn = [
-                "Plaka", "Marka", "Model", "Şantiye Adı", "Şantiye Kodu", "Proje Adı", "Personel Adı", "Personel Soyadı",
-                "Yakıt Tipi", "Yakıt Tarihi", "Miktar (L)", "Birim Fiyat (TL)", "Toplam Maliyet (TL)"
+                "پلاک", "Marka", "Model", "نام کارگاه", "کد کارگاه", "نام پروژه", "نام پرسنل", "Personel Soyadı",
+                "نوع سوخت", "تاریخ سوخت‌گیری", "Miktar (L)", "Birim Fiyat (TL)", "Toplam Maliyet (TL)"
             ];
 
             const headerRow = sheet.addRow(tableColumn);
@@ -742,7 +742,7 @@ const ListCarwarehouseReport = () => {
 
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Tum_Yakıt_Raporu_${format(new Date(), 'yyyyMMddHHmm')}.xlsx`);
-            showAlert('Excel raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('گزارش Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (e: any) { handleApiError(e, 'Toplu Excel raporu oluşturulurken bir hata oluştu.'); }
     };
 
@@ -756,13 +756,13 @@ const ListCarwarehouseReport = () => {
 
 
     const tableHeaders = [
-        { label: 'Plaka', key: 'plaque' },
+        { label: 'پلاک', key: 'plaque' },
         { label: 'Marka / Model', key: 'brand_model' },
-        { label: 'Şantiye', key: 'workhouse_name' },
-        { label: 'Yakıt Tipi', key: 'fuel_type' },
-        { label: 'Miktar', key: 'fuel_amount' },
-        { label: 'Birim Fiyat', key: 'fuel_fee' },
-        { label: 'Toplam', key: 'total_price' },
+        { label: 'کارگاه', key: 'workhouse_name' },
+        { label: 'نوع سوخت', key: 'fuel_type' },
+        { label: 'مقدار', key: 'fuel_amount' },
+        { label: 'قیمت واحد', key: 'fuel_fee' },
+        { label: 'جمع', key: 'total_price' },
         { label: '', key: 'actions' },
     ];
 
@@ -785,13 +785,13 @@ const ListCarwarehouseReport = () => {
                             getOptionLabel={(o) => o.id === -1 ? o.name : `${o.name} (${o.code})`}
                             value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null}
                             onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)}
-                            renderInput={(params) => (<TextField {...params} label="Şantiye" fullWidth size="small" />)}
+                            renderInput={(params) => (<TextField {...params} label="کارگاه" fullWidth size="small" />)}
                         />
                     </Grid>
                     <Grid item xs={12} sm={4} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Başlangıç Tarihi"
+                                label="تاریخ شروع"
                                 value={startDate}
                                 onChange={(v) => setStartDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -827,7 +827,7 @@ const ListCarwarehouseReport = () => {
                     <Grid item xs={12} sm={4} md={3}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Bitiş Tarihi"
+                                label="تاریخ پایان"
                                 value={endDate}
                                 onChange={(v) => setEndDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -873,10 +873,10 @@ const ListCarwarehouseReport = () => {
                         </Grid>
                         <Grid item xs={12} md={6} display="flex" justifyContent="flex-end" gap={1}>
                             <Button variant="outlined" color="success" startIcon={<IconFileSpreadsheet />} onClick={handleExportExcelAll} disabled={loadingData || !reportData?.data?.length}>
-                                Tüm Veriyi Excel İndir
+                                دانلود همه‌ی داده‌ها در Excel
                             </Button>
                             <Button variant="outlined" color="error" startIcon={<IconFileDownload />} onClick={handleExportPdfAll} disabled={loadingData || !reportData?.data?.length}>
-                                Tüm Veriyi PDF İndir
+                                دانلود همه‌ی داده‌ها در PDF
                             </Button>
                         </Grid>
                     </Grid>
@@ -925,7 +925,7 @@ const ListCarwarehouseReport = () => {
                                             <StyledTableCell>{fuelFeeNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 })}</StyledTableCell>
                                             <StyledTableCell><Typography color="primary">{totalCostNumber.toLocaleString('us-US', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 })}</Typography></StyledTableCell>
                                             <StyledTableCell>
-                                                <Tooltip title="Detaylar ve İşlemler">
+                                                <Tooltip title="جزئیات و عملیات">
                                                     <IconButton
                                                         id={`actions-button-${index}`}
                                                         onClick={(event) => handleClickMenu(event, row)}
@@ -940,13 +940,13 @@ const ListCarwarehouseReport = () => {
                                                     onClose={handleCloseMenu}
                                                 >
                                                     <MenuItem onClick={() => handleOpenDetailViewModal(row)}>
-                                                        <ListItemIcon><IconRuler width={18} /></ListItemIcon> Detayları Görüntüle
+                                                        <ListItemIcon><IconRuler width={18} /></ListItemIcon> مشاهده‌ی جزئیات
                                                     </MenuItem>
                                                     <MenuItem onClick={() => handleExportPdfSingle(row)}>
-                                                        <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> PDF İndir
+                                                        <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود PDF
                                                     </MenuItem>
                                                     <MenuItem onClick={() => handleExportExcelSingle(row)}>
-                                                        <ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> Excel İndir
+                                                        <ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> دانلود Excel
                                                     </MenuItem>
                                                 </Menu>
                                             </StyledTableCell>
@@ -991,7 +991,7 @@ const ListCarwarehouseReport = () => {
                             page={page}
                             onPageChange={handleChangePage}
                             onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Satır sayısı:"
+                            labelRowsPerPage="تعداد ردیف‌ها:"
                             labelDisplayedRows={({ from, to, count }) =>
                                 `${from}–${to} / ${count !== -1 ? count : `> ${to}`}`
                             }

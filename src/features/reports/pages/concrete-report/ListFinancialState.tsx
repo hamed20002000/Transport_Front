@@ -159,7 +159,7 @@ const ListFinancialState = () => {
             doc.setFontSize(14);
             doc.text("Genel Finansal Rapor", pageWidth / 2, 25, { align: 'center' });
             doc.setFontSize(10);
-            doc.text(`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`, 15, 35);
+            doc.text(`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`, 15, 35);
             doc.line(15, 40, pageWidth - 15, 40);
         };
 
@@ -168,13 +168,13 @@ const ListFinancialState = () => {
             doc.setTextColor(100);
             const companyInfo = [
                 'ترابوت',
-                'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                'ترابوت، دستیار هوشمند حمل‌ونقل',
                 'دستیار هوشمند حمل‌ونقل'
             ];
             let footerY = pageHeight - 40;
             companyInfo.forEach(line => { doc.text(line, pageWidth / 2, footerY, { align: 'center' }); footerY += 10; });
             doc.setTextColor(0);
-            doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+            doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
             doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
         };
 
@@ -190,7 +190,7 @@ const ListFinancialState = () => {
         addHeader(doc);
         autoTable(doc, {
             startY: 50,
-            head: [["Açıklama", "Değer"]],
+            head: [["توضیحات", "مقدار"]],
             body: tableBody,
             styles: { font: 'NotoSans', fontSize: 10 },
             headStyles: { fillColor: [33, 150, 243] },
@@ -203,7 +203,7 @@ const ListFinancialState = () => {
     const exportExcel = async () => {
         const workbook = new Excel.Workbook();
         const sheet = workbook.addWorksheet('Finansal Rapor');
-        sheet.addRow(['Açıklama', 'Değer']);
+        sheet.addRow(['توضیحات', 'مقدار']);
         sheet.addRows([
             ['Beton Miktarı', stats?.totalBetonQuantity],
             ['Beton Bedeli', stats?.totalBetonPrice],
@@ -249,7 +249,7 @@ const ListFinancialState = () => {
                             getOptionLabel={(o) => o.title || ""}
                             value={selections.tender}
                             onChange={(_, v) => setSelections({ tender: v, work: null, workhouse: null, project: null })}
-                            renderInput={(p) => <TextField {...p} label="İhale" size="small" />}
+                            renderInput={(p) => <TextField {...p} label="مناقصه" size="small" />}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
@@ -259,7 +259,7 @@ const ListFinancialState = () => {
                             value={selections.work}
                             disabled={!selections.tender}
                             onChange={(_, v) => setSelections(p => ({ ...p, work: v, workhouse: null, project: null }))}
-                            renderInput={(p) => <TextField {...p} label="İş" size="small" />}
+                            renderInput={(p) => <TextField {...p} label="کار" size="small" />}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
@@ -269,7 +269,7 @@ const ListFinancialState = () => {
                             value={selections.workhouse}
                             disabled={!selections.work}
                             onChange={(_, v) => setSelections(p => ({ ...p, workhouse: v, project: null }))}
-                            renderInput={(p) => <TextField {...p} label="Şantiye" size="small" />}
+                            renderInput={(p) => <TextField {...p} label="کارگاه" size="small" />}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
@@ -279,7 +279,7 @@ const ListFinancialState = () => {
                             value={selections.project}
                             disabled={!selections.workhouse}
                             onChange={(_, v) => setSelections(p => ({ ...p, project: v }))}
-                            renderInput={(p) => <TextField {...p} label="Proje" size="small" />}
+                            renderInput={(p) => <TextField {...p} label="پروژه" size="small" />}
                         />
                     </Grid>
                 </Grid>

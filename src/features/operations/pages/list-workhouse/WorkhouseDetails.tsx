@@ -34,8 +34,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -224,12 +224,12 @@ const WorkhouseDetails = () => {
                 showAlert('Genel şantiye bilgileri alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [workhouseId, navigate]);
 
@@ -257,12 +257,12 @@ const WorkhouseDetails = () => {
                 showAlert(response.data.message || 'Şantiye detayları alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -314,17 +314,17 @@ const WorkhouseDetails = () => {
 
         if (!owner.trim()) {
             setOwnerError(true);
-            setFormErrors("Lütfen tüm zorunlu alanları doldurun.");
+            setFormErrors("لطفاً همه‌ی فیلدهای الزامی را پر کنید.");
             isValid = false;
         }
         if (price === '' || isNaN(Number(price))) {
             setPriceError(true);
-            setFormErrors("Lütfen tüm zorunlu alanları doldurun.");
+            setFormErrors("لطفاً همه‌ی فیلدهای الزامی را پر کنید.");
             isValid = false;
         }
         if (rentStartDate && rentEndDate && rentEndDate < rentStartDate) {
             setEndDateError(true);
-            setFormErrors("Bitiş tarihi başlangıç tarihinden önce olamaz!");
+            setFormErrors("تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد!");
             isValid = false;
         }
         return isValid;
@@ -355,7 +355,7 @@ const WorkhouseDetails = () => {
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+            showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -378,7 +378,7 @@ const WorkhouseDetails = () => {
                     const fileUrls = uploadResponse.data.data.files;
                     attachmentsPayload = fileUrls.map((url: string) => ({ fileUrl: url }));
                 } else {
-                    showAlert('Dosyalar yüklenirken bir hata oluştu.', 'error');
+                    showAlert('هنگام بارگذاری فایل‌ها خطایی رخ داد.', 'error');
                     setLoadingButton(false);
                     return;
                 }
@@ -407,12 +407,12 @@ const WorkhouseDetails = () => {
                 showAlert(response.data.message || 'Şantiye detayı oluşturulurken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -430,7 +430,7 @@ const WorkhouseDetails = () => {
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error');
+            showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -456,7 +456,7 @@ const WorkhouseDetails = () => {
                     const newFileUrls = uploadResponse.data.data.files;
                     newAttachmentsPayload = newFileUrls.map((url: string) => ({ fileUrl: url }));
                 } else {
-                    showAlert('Dosyalar yüklenirken bir hata oluştu.', 'error');
+                    showAlert('هنگام بارگذاری فایل‌ها خطایی رخ داد.', 'error');
                     setLoadingButton(false);
                     return;
                 }
@@ -495,11 +495,11 @@ const WorkhouseDetails = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Şantiye detayı güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -607,12 +607,12 @@ const WorkhouseDetails = () => {
 
     const handleDownloadClick = (fileUrl: string) => {
         if (!fileUrl) {
-            showAlert('Dosya adresi geçersiz.', 'error');
+            showAlert('آدرس فایل نامعتبر است.', 'error');
             return;
         }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
 
     const handleChangePage = (_event: unknown, newPage: number) => {
@@ -654,7 +654,7 @@ const WorkhouseDetails = () => {
                         sx={{ marginBottom: { xs: 1, sm: 0 } }}
                     />
                     <Chip
-                        label={`Kod: ${workhouseDetail?.code}`}
+                        label={`کد: ${workhouseDetail?.code}`}
                         color="default"
                         variant="outlined"
                         size="small"
@@ -681,7 +681,7 @@ const WorkhouseDetails = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained"
                                 color="error"
@@ -693,10 +693,10 @@ const WorkhouseDetails = () => {
                             </Button>
                         </CustomTooltip>
                     )}
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                         <Button variant="outlined" color="error" onClick={() => navigate(-1)}
                             endIcon={<IconArrowRight size={20} />}>
-                            Geri Dön
+                            بازگشت
                         </Button>
                     </CustomTooltip>
 
@@ -745,7 +745,7 @@ const WorkhouseDetails = () => {
                             <Grid item xs={12} sm={3}>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                     <CustomFormLabel htmlFor="start-date" required>
-                                        Kira Başlangıç Tarihi
+                                        تاریخ شروع اجاره
                                     </CustomFormLabel>
                                     <DatePicker
                                         label=""
@@ -755,7 +755,7 @@ const WorkhouseDetails = () => {
                                             if (startDateError && newValue) setStartDateError(false);
                                             if (rentEndDate && newValue && newValue > rentEndDate) {
                                                 setEndDateError(true);
-                                                setFormErrors("Bitiş tarihi başlangıç tarihinden önce olamaz!");
+                                                setFormErrors("تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد!");
                                             } else {
                                                 setEndDateError(false);
                                                 setFormErrors(null);
@@ -768,7 +768,7 @@ const WorkhouseDetails = () => {
                                                 size="small"
                                                 sx={{ width: '100%' }}
                                                 error={startDateError}
-                                                helperText={startDateError ? "Başlangıç tarihi boş olamaz!" : formErrors || ""}
+                                                helperText={startDateError ? "تاریخ شروع نمی‌تواند خالی باشد!" : formErrors || ""}
                                             />
                                         )}
                                     />
@@ -778,7 +778,7 @@ const WorkhouseDetails = () => {
                             <Grid item xs={12} sm={3}>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                     <CustomFormLabel htmlFor="end-date" required>
-                                        Kira Bitiş Tarihi
+                                        تاریخ پایان اجاره
                                     </CustomFormLabel>
                                     <DatePicker
                                         label=""
@@ -788,7 +788,7 @@ const WorkhouseDetails = () => {
                                             if (endDateError && newValue) setEndDateError(false);
                                             if (rentStartDate && newValue && newValue < rentStartDate) {
                                                 setEndDateError(true);
-                                                setFormErrors("Bitiş tarihi başlangıç tarihinden önce olamaz!");
+                                                setFormErrors("تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد!");
                                             } else {
                                                 setEndDateError(false);
                                                 setFormErrors(null);
@@ -809,10 +809,10 @@ const WorkhouseDetails = () => {
                             </Grid>
 
                             <Grid item xs={12} sm={12}>
-                                <CustomFormLabel htmlFor="workhouse-description">Açıklama</CustomFormLabel>
+                                <CustomFormLabel htmlFor="workhouse-description">توضیحات</CustomFormLabel>
                                 <CustomTextField
                                     id="workhouse-description"
-                                    placeholder="Açıklama"
+                                    placeholder="توضیحات"
                                     multiline
                                     rows={4}
                                     fullWidth
@@ -845,7 +845,7 @@ const WorkhouseDetails = () => {
                         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
                             <CustomFormLabel htmlFor="workhouse-attachments">Ekler</CustomFormLabel>
                             <Button size="small" onClick={() => fileInputRef.current?.click()} startIcon={<IconPlus />} variant="outlined">
-                                Dosya Ekle
+                                افزودن فایل
                             </Button>
                             <input
                                 type="file"
@@ -868,7 +868,7 @@ const WorkhouseDetails = () => {
                                 ))
                             ) : (
                                 <Typography variant="body2" color="textSecondary" sx={{ m: 'auto' }}>
-                                    Henüz eklenmiş dosya yok.
+                                    هنوز فایلی اضافه نشده است.
                                 </Typography>
                             )}
                         </Box>
@@ -880,10 +880,10 @@ const WorkhouseDetails = () => {
                                 {isEditing ? (
                                     <>
                                         <Button variant="contained" color="primary" onClick={handleUpdateDetails} disabled={loadingButton || startDateError || endDateError}>
-                                            {loadingButton ? 'Bekleniyor...' : 'Güncellemeyi Kaydet'}
+                                            {loadingButton ? 'Bekleniyor...' : 'ذخیره‌ی تغییرات'}
                                         </Button>
                                         <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                            İptal Et
+                                            لغو
                                         </Button>
                                     </>
                                 ) : (
@@ -909,7 +909,7 @@ const WorkhouseDetails = () => {
                 {loadingData ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                         <CircularProgress />
-                        <Typography variant="h6" sx={{ ml: 2 }}>Veriler yükleniyor...</Typography>
+                        <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری داده‌ها...</Typography>
                     </Box>
                 ) : (
                     <Table aria-label="Kira tablosu">
@@ -922,13 +922,13 @@ const WorkhouseDetails = () => {
                                     <Typography variant="h6">Kirası</Typography>
                                 </StyledTableCell>
                                 <StyledTableCell sx={{ color: "#171c23" }}>
-                                    <Typography variant="h6">Açıklama</Typography>
+                                    <Typography variant="h6">توضیحات</Typography>
                                 </StyledTableCell>
                                 <StyledTableCell sx={{ color: "#171c23" }}>
-                                    <Typography variant="h6">Kira Başlangıç</Typography>
+                                    <Typography variant="h6">شروع اجاره</Typography>
                                 </StyledTableCell>
                                 <StyledTableCell sx={{ color: "#171c23" }}>
-                                    <Typography variant="h6">Kira Bitiş</Typography>
+                                    <Typography variant="h6">پایان اجاره</Typography>
                                 </StyledTableCell>
                                 <StyledTableCell sx={{ color: "#171c23" }}>
                                     <Typography variant="h6">Abonelik</Typography>
@@ -955,14 +955,14 @@ const WorkhouseDetails = () => {
 
                                         <StyledTableCell sx={{ maxWidth: 150 }}>
                                             {entry.description && entry.description.trim().length > 0 ? (
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                     <Button
 
                                                         variant="outlined"
                                                         style={{ fontSize: "10px", padding: "2px 5px" }}
                                                         onClick={() => handleOpenDescriptionModal(entry.description)}
                                                     >
-                                                        Açıklamayı Oku
+                                                        خواندن توضیحات
                                                     </Button>
                                                 </CustomTooltip>
                                             ) : (
@@ -1001,7 +1001,7 @@ const WorkhouseDetails = () => {
                                             )}
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                 <IconButton
                                                     id={`basic-button-${entry.id}`}
                                                     aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1019,13 +1019,13 @@ const WorkhouseDetails = () => {
                                                 onClose={handleCloseMenu}
                                                 MenuListProps={{ 'aria-labelledby': `basic-button-${selectedRowForMenu?.id}` }}
                                             >
-                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı düzenle" : ""}>
+                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "ویرایش این رکورد" : ""}>
                                                     <UiMenuItem onClick={() => handleEditClick(selectedRowForMenu)}>
                                                         <ListItemIcon><IconEdit width={18} /></ListItemIcon>
-                                                        Düzenle
+                                                        ویرایش
                                                     </UiMenuItem>
                                                 </CustomTooltip>
-                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı sil" : ""}>
+                                                <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "حذف این رکورد" : ""}>
                                                     <UiMenuItem onClick={() => handleClickOpenDeleteModal(selectedRowForMenu)}>
                                                         <ListItemIcon><IconTrash width={18} /></ListItemIcon>
                                                         Silmek
@@ -1057,16 +1057,16 @@ const WorkhouseDetails = () => {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Satır başına düşen:"
+                labelRowsPerPage="تعداد در هر صفحه:"
                 labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
             />
             <Dialog open={openDescriptionModal} onClose={handleCloseDescriptionModal} maxWidth="sm" fullWidth>
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <Typography variant="body1">{fullDescription}</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDescriptionModal} color="primary">Kapat</Button>
+                    <Button onClick={handleCloseDescriptionModal} color="primary">بستن</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={openAttachmentsModal} onClose={handleCloseAttachmentsModal} maxWidth="sm" fullWidth>
@@ -1080,7 +1080,7 @@ const WorkhouseDetails = () => {
                     ))}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseAttachmentsModal} color="primary">Kapat</Button>
+                    <Button onClick={handleCloseAttachmentsModal} color="primary">بستن</Button>
                 </DialogActions>
             </Dialog>
             <SubscriptionModal

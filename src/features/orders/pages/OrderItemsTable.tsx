@@ -98,10 +98,10 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                 <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ width: 170 }}>Ürün</TableCell>
-                            <TableCell sx={{ width: 100 }}>Miktar</TableCell>
-                            <TableCell sx={{ width: 150 }}>Açıklama</TableCell>
-                            <TableCell sx={{ width: 100 }}>Fiyat</TableCell>
+                            <TableCell sx={{ width: 170 }}>کالا</TableCell>
+                            <TableCell sx={{ width: 100 }}>مقدار</TableCell>
+                            <TableCell sx={{ width: 150 }}>توضیحات</TableCell>
+                            <TableCell sx={{ width: 100 }}>قیمت</TableCell>
                             <TableCell sx={{ width: 100 }} align="right"></TableCell>
                         </TableRow>
                     </TableHead>
@@ -125,7 +125,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                                                 onChange={(_event, newValue) => {
                                                     onItemChange(item.id, 'item', newValue ? newValue.id : '');
                                                 }}
-                                                renderInput={(params) => <TextField {...params} label="Ürün" variant="outlined" size="small" />}
+                                                renderInput={(params) => <TextField {...params} label="کالا" variant="outlined" size="small" />}
                                                 sx={{ flexGrow: 1, minWidth: 150 }}
                                             />
                                             {item.unit?.title && <Chip label={item.unit.title} color="secondary" variant="outlined" />}
@@ -235,12 +235,12 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
             </TableContainer>
 
             <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-                <DialogTitle>Açıklama</DialogTitle>
+                <DialogTitle>توضیحات</DialogTitle>
                 <DialogContent dividers>
                     <Typography>{modalContent}</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseModal}>Kapat</Button>
+                    <Button onClick={handleCloseModal}>بستن</Button>
                 </DialogActions>
             </Dialog>
         </Paper>

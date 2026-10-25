@@ -298,9 +298,9 @@ const CompareComponent = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const hasStatusPermission = useMemo(() => hasPermission("Onaylamak"), [allowedOperations, currentMenuOpIds]);
 
@@ -311,8 +311,8 @@ const CompareComponent = () => {
             const date = new Date(dateString);
             return format(date, 'dd MMMM yyyy', { locale: tr });
         } catch (e) {
-            console.log("Tarih biçimlendirilirken hata oluştu:", e);
-            return "Geçersiz Tarih";
+            console.log("خطا در قالب‌بندی تاریخ:", e);
+            return "تاریخ نامعتبر";
         }
     };
     const cleanAndFormatPrice = (priceInput: string | number | null | undefined): string => {
@@ -351,7 +351,7 @@ const CompareComponent = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -360,7 +360,7 @@ const CompareComponent = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 40);
+        doc.text(`تاریخ گزارش:`, 15, 40);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -378,7 +378,7 @@ const CompareComponent = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -390,12 +390,12 @@ const CompareComponent = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
@@ -420,22 +420,22 @@ const CompareComponent = () => {
 
         autoTable(doc, {
             startY: 105,
-            head: [['Ürün Adı', 'Miktar', 'Birim', 'Açıklama', 'Fiyat']],
+            head: [['نام کالا', 'مقدار', 'واحد', 'توضیحات', 'قیمت']],
             body: rows,
             theme: 'grid',
             styles: { font: 'Arial', fontStyle: 'normal', fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
             headStyles: { fillColor: [242, 242, 242], textColor: [0, 0, 0] },
             didDrawPage: (data) => {
                 if (data.pageNumber === 1) {
-                    addPdfHeader(doc, `Sipariş Detayları`);
+                    addPdfHeader(doc, `جزئیات سفارش`);
                     doc.setFont('Arial');
                     doc.setFontSize(10);
-                    doc.text(`Sipariş No: ${orderData.id}`, 15, 54);
-                    doc.text(`Şebeke: ${orderData.network ? orderData.network.title : '-'}`, 15, 60);
-                    doc.text(`Şantiye: ${orderData.workhouse ? orderData.workhouse.name : '-'}`, 15, 67); // تغییر Y coordinate بقیه
-                    doc.text(`Tarih: ${formatDateDisplay(orderData.docDate)}`, 15, 75); // Y += 7
-                    doc.text(`İlişkili Talep No: ${orderData.request ? '#' + orderData.request.id + orderData.request.subject : '-'}`, 15, 82); // Y += 7
-                    doc.text(`Genel Açıklama: ${orderData.description || '-'}`, 15, 90);
+                    doc.text(`شماره سفارش: ${orderData.id}`, 15, 54);
+                    doc.text(`شبکه: ${orderData.network ? orderData.network.title : '-'}`, 15, 60);
+                    doc.text(`کارگاه: ${orderData.workhouse ? orderData.workhouse.name : '-'}`, 15, 67); // تغییر Y coordinate بقیه
+                    doc.text(`تاریخ: ${formatDateDisplay(orderData.docDate)}`, 15, 75); // Y += 7
+                    doc.text(`شماره درخواست مرتبط: ${orderData.request ? '#' + orderData.request.id + orderData.request.subject : '-'}`, 15, 82); // Y += 7
+                    doc.text(`توضیحات کلی: ${orderData.description || '-'}`, 15, 90);
                 }
                 addPdfFooter(doc);
             },
@@ -475,7 +475,7 @@ const CompareComponent = () => {
 
             autoTable(doc, {
                 startY: finalY + 10,
-                head: [['Birim', 'Toplam Miktar', 'Toplam Tutar']],
+                head: [['واحد', 'مقدار کل', 'مبلغ کل']],
                 body: summaryRows,
                 theme: 'grid',
                 styles: { font: 'Arial', fontSize: 10 },
@@ -486,11 +486,11 @@ const CompareComponent = () => {
             doc.setFontSize(12);
             doc.setFont('Arial', 'normal');
             if (grandTotalPrice > 0) {
-                doc.text(`Genel Toplam: ${cleanAndFormatPrice(grandTotalPrice)}`, 15, priceSummaryY);
+                doc.text(`جمع کل: ${cleanAndFormatPrice(grandTotalPrice)}`, 15, priceSummaryY);
             }
         }
 
-        doc.save(`Sipariş_${orderData.id}_Detayları.pdf`);
+        doc.save(`سفارش_${orderData.id}_Detayları.pdf`);
     };
 
 
@@ -513,15 +513,15 @@ const CompareComponent = () => {
         dataToExport.forEach((order, index) => {
             if (index > 0) doc.addPage();
 
-            const title = filtered ? 'Filtrelenmiş Sipariş Raporu' : 'Tüm Siparişler Raporu';
+            const title = filtered ? 'گزارش سفارش‌های فیلترشده' : 'Tüm Siparişler Raporu';
             addPdfHeader(doc, title);
             doc.setFontSize(10);
-            doc.text(`Sipariş No: ${order.id}`, 15, 54);
-            doc.text(`Şebeke: ${order.network ? order.network.title : '-'}`, 15, 60);
-            doc.text(`Şantiye: ${order.workhouse ? order.workhouse.name : '-'}`, 15, 66);
-            doc.text(`Tarih: ${formatDateDisplay(order.docDate)}`, 15, 75);
-            doc.text(`İlişkili Talep No: ${order.request ? '#' + order.request.id + order.request.subject : '-'}`, 15, 82); // Y += 7
-            doc.text(`Genel Açıklama: ${order.description || '-'}`, 15, 90);
+            doc.text(`شماره سفارش: ${order.id}`, 15, 54);
+            doc.text(`شبکه: ${order.network ? order.network.title : '-'}`, 15, 60);
+            doc.text(`کارگاه: ${order.workhouse ? order.workhouse.name : '-'}`, 15, 66);
+            doc.text(`تاریخ: ${formatDateDisplay(order.docDate)}`, 15, 75);
+            doc.text(`شماره درخواست مرتبط: ${order.request ? '#' + order.request.id + order.request.subject : '-'}`, 15, 82); // Y += 7
+            doc.text(`توضیحات کلی: ${order.description || '-'}`, 15, 90);
 
             const rows = order.orderDetails.map(detail => [
                 detail.item.name || '-',
@@ -533,7 +533,7 @@ const CompareComponent = () => {
 
             autoTable(doc, {
                 startY: 105,
-                head: [['Ürün Adı', 'Miktar', 'Birim', 'Açıklama', 'Fiyat']],
+                head: [['نام کالا', 'مقدار', 'واحد', 'توضیحات', 'قیمت']],
                 body: rows,
                 theme: 'grid',
                 styles: { font: 'Arial', fontStyle: 'normal', fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
@@ -576,7 +576,7 @@ const CompareComponent = () => {
 
                 autoTable(doc, {
                     startY: finalY + 10,
-                    head: [['Birim', 'Toplam Miktar', 'Toplam Tutar']],
+                    head: [['واحد', 'مقدار کل', 'مبلغ کل']],
                     body: summaryRows,
                     theme: 'grid',
                     styles: { font: 'Arial', fontSize: 10 },
@@ -587,14 +587,14 @@ const CompareComponent = () => {
                 doc.setFontSize(12);
                 doc.setFont('Arial', 'normal');
                 if (grandTotalPrice > 0) {
-                    doc.text(`Genel Toplam: ${cleanAndFormatPrice(grandTotalPrice)}`, 15, priceSummaryY);
+                    doc.text(`جمع کل: ${cleanAndFormatPrice(grandTotalPrice)}`, 15, priceSummaryY);
                 }
             }
         });
 
         const fileName = filtered ? 'Filtrelenmis_Siparisler.pdf' : 'Tum_Siparisler.pdf';
         doc.save(fileName);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
 
         setOpenDownloadAllModal(false);
         setOpenDownloadFilteredModal(false);
@@ -604,7 +604,7 @@ const CompareComponent = () => {
     const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number) => {
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل',
         ];
 
@@ -621,28 +621,28 @@ const CompareComponent = () => {
 
     const exportToExcel = (orderData: OrderType) => {
         const workbook = new Excel.Workbook();
-        const worksheet = workbook.addWorksheet('Sipariş Detayları');
+        const worksheet = workbook.addWorksheet('جزئیات سفارش');
 
         worksheet.views = [{ rightToLeft: false }];
 
-        worksheet.addRow(['Sipariş Detayları']).font = { name: 'Arial', size: 12, bold: true };
+        worksheet.addRow(['جزئیات سفارش']).font = { name: 'Arial', size: 12, bold: true };
         worksheet.mergeCells('A1:E1');
         worksheet.getCell('A1').alignment = { horizontal: 'center' };
-        worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+        worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
         worksheet.getCell('A2').font = { name: 'Arial', size: 10, bold: false };
         worksheet.getCell('A2').alignment = { horizontal: 'left' };
         worksheet.addRow([]);
 
-        worksheet.addRow(['Sipariş No', orderData.id]);
-        worksheet.addRow(['Şebeke', orderData.network ? orderData.network.title : '-']);
-        worksheet.addRow(['Şantiye', orderData.workhouse ? orderData.workhouse.name : '-']);
-        worksheet.addRow(['Tarih', formatDateDisplay(orderData.docDate)]);
-        worksheet.addRow(['İlişkili Talep No', orderData.request ? '#' + orderData.request.id + orderData.request.subject : '-']);
+        worksheet.addRow(['شماره سفارش', orderData.id]);
+        worksheet.addRow(['شبکه', orderData.network ? orderData.network.title : '-']);
+        worksheet.addRow(['کارگاه', orderData.workhouse ? orderData.workhouse.name : '-']);
+        worksheet.addRow(['تاریخ', formatDateDisplay(orderData.docDate)]);
+        worksheet.addRow(['شماره درخواست مرتبط', orderData.request ? '#' + orderData.request.id + orderData.request.subject : '-']);
 
-        worksheet.addRow(['Genel Açıklama', orderData.description || '-']);
+        worksheet.addRow(['توضیحات کلی', orderData.description || '-']);
         worksheet.addRow([]);
 
-        const tableHeaders = ['Ürün', 'ÖLÇÜ', 'Miktar', 'Açıklama', 'Fiyat'];
+        const tableHeaders = ['کالا', 'واحد اندازه‌گیری', 'مقدار', 'توضیحات', 'قیمت'];
         const headerRow = worksheet.addRow(tableHeaders);
         headerRow.font = { name: 'Arial', bold: true };
         headerRow.eachCell(cell => {
@@ -697,9 +697,9 @@ const CompareComponent = () => {
 
         if (summaryData.size > 0) {
             worksheet.addRow([]);
-            worksheet.addRow(['Birim Bazlı Toplamlar']).font = { name: 'Arial', size: 12, bold: true };
+            worksheet.addRow(['جمع بر اساس واحد']).font = { name: 'Arial', size: 12, bold: true };
 
-            const summaryHeaders = ['Birim', 'Toplam Miktar', 'Toplam Tutar'];
+            const summaryHeaders = ['واحد', 'مقدار کل', 'مبلغ کل'];
             const summaryHeaderRow = worksheet.addRow(summaryHeaders);
             summaryHeaderRow.font = { name: 'Arial', bold: true };
             summaryHeaderRow.eachCell(cell => {
@@ -721,7 +721,7 @@ const CompareComponent = () => {
 
         if (grandTotalPrice > 0) {
             worksheet.addRow([]);
-            const grandTotalRow = worksheet.addRow(['Genel Toplam', '', cleanAndFormatPrice(grandTotalPrice)]);
+            const grandTotalRow = worksheet.addRow(['جمع کل', '', cleanAndFormatPrice(grandTotalPrice)]);
             grandTotalRow.font = { name: 'Arial', bold: true, size: 11 };
         }
 
@@ -729,7 +729,7 @@ const CompareComponent = () => {
         addExcelCompanyInfo(worksheet, startRow);
 
         workbook.xlsx.writeBuffer().then(buffer => {
-            saveAs(new Blob([buffer]), `Sipariş_${orderData.id}_Detayları.xlsx`);
+            saveAs(new Blob([buffer]), `سفارش_${orderData.id}_Detayları.xlsx`);
         });
     };
 
@@ -743,26 +743,26 @@ const CompareComponent = () => {
         const workbook = new Excel.Workbook();
 
         dataToExport.forEach((order) => {
-            const worksheet = workbook.addWorksheet(`Sipariş_${order.id}`);
+            const worksheet = workbook.addWorksheet(`سفارش_${order.id}`);
             worksheet.views = [{ rightToLeft: false }];
 
-            worksheet.addRow([`Sipariş Detayları`]).font = { name: 'Arial', size: 12, bold: true };
+            worksheet.addRow([`جزئیات سفارش`]).font = { name: 'Arial', size: 12, bold: true };
             worksheet.mergeCells('A1:E1');
             worksheet.getCell('A1').alignment = { horizontal: 'center' };
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             worksheet.getCell('A2').font = { name: 'Arial', size: 10, bold: false };
             worksheet.getCell('A2').alignment = { horizontal: 'left' };
             worksheet.addRow([]);
 
-            worksheet.addRow(['Sipariş No', order.id]);
-            worksheet.addRow(['Şebeke', order.network ? order.network.title : '-']);
-            worksheet.addRow(['Şantiye', order.workhouse ? order.workhouse.name : '-']);
-            worksheet.addRow(['Tarih', formatDateDisplay(order.docDate)]);
-            worksheet.addRow(['İlişkili Talep No', order.request ? '#' + order.request.id + order.request.subject : '-']);
-            worksheet.addRow(['Genel Açıklama', order.description || '-']);
+            worksheet.addRow(['شماره سفارش', order.id]);
+            worksheet.addRow(['شبکه', order.network ? order.network.title : '-']);
+            worksheet.addRow(['کارگاه', order.workhouse ? order.workhouse.name : '-']);
+            worksheet.addRow(['تاریخ', formatDateDisplay(order.docDate)]);
+            worksheet.addRow(['شماره درخواست مرتبط', order.request ? '#' + order.request.id + order.request.subject : '-']);
+            worksheet.addRow(['توضیحات کلی', order.description || '-']);
             worksheet.addRow([]);
 
-            const tableHeaders = ['Ürün', 'ÖLÇÜ', 'Miktar', 'Açıklama', 'Fiyat'];
+            const tableHeaders = ['کالا', 'واحد اندازه‌گیری', 'مقدار', 'توضیحات', 'قیمت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.font = { name: 'Arial', bold: true };
             headerRow.eachCell(cell => {
@@ -818,9 +818,9 @@ const CompareComponent = () => {
 
             if (summaryData.size > 0) {
                 worksheet.addRow([]);
-                worksheet.addRow(['Birim Bazlı Toplamlar']).font = { name: 'Arial', size: 12, bold: true };
+                worksheet.addRow(['جمع بر اساس واحد']).font = { name: 'Arial', size: 12, bold: true };
 
-                const summaryHeaders = ['Birim', 'Toplam Miktar', 'Toplam Tutar'];
+                const summaryHeaders = ['واحد', 'مقدار کل', 'مبلغ کل'];
                 const summaryHeaderRow = worksheet.addRow(summaryHeaders);
                 summaryHeaderRow.font = { name: 'Arial', bold: true };
                 summaryHeaderRow.eachCell(cell => {
@@ -842,7 +842,7 @@ const CompareComponent = () => {
 
             if (grandTotalPrice > 0) {
                 worksheet.addRow([]);
-                const grandTotalRow = worksheet.addRow(['Genel Toplam', '', cleanAndFormatPrice(grandTotalPrice)]);
+                const grandTotalRow = worksheet.addRow(['جمع کل', '', cleanAndFormatPrice(grandTotalPrice)]);
                 grandTotalRow.font = { name: 'Arial', bold: true, size: 11 };
             }
 
@@ -853,7 +853,7 @@ const CompareComponent = () => {
         workbook.xlsx.writeBuffer().then(buffer => {
             const fileName = filtered ? 'Filtrelenmis_Siparisler.xlsx' : 'Tum_Siparisler.xlsx';
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         });
 
         setOpenDownloadAllModal(false);
@@ -919,8 +919,8 @@ const CompareComponent = () => {
                 showAlert(result.data.message || 'Şebeke listesi alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error'); }
-            else { showAlert('Şebeke listesi alınırken bir hata oluştu.', 'error'); }
+            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error'); }
+            else { showAlert('هنگام دریافت فهرست شبکه‌ها خطایی رخ داد.', 'error'); }
         }
     };
 
@@ -933,11 +933,11 @@ const CompareComponent = () => {
                 const activeItems = response.data.data.filter((item: ItemType) => item.recordStatus === 0);
                 setItemsList(activeItems);
             } else {
-                showAlert('Ürünler yüklenmedi.', 'error');
+                showAlert('کالاها بارگذاری نشدند.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error'); }
-            else { showAlert('Ürünler sunucudan alınamadı', 'error'); }
+            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error'); }
+            else { showAlert('کالاها از سرور دریافت نشدند', 'error'); }
         }
     };
 
@@ -966,7 +966,7 @@ const CompareComponent = () => {
                 showAlert(response.data.message || 'Depo listesi alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error'); }
+            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error'); }
             else { showAlert('Depo listesi yüklenirken bir hata oluştu.', 'error'); }
         }
     }, [navigate]);
@@ -985,7 +985,7 @@ const CompareComponent = () => {
                 showAlert(response.data.message || 'İhale listesi alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error'); }
+            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error'); }
             else { showAlert('İhale listesi yüklenirken bir hata oluştu.', 'error'); }
         }
     }, [navigate]);
@@ -998,9 +998,9 @@ const CompareComponent = () => {
             const response = await axios.get(server.baseurl + server.initialoperations + "get-orders", { headers: { "Authorization": `Bearer ${authToken}` } });
             if (response.data.httpStatusCode === 200) {
                 setOrdersList(response.data.data as OrderType[]);
-            } else { showAlert(response.data.message || 'Siparişler yüklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام بارگذاری سفارش‌ها خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            showAlert('Siparişler yüklenirken bir hata oluştu.', 'error');
+            showAlert('هنگام بارگذاری سفارش‌ها خطایی رخ داد.', 'error');
         } finally { setLoadingData(false); }
     };
 
@@ -1037,11 +1037,11 @@ const CompareComponent = () => {
                 const parsedItems = Array.from(tenderItemsMap.values());
                 return parsedItems;
             } else {
-                showAlert('İhale ürünleri yüklenirken bir hata oluştu.', 'error');
+                showAlert('هنگام بارگذاری کالاهای مناقصه خطایی رخ داد.', 'error');
                 return [];
             }
         } catch (e: any) {
-            showAlert('İhale ürünleri yüklenirken bir hata oluştu.', 'error');
+            showAlert('هنگام بارگذاری کالاهای مناقصه خطایی رخ داد.', 'error');
             return [];
         }
     };
@@ -1109,13 +1109,13 @@ const CompareComponent = () => {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
             else showAlert(e.response?.data?.message || 'Şantiye listesi alınırken bir hata oluştu.', 'error');
         }
@@ -1231,7 +1231,7 @@ const CompareComponent = () => {
         if (!docDate) { setDocDateError(true); isValid = false; } else { setDocDateError(false); }
         const hasEmptyItem = orderItems.some(item => !item.item || item.quantity <= 0);
         if (orderItems.length === 0 || hasEmptyItem) { setOrderItemsError(true); isValid = false; } else { setOrderItemsError(false); }
-        if (!isValid) { showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning'); }
+        if (!isValid) { showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning'); }
         return isValid;
     };
     const resetForm = () => {
@@ -1270,10 +1270,10 @@ const CompareComponent = () => {
                 showAlert('Sipariş başarıyla kaydedildi!', 'success');
                 resetForm();
                 getListOrders();
-            } else { showAlert(response.data.message || 'Sipariş kaydedilirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام ثبت سفارش خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error'); }
-            else { showAlert('Sipariş kaydedilirken bir hata oluştu.', 'error'); }
+            if (e.response?.status === 401) { localStorage.removeItem('authToken'); navigate("/"); showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error'); }
+            else { showAlert('هنگام ثبت سفارش خطایی رخ داد.', 'error'); }
         }
     };
 
@@ -1304,17 +1304,17 @@ const CompareComponent = () => {
                 showAlert('Sipariş başarıyla güncellendi!', 'success');
                 resetForm();
                 getListOrders();
-            } else { showAlert(response.data.message || 'Sipariş güncellenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام به‌روزرسانی سفارش خطایی رخ داد.', 'error'); }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             }
-            else { showAlert('Sipariş güncellenirken bir hata oluştu.', 'error'); }
+            else { showAlert('هنگام به‌روزرسانی سفارش خطایی رخ داد.', 'error'); }
         }
     };
 
@@ -1421,19 +1421,19 @@ const CompareComponent = () => {
             );
 
             if (response.data.httpStatusCode === 200) {
-                showAlert('Sipariş durumu başarıyla güncellendi!', 'success');
+                showAlert('وضعیت سفارش با موفقیت به‌روزرسانی شد!', 'success');
                 getListOrders();
             } else {
-                showAlert(response.data.message || 'Sipariş durumu güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت سفارش خطایی رخ داد.', 'error');
             }
 
         } catch (e: any) {
             if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
-                showAlert('Sipariş durumu güncellenirken bir hata oluştu.', 'error');
+                showAlert('هنگام به‌روزرسانی وضعیت سفارش خطایی رخ داد.', 'error');
             }
         } finally {
             handleCloseStatusModal();
@@ -1515,7 +1515,7 @@ const CompareComponent = () => {
         let grandTotal = 0;
 
         modalDetails.forEach((detail) => {
-            const unitTitle = detail.item?.unit?.title || "Diğer";
+            const unitTitle = detail.item?.unit?.title || "سایر";
             const qty = Number(detail.quantity) || 0;
 
             const rawPrice = String(detail.price);
@@ -1555,7 +1555,7 @@ const CompareComponent = () => {
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button
                                 variant="contained"
                                 color="error"
@@ -1576,7 +1576,7 @@ const CompareComponent = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={4}>
                             <CustomFormLabel htmlFor="network-autocomplete" sx={{ mt: 0, mb: { xs: 0, sm: 0 } }} >
-                                Şebeke
+                                شبکه
                             </CustomFormLabel>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Autocomplete<Network>
@@ -1586,7 +1586,7 @@ const CompareComponent = () => {
                                         setNetwork(newValue ? newValue.id : ''); setSelectedWork(newValue ? newValue.work : null);
                                         if (networkError && newValue) setNetworkError(false);
                                     }} renderInput={(params) => (
-                                        <TextField {...params} label="Şebeke Seçin" variant="outlined" size="small" error={networkError} helperText={networkError ? "Bu alan zorunludur!" : ""}
+                                        <TextField {...params} label="شبکه را انتخاب کنید" variant="outlined" size="small" error={networkError} helperText={networkError ? "Bu alan zorunludur!" : ""}
                                         />
                                     )} sx={{ flexGrow: 1 }}
                                 />
@@ -1604,7 +1604,7 @@ const CompareComponent = () => {
                                 value={workhousesList.find(wh => wh.id === Number(workhouse)) || null}
                                 onChange={(_event, newValue) => setWorkhouse(newValue ? newValue.id : '')}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Şantiye Seçin" variant="outlined" size="small" />
+                                    <TextField {...params} label="کارگاه را انتخاب کنید" variant="outlined" size="small" />
                                 )}
                                 sx={{ flexGrow: 1 }}
                             />
@@ -1675,7 +1675,7 @@ const CompareComponent = () => {
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
-                                        label="Depo Seçin"
+                                        label="انبار را انتخاب کنید"
                                         variant="outlined"
                                         sx={{ width: '100%' }}
                                         size="small"
@@ -1724,7 +1724,7 @@ const CompareComponent = () => {
                         </Grid>
                     </Grid>
 
-                    <Typography variant="h6" mb={2} sx={{ mt: 3 }}>Ürün Detayları</Typography>
+                    <Typography variant="h6" mb={2} sx={{ mt: 3 }}>جزئیات کالا</Typography>
                     <OrderItemsTable
                         items={orderItems} itemsList={itemsList} onItemChange={handleItemChange} onAddItem={handleAddItem}
                         onRemoveItem={handleRemoveItem} onToggleEdit={handleToggleEdit} availableItemsList={availableItemsList}
@@ -1736,8 +1736,8 @@ const CompareComponent = () => {
                     <Box mt={3} textAlign="right">
                         {editingId ? (
                             <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                <Button variant="contained" color="info" onClick={handleUpdateOrder}>Düzenle</Button>
-                                <Button variant="outlined" color="secondary" onClick={resetForm}>İptal Et</Button>
+                                <Button variant="contained" color="info" onClick={handleUpdateOrder}>ویرایش</Button>
+                                <Button variant="outlined" color="secondary" onClick={resetForm}>لغو</Button>
                             </Stack>
                         ) : (
                             <>
@@ -1768,7 +1768,7 @@ const CompareComponent = () => {
                                     isBlinking={true}
                                     disabled={loadingData}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
@@ -1781,7 +1781,7 @@ const CompareComponent = () => {
                                     startIcon={<IconFileDownload />}
                                     disabled={loadingData}
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         )}
@@ -1820,14 +1820,14 @@ const CompareComponent = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={startDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setStartDate(newValue)}
                                         renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={endDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setEndDate(newValue)}
@@ -1843,9 +1843,9 @@ const CompareComponent = () => {
                             <ToggleButtonGroup
                                 value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="Status filter" fullWidth
                             >
-                                <StyledToggleButton value="all" aria-label="all orders">Tümü</StyledToggleButton>
+                                <StyledToggleButton value="all" aria-label="all orders">همه</StyledToggleButton>
                                 <StyledToggleButton value="pending" aria-label="pending orders">Beklemede</StyledToggleButton>
-                                <StyledToggleButton value="approved" aria-label="approved orders">Onaylandı</StyledToggleButton>
+                                <StyledToggleButton value="approved" aria-label="approved orders">تأیید شد</StyledToggleButton>
                                 <StyledToggleButton value="rejected" aria-label="rejected orders">Reddedildi</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1861,28 +1861,28 @@ const CompareComponent = () => {
                                         direction={orderBy === 'id' ? order : 'asc'}
                                         onClick={() => handleRequestSort('id')}
                                     >
-                                        <Typography variant="h6">Kod</Typography>
+                                        <Typography variant="h6">کد</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'network.title'} direction={orderBy === 'network.title' ? order : 'asc'} onClick={() => handleRequestSort('network.title')}>
-                                        <Typography variant="h6">Şebeke Adı</Typography>
+                                        <Typography variant="h6">نام شبکه</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Şantiye</Typography></StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">İlişkili Talep</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">کارگاه</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">درخواست مرتبط</Typography></StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'docDate'} direction={orderBy === 'docDate' ? order : 'asc'} onClick={() => handleRequestSort('docDate')}>
-                                        <Typography variant="h6">Tarih</Typography>
+                                        <Typography variant="h6">تاریخ</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                 <StyledTableCell>
                                     <TableSortLabel active={orderBy === 'status'} direction={orderBy === 'status' ? order : 'asc'} onClick={() => handleRequestSort('status')}>
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
-                                <StyledTableCell><Typography variant="h6">Ürün Detayları</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6">جزئیات کالا</Typography></StyledTableCell>
                                 <StyledTableCell align="right"><Typography variant="h6"></Typography></StyledTableCell>
                             </TableRow>
                         </TableHead>
@@ -1910,14 +1910,14 @@ const CompareComponent = () => {
                                             <StyledTableCell><Typography variant="body1">{formatDateDisplay(row.docDate)}</Typography></StyledTableCell>
                                             <StyledTableCell sx={{ maxWidth: 150 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
 
                                                             variant="outlined"
                                                             style={{ fontSize: "10px", }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamayı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1936,7 +1936,7 @@ const CompareComponent = () => {
                                                         onClick={() => handleOpenHistoryModal(row)}
                                                     />
                                                     {(row.orderHeaderStatusHistories && row.orderHeaderStatusHistories.length > 0) ? (
-                                                        <CustomTooltip title={isTooltipGloballyEnabled ? "Durum Geçmişini Gör" : ""}>
+                                                        <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی تاریخچه‌ی وضعیت" : ""}>
                                                             <IconButton
                                                                 size="small"
                                                                 onClick={() => handleOpenHistoryModal(row)}
@@ -1949,7 +1949,7 @@ const CompareComponent = () => {
                                             </StyledTableCell>
                                             <StyledTableCell>
                                                 <Button variant="outlined" startIcon={<IconEye />} onClick={() => handleOpenModal(row.orderDetails)}>
-                                                    Görünüm
+                                                    نما
                                                 </Button>
                                             </StyledTableCell>
                                             <StyledTableCell align="right">
@@ -1971,36 +1971,36 @@ const CompareComponent = () => {
                                                 >
                                                     {hasStatusPermission && selectedOrderForMenu?.status === 0 && (
                                                         <>
-                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu siparişi onaylayın" : ""}>
+                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "تأیید این سفارش" : ""}>
                                                                 <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'approve')}>
-                                                                    <ListItemIcon><IconCheck size={18} /></ListItemIcon> Onayla
+                                                                    <ListItemIcon><IconCheck size={18} /></ListItemIcon> تأیید
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
-                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu siparişi reddedin" : ""}>
+                                                            <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "رد این سفارش" : ""}>
                                                                 <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'reject')}>
-                                                                    <ListItemIcon><IconX size={18} /></ListItemIcon> Reddet
+                                                                    <ListItemIcon><IconX size={18} /></ListItemIcon> رد
                                                                 </UiMenuItem>
                                                             </CustomTooltip>
                                                         </>
                                                     )}
                                                     {hasStatusPermission && selectedOrderForMenu?.status === 1 && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu siparişi reddedin" : ""}>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "رد این سفارش" : ""}>
                                                             <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'reject')}>
-                                                                <ListItemIcon><IconX size={18} /></ListItemIcon> Reddet
+                                                                <ListItemIcon><IconX size={18} /></ListItemIcon> رد
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasStatusPermission && selectedOrderForMenu?.status === 2 && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu siparişi onaylayın" : ""}>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "تأیید این سفارش" : ""}>
                                                             <UiMenuItem onClick={() => handleClickOpenStatusModal(row.id, 'approve')}>
-                                                                <ListItemIcon><IconCheck size={18} /></ListItemIcon> Onayla
+                                                                <ListItemIcon><IconCheck size={18} /></ListItemIcon> تأیید
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasEditPermission && selectedOrderForMenu?.status === 0 && (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu siparişi düzenleyin" : ""}>
                                                             <UiMenuItem onClick={() => handleEditClick(row)}>
-                                                                <ListItemIcon><IconEdit size={18} /></ListItemIcon> Düzenle
+                                                                <ListItemIcon><IconEdit size={18} /></ListItemIcon> ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -2019,7 +2019,7 @@ const CompareComponent = () => {
                                                                     setOpenDownloadSingleModal(true);
                                                                 }
                                                             }}>
-                                                                <ListItemIcon><IconFileDownload size={18} /></ListItemIcon> Rapor İndir
+                                                                <ListItemIcon><IconFileDownload size={18} /></ListItemIcon> دانلود گزارش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -2059,37 +2059,37 @@ const CompareComponent = () => {
                                     </Box>
                                     <Divider sx={{ my: 1 }} />
                                     <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 1 }}>
-                                        Açıklama: {h.description || '—'}
+                                        توضیحات: {h.description || '—'}
                                     </Typography>
                                     {h.user?.username && (
                                         <Typography variant="body2">
-                                            İşlem Yapan: {h.user.username}
+                                            انجام‌دهنده: {h.user.username}
                                         </Typography>
                                     )}
                                 </Paper>
                             ))
                         ) : (
-                            <Typography>Henüz durum geçmişi yok.</Typography>
+                            <Typography>هنوز تاریخچه‌ی وضعیتی وجود ندارد.</Typography>
                         )}
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseHistoryModal}>Kapat</Button>
+                    <Button onClick={handleCloseHistoryModal}>بستن</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openModal} onClose={handleCloseModal} maxWidth="md" fullWidth>
-                <DialogTitle>Ürün Detayları</DialogTitle>
+                <DialogTitle>جزئیات کالا</DialogTitle>
                 <DialogContent dividers>
                     <TableContainer component={Paper}>
-                        <Table size="small" aria-label="Ürün detayları tablosu">
+                        <Table size="small" aria-label="جدول جزئیات کالا">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Ürün Adı</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Miktar</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Birim</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Fiyat</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">نام کالا</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">مقدار</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">واحد</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">قیمت</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -2107,7 +2107,7 @@ const CompareComponent = () => {
                                     <TableRow>
                                         <StyledTableCell colSpan={5} align="center">
                                             <Typography variant="subtitle1" color="textSecondary">
-                                                Hiç ürün detayı bulunamadı.
+                                                هیچ جزئیات کالایی پیدا نشد.
                                             </Typography>
                                         </StyledTableCell>
                                     </TableRow>
@@ -2124,8 +2124,8 @@ const CompareComponent = () => {
                                     <Table size="small">
                                         <TableHead>
                                             <TableRow>
-                                                <StyledTableCell sx={{ fontWeight: 'bold' }}>Birim</StyledTableCell>
-                                                <StyledTableCell align="right" sx={{ fontWeight: 'bold' }}>Toplam Tutar</StyledTableCell>
+                                                <StyledTableCell sx={{ fontWeight: 'bold' }}>واحد</StyledTableCell>
+                                                <StyledTableCell align="right" sx={{ fontWeight: 'bold' }}>مبلغ کل</StyledTableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -2150,7 +2150,7 @@ const CompareComponent = () => {
                         )}
                     </>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseModal}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseModal}>بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openComparisonModal} onClose={resetComparisonStates} maxWidth="lg" fullWidth>
@@ -2160,11 +2160,11 @@ const CompareComponent = () => {
                         <Table aria-label="Karşılaştırma tablosu">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Ürün Adı</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">نام کالا</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">İhale Miktarı</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Depo Miktarı</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Birim</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">واحد</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -2200,19 +2200,19 @@ const CompareComponent = () => {
                     <Button onClick={handleApplyComparison} color="primary">
                         Siparişe Ekle ve Düzenle
                     </Button>
-                    <Button onClick={resetComparisonStates}>İptal</Button>
+                    <Button onClick={resetComparisonStates}>انصراف</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openStatusModal} onClose={handleCloseStatusModal} maxWidth="sm" fullWidth>
                 <DialogTitle>
-                    {statusToUpdate === 1 ? 'Onaylama Açıklaması' : 'Reddetme Açıklaması'}
+                    {statusToUpdate === 1 ? 'توضیح تأیید' : 'توضیح رد'}
                 </DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         margin="dense"
-                        label="Açıklama"
+                        label="توضیحات"
                         type="text"
                         fullWidth
                         multiline
@@ -2229,10 +2229,10 @@ const CompareComponent = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseStatusModal} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                     <Button onClick={handleUpdateStatus} color="primary">
-                        Kaydet
+                        ذخیره
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -2252,7 +2252,7 @@ const CompareComponent = () => {
                             }}
                             startIcon={<IconFile />}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -2266,12 +2266,12 @@ const CompareComponent = () => {
                             }}
                             startIcon={<IconFileSpreadsheet />}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadSingleModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenDownloadSingleModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
             <DeleteOrderModal
@@ -2285,15 +2285,15 @@ const CompareComponent = () => {
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button variant="contained" color="primary" onClick={() => exportDetailedPdf(false)} startIcon={<IconFile />}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" onClick={() => exportAllExcel(false)} startIcon={<IconFileSpreadsheet />}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2302,15 +2302,15 @@ const CompareComponent = () => {
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button variant="contained" color="primary" onClick={() => exportDetailedPdf(true)} startIcon={<IconFile />}>
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" onClick={() => exportAllExcel(true)} startIcon={<IconFileSpreadsheet />}>
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -2320,7 +2320,7 @@ const CompareComponent = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -2328,7 +2328,7 @@ const CompareComponent = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

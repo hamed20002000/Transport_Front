@@ -155,7 +155,7 @@ interface InactiveInvoiceRow {
 
 const formatDateDisplay = (iso: string | null) => {
     if (!iso) return "N/A";
-    try { return format(new Date(iso), "dd MMMM yyyy", { locale: tr }); } catch { return "Geçersiz Tarih"; }
+    try { return format(new Date(iso), "dd MMMM yyyy", { locale: tr }); } catch { return "تاریخ نامعتبر"; }
 };
 
 const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
@@ -173,7 +173,7 @@ const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -182,7 +182,7 @@ const addPdfHeader = (doc: jsPDF, title: string, subtitle?: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
     if (subtitle) doc.text(subtitle, 70, 52);
@@ -201,7 +201,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -213,12 +213,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 const ListStoreReceiptInvoice: React.FC = () => {
@@ -264,9 +264,9 @@ const ListStoreReceiptInvoice: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const [workhousesList, setWorkhousesList] = useState<WorkhouseType[]>([]);
     const [storesList, setStoresList] = useState<StoreType[]>([]);
@@ -376,12 +376,12 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 setWorkhousesList([]);
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingData(false); }
     }, [navigate, showAlert]);
 
@@ -398,17 +398,17 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     setStoresList(activeStores);
                     return activeStores;
                 } else {
-                    showAlert(response.data.message || "Şantiyeler yüklenirken bir hata oluştu.", "error");
+                    showAlert(response.data.message || "هنگام بارگذاری کارگاه‌ها خطایی رخ داد.", "error");
                     setStoresList([]);
                     return [];
                 }
             } catch (e: any) {
-                if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+                if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
                 else if (e.response?.status === 401) {
                     localStorage.removeItem('authToken');
-                    showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                    showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
                 }
-                else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+                else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
             }
         },
         [authToken, navigate, showAlert]
@@ -446,12 +446,12 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     return [];
                 }
             } catch (e: any) {
-                if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+                if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
                 else if (e.response?.status === 401) {
                     localStorage.removeItem('authToken');
-                    showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                    showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
                 }
-                else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+                else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
                 return [];
             }
         },
@@ -478,15 +478,15 @@ const ListStoreReceiptInvoice: React.FC = () => {
             if (res.data?.httpStatusCode === 200 && Array.isArray(res.data.data)) {
                 setReceiptsList(res.data.data);
             } else {
-                showAlert(res.data?.message || "Fişler yüklenirken bir hata oluştu.", "error");
+                showAlert(res.data?.message || "هنگام بارگذاری برگه‌ها خطایی رخ داد.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingData(false); }
     }, [authToken, navigate, showAlert]);
 
@@ -669,7 +669,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
             setRemovedReceiptDetails([]);
             setIsFormVisible(true);
         } catch (e: any) {
-            showAlert(e.response?.data?.message || "Veri yüklenirken bir hata oluştu.", "error");
+            showAlert(e.response?.data?.message || "هنگام بارگذاری داده‌ها خطایی رخ داد.", "error");
         } finally {
             setLoadingData(false);
         }
@@ -694,7 +694,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
 
     const insertReceipt = async () => {
         if (!isFormValid) {
-            showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
             return;
         }
         setLoadingButton(true);
@@ -722,7 +722,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
             );
 
             if (res.data?.httpStatusCode === 201) {
-                showAlert('Yeni fiş başarıyla eklendi!', 'success');
+                showAlert('برگه‌ی جدید با موفقیت اضافه شد!', 'success');
 
                 const freshReceipts = await fetchReceiptsRaw();
                 const latest = pickLatestReceiptForStore(freshReceipts, storeIdForPick);
@@ -735,15 +735,15 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 setReceiptsList(freshReceipts);
                 resetForm();
             } else {
-                showAlert(res.data?.message || 'Fiş eklenirken bir hata oluştu.', 'error');
+                showAlert(res.data?.message || 'هنگام افزودن برگه خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -773,16 +773,16 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
             );
             if (res.data?.httpStatusCode === 200) {
-                showAlert("Fiş başarıyla güncellendi!", "success");
+                showAlert("برگه با موفقیت به‌روزرسانی شد!", "success");
                 resetForm();
                 fetchReceipts();
             } else {
-                showAlert(res.data?.message || "Fiş güncellenirken bir hata oluştu.", "error");
+                showAlert(res.data?.message || "هنگام به‌روزرسانی برگه خطایی رخ داد.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert("Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.", "error");
-            else if (e.response?.status === 401) { localStorage.removeItem("authToken"); showAlert("Oturum süreniz doldu, lütfen tekrar giriş yapın.", "error"); navigate("/"); }
-            else showAlert(e.response?.data?.message || "Fiş güncellenirken bir hata oluştu.", "error");
+            if (e.response?.status === 500) showAlert("این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.", "error");
+            else if (e.response?.status === 401) { localStorage.removeItem("authToken"); showAlert("نشست شما به پایان رسید، لطفاً دوباره وارد شوید.", "error"); navigate("/"); }
+            else showAlert(e.response?.data?.message || "هنگام به‌روزرسانی برگه خطایی رخ داد.", "error");
         } finally { setLoadingButton(false); }
     };
 
@@ -790,7 +790,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
         const summary: Record<string, number> = {};
 
         details.forEach(d => {
-            const unitTitle = d.item?.unit?.title || "Diğer";
+            const unitTitle = d.item?.unit?.title || "سایر";
             const qty = Number(d.quantity) || 0;
             summary[unitTitle] = (summary[unitTitle] || 0) + qty;
         });
@@ -799,8 +799,8 @@ const ListStoreReceiptInvoice: React.FC = () => {
     };
 
     const exportReceiptsToPdf = (data: StoreReceiptType[], title: string, subtitle?: string) => {
-        if (!data || data.length === 0) { showAlert("PDF oluşturulacak fiş bulunamadı.", "warning"); return; }
-        showAlert("PDF oluşturuluyor...", "info");
+        if (!data || data.length === 0) { showAlert("برگه‌ای برای ساخت PDF پیدا نشد.", "warning"); return; }
+        showAlert("در حال ساخت فایل PDF...", "info");
 
         const doc = new jsPDF();
         const docAny = doc as any;
@@ -814,10 +814,10 @@ const ListStoreReceiptInvoice: React.FC = () => {
             if (index > 0) { doc.addPage(); yPos = 60; }
             addPdfHeader(doc, title, subtitle);
             doc.setFontSize(12);
-            doc.text(`Fiş Kodu: ${receipt.code}`, 15, yPos); yPos += 7;
+            doc.text(`کد برگه: ${receipt.code}`, 15, yPos); yPos += 7;
             doc.text(`Belge Tarihi: ${formatDateDisplay(receipt.docDate)}`, 15, yPos); yPos += 9;
-            doc.text(`Şantiye: ${receipt.store?.name || "-"}`, 15, yPos); yPos += 15;
-            doc.text(`Genel Açıklama: ${receipt.description || '-'}`, 15, yPos); yPos += 15;
+            doc.text(`کارگاه: ${receipt.store?.name || "-"}`, 15, yPos); yPos += 15;
+            doc.text(`توضیحات کلی: ${receipt.description || '-'}`, 15, yPos); yPos += 15;
             const rows = (receipt.storeReceiptDetails || []).map((d) => [
                 d.item?.name || "-",
                 Number(d.quantity).toLocaleString('tr-TR'),
@@ -835,7 +835,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
 
             autoTable(doc, {
                 startY: yPos,
-                head: [["Malzeme", "Miktar", "Birim", "Açıklama"]],
+                head: [["کالا", "مقدار", "واحد", "توضیحات"]],
                 body: rows,
                 foot: summaryRows,
                 theme: "grid",
@@ -850,33 +850,33 @@ const ListStoreReceiptInvoice: React.FC = () => {
         });
 
         doc.save(`${title.replace(/ /g, "_")}.pdf`);
-        showAlert("PDF başarıyla oluşturuldu.", "success");
+        showAlert("فایل PDF با موفقیت ساخته شد.", "success");
     };
 
     const exportReceiptsToExcel = (data: StoreReceiptType[], title: string) => {
         if (!data || data.length === 0) { showAlert("Excel oluşturulacak fiş bulunamadı.", "warning"); return; }
-        showAlert("Excel oluşturuluyor...", "info");
+        showAlert("در حال ساخت فایل Excel...", "info");
 
         const wb = new Excel.Workbook();
 
         data.forEach((r) => {
-            const ws = wb.addWorksheet(`Fiş_${r.code}`.replace(/[\\/*?:[\]]/g, "_").substring(0, 30));
-            const cols = ["Malzeme", "Miktar", "Birim", "Açıklama"];
+            const ws = wb.addWorksheet(`برگه_${r.code}`.replace(/[\\/*?:[\]]/g, "_").substring(0, 30));
+            const cols = ["کالا", "مقدار", "واحد", "توضیحات"];
             ws.views = [{ rightToLeft: false }];
 
             const t = ws.addRow([title]);
             t.font = { name: "NotoSans", size: 14, bold: true };
             ws.mergeCells(t.number, 1, t.number, cols.length);
 
-            const d = ws.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+            const d = ws.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
             ws.mergeCells(d.number, 1, d.number, cols.length); ws.addRow([]);
 
-            ws.addRow(["Fiş Kodu:", r.code]);
-            ws.addRow(["Şantiye:", r.store?.name || "-"]);
+            ws.addRow(["کد برگه:", r.code]);
+            ws.addRow(["کارگاه:", r.store?.name || "-"]);
             ws.addRow(["Belge Tarihi:", formatDateDisplay(r.docDate)]);
             const invNo = r.storeReceiptDetails?.[0]?.invoiceDetail?.invoiceHeader?.invoiceNo || "-";
-            ws.addRow(["Fatura No:", invNo]);
-            ws.addRow(['Genel Açıklama', r.description || '-']);
+            ws.addRow(["شماره فاکتور:", invNo]);
+            ws.addRow(['توضیحات کلی', r.description || '-']);
             ws.addRow([]);
 
             const h = ws.addRow(cols);
@@ -893,7 +893,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
             });
 
             ws.addRow([]);
-            const summaryTitle = ws.addRow(["Birim Bazlı Toplamlar"]);
+            const summaryTitle = ws.addRow(["جمع بر اساس واحد"]);
             summaryTitle.font = { bold: true, underline: true };
 
             const summaries = calculateReceiptSummaries(r.storeReceiptDetails || []);
@@ -912,7 +912,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
 
         wb.xlsx.writeBuffer().then((buffer) => {
             saveAs(new Blob([buffer]), `${title.replace(/ /g, "_")}.xlsx`);
-            showAlert("Excel başarıyla oluşturuldu.", "success");
+            showAlert("فایل Excel با موفقیت ساخته شد.", "success");
         });
     };
 
@@ -923,9 +923,9 @@ const ListStoreReceiptInvoice: React.FC = () => {
 
     const handleDownload = (format: "pdf" | "excel", isFiltered: boolean) => {
         const data = isFiltered ? displayedReceipts : receiptsList;
-        const title = isFiltered ? "Filtrelenmiş Fişler Raporu" : "Tüm Fişler Raporu";
+        const title = isFiltered ? "گزارش برگه‌های فیلترشده" : "گزارش همه‌ی برگه‌ها";
         const subtitle = isFiltered
-            ? `Tarih Aralığı: ${formatDateDisplay(startDate ? startDate.toISOString() : null)} - ${formatDateDisplay(
+            ? `بازه‌ی زمانی: ${formatDateDisplay(startDate ? startDate.toISOString() : null)} - ${formatDateDisplay(
                 endDate ? endDate.toISOString() : null
             )}`
             : undefined;
@@ -935,7 +935,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
 
     const handleDownloadSingleReceipt = (format: "pdf" | "excel") => {
         if (!selectedReceiptForDownload) return;
-        const title = `Fiş Detayları: ${selectedReceiptForDownload.code}`;
+        const title = `جزئیات برگه: ${selectedReceiptForDownload.code}`;
         if (format === "pdf") exportReceiptsToPdf([selectedReceiptForDownload], title);
         else exportReceiptsToExcel([selectedReceiptForDownload], title);
         setOpenRowDownloadModal(false);
@@ -961,21 +961,21 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     {!isFormVisible && hasCreatePermission && (
                         <CustomTooltip title={isTooltipGloballyEnabled ? "Yeni Fatura Kaynaklı Fiş belgesi kaydetmek için tıklayınız" : ""}>
                             <BlinkingButton variant="contained" color="primary" onClick={() => setIsFormVisible(true)} isBlinking={isBlinking}>
-                                Yeni Fiş Kaydet
+                                ثبت برگه‌ی جدید
                             </BlinkingButton>
                         </CustomTooltip>
                     )}
                     {isFormVisible && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                             <Button variant="contained" color="error" onClick={resetForm} startIcon={<IconX size={20} />}>
                                 Gizle
                             </Button>
                         </CustomTooltip>
                     )}
                     {routeStoreId && (
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                             <Button variant="outlined" color="error" onClick={() => navigate(-1)} endIcon={<IconArrowRight size={20} />}>
-                                Geri Dön
+                                بازگشت
                             </Button>
                         </CustomTooltip>
                     )}
@@ -987,7 +987,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     <Typography variant="h5" mb={2}>{editingId ? `Fiş Düzenle (${editingCode})` : "Yeni Fiş Oluştur"}</Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel required>Şantiye</CustomFormLabel>
+                            <CustomFormLabel required>کارگاه</CustomFormLabel>
                             <Autocomplete
                                 options={workhousesList}
                                 getOptionLabel={(o) => `${o.name}`}
@@ -1005,14 +1005,14 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                     }
                                 }}
                                 isOptionEqualToValue={(a, b) => a?.id === b?.id}
-                                renderInput={(p) => <TextField {...p} fullWidth size="small" placeholder="Şantiye Seçin" />}
+                                renderInput={(p) => <TextField {...p} fullWidth size="small" placeholder="کارگاه را انتخاب کنید" />}
                                 disabled={!!editingId}
                             />
                         </Grid>
 
                         {!routeStoreId && (
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel required>Şantiye Depo</CustomFormLabel>
+                                <CustomFormLabel required>انبار کارگاه</CustomFormLabel>
                                 <Autocomplete
                                     options={storesList}
                                     getOptionLabel={(o) => o.name}
@@ -1023,7 +1023,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                         setReceiptDetails([]);
                                     }}
                                     isOptionEqualToValue={(a, b) => a?.id === b?.id}
-                                    renderInput={(p) => <TextField {...p} fullWidth size="small" placeholder="Şantiye Seçin" />}
+                                    renderInput={(p) => <TextField {...p} fullWidth size="small" placeholder="کارگاه را انتخاب کنید" />}
                                     disabled={!selectedWorkhouse || !!editingId}
                                 />
                             </Grid>
@@ -1045,7 +1045,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
 
 
                         <Grid item xs={12}>
-                            <CustomFormLabel htmlFor="invoice-general-description">Açıklama</CustomFormLabel>
+                            <CustomFormLabel htmlFor="invoice-general-description">توضیحات</CustomFormLabel>
                             <TextField
                                 id="invoice-general-description"
                                 label="Şantiye Fişleri  için genel açıklama giriniz"
@@ -1069,7 +1069,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                     onClick={() => setOpenInvoiceListModal(true)}
                                     disabled={!selectedWorkhouse}
                                 >
-                                    Listeyi Göster
+                                    نمایش فهرست
                                 </Button>
                             </Box>
                             <Autocomplete
@@ -1101,7 +1101,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     <Box mt={4}>
                         {removedReceiptDetails.length > 0 && (
                             <Box sx={{ border: "1px dashed", borderColor: "error.main", p: 2, mb: 2, mt: 2, borderRadius: 1, backgroundColor: "rgba(255,0,0,0.05)" }}>
-                                <Typography variant="subtitle1" color="error" mb={1}>Silinen Ürünler</Typography>
+                                <Typography variant="subtitle1" color="error" mb={1}>کالاهای حذف‌شده</Typography>
                                 <Stack direction="row" spacing={1} flexWrap="wrap">
                                     {removedReceiptDetails.map((d, i) => (
                                         <Chip key={i} label={`${d?.item?.name || "Undefined"} (${d.quantity})`} color="error" onDelete={() => {
@@ -1117,7 +1117,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                         )}
 
                         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                            <Typography variant="h6">Fiş Detayları</Typography>
+                            <Typography variant="h6">جزئیات برگه</Typography>
 
                         </Stack>
 
@@ -1140,7 +1140,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                             <Grid item xs={6} md={3}>
                                                 <CustomTextField
                                                     type="number"
-                                                    placeholder="Miktar"
+                                                    placeholder="مقدار"
                                                     value={detail.quantity}
                                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleReceiptDetailChange(idx, "quantity", e.target.value)}
                                                     fullWidth size="small"
@@ -1149,7 +1149,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                             </Grid>
                                             <Grid item xs={5} md={4}>
                                                 <CustomTextField
-                                                    placeholder="Açıklama"
+                                                    placeholder="توضیحات"
                                                     value={detail.description}
                                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleReceiptDetailChange(idx, "description", e.target.value)}
                                                     fullWidth size="small"
@@ -1172,13 +1172,13 @@ const ListStoreReceiptInvoice: React.FC = () => {
                         {editingId ? (
                             <>
                                 <Button variant="contained" color="info" onClick={editReceipt} disabled={loadingButton}>
-                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : "Düzenle"}
+                                    {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : "ویرایش"}
                                 </Button>
-                                <Button variant="outlined" color="secondary" onClick={resetForm} disabled={loadingButton}>İptal Et</Button>
+                                <Button variant="outlined" color="secondary" onClick={resetForm} disabled={loadingButton}>لغو</Button>
                             </>
                         ) : (
                             hasCreatePermission && (
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm alanları doldurarak fişi kaydedin." : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "با پر کردن همه‌ی فیلدها برگه را ثبت کنید." : ""}>
                                     <span>
                                         <BlinkingButton
                                             variant="contained"
@@ -1187,7 +1187,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                             disabled={!isFormValid || loadingButton}
                                             isBlinking={isFormValid && !loadingButton}
                                         >
-                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : "Yeni Fiş Ekle"}
+                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : "افزودن برگه‌ی جدید"}
                                         </BlinkingButton>
                                     </span>
                                 </CustomTooltip>
@@ -1214,7 +1214,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                     startIcon={<IconFileDownload />} isBlinking={true}
                                     disabled={loadingData || displayedReceipts.length === 0}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
@@ -1226,7 +1226,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                     startIcon={<IconFileDownload />}
                                     disabled={loadingData || receiptsList.length === 0}
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         )}
@@ -1237,7 +1237,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} sm={6} md={3}>
                             <TextField
-                                label="Fiş Ara" variant="outlined" fullWidth
+                                label="جستجوی برگه" variant="outlined" fullWidth
                                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                                 InputProps={{ startAdornment: (<InputAdornment position="start"><IconSearch size={20} /></InputAdornment>) }}
                             />
@@ -1246,11 +1246,11 @@ const ListStoreReceiptInvoice: React.FC = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi" value={startDate} inputFormat="dd/MM/yyyy"
+                                        label="تاریخ شروع" value={startDate} inputFormat="dd/MM/yyyy"
                                         onChange={(v) => setStartDate(v)} renderInput={(p) => (<TextField {...p} size="small" fullWidth />)}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi" value={endDate} inputFormat="dd/MM/yyyy"
+                                        label="تاریخ پایان" value={endDate} inputFormat="dd/MM/yyyy"
                                         onChange={(v) => setEndDate(v)}
                                         renderInput={(p) => (<TextField {...p} size="small" fullWidth />)}
                                     />
@@ -1260,9 +1260,9 @@ const ListStoreReceiptInvoice: React.FC = () => {
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <ToggleButtonGroup value={statusFilter} exclusive onChange={(_, v) => v && setStatusFilter(v)} fullWidth>
-                                <StyledToggleButton value="all">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all">همه</StyledToggleButton>
+                                <StyledToggleButton value="active">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1271,19 +1271,19 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 {loadingData ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                         <CircularProgress />
-                        <Typography variant="h6" sx={{ ml: 2 }}>Fişler yükleniyor...</Typography>
+                        <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری برگه‌ها...</Typography>
                     </Box>
                 ) : (
                     <TableContainer component={Paper}>
                         <Table aria-label="receipt table">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Fiş Kodu</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Şantiye Adı</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">کد برگه</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">نام کارگاه</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Belge Tarihi</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Toplam Miktar</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Detaylar</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">مقدار کل</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">جزئیات</Typography></StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1299,14 +1299,14 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                                 <StyledTableCell><Typography variant="body1" fontWeight="bold">{totalQty.toLocaleString()}</Typography></StyledTableCell>
                                                 <StyledTableCell sx={{ maxWidth: 150 }}>
                                                     {row.description && row.description.trim().length > 0 ? (
-                                                        <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                        <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                             <Button
 
                                                                 variant="outlined"
                                                                 style={{ fontSize: "10px", padding: "2px 5px" }}
                                                                 onClick={() => handleOpenDescriptionModal(row.description)}
                                                             >
-                                                                Açıklamayı Oku
+                                                                خواندن توضیحات
                                                             </Button>
                                                         </CustomTooltip>
                                                     ) : (
@@ -1322,7 +1322,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                                             setOpenDetailsModal(true);
                                                         }}
                                                     >
-                                                        Görünüm
+                                                        نما
                                                     </Button>
                                                 </StyledTableCell>
                                                 <StyledTableCell>
@@ -1331,12 +1331,12 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                                     </IconButton>
                                                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
 
-                                                        {hasEditPermission && <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</UiMenuItem>}
+                                                        {hasEditPermission && <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>}
                                                         {hasDeletePermission && <UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>}
 
                                                         {hasDownloadPermission && (
                                                             <UiMenuItem onClick={() => { setSelectedReceiptForDownload(row); setOpenRowDownloadModal(true); handleCloseMenu(); }}>
-                                                                <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir
+                                                                <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف
                                                             </UiMenuItem>
                                                         )}
                                                     </Menu>
@@ -1347,7 +1347,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                 ) : (
                                     <TableRow>
                                         <StyledTableCell colSpan={7} align="center">
-                                            <Typography variant="subtitle1" color="textSecondary">Hiç fiş bulunamadı.</Typography>
+                                            <Typography variant="subtitle1" color="textSecondary">هیچ برگه‌ای پیدا نشد.</Typography>
                                         </StyledTableCell>
                                     </TableRow>
                                 )}
@@ -1364,7 +1364,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     page={page}
                     onPageChange={(_, newPage) => setPage(newPage)}
                     onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                    labelRowsPerPage="Satır başına:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                 />
             </BlankCard>
 
@@ -1375,7 +1375,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 fullWidth
             >
                 <DialogTitle>
-                    Fiş Detayları
+                    جزئیات برگه
                     {viewedReceipt && <Typography component="span" variant="subtitle1" color="text.secondary" sx={{ ml: 1 }}>({viewedReceipt.code})</Typography>}
                 </DialogTitle>
 
@@ -1383,13 +1383,13 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     {viewedReceipt && viewedReceipt.storeReceiptDetails && viewedReceipt.storeReceiptDetails.length > 0 ? (
                         <>
                             <TableContainer component={Paper} variant="outlined">
-                                <Table aria-label="Ürün detayları tablosu" size="small">
+                                <Table aria-label="جدول جزئیات کالا" size="small">
                                     <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                         <TableRow>
-                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">Malzeme</Typography></StyledTableCell>
-                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">Miktar</Typography></StyledTableCell>
-                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">Birim</Typography></StyledTableCell>
-                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">Açıklama</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">کالا</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">مقدار</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">واحد</Typography></StyledTableCell>
+                                            <StyledTableCell><Typography variant="subtitle2" fontWeight="bold">توضیحات</Typography></StyledTableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -1411,7 +1411,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                         <TableHead sx={{ bgcolor: '#f5f5f5' }}>
                                             <TableRow>
                                                 <StyledTableCell align="center" colSpan={2}>
-                                                    <Typography variant="subtitle2" fontWeight="bold">Birim Bazlı Toplamlar</Typography>
+                                                    <Typography variant="subtitle2" fontWeight="bold">جمع بر اساس واحد</Typography>
                                                 </StyledTableCell>
                                             </TableRow>
                                         </TableHead>
@@ -1419,7 +1419,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                             {Object.entries(calculateReceiptSummaries(viewedReceipt.storeReceiptDetails)).map(([unit, total]) => (
                                                 <TableRow key={unit}>
                                                     <StyledTableCell sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
-                                                        Toplam {unit}:
+                                                        جمع {unit}:
                                                     </StyledTableCell>
                                                     <StyledTableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.1em' }}>
                                                         {total.toLocaleString()}
@@ -1432,7 +1432,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                             </Box>
                         </>
                     ) : (
-                        <Typography variant="body1" sx={{ p: 2, textAlign: "center" }}>Bu fiş için detay bulunamadı.</Typography>
+                        <Typography variant="body1" sx={{ p: 2, textAlign: "center" }}>جزئیاتی برای این برگه پیدا نشد.</Typography>
                     )}
                 </DialogContent>
 
@@ -1451,13 +1451,13 @@ const ListStoreReceiptInvoice: React.FC = () => {
                             startIcon={<IconFileText />}
                             onClick={() => {
                                 if (viewedReceipt) {
-                                    const title = `Fiş Detayları: ${viewedReceipt.code}`;
+                                    const title = `جزئیات برگه: ${viewedReceipt.code}`;
                                     exportReceiptsToPdf([viewedReceipt], title);
                                 }
                             }}
                             disabled={!viewedReceipt}
                         >
-                            PDF İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1467,18 +1467,18 @@ const ListStoreReceiptInvoice: React.FC = () => {
                             startIcon={<IconFileSpreadsheet />}
                             onClick={() => {
                                 if (viewedReceipt) {
-                                    const title = `Fiş Detayları: ${viewedReceipt.code}`;
+                                    const title = `جزئیات برگه: ${viewedReceipt.code}`;
                                     exportReceiptsToExcel([viewedReceipt], title);
                                 }
                             }}
                             disabled={!viewedReceipt}
                         >
-                            Excel İndir
+                            دانلود Excel
                         </Button>
                         <Button onClick={() => setOpenDetailsModal(false)} color="secondary" variant="outlined"
                             fullWidth
                             sx={{ flex: 1 }} >
-                            Kapat
+                            بستن
                         </Button>
                     </Stack>
 
@@ -1495,43 +1495,43 @@ const ListStoreReceiptInvoice: React.FC = () => {
             />
 
             <Dialog open={openDownloadAllModal} onClose={() => setOpenDownloadAllModal(false)} maxWidth="xs">
-                <DialogTitle>Tüm Fişleri İndir</DialogTitle>
+                <DialogTitle>دانلود همه‌ی برگه‌ها</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload("pdf", false); setOpenDownloadAllModal(false); }}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload("excel", false); setOpenDownloadAllModal(false); }}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload("pdf", false); setOpenDownloadAllModal(false); }}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload("excel", false); setOpenDownloadAllModal(false); }}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
                 <DialogTitle>Filtrelenmiş Fişleri İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload("pdf", true); setOpenDownloadFilteredModal(false); }}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload("excel", true); setOpenDownloadFilteredModal(false); }}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => { handleDownload("pdf", true); setOpenDownloadFilteredModal(false); }}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => { handleDownload("excel", true); setOpenDownloadFilteredModal(false); }}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={() => setOpenRowDownloadModal(false)} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadSingleReceipt("pdf")}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadSingleReceipt("excel")}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadSingleReceipt("pdf")}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadSingleReceipt("excel")}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openIsEndModal} onClose={() => setOpenIsEndModal(false)}>
-                <DialogTitle>Fatura Durumu Onayı</DialogTitle>
+                <DialogTitle>تأیید وضعیت فاکتور</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Bu fişi kaydettiniz. Seçilen <b>Fatura</b> için <b>Sonlandır</b> işlemi uygulansın mı؟
+                        Bu fişi kaydettiniz. Seçilen <b>فاکتور</b> için <b>پایان دادن</b> işlemi uygulansın mı؟
                     </Typography>
                     <Typography sx={{ mt: 1 }}>
                         Fatura: <b>{justInsertedInvoice?.invoiceNo || "—"}</b>
@@ -1541,7 +1541,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => { setOpenIsEndModal(false); setJustInsertedInvoice(null); }} color="error">Hayır</Button>
+                    <Button onClick={() => { setOpenIsEndModal(false); setJustInsertedInvoice(null); }} color="error">خیر</Button>
                     <Button
                         onClick={async () => {
                             setOpenIsEndModal(false);
@@ -1562,10 +1562,10 @@ const ListStoreReceiptInvoice: React.FC = () => {
                         <Table size="small">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Kod</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Tarih</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
-                                    <StyledTableCell align="center"><Typography variant="h6">Aç/Kapat</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">کد</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تاریخ</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
+                                    <StyledTableCell align="center"><Typography variant="h6">باز/بسته</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -1577,8 +1577,8 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                             <StyledTableCell>{formatDateDisplay(row.docDate)}</StyledTableCell>
                                             <StyledTableCell>
                                                 {row.isEnd
-                                                    ? <Chip size="small" label="Sonlandırılmış" color="error" />
-                                                    : <Chip size="small" label="Açık" color="success" />}
+                                                    ? <Chip size="small" label="پایان‌یافته" color="error" />
+                                                    : <Chip size="small" label="باز" color="success" />}
                                             </StyledTableCell>
                                             <StyledTableCell align="center">
                                                 <RadioGroup
@@ -1586,8 +1586,8 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                                     value={row.isEnd ? 'ended' : 'open'}
                                                     onChange={(_, val) => updateInvoiceIsEnd(row.id, val === 'ended')}
                                                 >
-                                                    <FormControlLabel value="open" control={<Radio />} label="Açık" />
-                                                    <FormControlLabel value="ended" control={<Radio />} label="Sonlandırılmış" />
+                                                    <FormControlLabel value="open" control={<Radio />} label="باز" />
+                                                    <FormControlLabel value="ended" control={<Radio />} label="پایان‌یافته" />
                                                 </RadioGroup>
                                             </StyledTableCell>
                                         </TableRow>
@@ -1600,7 +1600,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     </TableContainer>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenInvoiceListModal(false)}>Kapat</Button>
+                    <Button onClick={() => setOpenInvoiceListModal(false)}>بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1611,10 +1611,10 @@ const ListStoreReceiptInvoice: React.FC = () => {
                         <Table size="small">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Fiş Kodu</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Fatura No</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Tarih</Typography></StyledTableCell>
-                                    <StyledTableCell align="right"><Typography variant="h6">İşlem</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">کد برگه</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">شماره فاکتور</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">تاریخ</Typography></StyledTableCell>
+                                    <StyledTableCell align="right"><Typography variant="h6">عملیات</Typography></StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -1640,7 +1640,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                                                     { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
                                                                 );
                                                                 if (res.data?.httpStatusCode === 200) {
-                                                                    showAlert(`Fatura ${(inv.invoiceNo || inv.receiptCode)} başarıyla geri alındı.`, 'success');
+                                                                    showAlert(`فاکتور ${(inv.invoiceNo || inv.receiptCode)} başarıyla geri alındı.`, 'success');
                                                                     const r = await fetchReceiptsRaw();
                                                                     setReceiptsList(r);
                                                                     if (selectedWorkhouse?.id) await fetchInvoicesByWorkhouseId(String(selectedWorkhouse.id));
@@ -1654,7 +1654,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                                         })();
                                                     }}
                                                 >
-                                                    Geri Al
+                                                    بازگردانی
                                                 </Button>
                                             </CustomTooltip>
                                         </StyledTableCell>
@@ -1662,7 +1662,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                                 )) : (
                                     <TableRow>
                                         <StyledTableCell colSpan={4} align="center">
-                                            <Typography variant="subtitle1" color="textSecondary">Sonlandırılmış fatura bulunamadı.</Typography>
+                                            <Typography variant="subtitle1" color="textSecondary">فاکتور پایان‌یافته‌ای پیدا نشد.</Typography>
                                         </StyledTableCell>
                                     </TableRow>
                                 )}
@@ -1671,7 +1671,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                     </TableContainer>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenInactiveModal(false)}>Kapat</Button>
+                    <Button onClick={() => setOpenInactiveModal(false)}>بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1681,7 +1681,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -1689,7 +1689,7 @@ const ListStoreReceiptInvoice: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

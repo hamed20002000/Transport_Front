@@ -102,9 +102,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 const descendingComparator = <T, Key extends keyof T>(a: T, b: T, orderBy: Key): number => {
@@ -168,11 +168,11 @@ const uploadFiles = async (
         if (uploadResponse.data.httpStatusCode === 201) {
             return uploadResponse.data.data.files as string[];
         } else {
-            showAlert(uploadResponse.data?.message || 'Dosya yüklenirken sunucu hatası oluştu.', 'error');
+            showAlert(uploadResponse.data?.message || 'هنگام بارگذاری فایل خطای سرور رخ داد.', 'error');
             return null;
         }
     } catch (e: any) {
-        showAlert(e?.response?.data?.message || 'Dosya yüklenirken ağ hatası oluştu.', 'error');
+        showAlert(e?.response?.data?.message || 'هنگام بارگذاری فایل خطای شبکه رخ داد.', 'error');
         return null;
     }
 };
@@ -193,7 +193,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -202,7 +202,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -220,7 +220,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -232,12 +232,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength: number) => {
@@ -246,7 +246,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     titleRow.font = { name: 'NotoSans', size: 14, bold: true };
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -255,7 +255,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
     let rowNum = startRow;
@@ -342,11 +342,11 @@ const ConsignmentFileUpload: React.FC<{
 
             {files.length > 0 && (
                 <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
-                    <Typography variant="caption" sx={{ color: 'gray', width: '100%' }}>Yüklenecek Yeni Dosyalar ({files.length}):</Typography>
+                    <Typography variant="caption" sx={{ color: 'gray', width: '100%' }}>فایل‌های جدید برای بارگذاری ({files.length}):</Typography>
                     {files.map((file, index) => (
                         <CustomTooltip key={`new-${index}`} title={isTooltipGloballyEnabled ? file.name : ''}>
                             <Chip
-                                label={`Yeni ${index + 1}`}
+                                label={`جدید ${index + 1}`}
                                 icon={iconGetter(file.name)}
                                 onDelete={() => handleRemoveNewFile(index)}
                                 size="small"
@@ -358,7 +358,7 @@ const ConsignmentFileUpload: React.FC<{
                 </Stack>
             )}
 
-            {error && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>Lütfen dosya seçin veya hataları düzeltin.</Typography>}
+            {error && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>لطفاً فایل را انتخاب کنید یا خطاها را برطرف کنید.</Typography>}
         </Box>
     );
 };
@@ -406,9 +406,9 @@ const ListCourses: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -530,12 +530,12 @@ const ListCourses: React.FC = () => {
                 showAlert('Öğretmen listesi alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate, showAlert]);
 
@@ -555,12 +555,12 @@ const ListCourses: React.FC = () => {
                 showAlert(res.data.message || 'Kurs detayları yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -590,15 +590,15 @@ const ListCourses: React.FC = () => {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -622,7 +622,7 @@ const ListCourses: React.FC = () => {
             ok = false;
         }
 
-        if (!ok) { showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning'); }
+        if (!ok) { showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning'); }
         return ok;
     };
 
@@ -670,12 +670,12 @@ const ListCourses: React.FC = () => {
         if (!validateForm() || !selectedTeacher) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت.', 'error'); setLoadingButton(false); return; }
 
         let fileUrls: string[] | null = [];
         setAttachmentError(false);
         if (selectedFiles.length > 0) {
-            showAlert('Dosyalar yükleniyor...', 'info');
+            showAlert('در حال بارگذاری فایل‌ها...', 'info');
             fileUrls = await uploadFiles(selectedFiles, authToken, showAlert);
             if (fileUrls === null) {
                 setAttachmentError(true);
@@ -707,17 +707,17 @@ const ListCourses: React.FC = () => {
             const successStatus = isEditing ? 200 : 201;
 
             if (res.data.httpStatusCode === successStatus || res.data.httpStatusCode === 200) {
-                showAlert(`Kurs başarıyla ${isEditing ? 'güncellendi' : 'eklendi'}!`, 'success');
+                showAlert(`دوره با موفقیت ${isEditing ? 'به‌روزرسانی شد' : 'eklendi'}!`, 'success');
                 resetForm();
                 fetchCourses();
-            } else { showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -794,12 +794,12 @@ const ListCourses: React.FC = () => {
                 showAlert(res.data.message || 'Kurs sonlandırılamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Sunucu hatası.', 'error');
+            if (e.response?.status === 500) showAlert('خطای سرور.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'İşlem sırasında bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
             setEndCourseError(false);
@@ -809,7 +809,7 @@ const ListCourses: React.FC = () => {
     const sendStatusUpdate = async (id: number, statusValue: number) => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); navigate("/"); return; }
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); navigate("/"); return; }
 
         try {
             const response = await axios.put(
@@ -818,20 +818,20 @@ const ListCourses: React.FC = () => {
                 { headers: { "Accept": "application/json", "Authorization": `Bearer ${authToken}`, 'Content-Type': 'application/json' } }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Kurs başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`دوره با موفقیت ${statusText} تنظیم شد!`, 'success');
                 resetForm();
                 fetchCourses();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -877,21 +877,21 @@ const ListCourses: React.FC = () => {
 
 
     const exportDetailsToPdf = (data: CourseDetail[], title: string) => {
-        if (!data || data.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Rapor oluşturuluyor...', 'info');
+        if (!data || data.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت گزارش...', 'info');
 
         const doc = new jsPDF();
         const docAny = doc as any;
 
-        const columns = ['Başlık', 'Şantiye', 'Öğretmen', 'Başlangıç', 'Bitiş', 'Saat', 'ISG', 'Açıklama', 'Kayıt Tarihi'];
+        const columns = ['عنوان', 'کارگاه', 'معلم', 'شروع', 'پایان', 'ساعت', 'ISG', 'توضیحات', 'تاریخ ثبت'];
         const body = data.map(r => [
             r.title || '-',
             r.workhouse?.name || '-',
             `${r.teacher.name || ''} ${r.teacher.surname || ''}` || '-',
             formatDateDisplay(r.startDateTime || null),
             formatDateDisplay(r.endDateTime || null),
-            r.hours ? `${r.hours} Saat` : '-',
-            r.ISG ? 'Evet' : 'Hayır',
+            r.hours ? `${r.hours} ساعت` : '-',
+            r.ISG ? 'بله' : 'خیر',
             r.description,
             formatDateDisplay(r.createAt || null),
         ]);
@@ -912,24 +912,24 @@ const ListCourses: React.FC = () => {
 
             const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.pdf`;
             docAny.save(fileName);
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("PDF dışa aktarılırken hata:", error);
-            showAlert('PDF dışa aktarılırken bir hata oluştu.', 'error');
+            console.error("خطا در خروجی PDF:", error);
+            showAlert('هنگام خروجی PDF خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
     };
 
     const exportDetailsToExcel = (data: CourseDetail[], title: string) => {
-        if (!data || data.length === 0) { showAlert('Excel oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Excel dosyası oluşturuluyor...', 'info');
+        if (!data || data.length === 0) { showAlert('رکوردی برای ساخت Excel پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
             const worksheet = workbook.addWorksheet(title.substring(0, 31));
 
-            const columns = ['Başlık', 'Şantiye', 'Öğretmen', 'Başlangıç', 'Bitiş', 'Saat', 'ISG', 'Açıklama', 'Kayıt Tarihi'];
+            const columns = ['عنوان', 'کارگاه', 'معلم', 'شروع', 'پایان', 'ساعت', 'ISG', 'توضیحات', 'تاریخ ثبت'];
             addExcelHeader(worksheet, title, columns.length); // 💡 Columns length = 8
 
             const headerRow = worksheet.addRow(columns);
@@ -944,7 +944,7 @@ const ListCourses: React.FC = () => {
                     formatDateDisplay(r.startDateTime || null),
                     formatDateDisplay(r.endDateTime || null),
                     r.hours || '-',
-                    r.ISG ? 'Evet' : 'Hayır',
+                    r.ISG ? 'بله' : 'خیر',
                     r.description || '-',
                     formatDateDisplay(r.createAt || null),
                 ]);
@@ -965,11 +965,11 @@ const ListCourses: React.FC = () => {
             const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`;
             workbook.xlsx.writeBuffer().then(buffer => {
                 saveAs(new Blob([buffer]), fileName);
-                showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+                showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
             });
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -1002,10 +1002,10 @@ const ListCourses: React.FC = () => {
     };
 
     const handleDownloadClick = (fileUrl: string) => {
-        if (!fileUrl) { showAlert('Dosya adresi geçersiz.', 'error'); return; }
+        if (!fileUrl) { showAlert('آدرس فایل نامعتبر است.', 'error'); return; }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
 
     const handleOpenDescriptionModal = (descriptionContent: string) => {
@@ -1057,12 +1057,12 @@ const ListCourses: React.FC = () => {
             handleCloseMenu();
 
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -1124,7 +1124,7 @@ const ListCourses: React.FC = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1145,7 +1145,7 @@ const ListCourses: React.FC = () => {
                         <Typography variant="h6" mb={2}>{editingId ? 'Kurs Düzenle' : 'Yeni Kurs Kaydı'}</Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel>Şantiye</CustomFormLabel>
+                                <CustomFormLabel>کارگاه</CustomFormLabel>
                                 <Autocomplete
                                     size="small"
                                     options={workhousesList}
@@ -1158,18 +1158,18 @@ const ListCourses: React.FC = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Şantiye Seçin"
+                                            label="کارگاه را انتخاب کنید"
                                             error={workhouseError}
-                                            helperText={workhouseError ? 'Zorunlu alan.' : ''}
+                                            helperText={workhouseError ? 'فیلد الزامی.' : ''}
                                         />
                                     )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Kurs Adı</CustomFormLabel>
+                                <CustomFormLabel required>نام دوره</CustomFormLabel>
                                 <CustomTextField placeholder="Kurs Başlığı"
                                     inputRef={nameInputRef}
-                                    size="small" fullWidth value={title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTitle(e.target.value); setTitleError(false); }} error={titleError} helperText={titleError ? 'Zorunlu alan.' : ''} />
+                                    size="small" fullWidth value={title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTitle(e.target.value); setTitleError(false); }} error={titleError} helperText={titleError ? 'فیلد الزامی.' : ''} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
                                 <CustomFormLabel required>Öğretmen Seçimi</CustomFormLabel>
@@ -1195,17 +1195,17 @@ const ListCourses: React.FC = () => {
                                 <CustomFormLabel required>Başlangıç Tarihi/Saati</CustomFormLabel>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                     <DatePicker
-                                        label="Başlangıç"
+                                        label="شروع"
                                         value={startDateTime}
                                         onChange={(v) => { setStartDateTime(v); setStartDateTimeError(false); }}
                                         inputFormat="dd/MM/yyyy"
-                                        renderInput={(params) => <TextField {...params} size="small" fullWidth error={startDateTimeError} helperText={startDateTimeError ? 'Zorunlu alan.' : params.helperText} />}
+                                        renderInput={(params) => <TextField {...params} size="small" fullWidth error={startDateTimeError} helperText={startDateTimeError ? 'فیلد الزامی.' : params.helperText} />}
                                     />
                                 </LocalizationProvider>
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Saat</CustomFormLabel>
+                                <CustomFormLabel required>ساعت</CustomFormLabel>
                                 <CustomTextField
                                     placeholder="Eğitim Saati (Örn: 40)"
                                     size="small"
@@ -1230,7 +1230,7 @@ const ListCourses: React.FC = () => {
                                 <CustomFormLabel>ISG Eğitimi mi?</CustomFormLabel>
                                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
                                     <Chip
-                                        label={ISG ? "Evet (ISG)" : "Hayır"}
+                                        label={ISG ? "Evet (ISG)" : "خیر"}
                                         color={ISG ? "info" : "default"}
                                         variant="outlined"
                                         onClick={() => setISG(!ISG)}
@@ -1243,8 +1243,8 @@ const ListCourses: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12}>
-                                <CustomFormLabel>Açıklama</CustomFormLabel>
-                                <CustomTextField placeholder="Detaylı Açıklama" size="small" fullWidth value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} multiline rows={2} />
+                                <CustomFormLabel>توضیحات</CustomFormLabel>
+                                <CustomTextField placeholder="توضیحات کامل" size="small" fullWidth value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} multiline rows={2} />
                             </Grid>
                             <Grid item xs={12}>
                                 <CustomFormLabel>Ekler (Resim/pdf/excel)</CustomFormLabel>
@@ -1259,11 +1259,11 @@ const ListCourses: React.FC = () => {
                             <Grid item xs={12}>
                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                                     <Button variant="contained" color={editingId ? "info" : "success"} onClick={handleSubmitForm} disabled={loadingButton || !selectedTeacher || !startDateTime || hoursError || hours === ''} size="small">
-                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'Düzenle' : 'Yeni Kayıt Ekle'}
+                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'ویرایش' : 'افزودن رکورد جدید'}
                                     </Button>
 
                                     {editingId ? (
-                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">İptal Et</Button>
+                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">لغو</Button>
 
                                     ) : (
                                         <></>
@@ -1288,12 +1288,12 @@ const ListCourses: React.FC = () => {
                             {isFilterActive && hasDownloadPermission && (
                                 <BlinkingButton variant="contained"
                                     color="secondary" onClick={() => setOpenDownloadFilteredModal(true)}
-                                    isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />} size="small">Filtrelenmişi İndir</BlinkingButton>
+                                    isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />} size="small">دانلود موارد فیلترشده</BlinkingButton>
                             )}
                             {hasDownloadPermission && (
                                 <Button variant="contained" color="primary"
                                     onClick={() => setOpenDownloadAllModal(true)} startIcon={<IconFileDownload />}
-                                    disabled={loadingData} size="small">Tümünü İndir</Button>
+                                    disabled={loadingData} size="small">دانلود همه</Button>
                             )}
                         </Stack>
                     </Grid>
@@ -1303,13 +1303,13 @@ const ListCourses: React.FC = () => {
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                <DatePicker label="Kayıt Başlangıç" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                <DatePicker label="شروع ثبت‌نام" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                             </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
-                                    <DatePicker label="Kayıt Bitiş" value={endFilter} inputFormat="dd/MM/yyyy" minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                    <DatePicker label="پایان ثبت‌نام" value={endFilter} inputFormat="dd/MM/yyyy" minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                                     <IconButton onClick={handleClearDateFilters} aria-label="clear date filters" size="small"><IconX size={20} /></IconButton>
                                 </Stack>
                             </LocalizationProvider>
@@ -1319,12 +1319,12 @@ const ListCourses: React.FC = () => {
                                 value={statusFilter}
                                 exclusive
                                 onChange={handleStatusFilterChange}
-                                aria-label="Durum filtresi"
+                                aria-label="فیلتر وضعیت"
                                 sx={{ flexGrow: 1 }}
                             >
-                                <StyledToggleButton value="all" data-value="all" size="small">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" data-value="active" size="small">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" data-value="inactive" size="small">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all" data-value="all" size="small">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" data-value="active" size="small">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" data-value="inactive" size="small">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1339,17 +1339,17 @@ const ListCourses: React.FC = () => {
                         <Table aria-label="courses table">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'title'} direction={orderBy === 'title' ? order : 'asc'} onClick={() => handleRequestSort('title')} sx={{ color: 'inherit' }}><Typography variant="h6">Başlık</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Öğretmen</Typography></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'startDateTime'} direction={orderBy === 'startDateTime' ? order : 'asc'} onClick={() => handleRequestSort('startDateTime')} sx={{ color: 'inherit' }}><Typography variant="h6">Başlangıç</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'endDateTime'} direction={orderBy === 'endDateTime' ? order : 'asc'} onClick={() => handleRequestSort('endDateTime')} sx={{ color: 'inherit' }}><Typography variant="h6">Bitiş</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Saat</Typography></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'title'} direction={orderBy === 'title' ? order : 'asc'} onClick={() => handleRequestSort('title')} sx={{ color: 'inherit' }}><Typography variant="h6">عنوان</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">معلم</Typography></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'startDateTime'} direction={orderBy === 'startDateTime' ? order : 'asc'} onClick={() => handleRequestSort('startDateTime')} sx={{ color: 'inherit' }}><Typography variant="h6">شروع</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'endDateTime'} direction={orderBy === 'endDateTime' ? order : 'asc'} onClick={() => handleRequestSort('endDateTime')} sx={{ color: 'inherit' }}><Typography variant="h6">پایان</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">ساعت</Typography></StyledTableCell>
 
                                     <StyledTableCell><Typography variant="h6">ISG</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Ekler</Typography></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'createAt'} direction={orderBy === 'createAt' ? order : 'asc'} onClick={() => handleRequestSort('createAt')} sx={{ color: 'inherit' }}><Typography variant="h6">Kayıt Tarihi</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'createAt'} direction={orderBy === 'createAt' ? order : 'asc'} onClick={() => handleRequestSort('createAt')} sx={{ color: 'inherit' }}><Typography variant="h6">تاریخ ثبت</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1367,23 +1367,23 @@ const ListCourses: React.FC = () => {
                                             <StyledTableCell>{`${row.teacher.name || ''} ${row.teacher.surname || ''}` || 'Bilinmiyor'}</StyledTableCell>
                                             <StyledTableCell>{formatDateDisplay(row.startDateTime || null)}</StyledTableCell>
                                             <StyledTableCell>{formatDateDisplay(row.endDateTime || null)}</StyledTableCell>
-                                            <StyledTableCell>{row.hours ? `${row.hours} Saat` : '-'}</StyledTableCell>
+                                            <StyledTableCell>{row.hours ? `${row.hours} ساعت` : '-'}</StyledTableCell>
                                             <StyledTableCell>
                                                 <Chip
-                                                    label={row.ISG ? 'Evet' : 'Hayır'}
+                                                    label={row.ISG ? 'بله' : 'خیر'}
                                                     color={row.ISG ? 'info' : 'default'}
                                                     size="small"
                                                 />
                                             </StyledTableCell>
                                             <StyledTableCell sx={{ maxWidth: 150 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
                                                             variant="text"
                                                             style={{ fontSize: "10px", padding: "2px 5px" }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamanı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1397,7 +1397,7 @@ const ListCourses: React.FC = () => {
                                             </StyledTableCell>
                                             <StyledTableCell>{formatDateDisplay(row.createAt || null)}</StyledTableCell>
                                             <StyledTableCell>
-                                                <Chip label={row.recordStatus === 0 ? 'Aktif' : 'Pasif'} color={row.recordStatus === 0 ? 'success' : 'error'} size="small" />
+                                                <Chip label={row.recordStatus === 0 ? 'فعال' : 'غیرفعال'} color={row.recordStatus === 0 ? 'success' : 'error'} size="small" />
                                             </StyledTableCell>
                                             <StyledTableCell>
                                                 <IconButton onClick={(e) => handleClickMenu(e, row)} size="small"><IconDots width={18} /></IconButton>
@@ -1437,20 +1437,20 @@ const ListCourses: React.FC = () => {
                                                         </CustomTooltip>
                                                     )}
 
-                                                    {hasEditPermission && (<UiMenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</UiMenuItem>)}
+                                                    {hasEditPermission && (<UiMenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>)}
                                                     {hasEditPermission && (
                                                         selectedRowForMenu?.recordStatus === 0 ? (
                                                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kursu pasif yap" : ""}>
-                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}><ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap</UiMenuItem>
+                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}><ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن</UiMenuItem>
                                                             </CustomTooltip>
                                                         ) : (
                                                             <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kursu aktif yap" : ""}>
-                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}><ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap</UiMenuItem>
+                                                                <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}><ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن</UiMenuItem>
                                                             </CustomTooltip>
                                                         )
                                                     )}
                                                     {hasDeletePermission && (<UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>)}
-                                                    {hasDownloadPermission && (<UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon>Bu satırı indir</UiMenuItem>)}
+                                                    {hasDownloadPermission && (<UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon>دانلود این ردیف</UiMenuItem>)}
                                                 </Menu>
                                             </StyledTableCell>
                                         </TableRow>
@@ -1463,23 +1463,23 @@ const ListCourses: React.FC = () => {
                     )}
                 </TableContainer>
 
-                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredCourses.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
+                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredCourses.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
             </BlankCard>
 
             <Dialog open={openDownloadAllModal} onClose={() => setOpenDownloadAllModal(false)} maxWidth="xs">
                 <DialogTitle>Tüm Kursları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
                 <DialogTitle>Filtrelenmiş Kursları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
             <Dialog open={openRowDownloadModal} onClose={handleCloseRowDownloadModal} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openEndCourseModal} onClose={() => setOpenEndCourseModal(false)} maxWidth="sm" fullWidth>
@@ -1488,11 +1488,11 @@ const ListCourses: React.FC = () => {
                     {rowForEndCourse && (
                         <Stack spacing={2}>
                             <Typography variant="body1">Kurs Başlığı: {rowForEndCourse.title}</Typography>
-                            <Typography variant="body2" color="textSecondary">Başlangıç Tarihi: {formatDateDisplay(rowForEndCourse.startDateTime)}</Typography>
+                            <Typography variant="body2" color="textSecondary">تاریخ شروع: {formatDateDisplay(rowForEndCourse.startDateTime)}</Typography>
 
-                            <CustomFormLabel required>Bitiş Tarihi Seçin</CustomFormLabel>
+                            <CustomFormLabel required>تاریخ پایان را انتخاب کنید</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                <DatePicker label="Bitiş Tarihi"
+                                <DatePicker label="تاریخ پایان"
                                     value={endCourseDate}
                                     inputFormat="dd/MM/yyyy"
                                     minDate={new Date(rowForEndCourse.startDateTime)}
@@ -1510,9 +1510,9 @@ const ListCourses: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEndCourseModal(false)} color="secondary" disabled={loadingButton}>İptal</Button>
+                    <Button onClick={() => setOpenEndCourseModal(false)} color="secondary" disabled={loadingButton}>انصراف</Button>
                     <Button onClick={submitEndCourse} color="error" disabled={loadingButton || !endCourseDate}>
-                        {loadingButton ? <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> : "Sonlandır"}</Button>
+                        {loadingButton ? <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> : "پایان دادن"}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1571,23 +1571,23 @@ const ListCourses: React.FC = () => {
                             })}
                         </Stack>
                     ) : (
-                        <DialogContentText>Bu kayda ait ek dosya bulunmamaktadır.</DialogContentText>
+                        <DialogContentText>این رکورد فایل پیوستی ندارد.</DialogContentText>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAttachmentsModal(false)} color="primary" variant="outlined">Kapat</Button>
+                    <Button onClick={() => setOpenAttachmentsModal(false)} color="primary" variant="outlined">بستن</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openDescriptionModal} onClose={handleCloseDescriptionModal} maxWidth="md" fullWidth>
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDescriptionModal} color="primary">Kapat</Button>
+                    <Button onClick={handleCloseDescriptionModal} color="primary">بستن</Button>
                 </DialogActions>
             </Dialog>
 

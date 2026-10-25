@@ -26,8 +26,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.error("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.error("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -66,16 +66,16 @@ export const exportFilteredToPdf = (filteredOrders: OrderType[]) => {
     const header = (_pageNumber: number, _totalPages: number) => {
         doc.addImage(Logo, 'PNG', 10, 10, 40, 25);
         doc.setFontSize(18);
-        doc.text(`Filtrelenmiş Sipariş Raporu`, pageWidth - 15, 30, { align: 'right' });
+        doc.text(`گزارش سفارش‌های فیلترشده`, pageWidth - 15, 30, { align: 'right' });
         doc.setFontSize(12);
-        doc.text(`Tarih: ${formatDateDisplay(new Date().toISOString())}`, pageWidth - 15, 40, { align: 'right' });
+        doc.text(`تاریخ: ${formatDateDisplay(new Date().toISOString())}`, pageWidth - 15, 40, { align: 'right' });
     };
 
     const footer = (pageNumber: number, totalPages: number) => {
         doc.setFontSize(10);
         doc.setTextColor(0);
-        doc.text(`Sayfa ${pageNumber} / ${totalPages}`, 15, pageHeight - 10);
-        doc.text('İmza', pageWidth - 15, pageHeight - 10, { align: 'right' });
+        doc.text(`صفحه ${pageNumber} / ${totalPages}`, 15, pageHeight - 10);
+        doc.text('امضا', pageWidth - 15, pageHeight - 10, { align: 'right' });
     };
 
     let startY = 70;
@@ -88,10 +88,10 @@ export const exportFilteredToPdf = (filteredOrders: OrderType[]) => {
 
     filteredOrders.forEach((order, index) => {
         const orderData = [
-            ['Sipariş No:', order.id.toString()],
-            ['Şebeke:', order.network?.title || '-'],
-            ['Tarih:', formatDateDisplay(order.docDate)],
-            ['Durum:', order.status === 0 ? "Beklemede" : order.status === 1 ? "Onaylandı" : "Reddedildi"]
+            ['شماره سفارش:', order.id.toString()],
+            ['شبکه:', order.network?.title || '-'],
+            ['تاریخ:', formatDateDisplay(order.docDate)],
+            ['وضعیت:', order.status === 0 ? "Beklemede" : order.status === 1 ? "تأیید شد" : "Reddedildi"]
         ];
 
         autoTable(doc, {
@@ -113,7 +113,7 @@ export const exportFilteredToPdf = (filteredOrders: OrderType[]) => {
         ]);
 
         autoTable(doc, {
-            head: [['Ürün Adı', 'Miktar', 'Birim', 'Açıklama', 'Fiyat']],
+            head: [['نام کالا', 'مقدار', 'واحد', 'توضیحات', 'قیمت']],
             body: itemRows,
             startY: orderTableEnd + 5,
             theme: 'grid',
@@ -136,6 +136,6 @@ export const exportFilteredToPdf = (filteredOrders: OrderType[]) => {
     try {
         doc.save(`Filtrelenmiş_Sipariş_Raporu.pdf`);
     } catch (error: any) {
-        console.error('PDF oluşturulurken hata:', error);
+        console.error('خطا در ساخت PDF:', error);
     }
 };

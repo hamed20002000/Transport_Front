@@ -167,7 +167,7 @@ const ProjectOverallStats = () => {
                             <Stack spacing={2} alignItems="center">
                                 <Stack direction="row" spacing={1} alignItems="center" sx={{ opacity: 0.8 }}>
                                     <IconHash size={20} />
-                                    <Typography variant="h6">Kod: {selectedProject.ProjectCode}</Typography>
+                                    <Typography variant="h6">کد: {selectedProject.ProjectCode}</Typography>
                                 </Stack>
 
                                 <Box sx={{
@@ -196,7 +196,7 @@ const ProjectOverallStats = () => {
 
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                             <Typography variant="h5" fontWeight="700" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <IconLayoutDashboard color={theme.palette.primary.main} /> Proje Listesi
+                                <IconLayoutDashboard color={theme.palette.primary.main} /> فهرست پروژه‌ها
                             </Typography>
 
                             <Tooltip title={isAutoPlay ? "Otomatik Geçişi Durdur" : "Otomatik Geçişi Başlat"}>
@@ -239,7 +239,7 @@ const ProjectOverallStats = () => {
                                                     {project.ProjectName}
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary">
-                                                    Kod: {project.ProjectCode}
+                                                    کد: {project.ProjectCode}
                                                 </Typography>
                                             </Box>
                                             <Typography variant="h6" color={isSelected ? "primary.main" : "text.primary"} fontWeight="bold">
@@ -253,7 +253,7 @@ const ProjectOverallStats = () => {
 
                         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
                             <Typography variant="body2" fontWeight="600" color="text.secondary">
-                                {currentPage * pageSize + 1} - {Math.min((currentPage + 1) * pageSize, projects.length)} / {projects.length} Proje
+                                {currentPage * pageSize + 1} - {Math.min((currentPage + 1) * pageSize, projects.length)} / {projects.length} پروژه
                             </Typography>
                             <Stack direction="row" spacing={1}>
                                 <IconButton

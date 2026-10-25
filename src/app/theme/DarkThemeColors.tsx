@@ -93,9 +93,9 @@ const DarkThemeColors = [
     name: 'ORANGE_THEME',
     palette: {
       primary: {
-        main: '#FA896B',
+        main: '#F5761A',
         light: '#402E32',
-        dark: '#F48162',
+        dark: '#DC6310',
         contrastText: '#ffffff',
       },
       secondary: {

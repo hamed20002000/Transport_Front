@@ -321,7 +321,7 @@ const ListUsersModal = ({ openRoleModal, onClose, userId, showAlert }: Props) =>
     setSaving(true);
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      showAlert('Lütfen giriş yapın.', 'warning');
+      showAlert('لطفاً وارد شوید.', 'warning');
       setSaving(false);
       return;
     }
@@ -340,7 +340,7 @@ const ListUsersModal = ({ openRoleModal, onClose, userId, showAlert }: Props) =>
         } else if (error.response && error.response.status === 401) {
           localStorage.removeItem('authToken');
           navigate("/");
-          showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+          showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
         } else {
           showAlert('Roller kaydedilirken beklenmeyen bir hata oluştu، lütfen tekrar deneyin.', 'error');
         }
@@ -450,7 +450,7 @@ const ListUsersModal = ({ openRoleModal, onClose, userId, showAlert }: Props) =>
       <Dialog fullScreen open={openRoleModal} onClose={onClose} TransitionComponent={Transition}>
         <AppBar sx={{ position: 'relative' }}>
           <Toolbar>
-            <CustomTooltip title={isTooltipGloballyEnabled ? "Kapat" : ""}>
+            <CustomTooltip title={isTooltipGloballyEnabled ? "بستن" : ""}>
               <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
                 <IconX width={24} height={24} />
               </IconButton>
@@ -461,7 +461,7 @@ const ListUsersModal = ({ openRoleModal, onClose, userId, showAlert }: Props) =>
             <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen rolleri kaydet" : ""}>
               <span>
                 <Button autoFocus color="inherit" onClick={handleSaveUserRolesAndPermissions} disabled={loading || saving || selectedRoleIds.length === 0}>
-                  {saving ? <CircularProgress size={20} color="inherit" /> : 'Kaydet'}
+                  {saving ? <CircularProgress size={20} color="inherit" /> : 'ذخیره'}
                 </Button>
               </span>
             </CustomTooltip>
@@ -477,7 +477,7 @@ const ListUsersModal = ({ openRoleModal, onClose, userId, showAlert }: Props) =>
             ) : (
               <List dense sx={{ py: 0 }}>
                 {allRoles.length === 0 ? (
-                  <Typography color="textSecondary" sx={{ p: 2 }}>Hiç rol bulunamadı.</Typography>
+                  <Typography color="textSecondary" sx={{ p: 2 }}>هیچ نقشی پیدا نشد.</Typography>
                 ) : (
                   allRoles.filter(role => role.name !== HIDDEN_ROLE || selectedRoleIds.includes(role.id)).map(role => (
                     <ListItem

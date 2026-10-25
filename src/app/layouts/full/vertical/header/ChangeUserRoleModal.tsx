@@ -82,19 +82,19 @@ const ChangeUserRoleModal = ({ open, onClose, userRoles, currentActiveRoleName, 
           </CustomTooltip>
         ) : (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="100px">
-            <Typography color="textSecondary">Hiç rol bulunamadı.</Typography>
+            <Typography color="textSecondary">هیچ نقشی پیدا نشد.</Typography>
           </Box>
         )}
       </DialogContent>
       <DialogActions>
         <CustomTooltip title={isTooltipGloballyEnabled ? "Rol değiştirme işlemini iptal et" : ""}>
           <Button onClick={onClose} color="error" disabled={saving}>
-            İptal Et
+            لغو
           </Button>
         </CustomTooltip>
         <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen rolü kaydet" : ""}>
           <Button onClick={handleSave} color="primary" variant="contained" disabled={saving}>
-            {saving ? <CircularProgress size={20} color="inherit" /> : 'Kaydet'}
+            {saving ? <CircularProgress size={20} color="inherit" /> : 'ذخیره'}
           </Button>
         </CustomTooltip>
       </DialogActions>

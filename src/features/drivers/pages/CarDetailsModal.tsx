@@ -80,7 +80,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
         setLoadingData(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             setLoadingData(false);
             return;
         }
@@ -103,7 +103,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
         } catch (e: any) {
             console.error("Failed to fetch vehicles:", e);
             setVehiclesList([]);
-            showAlert('Araç bilgileri yüklenirken bir hata oluştu.', 'error');
+            showAlert('هنگام بارگذاری اطلاعات خودرو خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -149,7 +149,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -175,7 +175,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                 showAlert(response.data.message || 'Araç kaydedilirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            showAlert(e.response?.data?.message || 'Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -187,7 +187,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -215,15 +215,15 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
 
-                showAlert(e.response?.data?.message || 'Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert(e.response?.data?.message || 'خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
             }
         } finally {
             setLoadingButton(false);
@@ -256,7 +256,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
     const handleUpdateStatus = async (vehicleId: number, status: number) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             return;
         }
 
@@ -276,7 +276,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                 showAlert(`Araç durumu güncellenirken bir hata oluştu.`, 'error');
             }
         } catch (e) {
-            showAlert('Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert('خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -301,7 +301,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
             aria-labelledby="car-details-modal-title"
         >
             <DialogTitle id="car-details-modal-title">
-                Sürücü: {driverName} için Araç Yönetimi
+                راننده: {driverName} için Araç Yönetimi
             </DialogTitle>
             <DialogContent dividers>
                 {alertMessage && (
@@ -315,7 +315,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                     </Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={4}>
-                            <CustomFormLabel htmlFor="car-name" required>Araç Adı</CustomFormLabel>
+                            <CustomFormLabel htmlFor="car-name" required>نام خودرو</CustomFormLabel>
                             <CustomTextField
                                 id="car-name"
                                 placeholder="Örn: Ford Transit"
@@ -364,15 +364,15 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                                 {isEditing ? (
                                     <>
                                         <Button variant="contained" color="info" onClick={updateVehicle} disabled={loadingButton}>
-                                            {loadingButton ? <CircularProgress size={20} /> : 'Düzenle'}
+                                            {loadingButton ? <CircularProgress size={20} /> : 'ویرایش'}
                                         </Button>
                                         <Button variant="outlined" color="secondary" onClick={resetForm} disabled={loadingButton}>
-                                            İptal Et
+                                            لغو
                                         </Button>
                                     </>
                                 ) : (
                                     <Button variant="contained" color="success" onClick={insertVehicle} disabled={loadingButton}>
-                                        {loadingButton ? <CircularProgress size={20} /> : 'Kaydet'}
+                                        {loadingButton ? <CircularProgress size={20} /> : 'ذخیره'}
                                     </Button>
                                 )}
                             </Stack>
@@ -394,10 +394,10 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                         <Table aria-label="driver vehicles table">
                             <TableHead sx={{ background: "rgb(149 147 125 / 65%)" }}>
                                 <TableRow>
-                                    <StyledTableCell><Typography variant="h6">Araç Adı</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">نام خودرو</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Model</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Plaka</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Durum</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">پلاک</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">وضعیت</Typography></StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -410,7 +410,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                                             <StyledTableCell><Typography variant="body1">{row.plaque}</Typography></StyledTableCell>
                                             <StyledTableCell>
                                                 <Chip
-                                                    label={row.recordStatus === 0 ? 'Aktif' : 'Pasif'}
+                                                    label={row.recordStatus === 0 ? 'فعال' : 'غیرفعال'}
                                                     sx={{
                                                         backgroundColor: row.recordStatus === 0 ? 'success.light' : 'error.light',
                                                         color: row.recordStatus === 0 ? 'success.main' : 'error.main'
@@ -428,18 +428,18 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
                                                     MenuListProps={{ 'aria-labelledby': `menu-button-${row.id}` }}
                                                 >
                                                     <UiMenuItem onClick={() => handleEditClick(row)}>
-                                                        <ListItemIcon><IconEdit width={18} /></ListItemIcon> Düzenle
+                                                        <ListItemIcon><IconEdit width={18} /></ListItemIcon> ویرایش
                                                     </UiMenuItem>
                                                     <UiMenuItem onClick={() => handleDeleteClick(row)}>
                                                         <ListItemIcon><IconTrash width={18} /></ListItemIcon> Silmek
                                                     </UiMenuItem>
                                                     {row.recordStatus === 0 ? (
                                                         <UiMenuItem onClick={() => handleUpdateStatus(row.id, 1)}>
-                                                            <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap
+                                                            <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن
                                                         </UiMenuItem>
                                                     ) : (
                                                         <UiMenuItem onClick={() => handleUpdateStatus(row.id, 0)}>
-                                                            <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap
+                                                            <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن
                                                         </UiMenuItem>
                                                     )}
                                                 </Menu>
@@ -462,7 +462,7 @@ const CarDetailsModal: React.FC<CarDetailsModalProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} color="secondary" variant="outlined">
-                    Kapat
+                    بستن
                 </Button>
             </DialogActions>
 

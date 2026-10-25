@@ -2,7 +2,7 @@
     "baseurl": "/api/",
     "tarabariurl": "/tarabari-api/",
     "socketurl": "http://localhost:3001",
-    "urldpwonload": "https://setasportal.com",
+    "urldpwonload": "",
     "admin": "Admin/",
     "login": "auth/",
     "user": "users/",

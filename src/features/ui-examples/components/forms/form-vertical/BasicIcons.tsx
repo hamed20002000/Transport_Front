@@ -70,7 +70,7 @@ const BasicIcons = () => {
         {/* 4 */}
         <Grid item xs={12}>
           <CustomFormLabel htmlFor="bi-phone">
-            Phone No
+            شماره تلفن
           </CustomFormLabel>
         </Grid>
         <Grid item xs={12}>

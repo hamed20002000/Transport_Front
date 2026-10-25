@@ -102,8 +102,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 const descendingComparator = <T, Key extends keyof T>(a: T, b: T, orderBy: Key): number => {
@@ -144,7 +144,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -153,7 +153,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -171,7 +171,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -183,12 +183,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -198,7 +198,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     titleRow.font = { name: 'NotoSans', size: 14, bold: true };
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -208,7 +208,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل',
     ];
     let rowNum = startRow;
@@ -337,9 +337,9 @@ const ListProjects = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const showAlert = (message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
         setAlertMessage(message);
@@ -376,19 +376,19 @@ const ListProjects = () => {
                 const projects = response.data.data.map((item: any) => ({
                     ...item,
                     recordStatus: item.recordStatus,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif'
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال'
                 }));
                 setProjectsList(projects);
             } else {
                 showAlert(response.data.message || 'Projeler yüklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -416,15 +416,15 @@ const ListProjects = () => {
             if (response.data.httpStatusCode === 200) {
                 setWorkhousesList(response.data.data.filter((wh: any) => wh.recordStatus === 0));
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -441,12 +441,12 @@ const ListProjects = () => {
                 showAlert(response.data.message || 'Firma listesi alınamadı.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -535,7 +535,7 @@ const ListProjects = () => {
         if (!isValid) {
             if (!isDateRangeValid) {
             } else {
-                showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+                showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
             }
         }
         return isValid;
@@ -586,12 +586,12 @@ const ListProjects = () => {
                 showAlert(response.data.message || 'Proje eklenirken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -624,11 +624,11 @@ const ListProjects = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Proje güncellenirken bir hata oluştu.', 'error');
@@ -643,7 +643,7 @@ const ListProjects = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -664,18 +664,18 @@ const ListProjects = () => {
                 resetFormAndState();
                 fetchProjects();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
 
             }
         } finally {
@@ -718,12 +718,12 @@ const ListProjects = () => {
                 showAlert(response.data.message || 'Proje sonlandırılırken bir hata oluştu.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -780,7 +780,7 @@ const ListProjects = () => {
             showAlert('PDF oluşturulacak proje bulunamadı.', 'warning');
             return;
         }
-        showAlert('PDF oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل PDF...', 'info');
         const doc = new jsPDF();
         const docAny = doc as any;
 
@@ -789,8 +789,8 @@ const ListProjects = () => {
         doc.setFont('NotoSans');
 
         const columns = [
-            "Başlık", "Kod", "Tip", "Başlangıç", "Tahmini Bitiş",
-            "Gerçek Bitiş", "Şantiye", "Firma", "Durum"
+            "عنوان", "کد", "Tip", "شروع", "Tahmini Bitiş",
+            "Gerçek Bitiş", "کارگاه", "شرکت", "وضعیت"
         ];
 
         const rows = data.map(row => [
@@ -802,7 +802,7 @@ const ListProjects = () => {
             formatDateDisplay(row.endDate),
             row.workhouse?.name || '-',
             row.projectFirm?.title || '-',
-            row.recordStatus === 0 ? 'Aktif' : 'Pasif'
+            row.recordStatus === 0 ? 'فعال' : 'غیرفعال'
         ]);
 
         try {
@@ -825,10 +825,10 @@ const ListProjects = () => {
                 margin: { top: 55, bottom: 20 }
             });
             doc.save(`${title.replace(/ /g, '_')}.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (error: any) {
-            console.error('PDF oluşturulurken hata:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu: ' + error.message, 'error');
+            console.error('خطا در ساخت PDF:', error);
+            showAlert('هنگام ساخت PDF خطایی رخ داد: ' + error.message, 'error');
         }
     };
 
@@ -837,13 +837,13 @@ const ListProjects = () => {
             showAlert('Excel oluşturulacak proje bulunamadı.', 'warning');
             return;
         }
-        showAlert('Excel oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet(title.replace(/[\\/*?:[\]]/g, ' '));
 
         const columns = [
-            "Başlık", "Kod", "Tip", "Başlangıç", "Tahmini Bitiş",
-            "Gerçek Bitiş", "Şantiye", "Firma", "Durum"
+            "عنوان", "کد", "Tip", "شروع", "Tahmini Bitiş",
+            "Gerçek Bitiş", "کارگاه", "شرکت", "وضعیت"
         ];
 
         addExcelHeader(worksheet, title, columns.length);
@@ -866,7 +866,7 @@ const ListProjects = () => {
                 formatDateDisplay(row.endDate),
                 row.workhouse?.name || '-',
                 row.projectFirm?.title || '-',
-                row.recordStatus === 0 ? 'Aktif' : 'Pasif'
+                row.recordStatus === 0 ? 'فعال' : 'غیرفعال'
             ]);
         });
 
@@ -886,14 +886,14 @@ const ListProjects = () => {
         const fileName = `${title.replace(/ /g, '_')}.xlsx`;
         workbook.xlsx.writeBuffer().then(buffer => {
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد.', 'success');
         });
     };
 
     const handleDownload = (format: 'pdf' | 'excel', isFiltered: boolean) => {
         const dataToDownload = isFiltered ? displayedProjects : projectsList;
         const title = isFiltered ? 'Filtrelenmiş Projeler Raporu' : 'Tüm Projeler Raporu';
-        const subtitle = isFiltered ? `Tarih Aralığı: ${formatDateDisplay(filterStartDate ? filterStartDate.toISOString() : null)} - ${formatDateDisplay(filterEndDate ? filterEndDate.toISOString() : null)}` : undefined;
+        const subtitle = isFiltered ? `بازه‌ی زمانی: ${formatDateDisplay(filterStartDate ? filterStartDate.toISOString() : null)} - ${formatDateDisplay(filterEndDate ? filterEndDate.toISOString() : null)}` : undefined;
 
         if (format === 'pdf') {
             exportProjectsToPdf(dataToDownload, title, subtitle);
@@ -972,7 +972,7 @@ const ListProjects = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button variant="contained" color="error" onClick={resetFormAndState} startIcon={<IconX size={20} />}>
                                     Gizle
                                 </Button>
@@ -984,16 +984,16 @@ const ListProjects = () => {
                     <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
-                                <CustomFormLabel htmlFor="project-title" required>Proje Başlığı</CustomFormLabel>
-                                <CustomTextField id="project-title" placeholder="Proje Başlığı"
+                                <CustomFormLabel htmlFor="project-title" required>عنوان پروژه</CustomFormLabel>
+                                <CustomTextField id="project-title" placeholder="عنوان پروژه"
                                     fullWidth size="small" value={title}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTitle(e.target.value); if (titleError) setTitleError(false); }} inputRef={titleInputRef} error={titleError} helperText={titleError ? "Başlık alanı boş bırakılamaz!" : ""} />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <CustomFormLabel htmlFor="project-code" required>Proje Kodu</CustomFormLabel>
-                                <CustomTextField id="project-code" placeholder="Proje Kodu"
+                                <CustomFormLabel htmlFor="project-code" required>کد پروژه</CustomFormLabel>
+                                <CustomTextField id="project-code" placeholder="کد پروژه"
                                     fullWidth size="small" value={code}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setCode(e.target.value); if (codeError) setCodeError(false); }} error={codeError} helperText={codeError ? "Kod alanı boş bırakılamaz!" : ""} />
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setCode(e.target.value); if (codeError) setCodeError(false); }} error={codeError} helperText={codeError ? "فیلد کد نمی‌تواند خالی باشد!" : ""} />
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <CustomFormLabel htmlFor="project-type" required>Proje Tipi</CustomFormLabel>
@@ -1017,7 +1017,7 @@ const ListProjects = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Şantiye Seçin"
+                                            label="کارگاه را انتخاب کنید"
                                             size="small"
                                             fullWidth
                                             error={workhouseIdError}
@@ -1045,9 +1045,9 @@ const ListProjects = () => {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                    <CustomFormLabel htmlFor="start-date" required>Başlangıç Tarihi</CustomFormLabel>
+                                    <CustomFormLabel htmlFor="start-date" required>تاریخ شروع</CustomFormLabel>
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={startDate}
                                         onChange={(newValue) => {
                                             setStartDate(newValue);
@@ -1061,7 +1061,7 @@ const ListProjects = () => {
                                                 size="small"
                                                 fullWidth
                                                 error={startDateError}
-                                                helperText={startDateError ? "Başlangıç tarihi zorunludur!" : ""}
+                                                helperText={startDateError ? "تاریخ شروع الزامی است!" : ""}
                                             />
                                         )}
                                     />
@@ -1095,14 +1095,14 @@ const ListProjects = () => {
                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                                     {editingId !== null ? (
                                         <Button variant="contained" color="info" onClick={editProject} disabled={loadingButton}>
-                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Düzenle'}
+                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'ویرایش'}
                                         </Button>
                                     ) : (
                                         <Button variant="contained" color="success" onClick={insertProject} disabled={loadingButton}>
-                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'Ekle'}
+                                            {loadingButton ? <><BoltIcon sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...</> : 'افزودن'}
                                         </Button>
                                     )}
-                                    {editingId !== null && <Button variant="outlined" color="secondary" onClick={resetFormAndState}>İptal Et</Button>}
+                                    {editingId !== null && <Button variant="outlined" color="secondary" onClick={resetFormAndState}>لغو</Button>}
                                 </Stack>
                             </Grid>
                         </Grid>
@@ -1122,7 +1122,7 @@ const ListProjects = () => {
                                     isBlinking={true}
                                     disabled={loadingData || displayedProjects.length === 0}
                                 >
-                                    Filtrelenmişi İndir
+                                    دانلود موارد فیلترشده
                                 </BlinkingButton>
                             </CustomTooltip>
                         )}
@@ -1135,7 +1135,7 @@ const ListProjects = () => {
                                     startIcon={<IconFileDownload />}
                                     disabled={loadingData || projectsList.length === 0}
                                 >
-                                    Tümünü İndir
+                                    دانلود همه
                                 </Button>
                             </CustomTooltip>
                         )}
@@ -1144,7 +1144,7 @@ const ListProjects = () => {
                 <Box sx={{ p: 2 }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
                         <Typography variant="h5">
-                            Proje Listesi
+                            فهرست پروژه‌ها
 
                             {notifIds.length > 0 && (
                                 <Stack component="span" direction="row" spacing={1} alignItems="center" sx={{ ml: 1 }}>
@@ -1182,14 +1182,14 @@ const ListProjects = () => {
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <DatePicker
-                                        label="Başlangıç Tarihi"
+                                        label="تاریخ شروع"
                                         value={filterStartDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(newValue) => setFilterStartDate(newValue)}
                                         renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                                     />
                                     <DatePicker
-                                        label="Bitiş Tarihi"
+                                        label="تاریخ پایان"
                                         value={filterEndDate}
                                         inputFormat="dd/MM/yyyy"
                                         minDate={filterStartDate || undefined}
@@ -1209,9 +1209,9 @@ const ListProjects = () => {
                                 onChange={(_event, newFilter) => newFilter && setStatusFilter(newFilter)}
                                 fullWidth
                             >
-                                <StyledToggleButton value="all">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive">Pasif</StyledToggleButton>
+                                <StyledToggleButton value="all">همه</StyledToggleButton>
+                                <StyledToggleButton value="active">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1236,27 +1236,27 @@ const ListProjects = () => {
                                 <TableRow>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'title'} direction={orderBy === 'title' ? order : 'asc'} onClick={() => handleRequestSort('title')}>
-                                            <Typography variant="h6">Proje Başlığı</Typography>
+                                            <Typography variant="h6">عنوان پروژه</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'code'} direction={orderBy === 'code' ? order : 'asc'} onClick={() => handleRequestSort('code')}>
-                                            <Typography variant="h6">Proje Kodu</Typography>
+                                            <Typography variant="h6">کد پروژه</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Proje Tipi</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Şantiye</Typography></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Firma</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">کارگاه</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">شرکت</Typography></StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'startDate'} direction={orderBy === 'startDate' ? order : 'asc'} onClick={() => handleRequestSort('startDate')}>
-                                            <Typography variant="h6">Başlangıç Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ شروع</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Tahmini Bitiş Tarihi</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Gerçek Bitiş Tarihi</Typography></StyledTableCell>
                                     <StyledTableCell>
                                         <TableSortLabel active={orderBy === 'recordStatus'} direction={orderBy === 'recordStatus' ? order : 'asc'} onClick={() => handleRequestSort('recordStatus')}>
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
@@ -1284,7 +1284,7 @@ const ListProjects = () => {
                                             <StyledTableCell><Typography variant="body1">{formatDateDisplay(row.endDate)}</Typography></StyledTableCell>
                                             <StyledTableCell>
                                                 <Chip
-                                                    label={row.recordStatus === 0 ? 'Aktif' : 'Pasif'}
+                                                    label={row.recordStatus === 0 ? 'فعال' : 'غیرفعال'}
                                                     color={row.recordStatus === 0 ? 'success' : 'error'}
                                                 />
                                             </StyledTableCell>
@@ -1312,25 +1312,25 @@ const ListProjects = () => {
                                                     {hasEditPermission && selectedRowForMenu?.recordStatus === 0 ? (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu projeyi pasif yap" : ""}>
                                                             <UiMenuItem onClick={() => sendStatusUpdate(row.id, 1)}>
-                                                                <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> Pasif Yap
+                                                                <ListItemIcon><DoNotDisturbOnRoundedIcon width={18} /></ListItemIcon> غیرفعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     ) : (
                                                         <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu projeyi aktif yap" : ""}>
                                                             <UiMenuItem onClick={() => sendStatusUpdate(row.id, 0)}>
-                                                                <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> Aktif Yap
+                                                                <ListItemIcon><DoneRoundedIcon width={18} /></ListItemIcon> فعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasEditPermission && (
-                                                        <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon> Düzenle</UiMenuItem>
+                                                        <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon> ویرایش</UiMenuItem>
                                                     )}
                                                     {hasDeletePermission && (
                                                         <UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon> Silmek</UiMenuItem>
                                                     )}
                                                     {hasDownloadPermission && (
                                                         <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}>
-                                                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>Bu satırı indir
+                                                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>دانلود این ردیف
                                                         </UiMenuItem>
                                                     )}
                                                 </Menu>
@@ -1382,18 +1382,18 @@ const ListProjects = () => {
                         <Button variant="contained" color="primary" startIcon={<IconFileText />}
                             onClick={() => { handleDownload('pdf', false); handleCloseDownloadAllModal(); }}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
                             onClick={() => { handleDownload('excel', false); handleCloseDownloadAllModal(); }}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDownloadAllModal} color="secondary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1405,41 +1405,41 @@ const ListProjects = () => {
                         <Button variant="contained" color="primary" startIcon={<IconFileText />}
                             onClick={() => { handleDownload('pdf', true); handleCloseDownloadFilteredModal(); }}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
                             onClick={() => { handleDownload('excel', true); handleCloseDownloadFilteredModal(); }}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDownloadFilteredModal} color="secondary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={handleCloseRowDownloadModal} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button variant="contained" color="primary" startIcon={<IconFileText />}
                             onClick={() => handleDownloadSingleProject('pdf')}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
                             onClick={() => handleDownloadSingleProject('excel')}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseRowDownloadModal} color="secondary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1449,8 +1449,8 @@ const ListProjects = () => {
                 <DialogContent>
                     {selectedProjectForDownload && (
                         <Stack spacing={2}>
-                            <Typography variant="h6">Proje: {selectedProjectForDownload.title} ({selectedProjectForDownload.code})</Typography>
-                            <Typography variant="body2">Başlangıç Tarihi: {formatDateDisplay(selectedProjectForDownload.startDate)}</Typography>
+                            <Typography variant="h6">پروژه: {selectedProjectForDownload.title} ({selectedProjectForDownload.code})</Typography>
+                            <Typography variant="body2">تاریخ شروع: {formatDateDisplay(selectedProjectForDownload.startDate)}</Typography>
                             <Typography variant="body2">Tahmini Bitiş Tarihi: {formatDateDisplay(selectedProjectForDownload.predictEndDate)}</Typography>
 
                             <CustomFormLabel required>Gerçek Bitiş Tarihi Seçin</CustomFormLabel>
@@ -1474,10 +1474,10 @@ const ListProjects = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEndProjectModal(false)} color="secondary" disabled={loadingButton}>
-                        İptal
+                        انصراف
                     </Button>
                     <Button onClick={submitEndProject} color="success" disabled={loadingButton || !endProjectDate}>
-                        {loadingButton ? 'Kaydediliyor...' : 'Kaydet'}
+                        {loadingButton ? 'Kaydediliyor...' : 'ذخیره'}
                     </Button>
                 </DialogActions>
             </Dialog>

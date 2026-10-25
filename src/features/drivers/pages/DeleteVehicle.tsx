@@ -32,7 +32,7 @@ const DeleteVehicle: React.FC<DeleteVehicleProps> = ({
         setLoading(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             setLoading(false);
             onClose(false);
             return;
@@ -57,14 +57,14 @@ const DeleteVehicle: React.FC<DeleteVehicleProps> = ({
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
-                showAlert(e.response?.data?.message || 'Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+                showAlert(e.response?.data?.message || 'خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
                 onClose(false);
             }
 
@@ -90,7 +90,7 @@ const DeleteVehicle: React.FC<DeleteVehicleProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => onClose(false)} color="secondary" variant="outlined" disabled={loading}>
-                    İptal Et
+                    لغو
                 </Button>
                 <Button onClick={handleDelete} color="error" variant="contained" autoFocus disabled={loading}>
                     {loading ? (

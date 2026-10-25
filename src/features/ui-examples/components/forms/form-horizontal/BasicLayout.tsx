@@ -48,7 +48,7 @@ const BasicLayout = () => {
         {/* 4 */}
         <Grid item xs={12} sm={3} display="flex" alignItems="center">
           <CustomFormLabel htmlFor="bl-phone" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }}>
-            Phone No
+            شماره تلفن
           </CustomFormLabel>
         </Grid>
         <Grid item xs={12} sm={9}>

@@ -13,7 +13,7 @@ export const educationRoutes: RouteObject[] = [
   {
     path: '/education/list-teachers/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListTeachers />
       </PermissionGuard>
     ),
@@ -21,7 +21,7 @@ export const educationRoutes: RouteObject[] = [
   {
     path: '/education/list-courses/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCourses />
       </PermissionGuard>
     ),
@@ -29,7 +29,7 @@ export const educationRoutes: RouteObject[] = [
   {
     path: '/education/list-participation-certificate/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListParticipationCertificate />
       </PermissionGuard>
     ),

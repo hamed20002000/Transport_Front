@@ -96,9 +96,9 @@ const formatDateDisplay = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString.length === 10 ? dateString : String(dateString));
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 const descendingComparator = <T, Key extends keyof T>(a: T, b: T, orderBy: Key): number => {
@@ -150,11 +150,11 @@ const uploadFiles = async (
         if (uploadResponse.data.httpStatusCode === 201) {
             return uploadResponse.data.data.files as string[];
         } else {
-            showAlert(uploadResponse.data?.message || 'Dosya yüklenirken sunucu hatası oluştu.', 'error');
+            showAlert(uploadResponse.data?.message || 'هنگام بارگذاری فایل خطای سرور رخ داد.', 'error');
             return null;
         }
     } catch (e: any) {
-        showAlert(e?.response?.data?.message || 'Dosya yüklenirken ağ hatası oluştu.', 'error');
+        showAlert(e?.response?.data?.message || 'هنگام بارگذاری فایل خطای شبکه رخ داد.', 'error');
         return null;
     }
 };
@@ -182,8 +182,8 @@ const FuelFileUpload: React.FC<{
                 {currentAttachments.map((att, index) => { const fileName = att.fileUrl.split('/').pop() || 'dosya'; return (<Chip key={`exist-${index}`} label={`Mevcut ${index + 1}`} icon={getFileIcon(fileName)} onDelete={() => handleRemoveExistingAttachment(index)} size="small" color={getFileColor(fileName)} variant="outlined" sx={{ m: 0.5, maxWidth: 150 }} />); })}
             </Stack>)}
             {files.length > 0 && (<Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
-                <Typography variant="caption" sx={{ color: 'gray', width: '100%' }}>Yüklenecek Yeni Dosyalar ({files.length}):</Typography>
-                {files.map((file, index) => (<Chip key={`new-${index}`} label={`Yeni ${index + 1}`} icon={getFileIcon(file.name)} onDelete={() => handleRemoveNewFile(index)} size="small" color={getFileColor(file.name)} sx={{ maxWidth: 150 }} />))}
+                <Typography variant="caption" sx={{ color: 'gray', width: '100%' }}>فایل‌های جدید برای بارگذاری ({files.length}):</Typography>
+                {files.map((file, index) => (<Chip key={`new-${index}`} label={`جدید ${index + 1}`} icon={getFileIcon(file.name)} onDelete={() => handleRemoveNewFile(index)} size="small" color={getFileColor(file.name)} sx={{ maxWidth: 150 }} />))}
             </Stack>)}
             {error && <Typography color="error" variant="caption" sx={{ ml: 1.5, mt: 0.5 }}>Lütfen dosya seçin veya hataları düzلتین.</Typography>}
         </Box>
@@ -207,7 +207,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -216,7 +216,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -234,7 +234,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -246,23 +246,23 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
 const exportToPdf = (data: CarFuelRecord[], title: string, showAlert: (m: string, s: any) => void, setLoadingData: (l: boolean) => void) => {
-    if (!data || data.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-    setLoadingData(true); showAlert('Rapor oluşturuluyor...', 'info');
+    if (!data || data.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
+    setLoadingData(true); showAlert('در حال ساخت گزارش...', 'info');
 
     const doc = new jsPDF();
     const docAny = doc as any;
 
-    const columns = ['Tarih', 'Yakıt Tipi', 'Miktar (Litre/kWh)', 'Birim Fiyat', 'Toplam Fiyat', 'Açıklama'];
+    const columns = ['تاریخ', 'نوع سوخت', 'Miktar (Litre/kWh)', 'قیمت واحد', 'قیمت کل', 'توضیحات'];
     const body = data.map(r => [
         formatDateDisplay(r.date || null),
         FUEL_TYPES.find(f => f.value === r.fuelType)?.label || r.fuelType || '-',
@@ -313,7 +313,7 @@ const exportToPdf = (data: CarFuelRecord[], title: string, showAlert: (m: string
         if (summaryRows.length > 0) {
             autoTable(docAny, {
                 startY: finalY + 5,
-                head: [['Yakıt Tipi', 'Toplam Miktar', 'Toplam Birim Fiyat', 'Toplam Fiyat']],
+                head: [['نوع سوخت', 'مقدار کل', 'Toplam Birim Fiyat', 'قیمت کل']],
                 body: summaryRows,
                 theme: 'grid',
                 styles: { font: 'NotoSans', fontStyle: 'normal', fontSize: 9 },
@@ -323,18 +323,18 @@ const exportToPdf = (data: CarFuelRecord[], title: string, showAlert: (m: string
         }
         const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.pdf`;
         docAny.save(fileName);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
     } catch (error) {
         console.error("PDF dışا aktarılırken hata:", error);
-        showAlert('PDF dışا aktarılırken bir hata oluştu.', 'error');
+        showAlert('هنگام خروجی PDF خطایی رخ داد.', 'error');
     } finally {
         setLoadingData(false);
     }
 };
 
 const exportToExcel = (data: CarFuelRecord[], title: string, showAlert: (m: string, s: any) => void, setLoadingData: (l: boolean) => void) => {
-    if (!data || data.length === 0) { showAlert('Excel oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-    setLoadingData(true); showAlert('Excel dosyası oluşturuluyor...', 'info');
+    if (!data || data.length === 0) { showAlert('رکوردی برای ساخت Excel پیدا نشد.', 'warning'); return; }
+    setLoadingData(true); showAlert('در حال ساخت فایل Excel...', 'info');
 
     const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength: number) => {
         worksheet.views = [{ rightToLeft: false }];
@@ -342,7 +342,7 @@ const exportToExcel = (data: CarFuelRecord[], title: string, showAlert: (m: stri
         titleRow.font = { name: 'NotoSans', size: 14, bold: true };
         worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
         titleRow.getCell(1).alignment = { horizontal: 'center' };
-        const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+        const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
         dateRow.font = { name: 'NotoSans', size: 10, bold: false };
         dateRow.getCell(1).alignment = { horizontal: 'left' };
         worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -351,7 +351,7 @@ const exportToExcel = (data: CarFuelRecord[], title: string, showAlert: (m: stri
     const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
         let rowNum = startRow;
@@ -369,7 +369,7 @@ const exportToExcel = (data: CarFuelRecord[], title: string, showAlert: (m: stri
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet(title.substring(0, 31));
 
-        const columns = ['Tarih', 'Yakıt Tipi', 'Miktar (Litre/kWh)', 'Birim Fiyat', 'Toplam Fiyat', 'Açıklama'];
+        const columns = ['تاریخ', 'نوع سوخت', 'Miktar (Litre/kWh)', 'قیمت واحد', 'قیمت کل', 'توضیحات'];
         addExcelHeader(worksheet, title, columns.length);
 
         const headerRow = worksheet.addRow(columns);
@@ -405,7 +405,7 @@ const exportToExcel = (data: CarFuelRecord[], title: string, showAlert: (m: stri
         summaryTitleRow.font = { name: 'NotoSans', size: 12, bold: true };
         worksheet.mergeCells(`A${summaryTitleRow.number}:${String.fromCharCode(65 + columns.length - 1)}${summaryTitleRow.number}`);
 
-        const summaryHeaders = ['Yakıt Tipi', 'Toplam Miktar', 'Toplam Birim Fiyat', 'Toplam Fiyat'];
+        const summaryHeaders = ['نوع سوخت', 'مقدار کل', 'Toplam Birim Fiyat', 'قیمت کل'];
         const summaryHeaderRow = worksheet.addRow(summaryHeaders);
         summaryHeaderRow.font = { name: 'NotoSans', bold: true };
         summaryHeaderRow.eachCell(cell => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; });
@@ -439,11 +439,11 @@ const exportToExcel = (data: CarFuelRecord[], title: string, showAlert: (m: stri
         const fileName = `${title.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd')}.xlsx`;
         workbook.xlsx.writeBuffer().then(buffer => {
             saveAs(new Blob([buffer]), fileName);
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         });
     } catch (error) {
         console.error("Excel dışا aktarılırken hata:", error);
-        showAlert('Excel dışا aktarılırken bir hata oluştu.', 'error');
+        showAlert('هنگام خروجی Excel خطایی رخ داد.', 'error');
     } finally {
         setLoadingData(false);
     }
@@ -580,9 +580,9 @@ const ListCarFuels: React.FC = () => {
                 setFuelRecords(cleanedRecords as CarFuelRecord[]);
             } else { showAlert(res.data.message || 'Yakıt kayıtları yüklenemedi.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
-            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
+            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
 
         finally { setLoadingData(false); }
@@ -666,11 +666,11 @@ const ListCarFuels: React.FC = () => {
         if (!validateForm() || !consignedCarId) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت.', 'error'); setLoadingButton(false); return; }
 
         let fileUrls: string[] | null = [];
         if (selectedFiles.length > 0) {
-            showAlert('Dosyalar yükleniyor...', 'info');
+            showAlert('در حال بارگذاری فایل‌ها...', 'info');
             fileUrls = await uploadFiles(selectedFiles, authToken, showAlert);
             if (fileUrls === null) { setLoadingButton(false); return; }
         }
@@ -711,14 +711,14 @@ const ListCarFuels: React.FC = () => {
             const successStatus = isEditing ? 200 : 201;
 
             if (res.data.httpStatusCode === successStatus || res.data.httpStatusCode === 200) {
-                showAlert(`Yakıt kaydı başarıyla ${isEditing ? 'güncellendi' : 'eklendi'}!`, 'success');
+                showAlert(`Yakıt kaydı başarıyla ${isEditing ? 'به‌روزرسانی شد' : 'eklendi'}!`, 'success');
                 resetForm();
                 fetchFuelRecords();
-            } else { showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
-            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
+            else if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -742,10 +742,10 @@ const ListCarFuels: React.FC = () => {
 
     const handleOpenAttachmentsModal = (attachments: AttachmentType[]) => { setAttachmentsToView(attachments); setOpenAttachmentsModal(true); handleCloseMenu(); };
     const handleDownloadLinkClick = (fileUrl: string) => {
-        if (!fileUrl) { showAlert('Dosya adresi geçersiz.', 'error'); return; }
+        if (!fileUrl) { showAlert('آدرس فایل نامعتبر است.', 'error'); return; }
         const url = `${server.urldpwonload}${fileUrl}`;
         window.open(url, '_blank');
-        showAlert(`"${fileUrl.split('/').pop()}" dosyası indiriliyor.`, 'info');
+        showAlert(`"${fileUrl.split('/').pop()}» در حال دانلود است.`, 'info');
     };
 
     const filteredFuelRecords = useMemo(() => {
@@ -863,7 +863,7 @@ const ListCarFuels: React.FC = () => {
                         {isFormVisible && (<Button variant="contained" color="error" onClick={resetForm} disabled={loadingButton} fullWidth={false} startIcon={<IconX size={20} />}>Gizle</Button>)}
 
 
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                             <Button
                                 variant="outlined"
                                 color="error"
@@ -871,7 +871,7 @@ const ListCarFuels: React.FC = () => {
                                 endIcon={<IconArrowRight size={20} />}
                                 fullWidth={false}
                             >
-                                Geri Dön
+                                بازگشت
                             </Button>
                         </CustomTooltip>
                     </Stack>
@@ -882,9 +882,9 @@ const ListCarFuels: React.FC = () => {
                         <Typography variant="h6" mb={2}>{isEditMode ? 'Yakıt Kaydını Düzenle' : 'Yeni Yakıt Kayıt Formu'}</Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Tarih</CustomFormLabel>
+                                <CustomFormLabel required>تاریخ</CustomFormLabel>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                    <DatePicker label="Tarih"
+                                    <DatePicker label="تاریخ"
 
                                         inputRef={nameInputRef}
                                         value={date} onChange={(v) => setDate(v)} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} disabled={loadingButton} />
@@ -892,11 +892,11 @@ const ListCarFuels: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Yakıt Tipi</CustomFormLabel>
+                                <CustomFormLabel required>نوع سوخت</CustomFormLabel>
                                 <FormControl fullWidth size="small" error={fuelTypeError}>
-                                    <InputLabel>Yakıt Tipi</InputLabel>
+                                    <InputLabel>نوع سوخت</InputLabel>
                                     <Select
-                                        label="Yakıt Tipi"
+                                        label="نوع سوخت"
                                         value={fuelType}
                                         disabled={true}
                                         onChange={(e) => setFuelType(e.target.value as string)}
@@ -921,16 +921,16 @@ const ListCarFuels: React.FC = () => {
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
                                 <CustomFormLabel required>Miktar (Litre/kWh/Kilo)</CustomFormLabel>
-                                <TextField placeholder="Miktar" type="number" size="small" fullWidth value={amount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setAmount(Number(e.target.value)); setAmountError(false); }} error={amountError} helperText={amountError ? 'Pozitif değer girin.' : ''} disabled={loadingButton} />
+                                <TextField placeholder="مقدار" type="number" size="small" fullWidth value={amount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setAmount(Number(e.target.value)); setAmountError(false); }} error={amountError} helperText={amountError ? 'Pozitif değer girin.' : ''} disabled={loadingButton} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
                                 <CustomFormLabel required>Birim Fiyatı</CustomFormLabel>
                                 <TextField placeholder="Birim Fiyatı" type="number" size="small" fullWidth value={fee} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setFee(Number(e.target.value)); setFeeError(false); }} error={feeError} helperText={feeError ? 'Pozitif değer girin.' : ''} disabled={loadingButton} />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4}>
-                                <CustomFormLabel required>Toplam Fiyat</CustomFormLabel>
+                                <CustomFormLabel required>قیمت کل</CustomFormLabel>
                                 <TextField
-                                    placeholder="Toplam Fiyat"
+                                    placeholder="قیمت کل"
                                     type="number"
                                     size="small"
                                     fullWidth
@@ -944,8 +944,8 @@ const ListCarFuels: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} sm={12} md={12}>
-                                <CustomFormLabel>Açıklama</CustomFormLabel>
-                                <TextField placeholder="Detaylı Açıklama" size="small" fullWidth value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} multiline rows={2} disabled={loadingButton} />
+                                <CustomFormLabel>توضیحات</CustomFormLabel>
+                                <TextField placeholder="توضیحات کامل" size="small" fullWidth value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} multiline rows={2} disabled={loadingButton} />
                             </Grid>
 
                             <Grid item xs={12}>
@@ -956,10 +956,10 @@ const ListCarFuels: React.FC = () => {
                             <Grid item xs={12}>
                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                                     <Button variant="contained" color={isEditMode ? "warning" : "success"} onClick={handleSubmit} disabled={loadingButton} size="small">
-                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : isEditMode ? 'Güncellemeyi Kaydet' : 'Yakıt Kaydet'}
+                                        {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : isEditMode ? 'ذخیره‌ی تغییرات' : 'Yakıt Kaydet'}
                                     </Button>
                                     {editRecordId ? (
-                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">İptal Et</Button>
+                                        <Button variant="outlined" color="secondary" onClick={resetForm} size="small">لغو</Button>
                                     ) : (
                                         <></>
                                     )
@@ -981,10 +981,10 @@ const ListCarFuels: React.FC = () => {
                         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', pt: 0 }}>
                             <Stack direction="row" spacing={1}>
                                 {isFilterActive && hasDownloadPermission && (
-                                    <Button variant="contained" color="secondary" onClick={() => setOpenDownloadFilteredModal(true)} disabled={loadingData || !filteredFuelRecords.length} startIcon={<IconFileDownload />} size="small">Filtrelenmişi İndir</Button>
+                                    <Button variant="contained" color="secondary" onClick={() => setOpenDownloadFilteredModal(true)} disabled={loadingData || !filteredFuelRecords.length} startIcon={<IconFileDownload />} size="small">دانلود موارد فیلترشده</Button>
                                 )}
                                 {hasDownloadPermission && (
-                                    <Button variant="contained" color="primary" onClick={() => setOpenDownloadAllModal(true)} disabled={loadingData || !fuelRecords.length} startIcon={<IconFileDownload />} size="small">Tümünü İndir</Button>
+                                    <Button variant="contained" color="primary" onClick={() => setOpenDownloadAllModal(true)} disabled={loadingData || !fuelRecords.length} startIcon={<IconFileDownload />} size="small">دانلود همه</Button>
                                 )}
                             </Stack>
                         </Grid>
@@ -1001,7 +1001,7 @@ const ListCarFuels: React.FC = () => {
                         <Grid item xs={12} sm={6} md={3}>
                             <CustomFormLabel>Tarih Aralığı (Başlangıç)</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                <DatePicker label="Kayıt Başlangıç" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                <DatePicker label="شروع ثبت‌نام" value={startFilter} onChange={(v) => { setStartFilter(v); setPage(0); }} inputFormat="dd/MM/yyyy" renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                             </LocalizationProvider>
                         </Grid>
 
@@ -1009,7 +1009,7 @@ const ListCarFuels: React.FC = () => {
                             <CustomFormLabel>Tarih Aralığı (Bitiş)</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <Stack direction="row" spacing={1} alignItems="center">
-                                    <DatePicker label="Kayıt Bitiş" value={endFilter} inputFormat="dd/MM/yyyy" minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
+                                    <DatePicker label="پایان ثبت‌نام" value={endFilter} inputFormat="dd/MM/yyyy" minDate={startFilter || undefined} onChange={(v) => { setEndFilter(v); setPage(0); }} renderInput={(params) => <TextField {...params} size="small" fullWidth />} />
                                     <IconButton onClick={() => { setStartFilter(null); setEndFilter(null); }} aria-label="clear date filters" size="small"><IconX size={20} /></IconButton>
                                 </Stack>
                             </LocalizationProvider>
@@ -1020,18 +1020,18 @@ const ListCarFuels: React.FC = () => {
 
                 <TableContainer>
                     {loadingData ? (<Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                        <CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>Kayıtlar yükleniyor...</Typography>
+                        <CircularProgress /><Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری رکوردها...</Typography>
                     </Box>) : (
                         <Table aria-label="car fuels table">
                             <TableHead sx={{ background: "#f0f0f0" }}>
                                 <TableRow>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'date'} direction={orderBy === 'date' ? order : 'asc'} onClick={() => handleRequestSort('date')}><Typography variant="h6">Tarih</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Yakıt Tipi</Typography></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'amount'} direction={orderBy === 'amount' ? order : 'asc'} onClick={() => handleRequestSort('amount')}><Typography variant="h6">Miktar</Typography></TableSortLabel></StyledTableCell>
-                                    <StyledTableCell><Typography variant="h6">Birim Fiyat</Typography></StyledTableCell>
-                                    <StyledTableCell><TableSortLabel active={orderBy === 'totatPrice'} direction={orderBy === 'totatPrice' ? order : 'asc'} onClick={() => handleRequestSort('totatPrice')}><Typography variant="h6">Toplam Fiyat</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'date'} direction={orderBy === 'date' ? order : 'asc'} onClick={() => handleRequestSort('date')}><Typography variant="h6">تاریخ</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">نوع سوخت</Typography></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'amount'} direction={orderBy === 'amount' ? order : 'asc'} onClick={() => handleRequestSort('amount')}><Typography variant="h6">مقدار</Typography></TableSortLabel></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">قیمت واحد</Typography></StyledTableCell>
+                                    <StyledTableCell><TableSortLabel active={orderBy === 'totatPrice'} direction={orderBy === 'totatPrice' ? order : 'asc'} onClick={() => handleRequestSort('totatPrice')}><Typography variant="h6">قیمت کل</Typography></TableSortLabel></StyledTableCell>
 
-                                    <StyledTableCell><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                    <StyledTableCell><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                     <StyledTableCell><Typography variant="h6">Ekler</Typography></StyledTableCell>
 
                                     <StyledTableCell><Typography variant="h6">Detayları</Typography></StyledTableCell>
@@ -1051,13 +1051,13 @@ const ListCarFuels: React.FC = () => {
                                             <StyledTableCell><Chip label={row.totatPrice.toLocaleString() + ' TL'} color="success" size="small" /></StyledTableCell>
                                             <StyledTableCell sx={{ maxWidth: 150 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
                                                             variant="text"
                                                             style={{ fontSize: "10px", padding: "2px 5px" }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamanı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1069,7 +1069,7 @@ const ListCarFuels: React.FC = () => {
                                             <StyledTableCell><IconButton onClick={() => handleOpenAttachmentsModal(row.attachment)}><IconLink size={18} /><Chip label={row.attachment.length} color="primary" size="small"></Chip></IconButton></StyledTableCell>
                                             <StyledTableCell>
                                                 <Stack direction="row" spacing={1} alignItems="center">
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Detayları Görüntüle" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "مشاهده‌ی جزئیات" : ""}>
                                                         <Button
                                                             variant="outlined"
                                                             startIcon={<IconEye />}
@@ -1078,7 +1078,7 @@ const ListCarFuels: React.FC = () => {
                                                                 setOpenDetailsModal(true);
                                                             }}
                                                         >
-                                                            Görünüm
+                                                            نما
                                                         </Button>
                                                     </CustomTooltip>
                                                 </Stack>
@@ -1086,13 +1086,13 @@ const ListCarFuels: React.FC = () => {
                                             <StyledTableCell>
                                                 <IconButton onClick={(e) => handleClickMenu(e, row)} size="small"><IconDots width={18} /></IconButton>
                                                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
-                                                    {hasEditPermission && (<UiMenuItem onClick={() => handleEdit(row)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</UiMenuItem>)}
+                                                    {hasEditPermission && (<UiMenuItem onClick={() => handleEdit(row)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>)}
                                                     {hasDeletePermission && (<UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>)}
 
                                                     {hasDownloadPermission && (
                                                         <UiMenuItem onClick={() => handleOpenRowDownloadMenu(row)}>
                                                             <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>
-                                                            Bu satırı indir
+                                                            دانلود این ردیف
                                                         </UiMenuItem>
                                                     )}
                                                 </Menu>
@@ -1105,7 +1105,7 @@ const ListCarFuels: React.FC = () => {
                     )}
                 </TableContainer>
 
-                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={fuelRecords.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
+                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={fuelRecords.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
             </BlankCard>
 
             <DeleteCarFuels openModal={openDeleteModal} onClose={handleCloseDeleteModal} idToDelete={deleteId} nameToDelete={deleteName} onDeleteSuccess={fetchFuelRecords} showAlert={showAlert} />
@@ -1133,32 +1133,32 @@ const ListCarFuels: React.FC = () => {
                             </Button>
                         );
                     })}
-                </Stack>) : (<DialogContentText>Bu kayda ait ek dosya bulunmamaktadır.</DialogContentText>)}
+                </Stack>) : (<DialogContentText>این رکورد فایل پیوستی ندارد.</DialogContentText>)}
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary" variant="outlined">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenAttachmentsModal(false)} color="primary" variant="outlined">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadAllModal} onClose={() => setOpenDownloadAllModal(false)} maxWidth="xs">
-                <DialogTitle>Tüm Kayıtları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAllAction('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAllAction('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>دانلود همه‌ی رکوردها</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAllAction('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAllAction('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadAllModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={() => setOpenDownloadFilteredModal(false)} maxWidth="xs">
-                <DialogTitle>Filtrelenmiş Kayıtları İndir</DialogTitle>
-                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFilteredAction('pdf')}>PDF Olarak İndir</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFilteredAction('excel')}>Excel Olarak İndir</Button></Stack></DialogContent>
-                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">Kapat</Button></DialogActions>
+                <DialogTitle>دانلود رکوردهای فیلترشده</DialogTitle>
+                <DialogContent><Stack direction="column" spacing={2} sx={{ mt: 2 }}><Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFilteredAction('pdf')}>دانلود PDF</Button><Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFilteredAction('excel')}>دانلود Excel</Button></Stack></DialogContent>
+                <DialogActions><Button onClick={() => setOpenDownloadFilteredModal(false)} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDescriptionModal} onClose={handleCloseDescriptionModal} maxWidth="md" fullWidth>
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDescriptionModal} color="primary">Kapat</Button>
+                    <Button onClick={handleCloseDescriptionModal} color="primary">بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1175,7 +1175,7 @@ const ListCarFuels: React.FC = () => {
                     {selectedRowForDetails && (
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <Grid container spacing={2}>
-                                <Grid item xs={6}><Typography variant="subtitle2">Tarih:</Typography></Grid>
+                                <Grid item xs={6}><Typography variant="subtitle2">تاریخ:</Typography></Grid>
                                 <Grid item xs={6}><Typography>{formatDateDisplay(selectedRowForDetails.date)}</Typography></Grid>
 
                                 <Grid item xs={6}><Typography variant="subtitle2">Yakıt Tipi:</Typography></Grid>
@@ -1196,7 +1196,7 @@ const ListCarFuels: React.FC = () => {
                                 <Grid item xs={6}><Typography variant="subtitle2" fontWeight="bold">Toplam Fiyat:</Typography></Grid>
                                 <Grid item xs={6}><Typography fontWeight="bold" color="success.main">{selectedRowForDetails.totatPrice.toLocaleString()} TL</Typography></Grid>
 
-                                <Grid item xs={12}><Typography variant="subtitle2">Açıklama:</Typography></Grid>
+                                <Grid item xs={12}><Typography variant="subtitle2">توضیحات:</Typography></Grid>
                                 <Grid item xs={12}>
                                     <Paper variant="outlined" sx={{ p: 1, bgcolor: '#f9f9f9' }}>
                                         <Typography variant="body2">{selectedRowForDetails.description || '-'}</Typography>
@@ -1215,7 +1215,7 @@ const ListCarFuels: React.FC = () => {
                                     startIcon={<IconFileText />}
                                     onClick={() => handleDownloadSingleRow(selectedRowForDetails, 'pdf')}
                                 >
-                                    PDF İndir
+                                    دانلود PDF
                                 </Button>
                                 <Button
                                     variant="contained"
@@ -1224,7 +1224,7 @@ const ListCarFuels: React.FC = () => {
                                     startIcon={<IconFileSpreadsheet />}
                                     onClick={() => handleDownloadSingleRow(selectedRowForDetails, 'excel')}
                                 >
-                                    Excel İndir
+                                    دانلود Excel
                                 </Button>
                             </Stack>
                         </Stack>
@@ -1232,7 +1232,7 @@ const ListCarFuels: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDetailsModal(false)} variant="outlined" color="secondary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1247,7 +1247,7 @@ const ListCarFuels: React.FC = () => {
                             startIcon={<IconFileText />}
                             onClick={() => handleDownloadRowAction('pdf')}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1255,12 +1255,12 @@ const ListCarFuels: React.FC = () => {
                             startIcon={<IconFileSpreadsheet />}
                             onClick={() => handleDownloadRowAction('excel')}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">Kapat</Button>
+                    <Button onClick={() => setOpenRowDownloadModal(false)} color="secondary">بستن</Button>
                 </DialogActions>
             </Dialog>
         </>

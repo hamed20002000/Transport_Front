@@ -65,7 +65,7 @@ const NoDataView = () => (
         <Avatar sx={{ width: 80, height: 80, bgcolor: '#f5f7fa', mb: 2 }}>
             <IconDatabaseOff size={40} color="#9ca3af" />
         </Avatar>
-        <Typography variant="h6" fontWeight={600}>Kayıt Bulunamadı</Typography>
+        <Typography variant="h6" fontWeight={600}>رکوردی پیدا نشد</Typography>
     </Box>
 );
 
@@ -150,7 +150,7 @@ const WorkhouseBetonStats = () => {
                         <ToggleButton value="cards">
                             <Stack direction="row" spacing={1} alignItems="center">
                                 <IconLayoutGrid size={18} />
-                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>Liste</Typography>
+                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>فهرست</Typography>
                             </Stack></ToggleButton>
                     </ToggleButtonGroup>
                 </Stack>
@@ -170,7 +170,7 @@ const WorkhouseBetonStats = () => {
                                         if (name === "quantity") {
                                             return [
                                                 `${value.toLocaleString('us-US')} m³`,
-                                                `Miktar`
+                                                `مقدار`
                                             ];
                                         }
                                         return [value, name];

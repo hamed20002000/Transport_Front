@@ -128,10 +128,10 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                 setEndedOrders(filteredData.filter(o => o.isEnd === true));
 
             } else {
-                showAlert(res.data?.message || 'Siparişler yüklenirken bir hata oluştu.', 'error');
+                showAlert(res.data?.message || 'هنگام بارگذاری سفارش‌ها خطایی رخ داد.', 'error');
             }
         } catch {
-            showAlert('Siparişler yüklenirken bir hata oluştu.', 'error');
+            showAlert('هنگام بارگذاری سفارش‌ها خطایی رخ داد.', 'error');
         }
     };
 
@@ -154,19 +154,19 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
         const token = localStorage.getItem('authToken');
         if (!token) { showAlert('Oturum süresi doldu.', 'error'); return; }
         try {
-            showAlert(`Sipariş ${order.id} tekrar listeye ekleniyor...`, 'info');
+            showAlert(`سفارش ${order.id} tekrar listeye ekleniyor...`, 'info');
             const url = server.baseurl + server.initialoperations + "update-order-is-end";
             const payload = { id: Number(order.id), isEnd: false };
             const res = await axios.put(url, payload, { headers: { Authorization: `Bearer ${token}` } });
             if (res.data?.httpStatusCode === 200) {
-                showAlert('Sipariş aktifleştirildi.', 'success');
+                showAlert('سفارش فعال شد.', 'success');
                 await fetchOrders();
                 setOpenEndedOrdersModal(false);
             } else {
-                showAlert(res.data?.message || 'Sipariş durumu güncellenirken bir hata oluştu.', 'error');
+                showAlert(res.data?.message || 'هنگام به‌روزرسانی وضعیت سفارش خطایی رخ داد.', 'error');
             }
         } catch {
-            showAlert('Sipariş durumu güncellenirken bir hata oluştu.', 'error');
+            showAlert('هنگام به‌روزرسانی وضعیت سفارش خطایی رخ داد.', 'error');
         }
     };
 
@@ -294,7 +294,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
             );
 
             if (res.data?.httpStatusCode === 200) {
-                showAlert(shouldEnd ? 'Sipariş sonlandırıldı ' : 'Sipariş aktifleştirildi.', 'success');
+                showAlert(shouldEnd ? 'Sipariş sonlandırıldı ' : 'سفارش فعال شد.', 'success');
 
                 if (shouldEnd) {
                     setSelectedOrder(null);
@@ -417,10 +417,10 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                 İndirimler
                             </TableCell>
                             <TableCell sx={{ width: { xs: '150px', md: '20%' }, minWidth: '150px' }}>
-                                Açıklama
+                                توضیحات
                             </TableCell>
                             <TableCell sx={{ width: '80px' }} align="right">
-                                İşlemler
+                                عملیات
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -446,13 +446,13 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                         <TableCell>
                                             {editing ? (
                                                 <Stack direction="column" spacing={1}>
-                                                    <TextField label="Miktar" type="number" size="small"
+                                                    <TextField label="مقدار" type="number" size="small"
                                                         value={qty}
                                                         onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
                                                         error={!qty || qty <= 0}
                                                         helperText={(!qty || qty <= 0) && 'Bu alan zorunludur.'}
                                                     />
-                                                    <TextField label="Fiyat" type="number" size="small"
+                                                    <TextField label="قیمت" type="number" size="small"
                                                         value={price}
                                                         onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
                                                         error={!price || price <= 0}
@@ -476,12 +476,12 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                                         onChange={(_e, v) => handleItemChange(item.id, 'providerId', v ? v.id : undefined)}
                                                         size="small"
                                                         renderInput={(params) => (
-                                                            <TextField {...params} label="Tedarikçi" error={!providerId} helperText={!providerId && 'Bu alan zorunludur.'} />
+                                                            <TextField {...params} label="تأمین‌کننده" error={!providerId} helperText={!providerId && 'Bu alan zorunludur.'} />
                                                         )}
                                                     />
                                                     {provider && (
                                                         <Chip
-                                                            label={provider.firm === '1' ? "Şirket İçi" : "Şirket Dışı"}
+                                                            label={provider.firm === '1' ? "داخل شرکت" : "خارج از شرکت"}
                                                             color={provider.firm === '1' ? "primary" : "secondary"}
                                                             size="small"
                                                         />
@@ -490,7 +490,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                             ) : (
                                                 <>
                                                     <Typography variant="subtitle1" noWrap>{provider?.name || '-'}</Typography>
-                                                    <Chip label={item.firm ? "Şirket İçi" : "Şirket Dışı"} color={item.firm ? "primary" : "secondary"} size="small" />
+                                                    <Chip label={item.firm ? "داخل شرکت" : "خارج از شرکت"} color={item.firm ? "primary" : "secondary"} size="small" />
                                                 </>
                                             )}
                                         </TableCell>
@@ -498,7 +498,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                             {editing ? (
                                                 <Stack direction="column" spacing={1}>
                                                     <TextField
-                                                        label="İndirim %"
+                                                        label="تخفیف ٪"
                                                         type="number"
                                                         size="small"
                                                         value={current?.discountPercent || 0}
@@ -532,7 +532,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                         <TableCell>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 {editing ? (
-                                                    <TextField label="Açıklama" size="small" fullWidth multiline rows={1}
+                                                    <TextField label="توضیحات" size="small" fullWidth multiline rows={1}
                                                         value={current?.description || ''}
                                                         onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
                                                     />
@@ -585,9 +585,9 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
             </TableContainer>
 
             <Dialog open={openDescModal} onClose={closeDesc} maxWidth="sm" fullWidth>
-                <DialogTitle>Açıklama</DialogTitle>
+                <DialogTitle>توضیحات</DialogTitle>
                 <DialogContent dividers><Typography>{descContent}</Typography></DialogContent>
-                <DialogActions><Button onClick={closeDesc}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={closeDesc}>بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openOrderDetailsModal} onClose={() => setOpenOrderDetailsModal(false)} maxWidth="md" fullWidth>
@@ -598,7 +598,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                             <Typography variant="h6" gutterBottom>
                                 Sipariş: {selectedOrder.id} ({format(new Date(selectedOrder.docDate), 'dd MMMM yyyy', { locale: tr })})
                                 <Chip
-                                    label={selectedOrder.status === 1 ? "Onaylandı" : selectedOrder.status === 2 ? "Reddedildi" : "Beklemede"}
+                                    label={selectedOrder.status === 1 ? "تأیید شد" : selectedOrder.status === 2 ? "Reddedildi" : "Beklemede"}
                                     sx={{ ml: 2 }}
                                     color={selectedOrder.status === 1 ? "success" : selectedOrder.status === 2 ? "error" : "warning"}
                                     variant="outlined"
@@ -608,11 +608,11 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                 <Table size="small">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Ürün</TableCell>
-                                            <TableCell>Miktar</TableCell>
-                                            <TableCell>Birim</TableCell>
-                                            <TableCell>Fiyat</TableCell>
-                                            <TableCell>Açıklama</TableCell>
+                                            <TableCell>کالا</TableCell>
+                                            <TableCell>مقدار</TableCell>
+                                            <TableCell>واحد</TableCell>
+                                            <TableCell>قیمت</TableCell>
+                                            <TableCell>توضیحات</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -631,7 +631,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                         </Box>
                     )}
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenOrderDetailsModal(false)}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenOrderDetailsModal(false)}>بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openEndedOrdersModal} onClose={() => setOpenEndedOrdersModal(false)} maxWidth="md" fullWidth>
@@ -641,7 +641,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell><Typography variant="h6">Sipariş</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">سفارش</Typography></TableCell>
                                     <TableCell align="right"><Typography variant="h6"></Typography></TableCell>
                                 </TableRow>
                             </TableHead>
@@ -652,7 +652,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                                             <TableCell>{o.id} ({format(new Date(o.docDate), 'dd MMMM yyyy', { locale: tr })})</TableCell>
                                             <TableCell align="right">
                                                 <CustomTooltip title={isTooltipGloballyEnabled ? "Siparişi aktif listeye geri alın" : ""}>
-                                                    <Button variant="outlined" size="small" color="warning" onClick={() => handleReactivateOrder(o)}>Geri Al</Button>
+                                                    <Button variant="outlined" size="small" color="warning" onClick={() => handleReactivateOrder(o)}>بازگردانی</Button>
                                                 </CustomTooltip>
                                             </TableCell>
                                         </TableRow>
@@ -668,7 +668,7 @@ const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
                         </Table>
                     </TableContainer>
                 </DialogContent>
-                <DialogActions><Button onClick={() => setOpenEndedOrdersModal(false)}>Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={() => setOpenEndedOrdersModal(false)}>بستن</Button></DialogActions>
             </Dialog>
         </Paper>
     );

@@ -41,23 +41,23 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ row, permissions, handlers }) =
             </IconButton>
             <Menu anchorEl={anchorEl} open={openMenu} onClose={handleClose}>
                 {permissions.hasEdit && (
-                    <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı düzenle" : ""}>
+                    <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "ویرایش این رکورد" : ""}>
                         <UiMenuItem onClick={() => { handleClose(); handlers.onEdit(row); }} disabled={isDisabled}>
-                            <ListItemIcon><IconEdit width={18} /></ListItemIcon> Düzenle
+                            <ListItemIcon><IconEdit width={18} /></ListItemIcon> ویرایش
                         </UiMenuItem>
                     </CustomTooltip>
                 )}
                 {permissions.hasDelete && (
-                    <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı sil" : ""}>
+                    <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "حذف این رکورد" : ""}>
                         <UiMenuItem onClick={() => { handleClose(); handlers.onDelete(row); }} disabled={isDisabled}>
                             <ListItemIcon><IconTrash width={18} /></ListItemIcon> Silmek
                         </UiMenuItem>
                     </CustomTooltip>
                 )}
                 {permissions.hasDownload && (
-                    <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Raporu İndir" : ""}>
+                    <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "دانلود گزارش" : ""}>
                         <UiMenuItem onClick={() => { handleClose(); handlers.onDownload(row); }}>
-                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir
+                            <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف
                         </UiMenuItem>
                     </CustomTooltip>
                 )}

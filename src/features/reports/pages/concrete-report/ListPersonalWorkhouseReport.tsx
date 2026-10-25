@@ -134,9 +134,9 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
             <DialogContent dividers>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                        <Typography variant="h6" mb={1} color="primary">Personel Bilgileri</Typography>
+                        <Typography variant="h6" mb={1} color="primary">اطلاعات پرسنل</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Adı Soyadı" size="small" fullWidth value={fullName} disabled />
+                            <CustomTextField label="نام و نام خانوادگی" size="small" fullWidth value={fullName} disabled />
                             <CustomTextField label="Kimlik No" size="small" fullWidth value="  Gizlenmiştir  " disabled />
                             <CustomTextField label="Pozisyon" size="small" fullWidth value="  Gizlenmiştir  " disabled />
                         </Stack>
@@ -144,8 +144,8 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="success.main">İşyeri ve Maaş Bilgileri</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Şantiye Adı" size="small" fullWidth value={report.workhouse_name} disabled />
-                            <CustomTextField label="Şantiye Kodu" size="small" fullWidth value={report.workhouse_code} disabled />
+                            <CustomTextField label="نام کارگاه" size="small" fullWidth value={report.workhouse_name} disabled />
+                            <CustomTextField label="کد کارگاه" size="small" fullWidth value={report.workhouse_code} disabled />
                             <CustomTextField label="İşe Başlangıç" size="small" fullWidth value={format(new Date(report.personnel_start_date), 'dd/MM/yyyy')} disabled />
                             <CustomTextField label="Maaş (Aylık)" size="small" fullWidth
                                 value={formattedSalary} disabled />
@@ -153,7 +153,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     </Grid>
 
                     <Grid item xs={12} mt={3}>
-                        <Typography variant="h6" mb={1} color="secondary">📥 Raporu İndir</Typography>
+                        <Typography variant="h6" mb={1} color="secondary">📥 دانلود گزارش</Typography>
                         <Stack direction="row" spacing={2}>
                             <Button variant="contained" color="success" startIcon={<IconFileDownload />}
                                 onClick={() => onExportPdf(report)} fullWidth>
@@ -168,7 +168,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">Kapat</Button>
+                <Button onClick={onClose} color="secondary">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -242,12 +242,12 @@ const ListPersonnelWorkhouseReport = () => {
     }, []);
     const clearAlert = () => { setAlertMessage(null); };
 
-    const handleApiError = useCallback((e: any, defaultMessage: string = 'Bir hata oluştu.') => {
+    const handleApiError = useCallback((e: any, defaultMessage: string = 'خطایی رخ داد.') => {
         if (e.response?.status === 401) {
             localStorage.removeItem('authToken');
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
         }
-        else if (e.response?.status === 500) { showAlert('Sistem hatası oluştu, lütfen deneyin.', 'error'); }
+        else if (e.response?.status === 500) { showAlert('خطای سیستمی رخ داد، لطفاً دوباره تلاش کنید.', 'error'); }
         else { console.error("API Error:", e); showAlert(e.response?.data?.message || defaultMessage, 'error'); }
     }, [navigate, showAlert]);
 
@@ -289,9 +289,9 @@ const ListPersonnelWorkhouseReport = () => {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
-        } catch (e: any) { handleApiError(e, 'Şantiye listesi alınamadı.'); }
+        } catch (e: any) { handleApiError(e, 'فهرست کارگاه‌ها دریافت نشد.'); }
     }, [navigate, authToken, showAlert, handleApiError]);
 
 
@@ -332,7 +332,7 @@ const ListPersonnelWorkhouseReport = () => {
             }
         } catch (e: any) {
             setReportData(null);
-            handleApiError(e, 'Rapor verileri alınırken bir sorun oluştu.');
+            handleApiError(e, 'هنگام دریافت داده‌های گزارش مشکلی پیش آمد.');
         } finally {
             setLoadingData(false);
         }
@@ -439,7 +439,7 @@ const ListPersonnelWorkhouseReport = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -448,7 +448,7 @@ const ListPersonnelWorkhouseReport = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -466,7 +466,7 @@ const ListPersonnelWorkhouseReport = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -478,18 +478,18 @@ const ListPersonnelWorkhouseReport = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
     const handleExportPdfSingle = async (report: PersonnelReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('PDF raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش PDF در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const doc = new jsPDF('portrait', 'pt', 'a4');
@@ -507,10 +507,10 @@ const ListPersonnelWorkhouseReport = () => {
                 numericSalary.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
 
-            const tableColumn = ["Alan", "Değer"];
+            const tableColumn = ["فیلد", "مقدار"];
             const tableRows = [
-                ["Adı Soyadı", fullName], ["Kimlik Numarası", 'Gizli'], ["Pozisyon", 'Gizli'],
-                ["Şantiye (İşyeri)", report.workhouse_name], ["Şantiye Kodu", report.workhouse_code],
+                ["نام و نام خانوادگی", fullName], ["شماره شناسایی", 'Gizli'], ["Pozisyon", 'Gizli'],
+                ["Şantiye (İşyeri)", report.workhouse_name], ["کد کارگاه", report.workhouse_code],
                 ["İşe Başlangıç Tarihi", format(new Date(report.personnel_start_date), 'dd/MM/yyyy')],
             ];
 
@@ -524,8 +524,8 @@ const ListPersonnelWorkhouseReport = () => {
             });
 
             doc.save(`Personel_Detay_${report.personnel_identity_number}_${format(new Date(), 'yyyyMMdd')}.pdf`);
-            showAlert('PDF raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'PDF raporu oluşturulurken bir hata oluştu.'); }
+            showAlert('گزارش PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش PDF خطایی رخ داد.'); }
     };
 
     const fetchAllFilteredData = useCallback(async () => {
@@ -576,7 +576,7 @@ const ListPersonnelWorkhouseReport = () => {
 
                 return { data: allData, totalSalary: response.data.data.totalSalary };
             }
-            showAlert('Veri bulunamadı.', 'error');
+            showAlert('داده‌ای پیدا نشد.', 'error');
             return null;
         } catch (e: any) {
             handleApiError(e, 'Veri alınırken hata oluştu.');
@@ -590,7 +590,7 @@ const ListPersonnelWorkhouseReport = () => {
 
         const result = await fetchAllFilteredData();
         if (!result || result.data.length === 0) {
-            showAlert('Rapor indirilemedi: Veri bulunmamaktadır.', 'warning');
+            showAlert('گزارش دانلود نشد: داده‌ای وجود ندارد.', 'warning');
             return;
         }
 
@@ -602,7 +602,7 @@ const ListPersonnelWorkhouseReport = () => {
 
             addPdfHeader(doc, "Personel Şantiye Genel Raporu");
 
-            const tableColumn = ["Şantiye Adı", "Şantiye Kodu", "Adı Soyadı", "Başlangıç Tarihi", "Maaş (TL)"];
+            const tableColumn = ["نام کارگاه", "کد کارگاه", "نام و نام خانوادگی", "تاریخ شروع", "Maaş (TL)"];
 
             const uniquePersonnelMapPdf = new Map();
             result.data.forEach(row => {
@@ -648,7 +648,7 @@ const ListPersonnelWorkhouseReport = () => {
 
         const result = await fetchAllFilteredData();
         if (!result || result.data.length === 0) {
-            showAlert('Rapor indirilemedi: Veri bulunmamaktadır.', 'warning');
+            showAlert('گزارش دانلود نشد: داده‌ای وجود ندارد.', 'warning');
             return;
         }
 
@@ -680,7 +680,7 @@ const ListPersonnelWorkhouseReport = () => {
                 ];
             });
 
-            const headerRowData = ["Şantiye Adı", "Şantiye Kodu", "Adı Soyadı", "İşe Başlangıç", "Maaş (TL)"];
+            const headerRowData = ["نام کارگاه", "کد کارگاه", "نام و نام خانوادگی", "İşe Başlangıç", "Maaş (TL)"];
 
             sheet.addRow(["Personel Şantiye Genel Raporu"]);
             sheet.mergeCells('A1:E1'); sheet.getRow(1).font = { bold: true, size: 14 };
@@ -711,8 +711,8 @@ const ListPersonnelWorkhouseReport = () => {
     };
 
     const handleExportExcelSingle = async (report: PersonnelReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('Excel raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش Excel در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -722,8 +722,8 @@ const ListPersonnelWorkhouseReport = () => {
             const numericSalary = Number(report.personnel_salary.replace(/[^0-9.-]+/g, ""));
 
             const data = [
-                ['Adı Soyadı', fullName], ['Kimlik Numarası', 'Gizli'], ['Pozisyon', 'Gizli'],
-                ['Şantiye (İşyeri)', report.workhouse_name], ['Şantiye Kodu', report.workhouse_code],
+                ['نام و نام خانوادگی', fullName], ['شماره شناسایی', 'Gizli'], ['Pozisyon', 'Gizli'],
+                ['Şantiye (İşyeri)', report.workhouse_name], ['کد کارگاه', report.workhouse_code],
                 ['İşe Başlangıç Tarihi', format(new Date(report.personnel_start_date), 'dd/MM/yyyy')],
                 ['Aylık Maaş', isNaN(numericSalary) ? report.personnel_salary : numericSalary],
             ];
@@ -732,7 +732,7 @@ const ListPersonnelWorkhouseReport = () => {
             titleRow.font = { name: 'Calibri', size: 14, bold: true };
             sheet.mergeCells('A1:B1'); sheet.addRow([]);
 
-            const headerRow = sheet.addRow(['Alan', 'Değer']);
+            const headerRow = sheet.addRow(['فیلد', 'مقدار']);
             headerRow.eachCell((cell) => {
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; cell.font = { bold: true };
                 cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
@@ -748,15 +748,15 @@ const ListPersonnelWorkhouseReport = () => {
             sheet.columns[0].width = 25; sheet.columns[1].width = 35;
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Personel_Detay_${report.personnel_identity_number}_${format(new Date(), 'yyyyMMdd')}.xlsx`);
-            showAlert('Excel raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'Excel raporu oluşturulurken bir hata oluştu.'); }
+            showAlert('گزارش Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش Excel خطایی رخ داد.'); }
     };
 
 
     const tableHeaders: { label: string; key: keyof PersonnelReportRowType }[] = [
-        { label: 'Şantiye Adı', key: 'workhouse_name' },
-        { label: 'Şantiye Kodu', key: 'workhouse_code' },
-        { label: 'Adı Soyadı', key: 'personnel_name' },
+        { label: 'نام کارگاه', key: 'workhouse_name' },
+        { label: 'کد کارگاه', key: 'workhouse_code' },
+        { label: 'نام و نام خانوادگی', key: 'personnel_name' },
         { label: 'Pozisyon', key: 'personnel_position' },
         { label: 'Maaş (TL)', key: 'personnel_salary' },
         { label: 'İşe Başlangıç', key: 'personnel_start_date' },
@@ -781,7 +781,7 @@ const ListPersonnelWorkhouseReport = () => {
                             getOptionLabel={(o) => `${o.name} (${o.code})`}
                             value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null}
                             onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)}
-                            renderInput={(params) => (<TextField {...params} label="Şantiye Seçiniz" fullWidth size="small" />)}
+                            renderInput={(params) => (<TextField {...params} label="کارگاه را انتخاب کنید" fullWidth size="small" />)}
                         />
                     </Grid>
                 </Grid>
@@ -798,10 +798,10 @@ const ListPersonnelWorkhouseReport = () => {
                         </Grid>
                         <Grid item xs={12} md={6} display="flex" justifyContent="flex-end" gap={1}>
                             <Button variant="outlined" color="success" startIcon={<IconFileSpreadsheet />} onClick={handleExportExcelAll} disabled={loadingData || !reportData?.data?.length}>
-                                Tüm Veriyi Excel İndir
+                                دانلود همه‌ی داده‌ها در Excel
                             </Button>
                             <Button variant="outlined" color="error" startIcon={<IconFileDownload />} onClick={handleExportPdfAll} disabled={loadingData || !reportData?.data?.length}>
-                                Tüm Veriyi PDF İndir
+                                دانلود همه‌ی داده‌ها در PDF
                             </Button>
                         </Grid>
                     </Grid>
@@ -831,7 +831,7 @@ const ListPersonnelWorkhouseReport = () => {
                                         </TableSortLabel>
                                     </StyledTableCell>
                                 ))}
-                                <StyledTableCell><Typography variant="h6" fontWeight="bold">İşlemler</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6" fontWeight="bold">عملیات</Typography></StyledTableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -853,17 +853,17 @@ const ListPersonnelWorkhouseReport = () => {
                                         </StyledTableCell>
                                         <StyledTableCell>{format(new Date(row.personnel_start_date), 'dd/MM/yyyy')}</StyledTableCell>
                                         <StyledTableCell>
-                                            <Tooltip title="Detaylar ve İşlemler">
+                                            <Tooltip title="جزئیات و عملیات">
                                                 <IconButton onClick={(event) => handleClickMenu(event, row)} color="secondary" size="small">
                                                     <IconDots width={20} />
                                                 </IconButton>
                                             </Tooltip>
                                             <Menu anchorEl={anchorEl} open={openMenu && selectedRowForMenu === row} onClose={handleCloseMenu}>
                                                 <MenuItem onClick={() => handleOpenDetailViewModal(row)}>
-                                                    <ListItemIcon><IconRuler width={18} /></ListItemIcon> Detayları Görüntüle
+                                                    <ListItemIcon><IconRuler width={18} /></ListItemIcon> مشاهده‌ی جزئیات
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleExportPdfSingle(row)}>
-                                                    <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> PDF İndir (Detay)
+                                                    <ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود PDF (جزئیات)
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleExportExcelSingle(row)}>
                                                     <ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon> Excel İndir (Detay)
@@ -902,7 +902,7 @@ const ListPersonnelWorkhouseReport = () => {
                             page={page}
                             onPageChange={handlePageChange}
                             onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Satır sayısı:"
+                            labelRowsPerPage="تعداد ردیف‌ها:"
                             labelDisplayedRows={({ from, to, count }) =>
                                 `${from}–${to} / ${count !== -1 ? count : `> ${to}`}`
                             }

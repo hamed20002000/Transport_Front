@@ -37,7 +37,7 @@ const DeleteStoreInvoiceModal: React.FC<DeleteStoreInvoiceModalProps> = ({
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             onClose();
             return;
@@ -66,11 +66,11 @@ const DeleteStoreInvoiceModal: React.FC<DeleteStoreInvoiceModalProps> = ({
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 const errorMessage = e.response?.data?.message || 'Fatura silinirken beklenmeyen bir hata oluştu, lütfen tekrar deneyin.';
@@ -101,12 +101,12 @@ const DeleteStoreInvoiceModal: React.FC<DeleteStoreInvoiceModalProps> = ({
                     <DialogContentText id="delete-invoice-dialog-description">
                         <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>{invoiceProviderToDelete}</span> adlı tedarikçinin faturasını silerseniz, bu işlem geri alınamaz.
                         Kaydı silmek istediğinizden eminseniz,
-                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "Silme işlemini iptal et" : ""}>
-                        <Button onClick={onClose} disabled={isDeleting}>İptal et</Button>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "لغو حذف" : ""}>
+                        <Button onClick={onClose} disabled={isDeleting}>لغو</Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen faturayı sil" : ""}>
                         <Button
@@ -144,7 +144,7 @@ const DeleteStoreInvoiceModal: React.FC<DeleteStoreInvoiceModalProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeletionErrorModal} autoFocus>
-                        Tamam
+                        باشه
                     </Button>
                 </DialogActions>
             </Dialog>

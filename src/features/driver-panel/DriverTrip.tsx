@@ -9,18 +9,20 @@ import DriverShell from './DriverShell';
 import { LoadSpecs, useLoadActions } from './DriverLoads';
 import LocationCard from './LocationCard';
 import { useLoadsChangedEvent } from './loadEvents';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 // Big card for an accepted request: who to call, where to go, and «تحویل دادم».
 export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivered: (trip: CargoRequest) => void }) {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
+  const messageBox = useMessageBox();
   const actions = useLoadActions(() => undefined);
   const listing = trip.listing;
   if (!listing) return null;
 
   // the driver reports it; the load becomes «تحویل‌شده» once the company confirms
   async function deliver() {
-    if (!window.confirm('تحویل این بار را اعلام می‌کنید؟ شرکت خبردار می‌شود و بعد از تأیید شرکت، بار تحویل‌شده می‌شود.')) return;
+    if (!(await messageBox.confirm({ title: 'اعلام تحویل', message: 'تحویل این بار را اعلام می‌کنید؟ شرکت خبردار می‌شود و بعد از تأیید شرکت، بار تحویل‌شده می‌شود.', confirmText: 'اعلام تحویل' }))) return;
     setSaving(true);
     try {
       onDelivered(await markDelivered(trip.id));

@@ -10,7 +10,7 @@ export const tendersRoutes: RouteObject[] = [
   {
     path: '/tender/list-tender',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListAuction />
       </PermissionGuard>
     ),
@@ -18,7 +18,7 @@ export const tendersRoutes: RouteObject[] = [
   {
     path: '/tender/tender-details/:tenderId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <AuctionDetails />
       </PermissionGuard>
     ),

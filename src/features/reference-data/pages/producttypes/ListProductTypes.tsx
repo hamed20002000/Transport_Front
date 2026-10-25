@@ -47,8 +47,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -207,9 +207,9 @@ const ListProductTypes = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>, row: ProductTypesType) => {
@@ -287,8 +287,8 @@ const ListProductTypes = () => {
     const insertProductTypes = async () => {
         if (!name.trim()) {
             setNameError(true);
-            setNameHelperText('İsim boş olamaz!');
-            showAlert('İsim boş olamaz!', 'warning');
+            setNameHelperText('نام نمی‌تواند خالی باشد!');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         const isNameDuplicate = ProductTypesList.some(
@@ -297,8 +297,8 @@ const ListProductTypes = () => {
 
         if (isNameDuplicate) {
             setNameError(true);
-            setNameHelperText('Bu isimde bir tür zaten var. Lütfen farklı bir ad girin.');
-            showAlert('Bu isimde bir tür zaten var. Lütfen farklı bir ad girin.', 'warning');
+            setNameHelperText('نوعی با این نام وجود دارد. لطفاً نام دیگری وارد کنید.');
+            showAlert('نوعی با این نام وجود دارد. لطفاً نام دیگری وارد کنید.', 'warning');
             return;
         }
         setNameError(false);
@@ -333,7 +333,7 @@ const ListProductTypes = () => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
             showAlert(e.response?.data?.message || 'Ürün türü eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
         } finally {
@@ -344,8 +344,8 @@ const ListProductTypes = () => {
         if (editingId === null) return;
         if (!name.trim()) {
             setNameError(true);
-            setNameHelperText('İsim boş olamaz!');
-            showAlert('İsim boş olamaz!', 'warning');
+            setNameHelperText('نام نمی‌تواند خالی باشد!');
+            showAlert('نام نمی‌تواند خالی باشد!', 'warning');
             return;
         }
         const isNameDuplicate = ProductTypesList.some(
@@ -354,8 +354,8 @@ const ListProductTypes = () => {
 
         if (isNameDuplicate) {
             setNameError(true);
-            setNameHelperText('Bu isimde bir tür zaten var. Lütfen farklı bir ad girin.');
-            showAlert('Bu isimde bir tür zaten var. Lütfen farklı bir ad girin.', 'warning');
+            setNameHelperText('نوعی با این نام وجود دارد. لطفاً نام دیگری وارد کنید.');
+            showAlert('نوعی با این نام وجود دارد. لطفاً نام دیگری وارد کنید.', 'warning');
             return;
         }
         setNameError(false);
@@ -370,7 +370,7 @@ const ListProductTypes = () => {
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -399,11 +399,11 @@ const ListProductTypes = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             }
             else {
@@ -419,7 +419,7 @@ const ListProductTypes = () => {
         clearAlert();
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -436,20 +436,20 @@ const ListProductTypes = () => {
                 }
             );
             if (response.data.httpStatusCode === 200) {
-                const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-                showAlert(`Ürün türü başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+                showAlert(`Ürün türü başarıyla ${statusText} تنظیم شد!`, 'success');
                 getListProductTypes();
                 resetFormAndState();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             }
-            showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         } finally {
             handleCloseMenu();
         }
@@ -497,19 +497,19 @@ const ListProductTypes = () => {
                     recordStatus: item.recordStatus,
                     createAt: item.createAt,
                     type: item.type,
-                    status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+                    status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
                 }));
                 setProductTypesList(formattedData as ProductTypesType[]);
                 setLoadingData(false);
             } else {
-                showAlert(result.data.message || 'Ürün türleri listesi alınamadı.', 'error');
+                showAlert(result.data.message || 'فهرست انواع کالا دریافت نشد.', 'error');
                 setLoadingData(false);
             }
         }).catch((e) => {
             if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert('Ürün türleri listesi alınırken bir hata oluştu.', 'error');
             }
@@ -582,7 +582,7 @@ const ListProductTypes = () => {
                 try {
                     pdfDoc.addImage(Logo, 'PNG', pageWidth - 50, 10, 35, 18);
                 } catch (e) {
-                    console.error("Logo yüklenemedi", e);
+                    console.error("لوگو بارگذاری نشد", e);
                 }
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.setFontSize(14);
@@ -591,7 +591,7 @@ const ListProductTypes = () => {
 
                 pdfDoc.setFontSize(10);
                 pdfDoc.setFont('NotoSans', 'bold');
-                pdfDoc.text(`Rapor Tarihi:`, 15, 40);
+                pdfDoc.text(`تاریخ گزارش:`, 15, 40);
                 pdfDoc.setFont('NotoSans', 'normal');
                 pdfDoc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -606,7 +606,7 @@ const ListProductTypes = () => {
 
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
 
@@ -618,12 +618,12 @@ const ListProductTypes = () => {
 
                 pdfDoc.setTextColor(0);
                 pdfDoc.setFontSize(10);
-                pdfDoc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                pdfDoc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 pdfDoc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (pdfDoc as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (pdfDoc as any).internal.getNumberOfPages();
-                pdfDoc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                pdfDoc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             };
 
             const rows = sortedAndFilteredProductTypes.map(type => [
@@ -635,7 +635,7 @@ const ListProductTypes = () => {
 
             autoTable(doc, {
                 startY: 55,
-                head: [['İsim', 'Tür', 'Oluşturulma Tarihi', 'Durum']],
+                head: [['نام', 'نوع', 'تاریخ ایجاد', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: {
@@ -664,10 +664,10 @@ const ListProductTypes = () => {
             });
 
             doc.save(`Tum_Urun_Tipleri_Raporu.pdf`);
-            showAlert('PDF başarıyla oluşturuldu.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد.', 'success');
         } catch (error: any) {
             console.error('PDF error:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu.', 'error');
+            showAlert('هنگام ساخت PDF خطایی رخ داد.', 'error');
         }
     };
 
@@ -675,7 +675,7 @@ const ListProductTypes = () => {
         worksheet.addRow([]);
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل',
         ];
         companyInfo.forEach(line => {
@@ -694,7 +694,7 @@ const ListProductTypes = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -731,7 +731,7 @@ const ListProductTypes = () => {
             }
             worksheet.mergeCells('A2:D2');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -739,7 +739,7 @@ const ListProductTypes = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['İsim', 'Tür', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام', 'نوع', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -774,10 +774,10 @@ const ListProductTypes = () => {
             const fileName = `Tüm_Urun_Tipleri_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -824,7 +824,7 @@ const ListProductTypes = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -846,7 +846,7 @@ const ListProductTypes = () => {
                     <Grid container spacing={1}>
                         <Grid item xs={12} sm={1} display="flex" alignItems="center">
                             <CustomFormLabel htmlFor="ProductTypes-name" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                                İsim
+                                نام
                             </CustomFormLabel>
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -869,7 +869,7 @@ const ListProductTypes = () => {
                         </Grid>
                         <Grid item xs={12} sm={5} display="flex" alignItems="center" justifyContent="center">
                             <CustomFormLabel htmlFor="product-type-radio-group" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                                Tür
+                                نوع
                             </CustomFormLabel>
                             <RadioGroup
                                 aria-labelledby="product-type-radio-group"
@@ -897,12 +897,12 @@ const ListProductTypes = () => {
                                             >
                                                 {loadingButton ? <>
                                                     <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...
-                                                </> : 'Düzenle'}
+                                                </> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni Direk moduna dön" : ""}>
                                             <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                                İptal Et
+                                                لغو
                                             </Button>
                                         </CustomTooltip>
                                     </>
@@ -943,14 +943,14 @@ const ListProductTypes = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => setOpenDownloadModal(true)}
                                         startIcon={<IconFileDownload />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -988,19 +988,19 @@ const ListProductTypes = () => {
                                     value="all"
                                     aria-label="all ProductTypes"
                                 >
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="active"
                                     aria-label="active ProductTypes"
                                 >
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="inactive"
                                     aria-label="inactive ProductTypes"
                                 >
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1023,7 +1023,7 @@ const ListProductTypes = () => {
                                             onClick={() => handleRequestSort('name')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">İsim</Typography>
+                                            <Typography variant="h6">نام</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1033,7 +1033,7 @@ const ListProductTypes = () => {
                                             onClick={() => handleRequestSort('type')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Tür</Typography>
+                                            <Typography variant="h6">نوع</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1043,7 +1043,7 @@ const ListProductTypes = () => {
                                             onClick={() => handleRequestSort('createAt')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                            <Typography variant="h6">تاریخ ایجاد</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell>
@@ -1053,7 +1053,7 @@ const ListProductTypes = () => {
                                             onClick={() => handleRequestSort('status')}
                                             style={{ color: "#171c23" }}
                                         >
-                                            <Typography variant="h6">Durum</Typography>
+                                            <Typography variant="h6">وضعیت</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
@@ -1094,7 +1094,7 @@ const ListProductTypes = () => {
                                                 />
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton
                                                         id={`basic-button-${row.id}`}
                                                         aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1120,7 +1120,7 @@ const ListProductTypes = () => {
                                                                 <ListItemIcon>
                                                                     <DoNotDisturbOnRoundedIcon width={18} />
                                                                 </ListItemIcon>
-                                                                Pasif Yap
+                                                                غیرفعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1130,7 +1130,7 @@ const ListProductTypes = () => {
                                                                 <ListItemIcon>
                                                                     <DoneRoundedIcon width={18} />
                                                                 </ListItemIcon>
-                                                                Aktif Yap
+                                                                فعال کردن
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1140,7 +1140,7 @@ const ListProductTypes = () => {
                                                                 <ListItemIcon>
                                                                     <IconEdit width={18} />
                                                                 </ListItemIcon>
-                                                                Düzenlemek
+                                                                ویرایش
                                                             </UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
@@ -1179,7 +1179,7 @@ const ListProductTypes = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Sayfa başına satır sayısı:"
+                    labelRowsPerPage="تعداد ردیف در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard >
@@ -1196,7 +1196,7 @@ const ListProductTypes = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1205,7 +1205,7 @@ const ListProductTypes = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllProductTypesPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1213,13 +1213,13 @@ const ListProductTypes = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

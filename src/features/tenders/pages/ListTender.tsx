@@ -46,8 +46,8 @@ const formatDateDisplay = (dateString: string | null): string => {
     const date = new Date(dateString);
     return format(date, 'dd MMMM yyyy', { locale: tr });
   } catch (e) {
-    console.log("Tarih biçimlendirilirken hata oluştu:", e);
-    return "Geçersiz Tarih";
+    console.log("خطا در قالب‌بندی تاریخ:", e);
+    return "تاریخ نامعتبر";
   }
 };
 
@@ -152,7 +152,7 @@ const descendingComparator = <T, Key extends keyof T>(
 const statusToLabel = (s: string) => {
   switch (s) {
     case "Beklemede": return "Beklemede";
-    case "Onaylandı": return "Onaylandı";
+    case "Onaylandı": return "تأیید شد";
     case "Reddedildi": return "Reddedildi";
     default: return "-";
   }
@@ -272,9 +272,9 @@ const ListTender = () => {
   };
 
   const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-  const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+  const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
   const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-  const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+  const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
   const hasStatusPermission = useMemo(() => hasPermission("Onaylamak"), [allowedOperations, currentMenuOpIds]);
 
@@ -343,7 +343,7 @@ const ListTender = () => {
     doc.text(title, pageWidth / 2, 20, { align: 'center' });
 
     doc.setFontSize(10);
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 45, 35);
 
     doc.setDrawColor(150);
@@ -360,7 +360,7 @@ const ListTender = () => {
 
     const companyInfo = [
       'ترابوت',
-      'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+      'ترابوت، دستیار هوشمند حمل‌ونقل',
       'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -376,11 +376,11 @@ const ListTender = () => {
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'normal');
     const signatureY = pageHeight - 10;
-    doc.text('İmza', pageWidth - 15, signatureY, { align: 'right' });
+    doc.text('امضا', pageWidth - 15, signatureY, { align: 'right' });
     doc.line(pageWidth - 65, signatureY - 5, pageWidth - 15, signatureY - 5);
 
     const pageCount = docAny.internal.getNumberOfPages();
-    doc.text(`Sayfa ${docAny.internal.getCurrentPageInfo().pageNumber} / ${pageCount}`, 15, signatureY);
+    doc.text(`صفحه ${docAny.internal.getCurrentPageInfo().pageNumber} / ${pageCount}`, 15, signatureY);
   };
 
   const addExcelHeader = (worksheet: any, title: string, columnsLength: number) => {
@@ -391,7 +391,7 @@ const ListTender = () => {
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
 
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -401,7 +401,7 @@ const ListTender = () => {
   const addExcelCompanyInfo = (worksheet: any, startRow: number, columnsLength: number) => {
     const companyInfo = [
       'ترابوت',
-      'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+      'ترابوت، دستیار هوشمند حمل‌ونقل',
       'دستیار هوشمند حمل‌ونقل',
     ];
     let rowNum = startRow;
@@ -470,14 +470,14 @@ const ListTender = () => {
 
         const workbook = new Excel.Workbook();
         const worksheet = workbook.addWorksheet('Satın Alma Listesi');
-        const tableColumns = ['Ürün', 'Ölçü', 'Miktar', 'Açıklama', 'Fiyat'];
+        const tableColumns = ['کالا', 'واحد اندازه‌گیری', 'مقدار', 'توضیحات', 'قیمت'];
         const totalColumns = tableColumns.length;
 
         addExcelHeader(worksheet, `Satın Alma İhtiyaç Raporu - ${tenderData.title}`, totalColumns);
 
 
         worksheet.addRow([`İhale ID:`, tender.id]).font = { bold: true, name: 'NotoSans' };
-        worksheet.addRow([`Tarih:`, formatDateDisplay(tenderData.createAt)]).font = { bold: true, name: 'NotoSans' };
+        worksheet.addRow([`تاریخ:`, formatDateDisplay(tenderData.createAt)]).font = { bold: true, name: 'NotoSans' };
         worksheet.addRow([`Onay Durumu:`, tender.approvedTenderText]).font = { bold: true, name: 'NotoSans' };
         worksheet.addRow([]);
         const headerRow = worksheet.addRow(tableColumns);
@@ -501,7 +501,7 @@ const ListTender = () => {
         });
 
         worksheet.addRow([]);
-        const totalRow = worksheet.addRow(['', 'Toplam Miktar:', totalQuantity.toLocaleString('tr-TR', { minimumFractionDigits: 2 }), '', '']);
+        const totalRow = worksheet.addRow(['', 'مقدار کل:', totalQuantity.toLocaleString('tr-TR', { minimumFractionDigits: 2 }), '', '']);
         totalRow.font = { name: 'NotoSans', bold: true };
         totalRow.eachCell(cell => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } }; });
 
@@ -526,7 +526,7 @@ const ListTender = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         showAlert('İhale verileri indirilirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
       }
@@ -571,7 +571,7 @@ const ListTender = () => {
           doc.setFontSize(12);
           doc.text(`İhale Adı: ${tenderData.title || '-'}`, 15, 60);
           doc.text(`İhale ID: ${tender.id}`, pageWidth - 15, 60, { align: 'right' });
-          doc.text(`Tarih: ${formatDateDisplay(tenderData.createAt)}`, 15, 67);
+          doc.text(`تاریخ: ${formatDateDisplay(tenderData.createAt)}`, 15, 67);
           doc.text(`Rapor Oluşturma Tarihi: ${formatDateDisplay(new Date().toISOString())}`, pageWidth - 15, 67, { align: 'right' });
         };
 
@@ -611,7 +611,7 @@ const ListTender = () => {
 
         autoTable(doc, {
           startY: 75,
-          head: [['Ürün Adı', 'Miktar', 'Birim', 'Açıklama', 'Fiyat']],
+          head: [['نام کالا', 'مقدار', 'واحد', 'توضیحات', 'قیمت']],
           body: rows,
           theme: 'grid',
           styles: {
@@ -630,7 +630,7 @@ const ListTender = () => {
             4: { cellWidth: 'auto', halign: 'right' },
           },
           foot: [
-            ['', 'Toplam Miktar:', totalQuantity.toLocaleString('tr-TR', { minimumFractionDigits: 2 }), '', '']
+            ['', 'مقدار کل:', totalQuantity.toLocaleString('tr-TR', { minimumFractionDigits: 2 }), '', '']
           ],
           footStyles: {
             font: 'NotoSans',
@@ -705,8 +705,8 @@ const ListTender = () => {
   const insertTender = async () => {
     if (!title.trim()) {
       setTitleError(true);
-      setTitleHelperText('Başlık boş olamaz!');
-      showAlert('Başlık boş olamaz!', 'warning');
+      setTitleHelperText('عنوان نمی‌تواند خالی باشد!');
+      showAlert('عنوان نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setTitleError(false);
@@ -741,7 +741,7 @@ const ListTender = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
       showAlert(e.response?.data?.message || 'İhale eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
     } finally {
@@ -753,8 +753,8 @@ const ListTender = () => {
     if (editingId === null) return;
     if (!title.trim()) {
       setTitleError(true);
-      setTitleHelperText('Başlık boş olamaz!');
-      showAlert('Başlık boş olamaz!', 'warning');
+      setTitleHelperText('عنوان نمی‌تواند خالی باشد!');
+      showAlert('عنوان نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setTitleError(false);
@@ -769,7 +769,7 @@ const ListTender = () => {
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
-        showAlert('Lütfen giriş yapın.', 'warning');
+        showAlert('لطفاً وارد شوید.', 'warning');
         navigate("/");
         return;
       }
@@ -791,11 +791,11 @@ const ListTender = () => {
       }
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       } else {
         showAlert(e.response?.data?.message || 'İhale güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -810,7 +810,7 @@ const ListTender = () => {
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
-        showAlert('Lütfen giriş yapın.', 'warning');
+        showAlert('لطفاً وارد شوید.', 'warning');
         navigate("/");
         return;
       }
@@ -823,22 +823,22 @@ const ListTender = () => {
         }
       });
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`İhale başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`İhale başarıyla ${statusText} تنظیم شد!`, 'success');
         getListTender();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       } else {
-        showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
 
       }
     } finally {
@@ -871,7 +871,7 @@ const ListTender = () => {
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
-        showAlert('Lütfen giriş yapın.', 'warning');
+        showAlert('لطفاً وارد شوید.', 'warning');
         navigate("/");
         return;
       }
@@ -885,23 +885,23 @@ const ListTender = () => {
       });
 
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`İhale başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`İhale başarıyla ${statusText} تنظیم شد!`, 'success');
         getListTender();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       }
       else {
-        showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
 
       }
     } finally {
@@ -914,7 +914,7 @@ const ListTender = () => {
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
-        showAlert('Lütfen giriş yapın.', 'warning');
+        showAlert('لطفاً وارد شوید.', 'warning');
         navigate("/");
         return;
       }
@@ -927,22 +927,22 @@ const ListTender = () => {
         }
       });
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`İhale başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`İhale başarıyla ${statusText} تنظیم شد!`, 'success');
         getListTender();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 500) {
-        showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+        showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
       } else if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
-        showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
         navigate("/");
       } else {
-        showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
 
       }
     } finally {
@@ -1007,9 +1007,9 @@ const ListTender = () => {
         const formattedData: TenderType[] = result.data.data.map((item: any) => {
           let recordStatusText = '';
           if (item.recordStatus === 0) {
-            recordStatusText = 'Aktif';
+            recordStatusText = 'فعال';
           } else if (item.recordStatus === 1) {
-            recordStatusText = 'Pasif';
+            recordStatusText = 'غیرفعال';
           }
           let approvedTenderText = '';
           let approvedTenderDate = null;
@@ -1020,7 +1020,7 @@ const ListTender = () => {
             approvedTenderText = 'Beklemede';
             showPendingIcon = true;
           } else if (item.status === 1) {
-            approvedTenderText = 'Onaylandı';
+            approvedTenderText = 'تأیید شد';
             showApprovedIcon = true;
             approvedTenderDate = item.statusDate;
           } else if (item.status === 2) {
@@ -1053,7 +1053,7 @@ const ListTender = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
         showAlert('İhale listesi yüklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
       }
@@ -1194,7 +1194,7 @@ const ListTender = () => {
               </CustomTooltip>
             )}
             {isFormVisible && (
-              <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+              <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                 <Button
                   variant="contained"
                   color="error"
@@ -1215,7 +1215,7 @@ const ListTender = () => {
           <Grid container spacing={1}>
             <Grid item xs={12} sm={1} display="flex" alignItems="center">
               <CustomFormLabel htmlFor="tender-title" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }} required>
-                Başlık
+                عنوان
               </CustomFormLabel>
             </Grid>
             <Grid item xs={12} sm={7}>
@@ -1250,12 +1250,12 @@ const ListTender = () => {
                       >
                         {loadingButton ? <>
                           <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Bekleniyor...
-                        </> : 'Düzenle'}
+                        </> : 'ویرایش'}
                       </Button>
                     </CustomTooltip>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni ihale moduna dön" : ""}>
                       <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                        İptal Et
+                        لغو
                       </Button>
                     </CustomTooltip>
                   </>
@@ -1316,26 +1316,26 @@ const ListTender = () => {
                 value={statusFilter}
                 exclusive
                 onChange={handleStatusFilterChange}
-                aria-label="Durum filtresi"
+                aria-label="فیلتر وضعیت"
                 fullWidth
               >
                 <StyledToggleButton
                   value="all"
                   aria-label="Tüm ihaleler"
                 >
-                  Tümü
+                  همه
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="active"
                   aria-label="Aktif ihaleler"
                 >
-                  Aktif
+                  فعال
                 </StyledToggleButton>
                 <StyledToggleButton
                   value="inactive"
                   aria-label="Pasif ihaleler"
                 >
-                  Pasif
+                  غیرفعال
                 </StyledToggleButton>
               </ToggleButtonGroup>
             </Grid>
@@ -1343,7 +1343,7 @@ const ListTender = () => {
         </Box>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
           <Typography variant="h5">
-            Proje Listesi
+            فهرست پروژه‌ها
 
             {notifIds.length > 0 && (
               <Stack component="span" direction="row" spacing={1} alignItems="center" sx={{ ml: 1 }}>
@@ -1383,7 +1383,7 @@ const ListTender = () => {
                       onClick={() => handleRequestSort('title')}
                       sx={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Başlık</Typography>
+                      <Typography variant="h6">عنوان</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1393,7 +1393,7 @@ const ListTender = () => {
                       onClick={() => handleRequestSort('createAt')}
                       sx={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                      <Typography variant="h6">تاریخ ایجاد</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell sx={{ color: "#171c23" }}>
@@ -1423,11 +1423,11 @@ const ListTender = () => {
                       onClick={() => handleRequestSort('status')}
                       sx={{ color: "#171c23" }}
                     >
-                      <Typography variant="h6">Durum</Typography>
+                      <Typography variant="h6">وضعیت</Typography>
                     </TableSortLabel>
                   </StyledTableCell>
                   <StyledTableCell sx={{ color: "#171c23" }}>
-                    <Typography variant="h6">Detaylar</Typography>
+                    <Typography variant="h6">جزئیات</Typography>
                   </StyledTableCell>
                   <StyledTableCell></StyledTableCell>
                 </TableRow>
@@ -1488,12 +1488,12 @@ const ListTender = () => {
                             onClick={() => handleGoToDetails(row.id, row.title)}
                             startIcon={<IconPlus size={18} />}
                           >
-                            Detaylar
+                            جزئیات
                           </Button>
                         </CustomTooltip>
                       </StyledTableCell>
                       <StyledTableCell>
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                           <IconButton
                             id={`basic-button-${row.id}`}
                             aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1595,7 +1595,7 @@ const ListTender = () => {
                                 <ListItemIcon>
                                   <DoNotDisturbOnRoundedIcon width={18} />
                                 </ListItemIcon>
-                                Pasif Yap
+                                غیرفعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           ) : (
@@ -1604,7 +1604,7 @@ const ListTender = () => {
                                 <ListItemIcon>
                                   <DoneRoundedIcon width={18} />
                                 </ListItemIcon>
-                                Aktif Yap
+                                فعال کردن
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1614,7 +1614,7 @@ const ListTender = () => {
                                 <ListItemIcon>
                                   <IconEdit width={18} />
                                 </ListItemIcon>
-                                Düzenlemek
+                                ویرایش
                               </UiMenuItem>
                             </CustomTooltip>
                           )}
@@ -1653,7 +1653,7 @@ const ListTender = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Sayfa başına satır sayısı:"
+          labelRowsPerPage="تعداد ردیف در هر صفحه:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
         />
       </BlankCard>

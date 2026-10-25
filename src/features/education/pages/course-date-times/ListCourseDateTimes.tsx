@@ -28,9 +28,9 @@ const formatDateDisplayWithTime = (dateString: string | null): string => {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Geçersiz Tarih";
+        if (isNaN(date.getTime())) return "تاریخ نامعتبر";
         return format(date, 'dd MMMM yyyy HH:mm', { locale: tr });
-    } catch (e) { return "Geçersiz Tarih"; }
+    } catch (e) { return "تاریخ نامعتبر"; }
 };
 
 
@@ -122,12 +122,12 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
                 showAlert(res.data.message || 'Tarihler yüklenemedi.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoading(false);
         }
@@ -160,7 +160,7 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
         if (!endDateTime) { setEndDateTimeError(true); ok = false; }
 
         if (!startDateTime || !endDateTime) {
-            if (!ok) internalShowAlert('Lütfen tüm zorunlu alanları doldurun.', 'warning');
+            if (!ok) internalShowAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید.', 'warning');
             return ok;
         }
 
@@ -224,19 +224,19 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
             const res = await axios.request({ method, url, data: finalDataToSend, headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' } });
 
             if (res.data.httpStatusCode === 200 || res.data.httpStatusCode === 201) {
-                showAlert(`Kurs tarihi başarıyla ${isEditing ? 'güncellendi' : 'eklendi'}.`, 'success');
+                showAlert(`Kurs tarihi başarıyla ${isEditing ? 'به‌روزرسانی شد' : 'eklendi'}.`, 'success');
                 resetForm();
                 fetchDateTimes();
             } else {
-                showAlert(res.data.message || 'İşlem sırasında bir hata oluştu.', 'error');
+                showAlert(res.data.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
         }
@@ -299,7 +299,7 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
                             <CustomFormLabel required>Başlangıç Tarihi/Saati</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <DateTimePicker
-                                    label="Başlangıç"
+                                    label="شروع"
                                     value={startDateTime}
                                     onChange={(v) => { setStartDateTime(v); setStartDateTimeError(false); }}
                                     inputFormat="dd/MM/yyyy HH:mm"
@@ -313,7 +313,7 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
                             <CustomFormLabel required>Bitiş Tarihi/Saati</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                                 <DateTimePicker
-                                    label="Bitiş"
+                                    label="پایان"
                                     value={endDateTime}
                                     minDate={startDateTime || courseMinDate}
                                     maxDate={courseMaxDate}
@@ -326,9 +326,9 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
                         <Grid item xs={12}>
                             <Stack direction="row" spacing={1} justifyContent="flex-end">
                                 <Button variant="contained" color={editingId ? "info" : "success"} onClick={handleSubmit} disabled={loadingButton || !courseId} size="small">
-                                    {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'Düzenle' : 'Tarih Ekle'}
+                                    {loadingButton ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Bekleniyor...</> : editingId ? 'ویرایش' : 'Tarih Ekle'}
                                 </Button>
-                                {editingId && <Button variant="outlined" color="secondary" onClick={resetForm} size="small">İptal Et</Button>}
+                                {editingId && <Button variant="outlined" color="secondary" onClick={resetForm} size="small">لغو</Button>}
                             </Stack>
                         </Grid>
                     </Grid>
@@ -355,7 +355,7 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
                                             <TableCell align="right">
                                                 <IconButton onClick={(e) => handleClickMenu(e, row)} size="small"><IconDots width={18} /></IconButton>
                                                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedRowForMenu?.id === row.id} onClose={handleCloseMenu}>
-                                                    <MenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenle</MenuItem>
+                                                    <MenuItem onClick={() => handleEditClick(selectedRowForMenu!)}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</MenuItem>
                                                     <MenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</MenuItem>
                                                 </Menu>
                                             </TableCell>
@@ -368,10 +368,10 @@ const ListCourseDateTimes: React.FC<ListCourseDateTimesProps> = ({ open, courseI
                         </Table>
                     )}
                 </TableContainer>
-                <TablePagination rowsPerPageOptions={[5, 10]} component="div" count={dateTimes.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" />
+                <TablePagination rowsPerPageOptions={[5, 10]} component="div" count={dateTimes.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" disabled={loadingButton}>Kapat</Button>
+                <Button onClick={onClose} color="secondary" disabled={loadingButton}>بستن</Button>
             </DialogActions>
 
             <DeleteCourseDateTimes

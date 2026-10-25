@@ -111,7 +111,7 @@ const SystemOperation = () => {
     if (!name.trim()) {
       setNameError(true);
       setNameHelperText('Operasyon ismi boş bırakılamaz.');
-      showAlert('İsim boş olamaz!', 'warning');
+      showAlert('نام نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setNameError(false);
@@ -146,7 +146,7 @@ const SystemOperation = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
       showAlert(e.response?.data?.message || 'İşlem eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
     } finally {
@@ -158,20 +158,20 @@ const SystemOperation = () => {
     if (!name.trim()) {
       setNameError(true);
       setNameHelperText('Operasyon ismi boş bırakılamaz.');
-      showAlert('İsim boş olamaz!', 'warning');
+      showAlert('نام نمی‌تواند خالی باشد!', 'warning');
       return;
     }
     setNameError(false);
     setNameHelperText('');
     clearAlert();
     if (name === originalName) {
-      showAlert('İsimde herhangi bir değişiklik yapmadınız.', 'info');
+      showAlert('هیچ تغییری در نام ایجاد نکردید.', 'info');
       resetFormAndState();
       return;
     }
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      showAlert('Lütfen giriş yapın.', 'warning');
+      showAlert('لطفاً وارد شوید.', 'warning');
       navigate("/");
       return;
     }
@@ -202,7 +202,7 @@ const SystemOperation = () => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
       showAlert(e.response?.data?.message || 'İşlem güncellenirken bir hata oluştu, lütfen tekrar deneyین.', 'error');
     } finally {
@@ -213,7 +213,7 @@ const SystemOperation = () => {
     clearAlert();
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      showAlert('Lütfen giriş yapın.', 'warning');
+      showAlert('لطفاً وارد شوید.', 'warning');
       navigate("/");
       return;
     }
@@ -230,20 +230,20 @@ const SystemOperation = () => {
         }
       );
       if (response.data.httpStatusCode === 200) {
-        const statusText = statusValue === 0 ? 'Aktif' : 'Pasif';
-        showAlert(`İşlem başarıyla ${statusText} olarak ayarlandı!`, 'success');
+        const statusText = statusValue === 0 ? 'فعال' : 'غیرفعال';
+        showAlert(`İşlem başarıyla ${statusText} تنظیم شد!`, 'success');
         getListOperation();
         resetFormAndState();
       } else {
-        showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+        showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
       }
     } catch (e: any) {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       }
-      showAlert(e.response?.data?.message || 'Durum güncellenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+      showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
     } finally {
       handleCloseMenu();
     }
@@ -275,7 +275,7 @@ const SystemOperation = () => {
       return `${year}-${month}-${day}`;
     } catch (e) {
       console.log("Error formatting date:", e);
-      return "Geçersiz Tarih";
+      return "تاریخ نامعتبر";
     }
   };
 
@@ -300,19 +300,19 @@ const SystemOperation = () => {
           name: item.name,
           recordStatus: item.recordStatus !== undefined && item.recordStatus !== null ? item.recordStatus : 0,
           createAt: item.createAt,
-          status: item.recordStatus === 0 ? 'Aktif' : item.recordStatus === 1 ? 'Pasif' : 'Silindi',
+          status: item.recordStatus === 0 ? 'فعال' : item.recordStatus === 1 ? 'غیرفعال' : 'Silindi',
         }));
         setOperationsList(formattedData as RowType[]);
       } else {
-        showAlert(result.data.message || 'Operasyon listesi alınırken bir hata oluştu.', 'error');
+        showAlert(result.data.message || 'هنگام دریافت فهرست عملیات خطایی رخ داد.', 'error');
       }
     }).catch((e) => {
       if (e.response && e.response.status === 401) {
         localStorage.removeItem('authToken');
         navigate("/");
-        showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+        showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
       } else {
-        showAlert('Operasyon listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
+        showAlert('هنگام دریافت فهرست عملیات خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
       }
     });
   }
@@ -411,7 +411,7 @@ const SystemOperation = () => {
         <Grid container spacing={1}>
           <Grid item xs={12} sm={1} display="flex" alignItems="center">
             <CustomFormLabel htmlFor="bl-name" sx={{ mt: 0, mb: { xs: '-10px', sm: 0 } }}>
-              İsim
+              نام
             </CustomFormLabel>
           </Grid>
           <Grid item xs={12} sm={7}>
@@ -446,12 +446,12 @@ const SystemOperation = () => {
                     >
                       {loadingButton ? <>
                         <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                      </> : 'Düzenlemek'}
+                      </> : 'ویرایش'}
                     </Button>
                   </CustomTooltip>
                   <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni işlem moduna dön" : ""}>
                     <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                      İptal Et
+                      لغو
                     </Button>
                   </CustomTooltip>
                 </>
@@ -527,7 +527,7 @@ const SystemOperation = () => {
                       },
                     }}
                   >
-                    Tümü
+                    همه
                   </ToggleButton>
                 </CustomTooltip>
                 <CustomTooltip title={isTooltipGloballyEnabled ? "Sadece aktif operasyonları göster" : ""}>
@@ -548,7 +548,7 @@ const SystemOperation = () => {
                       },
                     }}
                   >
-                    Aktif
+                    فعال
                   </ToggleButton>
                 </CustomTooltip>
                 <CustomTooltip title={isTooltipGloballyEnabled ? "Sadece pasif operasyonları göster" : ""}>
@@ -569,7 +569,7 @@ const SystemOperation = () => {
                       },
                     }}
                   >
-                    Pasif
+                    غیرفعال
                   </ToggleButton>
                 </CustomTooltip>
               </ToggleButtonGroup>
@@ -587,7 +587,7 @@ const SystemOperation = () => {
                     onClick={() => handleRequestSort('name')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">İsim</Typography>
+                    <Typography variant="h6">نام</Typography>
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -597,7 +597,7 @@ const SystemOperation = () => {
                     onClick={() => handleRequestSort('createAt')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                    <Typography variant="h6">تاریخ ایجاد</Typography>
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -607,7 +607,7 @@ const SystemOperation = () => {
                     onClick={() => handleRequestSort('status')}
                     style={{ color: "#171c23" }}
                   >
-                    <Typography variant="h6">Durum</Typography>
+                    <Typography variant="h6">وضعیت</Typography>
                   </TableSortLabel>
                 </TableCell>
                 <TableCell></TableCell>
@@ -638,20 +638,20 @@ const SystemOperation = () => {
                           backgroundColor:
                             row.status === 'Silindi'
                               ? (theme) => theme.palette.primary.light
-                              : row.status === 'Pasif'
+                              : row.status === 'غیرفعال'
                                 ? (theme) => theme.palette.error.light
                                 : (theme) => theme.palette.success.light,
                           color:
                             row.status === 'Silindi'
                               ? (theme) => theme.palette.primary.main
-                              : row.status === 'Pasif'
+                              : row.status === 'غیرفعال'
                                 ? (theme) => theme.palette.error.main
                                 : (theme) => theme.palette.success.main,
                         }}
                       />
                     </TableCell>
                     <TableCell>
-                      <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                      <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                         <IconButton
                           id={`basic-button-${row.id}`}
                           aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -678,7 +678,7 @@ const SystemOperation = () => {
                               <ListItemIcon>
                                 <DoNotDisturbOnRoundedIcon width={18} />
                               </ListItemIcon>
-                              Pasif Yap
+                              غیرفعال کردن
                             </MenuItem>
                           </CustomTooltip>
                         ) : (
@@ -688,7 +688,7 @@ const SystemOperation = () => {
                               <ListItemIcon>
                                 <DoneRoundedIcon width={18} />
                               </ListItemIcon>
-                              Aktif Yap
+                              فعال کردن
                             </MenuItem>
                           </CustomTooltip>
                         )}
@@ -698,7 +698,7 @@ const SystemOperation = () => {
                             <ListItemIcon>
                               <IconEdit width={18} />
                             </ListItemIcon>
-                            Düzenlemek
+                            ویرایش
                           </MenuItem>
                         </CustomTooltip>
                         <CustomTooltip placement="left"
@@ -734,7 +734,7 @@ const SystemOperation = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Satır başına düşen:"
+          labelRowsPerPage="تعداد در هر صفحه:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
         />
       </BlankCard>

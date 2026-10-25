@@ -144,23 +144,23 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="primary">Kurs Bilgileri</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Kurs Adı" size="small" fullWidth value={report.course_title} disabled />
-                            <CustomTextField label="Eğitim Saati" size="small" fullWidth value={`${report.course_hours} Saat`} disabled />
-                            <CustomTextField label="İSG Eğitimi" size="small" fullWidth value={report.course_isg ? 'Evet' : 'Hayır'} disabled />
-                            <CustomTextField label="Eğitmen" size="small" fullWidth value={`${report.teacher_name} (${report.teacher_field})`} disabled />
+                            <CustomTextField label="نام دوره" size="small" fullWidth value={report.course_title} disabled />
+                            <CustomTextField label="ساعت آموزش" size="small" fullWidth value={`${report.course_hours} ساعت`} disabled />
+                            <CustomTextField label="İSG Eğitimi" size="small" fullWidth value={report.course_isg ? 'بله' : 'خیر'} disabled />
+                            <CustomTextField label="مربی" size="small" fullWidth value={`${report.teacher_name} (${report.teacher_field})`} disabled />
                         </Stack>
                     </Grid>
 
                     <Grid item xs={12} md={6}>
                         <Typography variant="h6" mb={1} color="success.main">Personel, Şantiye ve Tarihler</Typography>
                         <Stack spacing={1}>
-                            <CustomTextField label="Personel Adı" size="small" fullWidth value={report.personnel_name} disabled />
-                            <CustomTextField label="Şantiye Adı" size="small" fullWidth value={`${report.workhouse_name} (${report.workhouse_code})`} disabled />
+                            <CustomTextField label="نام پرسنل" size="small" fullWidth value={report.personnel_name} disabled />
+                            <CustomTextField label="نام کارگاه" size="small" fullWidth value={`${report.workhouse_name} (${report.workhouse_code})`} disabled />
                             <Tooltip title="Sadece kursun genel başlangıç tarihi">
                                 <CustomTextField label="Kurs Başlangıç" size="small" fullWidth value={format(new Date(report.course_start_date_time), 'dd/MM/yyyy HH:mm')} disabled />
                             </Tooltip>
                             <Tooltip title="Personelin katıldığı dersin başlangıç tarihi">
-                                <CustomTextField label="Ders Başlangıç" size="small" fullWidth value={format(new Date(report.class_start_date_time), 'dd/MM/yyyy HH:mm')} disabled />
+                                <CustomTextField label="شروع درس" size="small" fullWidth value={format(new Date(report.class_start_date_time), 'dd/MM/yyyy HH:mm')} disabled />
                             </Tooltip>
                         </Stack>
                     </Grid>
@@ -181,7 +181,7 @@ const DetailViewModal: React.FC<DetailViewModalProps> = ({ open, onClose, report
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary">Kapat</Button>
+                <Button onClick={onClose} color="secondary">بستن</Button>
             </DialogActions>
         </Dialog>
     );
@@ -247,9 +247,9 @@ const ListPersonalCourse = () => {
     }, []);
     const clearAlert = () => { setAlertMessage(null); };
 
-    const handleApiError = useCallback((e: any, defaultMessage: string = 'Bir hata oluştu.') => {
-        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/"); }
-        else if (e.response?.status === 500) { showAlert('Sistem hatası oluştu, lütfen deneyin.', 'error'); }
+    const handleApiError = useCallback((e: any, defaultMessage: string = 'خطایی رخ داد.') => {
+        if (e.response?.status === 401) { localStorage.removeItem('authToken'); showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/"); }
+        else if (e.response?.status === 500) { showAlert('خطای سیستمی رخ داد، لطفاً دوباره تلاش کنید.', 'error'); }
         else { console.error("API Error:", e); showAlert(e.response?.data?.message || defaultMessage, 'error'); }
     }, [navigate, showAlert]);
 
@@ -290,9 +290,9 @@ const ListPersonalCourse = () => {
                 const activeWorkhouses = response.data.data.filter((wh: WorkhouseType) => wh.recordStatus === 0);
                 setWorkhousesList(activeWorkhouses);
             } else {
-                showAlert(response.data.message || 'Şantiye listesi alınamadı.', 'error');
+                showAlert(response.data.message || 'فهرست کارگاه‌ها دریافت نشد.', 'error');
             }
-        } catch (e: any) { handleApiError(e, 'Şantiye listesi alınamadı.'); }
+        } catch (e: any) { handleApiError(e, 'فهرست کارگاه‌ها دریافت نشد.'); }
     }, [navigate, authToken, showAlert, handleApiError]);
 
 
@@ -327,7 +327,7 @@ const ListPersonalCourse = () => {
             }
         } catch (e: any) {
             setReportData(null);
-            handleApiError(e, 'Rapor verileri alınırken bir sorun oluştu.');
+            handleApiError(e, 'هنگام دریافت داده‌های گزارش مشکلی پیش آمد.');
         } finally {
             setLoadingData(false);
         }
@@ -426,7 +426,7 @@ const ListPersonalCourse = () => {
         try {
             doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
         } catch (e) {
-            console.error("Logo yüklenemedi", e);
+            console.error("لوگو بارگذاری نشد", e);
         }
 
         doc.setFont('NotoSans', 'normal');
@@ -435,7 +435,7 @@ const ListPersonalCourse = () => {
 
         doc.setFontSize(10);
         doc.setFont('NotoSans', 'bold');
-        doc.text(`Rapor Tarihi:`, 15, 35);
+        doc.text(`تاریخ گزارش:`, 15, 35);
         doc.setFont('NotoSans', 'normal');
         doc.text(`${formatDateDisplay(new Date().toISOString())}`, 80, 35);
 
@@ -453,7 +453,7 @@ const ListPersonalCourse = () => {
 
         const companyInfo = [
             'ترابوت',
-            'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+            'ترابوت، دستیار هوشمند حمل‌ونقل',
             'دستیار هوشمند حمل‌ونقل'
         ];
 
@@ -465,18 +465,18 @@ const ListPersonalCourse = () => {
 
         doc.setTextColor(0);
         doc.setFontSize(10);
-        doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+        doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
         doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
         const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
         const pageCount = (doc as any).internal.getNumberOfPages();
-        doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+        doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
     };
 
 
     const handleExportPdfSingle = async (report: CoursePersonnelReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('PDF raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش PDF در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const doc = new jsPDF('portrait', 'pt', 'a4');
@@ -487,17 +487,17 @@ const ListPersonalCourse = () => {
             const reportTitle = `Kurs Detay Raporu: ${report.course_title} - ${report.personnel_name}`;
             addPdfHeader(doc, reportTitle);
 
-            const tableColumn = ["Alan", "Değer"];
+            const tableColumn = ["فیلد", "مقدار"];
             const tableRows = [
-                ["Personel Adı", report.personnel_name],
+                ["نام پرسنل", report.personnel_name],
                 ["Şantiye/İşyeri", report.workhouse_name],
-                ["Şantiye Kodu", report.workhouse_code],
-                ["Kurs Adı", report.course_title],
-                ["Eğitmen", report.teacher_name],
+                ["کد کارگاه", report.workhouse_code],
+                ["نام دوره", report.course_title],
+                ["مربی", report.teacher_name],
                 ["Branş", report.teacher_field],
-                ["Eğitim Saati", `${report.course_hours} Saat`],
-                ["İSG Eğitimi", report.course_isg ? 'Evet' : 'Hayır'],
-                ["Ders Başlangıç", format(new Date(report.class_start_date_time), 'dd/MM/yyyy HH:mm')],
+                ["ساعت آموزش", `${report.course_hours} ساعت`],
+                ["İSG Eğitimi", report.course_isg ? 'بله' : 'خیر'],
+                ["شروع درس", format(new Date(report.class_start_date_time), 'dd/MM/yyyy HH:mm')],
                 ["Ders Bitiş", format(new Date(report.class_end_date_time), 'dd/MM/yyyy HH:mm')],
             ];
 
@@ -509,28 +509,28 @@ const ListPersonalCourse = () => {
             });
 
             doc.save(`Kurs_Detay_${report.personnel_id}_${format(new Date(), 'yyyyMMdd')}.pdf`);
-            showAlert('PDF raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'PDF raporu oluşturulurken bir hata oluştu.'); }
+            showAlert('گزارش PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش PDF خطایی رخ داد.'); }
     };
 
     const handleExportExcelSingle = async (report: CoursePersonnelReportRowType) => {
-        if (!authToken) { showAlert('Lütfen giriş yapın.', 'warning'); return; }
-        showAlert('Excel raporu hazırlanıyor, lütfen bekleyin...', 'info');
+        if (!authToken) { showAlert('لطفاً وارد شوید.', 'warning'); return; }
+        showAlert('گزارش Excel در حال آماده‌سازی است، لطفاً صبر کنید...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
             const sheet = workbook.addWorksheet('Kurs Detay', { views: [{ rightToLeft: false }] });
 
             const data = [
-                ['Personel Adı', report.personnel_name],
+                ['نام پرسنل', report.personnel_name],
                 ['Şantiye/İşyeri', report.workhouse_name],
-                ['Şantiye Kodu', report.workhouse_code],
-                ['Kurs Adı', report.course_title],
-                ['Eğitmen', report.teacher_name],
+                ['کد کارگاه', report.workhouse_code],
+                ['نام دوره', report.course_title],
+                ['مربی', report.teacher_name],
                 ['Branş', report.teacher_field],
-                ['Eğitim Saati', report.course_hours],
-                ['İSG Eğitimi', report.course_isg ? 'Evet' : 'Hayır'],
-                ['Ders Başlangıç', format(new Date(report.class_start_date_time), 'dd/MM/yyyy HH:mm')],
+                ['ساعت آموزش', report.course_hours],
+                ['İSG Eğitimi', report.course_isg ? 'بله' : 'خیر'],
+                ['شروع درس', format(new Date(report.class_start_date_time), 'dd/MM/yyyy HH:mm')],
                 ['Ders Bitiş', format(new Date(report.class_end_date_time), 'dd/MM/yyyy HH:mm')],
             ];
 
@@ -538,7 +538,7 @@ const ListPersonalCourse = () => {
             titleRow.font = { name: 'Calibri', size: 14, bold: true };
             sheet.mergeCells('A1:B1'); sheet.addRow([]);
 
-            const headerRow = sheet.addRow(['Alan', 'Değer']);
+            const headerRow = sheet.addRow(['فیلد', 'مقدار']);
             headerRow.eachCell((cell) => {
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }; cell.font = { bold: true };
                 cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
@@ -552,8 +552,8 @@ const ListPersonalCourse = () => {
             sheet.columns[0].width = 25; sheet.columns[1].width = 35;
             const buffer = await workbook.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Kurs_Detay_${report.personnel_id}_${format(new Date(), 'yyyyMMdd')}.xlsx`);
-            showAlert('Excel raporu başarıyla oluşturuldu ve indiriliyor.', 'success');
-        } catch (e: any) { handleApiError(e, 'Excel raporu oluşturulurken bir hata oluştu.'); }
+            showAlert('گزارش Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
+        } catch (e: any) { handleApiError(e, 'هنگام ساخت گزارش Excel خطایی رخ داد.'); }
     };
 
     const fetchAllFilteredData = useCallback(async () => {
@@ -601,7 +601,7 @@ const ListPersonalCourse = () => {
 
                 return allData;
             }
-            showAlert('Dışa aktarılacak veri bulunamadı.', 'error');
+            showAlert('داده‌ای برای خروجی پیدا نشد.', 'error');
             return null;
         } catch (e: any) {
             handleApiError(e, 'Veri alınırken hata oluştu.');
@@ -615,7 +615,7 @@ const ListPersonalCourse = () => {
 
         const allData = await fetchAllFilteredData();
         if (!allData || allData.length === 0) {
-            showAlert('Rapor indirilemedi: Veri bulunmamaktadır.', 'warning');
+            showAlert('گزارش دانلود نشد: داده‌ای وجود ندارد.', 'warning');
             return;
         }
 
@@ -627,7 +627,7 @@ const ListPersonalCourse = () => {
 
             addPdfHeader(doc, "Personel Kurs Genel Raporu");
 
-            const tableColumn = ["Şantiye Adı", "Kurs Adı", "Eğitmen", "Eğitim Saati", "Ders Başlangıç", "Personel Adı"];
+            const tableColumn = ["نام کارگاه", "نام دوره", "مربی", "ساعت آموزش", "شروع درس", "نام پرسنل"];
 
             const tableRows = allData.map(row => [
                 row.workhouse_name,
@@ -656,7 +656,7 @@ const ListPersonalCourse = () => {
 
         const allData = await fetchAllFilteredData();
         if (!allData || allData.length === 0) {
-            showAlert('Rapor indirilemedi: Veri bulunmamaktadır.', 'warning');
+            showAlert('گزارش دانلود نشد: داده‌ای وجود ندارد.', 'warning');
             return;
         }
 
@@ -675,7 +675,7 @@ const ListPersonalCourse = () => {
                 ];
             });
 
-            const headerRowData = ["Şantiye Adı", "Kurs Adı", "Eğitmen", "Eğitim Saati", "Ders Başlangıç", "Personel Adı"];
+            const headerRowData = ["نام کارگاه", "نام دوره", "مربی", "ساعت آموزش", "شروع درس", "نام پرسنل"];
 
             sheet.addRow(["Personel Kurs Genel Raporu"]);
             sheet.mergeCells('A1:F1'); sheet.getRow(1).font = { bold: true, size: 14 };
@@ -706,12 +706,12 @@ const ListPersonalCourse = () => {
 
 
     const tableHeaders: { label: string; key: keyof CoursePersonnelReportRowType }[] = [
-        { label: 'Şantiye Adı', key: 'workhouse_name' },
-        { label: 'Kurs Adı', key: 'course_title' },
-        { label: 'Eğitmen', key: 'teacher_name' },
-        { label: 'Eğitim Saati', key: 'course_hours' },
-        { label: 'Ders Başlangıç', key: 'class_start_date_time' },
-        { label: 'Personel Adı', key: 'personnel_name' },
+        { label: 'نام کارگاه', key: 'workhouse_name' },
+        { label: 'نام دوره', key: 'course_title' },
+        { label: 'مربی', key: 'teacher_name' },
+        { label: 'ساعت آموزش', key: 'course_hours' },
+        { label: 'شروع درس', key: 'class_start_date_time' },
+        { label: 'نام پرسنل', key: 'personnel_name' },
     ];
 
 
@@ -735,7 +735,7 @@ const ListPersonalCourse = () => {
                             value={workhousesList.find(wh => wh.id === filterParams.workhouseId) || null}
                             onChange={(_, newValue) => handleFilterChange('workhouseId', newValue?.id || null)}
                             isOptionEqualToValue={(o, v) => o.id === v.id}
-                            renderInput={(params) => (<TextField {...params} label="Şantiye Seçiniz" fullWidth size="small" />)}
+                            renderInput={(params) => (<TextField {...params} label="کارگاه را انتخاب کنید" fullWidth size="small" />)}
                         />
                     </Grid>
 
@@ -748,7 +748,7 @@ const ListPersonalCourse = () => {
                                 value={filterParams.isCenter}
                                 onChange={(event) => handleFilterChange('isCenter', event.target.value as CenterFilterValue)}
                             >
-                                <FormControlLabel value="null" control={<Radio size="small" />} label="Tümü" />
+                                <FormControlLabel value="null" control={<Radio size="small" />} label="همه" />
                                 <FormControlLabel value="true" control={<Radio size="small" />} label="Sadece Merkez" />
                                 <FormControlLabel value="false" control={<Radio size="small" />} label="Merkezsiz" />
                             </RadioGroup>
@@ -758,7 +758,7 @@ const ListPersonalCourse = () => {
                     <Grid item xs={12} sm={6} md={6}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Başlangıç Tarihi"
+                                label="تاریخ شروع"
                                 value={startDate}
                                 onChange={(v) => setStartDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -796,7 +796,7 @@ const ListPersonalCourse = () => {
                     <Grid item xs={12} sm={6} md={6}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
                             <DatePicker
-                                label="Bitiş Tarihi"
+                                label="تاریخ پایان"
                                 value={endDate}
                                 onChange={(v) => setEndDate(v)}
                                 inputFormat="dd/MM/yyyy"
@@ -844,10 +844,10 @@ const ListPersonalCourse = () => {
                         </Grid>
                         <Grid item xs={12} md={6} display="flex" justifyContent="flex-end" gap={1}>
                             <Button variant="outlined" color="success" startIcon={<IconFileSpreadsheet />} onClick={handleExportExcelAll} disabled={loadingData || !reportData?.data?.length}>
-                                Tüm Veriyi Excel İndir
+                                دانلود همه‌ی داده‌ها در Excel
                             </Button>
                             <Button variant="outlined" color="error" startIcon={<IconFileDownload />} onClick={handleExportPdfAll} disabled={loadingData || !reportData?.data?.length}>
-                                Tüm Veriyi PDF İndir
+                                دانلود همه‌ی داده‌ها در PDF
                             </Button>
                         </Grid>
                     </Grid>
@@ -879,7 +879,7 @@ const ListPersonalCourse = () => {
                                         </TableSortLabel>
                                     </StyledTableCell>
                                 ))}
-                                <StyledTableCell><Typography variant="h6" fontWeight="bold">İşlemler</Typography></StyledTableCell>
+                                <StyledTableCell><Typography variant="h6" fontWeight="bold">عملیات</Typography></StyledTableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -896,7 +896,7 @@ const ListPersonalCourse = () => {
                                         <StyledTableCell>{row.personnel_name}</StyledTableCell>
 
                                         <StyledTableCell>
-                                            <Tooltip title="Detaylar ve İşlemler">
+                                            <Tooltip title="جزئیات و عملیات">
                                                 <IconButton
                                                     id={`actions-button-${index}`}
                                                     onClick={(event) => handleClickMenu(event, row)}
@@ -913,15 +913,15 @@ const ListPersonalCourse = () => {
                                             >
                                                 <MenuItem onClick={() => handleOpenDetailViewModal(row)}>
                                                     <ListItemIcon><IconRuler width={18} /></ListItemIcon>
-                                                    Detayları Görüntüle
+                                                    مشاهده‌ی جزئیات
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleExportPdfSingle(row)}>
                                                     <ListItemIcon><IconFileDownload width={18} /></ListItemIcon>
-                                                    PDF İndir
+                                                    دانلود PDF
                                                 </MenuItem>
                                                 <MenuItem onClick={() => handleExportExcelSingle(row)}>
                                                     <ListItemIcon><IconFileSpreadsheet width={18} /></ListItemIcon>
-                                                    Excel İndir
+                                                    دانلود Excel
                                                 </MenuItem>
                                             </Menu>
                                         </StyledTableCell>
@@ -943,7 +943,7 @@ const ListPersonalCourse = () => {
                             page={page}
                             onPageChange={handleChangePage}
                             onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Satır sayısı:"
+                            labelRowsPerPage="تعداد ردیف‌ها:"
                             labelDisplayedRows={({ from, to, count }) =>
                                 `${from}–${to} / ${count !== -1 ? count : `> ${to}`}`
                             }

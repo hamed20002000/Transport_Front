@@ -32,7 +32,7 @@ const DeleteProject = ({ openModal, projectIdToDelete, projectTitleToDelete, onC
 
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            console.warn("No auth token found, redirecting to login.");
+            console.warn("توکن ورود پیدا نشد؛ انتقال به صفحه‌ی ورود.");
             navigate("/");
             return;
         }
@@ -59,11 +59,11 @@ const DeleteProject = ({ openModal, projectIdToDelete, projectTitleToDelete, onC
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             }
 
@@ -86,12 +86,12 @@ const DeleteProject = ({ openModal, projectIdToDelete, projectTitleToDelete, onC
                 <DialogContentText id="alert-dialog-description">
                     Eğer silerseniz, geri almanın bir yolu yoktur.
                     <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>{projectTitleToDelete}</span> projesini silmek istediğinizden eminseniz,
-                    <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> düğmesine tıklayın.
+                    <span style={{ fontSize: "18px", fontWeight: "bold", color: "#FA896B", margin: "0 5px" }}>Silmek</span> را بزنید.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <CustomTooltip title={isTooltipGloballyEnabled ? "İşlemi iptal et" : ""}>
-                    <Button onClick={onClose} disabled={loading}>İptal et</Button>
+                <CustomTooltip title={isTooltipGloballyEnabled ? "لغو عملیات" : ""}>
+                    <Button onClick={onClose} disabled={loading}>لغو</Button>
                 </CustomTooltip>
                 <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen projeyi sil" : ""}>
                     <Button

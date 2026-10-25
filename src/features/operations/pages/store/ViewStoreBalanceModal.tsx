@@ -35,8 +35,8 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        console.log("Tarih biçimlendirilirken hata oluştu:", e);
-        return "Geçersiz Tarih";
+        console.log("خطا در قالب‌بندی تاریخ:", e);
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -55,7 +55,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     try {
         doc.addImage(Logo, 'PNG', logoX, 10, logoWidth, logoHeight);
     } catch (e) {
-        console.error("Logo yüklenemedi", e);
+        console.error("لوگو بارگذاری نشد", e);
     }
 
     doc.setFont('NotoSans', 'normal');
@@ -64,7 +64,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 
     doc.setFontSize(10);
     doc.setFont('NotoSans', 'bold');
-    doc.text(`Rapor Tarihi:`, 15, 35);
+    doc.text(`تاریخ گزارش:`, 15, 35);
     doc.setFont('NotoSans', 'normal');
     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 35);
 
@@ -82,7 +82,7 @@ const addPdfFooter = (doc: jsPDF) => {
 
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR | Tel: +90 (232) 347 74 74',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل'
     ];
 
@@ -94,12 +94,12 @@ const addPdfFooter = (doc: jsPDF) => {
 
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
     const pageCount = (doc as any).internal.getNumberOfPages();
-    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 
@@ -109,7 +109,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
     titleRow.font = { name: 'NotoSans', size: 14, bold: true };
     worksheet.mergeCells(titleRow.number, 1, titleRow.number, columnsLength);
     titleRow.getCell(1).alignment = { horizontal: 'center' };
-    const dateRow = worksheet.addRow([`Rapor Tarihi: ${formatDateDisplay(new Date().toISOString())}`]);
+    const dateRow = worksheet.addRow([`تاریخ گزارش: ${formatDateDisplay(new Date().toISOString())}`]);
     dateRow.font = { name: 'NotoSans', size: 10, bold: false };
     dateRow.getCell(1).alignment = { horizontal: 'left' };
     worksheet.mergeCells(dateRow.number, 1, dateRow.number, columnsLength);
@@ -119,7 +119,7 @@ const addExcelHeader = (worksheet: Excel.Worksheet, title: string, columnsLength
 const addExcelCompanyInfo = (worksheet: Excel.Worksheet, startRow: number, columnsLength: number) => {
     const companyInfo = [
         'ترابوت',
-        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+        'ترابوت، دستیار هوشمند حمل‌ونقل',
         'دستیار هوشمند حمل‌ونقل',
     ];
     let rowNum = startRow;
@@ -195,7 +195,7 @@ const ViewStoreBalanceModal: React.FC<ViewStoreBalanceModalProps> = ({ open, onC
         doc.setFont('NotoSans');
 
         const title = `${storeName} Envanter Raporu`;
-        const columns = ["Malzeme Adı", "Mevcut Miktar"];
+        const columns = ["نام کالا", "مقدار موجود"];
         const rows = itemsBalance.map(item => [item.name, Number(item.balance).toFixed(2)]);
 
 
@@ -250,7 +250,7 @@ const ViewStoreBalanceModal: React.FC<ViewStoreBalanceModalProps> = ({ open, onC
         const safeSheetName = `${storeName} Envanter`.replace(/[\\/*?[\]:]/g, '_');
         const worksheet = workbook.addWorksheet(safeSheetName);
 
-        const columns = ["Malzeme Adı", "Mevcut Miktar"];
+        const columns = ["نام کالا", "مقدار موجود"];
         addExcelHeader(worksheet, `${storeName} Envanter Raporu`, columns.length);
 
         worksheet.addRow(['Depo Adı:', storeName]).font = { bold: true };
@@ -343,8 +343,8 @@ const ViewStoreBalanceModal: React.FC<ViewStoreBalanceModalProps> = ({ open, onC
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell><Typography variant="h6">Malzeme Adı</Typography></TableCell>
-                                    <TableCell><Typography variant="h6">Mevcut Miktar</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">نام کالا</Typography></TableCell>
+                                    <TableCell><Typography variant="h6">مقدار موجود</Typography></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -362,7 +362,7 @@ const ViewStoreBalanceModal: React.FC<ViewStoreBalanceModalProps> = ({ open, onC
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">Kapat</Button>
+                <Button onClick={onClose} color="primary">بستن</Button>
             </DialogActions>
         </Dialog>
     );

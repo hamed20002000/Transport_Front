@@ -18,7 +18,7 @@ export const vehiclesRoutes: RouteObject[] = [
   {
     path: '/care-warehouse/list-care-warehouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCarWarehouse />
       </PermissionGuard>
     ),
@@ -26,7 +26,7 @@ export const vehiclesRoutes: RouteObject[] = [
   {
     path: '/care-warehouse/list-details-care-warehouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListDetailsCarWarehouse />
       </PermissionGuard>
     ),
@@ -34,7 +34,7 @@ export const vehiclesRoutes: RouteObject[] = [
   {
     path: '/care-warehouse/list-consigned-care-warehouse/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListConsignedCarwarehouse />
       </PermissionGuard>
     ),
@@ -42,7 +42,7 @@ export const vehiclesRoutes: RouteObject[] = [
   {
     path: '/car-warehouse/list-car-fuels/:consignedCarId',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCarFuels />
       </PermissionGuard>
     ),

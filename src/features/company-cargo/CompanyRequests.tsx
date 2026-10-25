@@ -11,6 +11,7 @@ import { errorMessage } from './cargoText';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, PrimaryButton, RouteLine, SecondaryButton, SectionTitle, Spec, timeAgo } from './components';
 import { useNotificationEvent } from './notificationSocket';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 const PAGE_SIZE = 20;
 
@@ -63,6 +64,7 @@ function RequestCard({ request, busy, onDecide }: { request: CompanyRequest; bus
 
 function Requests() {
   const toast = useToast();
+  const messageBox = useMessageBox();
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Page<CompanyRequest> | null>(null);
   const [failed, setFailed] = useState(false);
@@ -88,7 +90,7 @@ function Requests() {
     const question = accept
       ? `درخواست ${request.driver?.name ?? 'راننده'} برای بار ${route} قبول شود؟ بار «برداشته شد» می‌شود، سفر راننده شروع می‌شود و درخواست بقیه رد می‌شود.`
       : `درخواست ${request.driver?.name ?? 'راننده'} برای بار ${route} رد شود؟ راننده خبردار می‌شود.`;
-    if (!window.confirm(question)) return;
+    if (!(await messageBox.confirm({ title: accept ? 'قبول درخواست' : 'رد درخواست', message: question, tone: accept ? 'primary' : 'danger', confirmText: accept ? 'قبول' : 'رد درخواست' }))) return;
     setBusyId(request.requestId);
     try {
       await decideCompanyRequest(request.requestId, accept ? 'accept' : 'reject');

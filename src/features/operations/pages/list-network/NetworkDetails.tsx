@@ -253,7 +253,7 @@ const NetworkDetails = () => {
         if (!authToken) {
             console.warn("Auth token bulunamadı, giriş sayfasına yönlendiriliyor.");
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingProductTypes(false);
             return;
         }
@@ -276,13 +276,13 @@ const NetworkDetails = () => {
 
                 setAllProductTypesFromAPI(formattedData);
             } else {
-                showAlert(result.data.message || 'Ürün türleri listesi alınamadı.', 'error');
+                showAlert(result.data.message || 'فهرست انواع کالا دریافت نشد.', 'error');
             }
         }).catch((e) => {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(e.response?.data?.message || 'Ürün türleri listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
             }
@@ -296,7 +296,7 @@ const NetworkDetails = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingItemsForWorkItemForm(false);
             return;
         }
@@ -317,15 +317,15 @@ const NetworkDetails = () => {
                     }));
                 setItemsListForWorkItemForm(processedData);
             } else {
-                showAlert('Ürünler yüklenmedi.', 'error');
+                showAlert('کالاها بارگذاری نشدند.', 'error');
             }
         } catch (e: any) {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
-                showAlert('Ürünler sunucudan alınamadı', 'error');
+                showAlert('کالاها از سرور دریافت نشدند', 'error');
             }
         } finally {
             setLoadingItemsForWorkItemForm(false);
@@ -342,7 +342,7 @@ const NetworkDetails = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingData(false);
             return;
         }
@@ -416,7 +416,7 @@ const NetworkDetails = () => {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(e.response?.data?.message || 'İş detayları sunucudan alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error');
             }
@@ -532,8 +532,8 @@ const NetworkDetails = () => {
         }
         if (!selectedProduct) {
             setSelectedProductError(true);
-            setSelectedProductHelperText('D.N alanı boş bırakılamaz!');
-            showAlert('D.N alanı boş bırakılamaz!', 'warning');
+            setSelectedProductHelperText('فیلد D.N نمی‌تواند خالی باشد!');
+            showAlert('فیلد D.N نمی‌تواند خالی باشد!', 'warning');
             hasError = true;
         } else {
             setSelectedProductError(false);
@@ -544,8 +544,8 @@ const NetworkDetails = () => {
             selectedValue = yeniValue;
             if (!yeniValue.trim()) {
                 setYeniError(true);
-                setYeniHelperText('YENİ miktarı boş bırakılamaz!');
-                showAlert('YENİ miktarı boş bırakılamaz!', 'warning');
+                setYeniHelperText('مقدار جدید نمی‌تواند خالی باشد!');
+                showAlert('مقدار جدید نمی‌تواند خالی باشد!', 'warning');
                 hasError = true;
             } else {
                 setYeniError(false);
@@ -555,8 +555,8 @@ const NetworkDetails = () => {
             selectedValue = dmmValue;
             if (!dmmValue.trim()) {
                 setDmmError(true);
-                setDmmHelperText('DMM miktarı boş bırakılamaz!');
-                showAlert('DMM miktarı boş bırakılamaz!', 'warning');
+                setDmmHelperText('مقدار DMM نمی‌تواند خالی باشد!');
+                showAlert('مقدار DMM نمی‌تواند خالی باشد!', 'warning');
                 hasError = true;
             } else {
                 setDmmError(false);
@@ -566,8 +566,8 @@ const NetworkDetails = () => {
             selectedValue = mevcutValue;
             if (!mevcutValue.trim()) {
                 setMevcutError(true);
-                setMevcutHelperText('MEVCUT miktarı boş bırakılamaz!');
-                showAlert('MEVCUT miktarı boş bırakılamaz!', 'warning');
+                setMevcutHelperText('مقدار موجود نمی‌تواند خالی باشد!');
+                showAlert('مقدار موجود نمی‌تواند خالی باشد!', 'warning');
                 hasError = true;
             } else {
                 setMevcutError(false);
@@ -941,7 +941,7 @@ const NetworkDetails = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingNewDirectButton(false);
             return;
         }
@@ -969,7 +969,7 @@ const NetworkDetails = () => {
             if (axios.isAxiosError(e) && e.response?.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(e.response?.data?.message || 'Direk eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
             }
@@ -1047,8 +1047,8 @@ const NetworkDetails = () => {
         let hasError = false;
         if (!selectedProduct) {
             setSelectedProductError(true);
-            setSelectedProductHelperText('D.N alanı boş bırakılamaz!');
-            showAlert('D.N alanı boş bırakılamaz!', 'warning');
+            setSelectedProductHelperText('فیلد D.N نمی‌تواند خالی باشد!');
+            showAlert('فیلد D.N نمی‌تواند خالی باشد!', 'warning');
             hasError = true;
         } else {
             setSelectedProductError(false);
@@ -1059,8 +1059,8 @@ const NetworkDetails = () => {
             selectedValue = yeniValue;
             if (!yeniValue.trim()) {
                 setYeniError(true);
-                setYeniHelperText('YENİ miktarı boş bırakılamaz!');
-                showAlert('YENİ miktarı boş bırakılamaz!', 'warning');
+                setYeniHelperText('مقدار جدید نمی‌تواند خالی باشد!');
+                showAlert('مقدار جدید نمی‌تواند خالی باشد!', 'warning');
                 hasError = true;
             } else {
                 setYeniError(false);
@@ -1070,8 +1070,8 @@ const NetworkDetails = () => {
             selectedValue = dmmValue;
             if (!dmmValue.trim()) {
                 setDmmError(true);
-                setDmmHelperText('DMM miktarı boş bırakılamaz!');
-                showAlert('DMM miktarı boş bırakılamaz!', 'warning');
+                setDmmHelperText('مقدار DMM نمی‌تواند خالی باشد!');
+                showAlert('مقدار DMM نمی‌تواند خالی باشد!', 'warning');
                 hasError = true;
             } else {
                 setDmmError(false);
@@ -1081,8 +1081,8 @@ const NetworkDetails = () => {
             selectedValue = mevcutValue;
             if (!mevcutValue.trim()) {
                 setMevcutError(true);
-                setMevcutHelperText('MEVCUT miktarı boş bırakılamaz!');
-                showAlert('MEVCUT miktarı boş bırakılamaz!', 'warning');
+                setMevcutHelperText('مقدار موجود نمی‌تواند خالی باشد!');
+                showAlert('مقدار موجود نمی‌تواند خالی باشد!', 'warning');
                 hasError = true;
             } else {
                 setMevcutError(false);
@@ -1307,7 +1307,7 @@ const NetworkDetails = () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingRegisterButton(false);
             return;
         }
@@ -1332,11 +1332,11 @@ const NetworkDetails = () => {
             }
         } catch (e: any) {
             if (e.response && e.response.status === 500) {
-                showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+                showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
 
             } else if (e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
                 navigate("/");
             } else {
                 showAlert(e.response?.data?.message || 'Kayıtlar sunucuya gönderilirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
@@ -1374,7 +1374,7 @@ const NetworkDetails = () => {
             const header = [
                 'TR ADI',
                 'D.N',
-                'YENİ',
+                'جدید',
                 'DMM',
                 'MEVCUT',
                 ...uniqueItemNames
@@ -1462,8 +1462,8 @@ const NetworkDetails = () => {
 
             showAlert('Excel başarıyla dışa aktarıldı!', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     }, [registeredWorkEntries, showAlert]);
 
@@ -1479,7 +1479,7 @@ const NetworkDetails = () => {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
                 <CircularProgress />
-                <Typography variant="h6" ml={2}>Veriler yükleniyor...</Typography>
+                <Typography variant="h6" ml={2}>در حال بارگذاری داده‌ها...</Typography>
             </Box>
         );
     }
@@ -1518,7 +1518,7 @@ const NetworkDetails = () => {
                             startIcon={<IconUpload />}
                             disabled={loadingFileUpload || loadingExcelTemplate || loadingProductTypes || loadingItemsForWorkItemForm}
                         >
-                            Excel İçe Aktar
+                            ورود از Excel
                             <input
                                 type="file"
                                 accept=".xlsx, .xls, .csv"
@@ -1534,7 +1534,7 @@ const NetworkDetails = () => {
                             startIcon={<IconDownload />}
                             disabled={loadingExcelTemplate || loadingFileUpload}
                         >
-                            Şablonu İndir
+                            دانلود قالب
                         </Button>
                         <Button
                             variant="contained"
@@ -1559,7 +1559,7 @@ const NetworkDetails = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -1572,10 +1572,10 @@ const NetworkDetails = () => {
                             </CustomTooltip>
                         )}
 
-                        <CustomTooltip title={isTooltipGloballyEnabled ? "Geri dön" : ""}>
+                        <CustomTooltip title={isTooltipGloballyEnabled ? "بازگشت" : ""}>
                             <Button variant="outlined" color="error" onClick={() => navigate(-1)}
                                 endIcon={<IconArrowRight size={20} />}>
-                                Geri Dön
+                                بازگشت
                             </Button>
                         </CustomTooltip>
                     </Stack>
@@ -1732,7 +1732,7 @@ const NetworkDetails = () => {
                                         <FormControlLabel
                                             value="yeni"
                                             control={<Radio size="small" />}
-                                            label="YENİ"
+                                            label="جدید"
                                         />
                                         <TextField
                                             id="yeni-input"
@@ -1913,7 +1913,7 @@ const NetworkDetails = () => {
                                             <>
                                                 <CircularProgress size={20} sx={{ mr: 1 }} /> Kaydediliyor...
                                             </>
-                                        ) : isEditingSubEntry ? 'Güncelle' : 'Yeni Kayıt Yap'}
+                                        ) : isEditingSubEntry ? 'به‌روزرسانی' : 'Yeni Kayıt Yap'}
                                     </Button>
                                     {isEditingSubEntry && (
                                         <Button
@@ -1922,7 +1922,7 @@ const NetworkDetails = () => {
                                             onClick={resetMainFormFields}
                                             disabled={loadingRegisterButton}
                                         >
-                                            İptal
+                                            انصراف
                                         </Button>
                                     )}
 
@@ -2005,7 +2005,7 @@ const NetworkDetails = () => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseNewDirectModal} disabled={loadingNewDirectButton}>İptal</Button>
+                    <Button onClick={handleCloseNewDirectModal} disabled={loadingNewDirectButton}>انصراف</Button>
                     <Button
                         variant="contained"
                         color="primary"
@@ -2016,7 +2016,7 @@ const NetworkDetails = () => {
                             <>
                                 <CircularProgress size={20} sx={{ mr: 1 }} /> Kaydediliyor...
                             </>
-                        ) : 'Kaydet'}
+                        ) : 'ذخیره'}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -2048,7 +2048,7 @@ const NetworkDetails = () => {
                     </List>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenTrafoSelectionModal(false)}>İptal</Button>
+                    <Button onClick={() => setOpenTrafoSelectionModal(false)}>انصراف</Button>
                 </DialogActions>
             </Dialog>
         </>

@@ -119,9 +119,9 @@ const Profile = () => {
     if (userRoles.length > 1) {
       setOpenChangeRoleModal(true);
     } else if (userRoles.length === 1) {
-      showProfileAlert("Bu kullanıcının zaten tek bir rolü var.", "info");
+      showProfileAlert("این حساب فقط یک نقش دارد.", "info");
     } else {
-      showProfileAlert("Bu kullanıcı için rol bulunamadı.", "warning");
+      showProfileAlert("نقشی برای این حساب پیدا نشد.", "warning");
     }
     handleClose2();
   };
@@ -132,7 +132,7 @@ const Profile = () => {
 
   return (
     <Box>
-      <CustomTooltip title={isTooltipGloballyEnabled ? "Kullanıcı Profili" : ""}>
+      <CustomTooltip title={isTooltipGloballyEnabled ? "حساب کاربری" : ""}>
 
         <IconButton
           size="large"
@@ -178,7 +178,7 @@ const Profile = () => {
           },
         }}
       >
-        <Typography variant="h5">Kullanıcı Profili</Typography>
+        <Typography variant="h5">حساب کاربری</Typography>
         <Stack direction="row" py={3} spacing={2} alignItems="center">
           <Avatar
             src={profileImage}
@@ -204,7 +204,7 @@ const Profile = () => {
         {userRoles.length > 1 && (
           <Box mt={2}>
             <CustomTooltip placement="left"
-              title={isTooltipGloballyEnabled ? "Aktif rolünüzü değiştirin" : ""}>
+              title={isTooltipGloballyEnabled ? "تغییر نقش فعال" : ""}>
 
               <Button
                 variant="outlined"
@@ -221,10 +221,10 @@ const Profile = () => {
 
         <Box mt={2}>
           <CustomTooltip placement="left"
-            title={isTooltipGloballyEnabled ? "Hesaptan çıkış yapın" : ""}>
+            title={isTooltipGloballyEnabled ? "خروج از حساب" : ""}>
 
             <Button variant="outlined" color="primary" onClick={handleLogout} fullWidth>
-              Çıkış Yap
+              خروج
             </Button>
           </CustomTooltip>
         </Box>

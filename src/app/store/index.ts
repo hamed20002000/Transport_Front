@@ -10,6 +10,7 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
+  type PersistedState,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -32,6 +33,13 @@ import {
 const persistConfig = {
   key: 'root', // The key for your entire persisted state in localStorage. Can be anything.
   storage,
+  // v1: right-to-left menus and the brand orange for everyone, whatever the old template settings saved
+  version: 1,
+  migrate: async (state: PersistedState): Promise<PersistedState> => {
+    const saved = state as (PersistedState & { customizer?: Record<string, unknown> }) | undefined;
+    if (!saved?.customizer) return state;
+    return { ...saved, customizer: { ...saved.customizer, activeDir: 'rtl', activeTheme: 'ORANGE_THEME', isLanguage: 'fa' } } as PersistedState;
+  },
   whitelist: [
     'customizer',   // Definitely want to persist customizer settings.
     'ecommerceReducer', // Maybe some e-commerce cart/wishlist state?

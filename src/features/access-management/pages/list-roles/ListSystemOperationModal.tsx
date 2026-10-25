@@ -290,7 +290,7 @@ const ListSystemOperationModal = ({ openOperationModal, onClose, roleId, showAle
     const fetchAllMenus = useCallback(async () => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return [];
         }
         try {
@@ -317,7 +317,7 @@ const ListSystemOperationModal = ({ openOperationModal, onClose, roleId, showAle
     const fetchRoleMenuOperations = useCallback(async (currentRoleId: string, menus: Menu[]) => {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             return {};
         }
         try {
@@ -552,7 +552,7 @@ const ListSystemOperationModal = ({ openOperationModal, onClose, roleId, showAle
         setSaving(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             setSaving(false);
             return;
         }
@@ -626,7 +626,7 @@ const ListSystemOperationModal = ({ openOperationModal, onClose, roleId, showAle
         <Dialog fullScreen open={openOperationModal} onClose={onClose} TransitionComponent={Transition}>
             <AppBar sx={{ position: 'relative' }}>
                 <Toolbar>
-                    <CustomTooltip title={isTooltipGloballyEnabled ? "Kapat" : ""}>
+                    <CustomTooltip title={isTooltipGloballyEnabled ? "بستن" : ""}>
                         <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
                             <IconX width={24} height={24} />
                         </IconButton>
@@ -636,7 +636,7 @@ const ListSystemOperationModal = ({ openOperationModal, onClose, roleId, showAle
                     </Typography>
                     <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen operasyonları kaydet" : ""}>
                         <Button autoFocus color="inherit" onClick={handleSaveOperations} disabled={loading || saving}>
-                            {saving ? <CircularProgress size={20} color="inherit" /> : 'Kaydet'}
+                            {saving ? <CircularProgress size={20} color="inherit" /> : 'ذخیره'}
                         </Button>
                     </CustomTooltip>
                 </Toolbar>

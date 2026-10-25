@@ -239,7 +239,7 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingCategories(false);
             return;
         }
@@ -257,7 +257,7 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
             if (axios.isAxiosError(e) && e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(e.response?.data?.message || 'Kategoriler sunucudan alınamadı.', 'error');
             }
@@ -277,14 +277,14 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
             setNameHelperText('');
         }
         if (hasError) {
-            showAlert('Lütfen tüm zorunlu alanları doğru şekilde doldurun!', 'warning');
+            showAlert('لطفاً همه‌ی فیلدهای الزامی را درست پر کنید!', 'warning');
             return;
         }
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             navigate("/");
-            showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             setLoadingButton(false);
             return;
         }
@@ -317,7 +317,7 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
             if (axios.isAxiosError(e) && e.response && e.response.status === 401) {
                 localStorage.removeItem('authToken');
                 navigate("/");
-                showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error');
+                showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error');
             } else {
                 showAlert(e.response?.data?.message || 'Kategori eklenirken bir hata oluştu, lütfen tekrar deneyin.', 'error');
             }
@@ -337,10 +337,10 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
             <DialogContent dividers>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <CustomFormLabel htmlFor="category-name" required>Kategori Adı</CustomFormLabel>
+                        <CustomFormLabel htmlFor="category-name" required>نام دسته‌بندی</CustomFormLabel>
                         <CustomTextField
                             id="category-name"
-                            placeholder="Kategori Adı"
+                            placeholder="نام دسته‌بندی"
                             fullWidth
                             value={name}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -392,7 +392,7 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
                                     <ListItemText primary="Üst Kategori Yok (Ana Kategori Yap)" />
                                 </UiMenuItem>
                                 {loadingCategories ? (
-                                    <UiMenuItem disabled><CircularProgress size={20} /> Yükleniyor...</UiMenuItem>
+                                    <UiMenuItem disabled><CircularProgress size={20} /> در حال بارگذاری...</UiMenuItem>
                                 ) : parentCategoryTreeForSelect.length > 0 ? (
                                     parentCategoryTreeForSelect.map((node: CategoryNode) => (
                                         <CategoryTreeSelectMenuItem
@@ -425,11 +425,11 @@ const RegisterUnregisteredCategoryModal: React.FC<RegisterUnregisteredCategoryMo
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" variant="outlined">İptal Et</Button>
+                <Button onClick={onClose} color="secondary" variant="outlined">لغو</Button>
                 <Button onClick={insertCategory} color="success" variant="contained" disabled={loadingButton}>
                     {loadingButton ? <>
                         <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Beklemek....
-                    </> : 'Kaydet'}
+                    </> : 'ذخیره'}
                 </Button>
             </DialogActions>
         </Dialog>

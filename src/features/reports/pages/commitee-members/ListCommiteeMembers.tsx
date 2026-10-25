@@ -36,7 +36,7 @@ const getPositionText = (position: CommiteMemberPosition | number | string): str
     const posId = Number(position);
     switch (posId) {
         case CommiteMemberPosition.Baskan: return 'Başkan';
-        case CommiteMemberPosition.Uye: return 'Üye';
+        case CommiteMemberPosition.Uye: return 'عضو';
         default: return 'Bilinmiyor';
     }
 };
@@ -47,8 +47,8 @@ const PositionStatus = {
     Deleted: 2,
     Text: (status: number) => {
         switch (status) {
-            case 0: return 'Aktif';
-            case 1: return 'Pasif';
+            case 0: return 'فعال';
+            case 1: return 'غیرفعال';
             case 2: return 'Silindi';
             default: return 'Bilinmiyor';
         }
@@ -61,7 +61,7 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString);
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -251,9 +251,9 @@ const ListCommiteeMembers = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const showAlert = useCallback((message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
         setAlertMessage(message);
@@ -279,13 +279,13 @@ const ListCommiteeMembers = () => {
     const handleApiError = useCallback((e: any) => {
         if (e.response?.status === 401) {
             localStorage.removeItem('authToken');
-            showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error');
+            showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error');
             navigate("/");
         } else if (e.response?.status === 500) {
-            showAlert('Bu kayıt, başka bir işlemde kullanıldığı için silinemez veya düzenlenemez.', 'error');
+            showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
         } else {
             console.error("API Error:", e);
-            showAlert(e.response?.data?.message || 'Bir hata oluştu, lütfen tekrar deneyin.', 'error');
+            showAlert(e.response?.data?.message || 'خطایی رخ داد، لطفاً دوباره تلاش کنید.', 'error');
         }
     }, [navigate, showAlert]);
 
@@ -459,7 +459,7 @@ const ListCommiteeMembers = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -510,7 +510,7 @@ const ListCommiteeMembers = () => {
         const authToken = localStorage.getItem('authToken');
 
         if (!authToken) {
-            showAlert('Lütfen giriş yapın.', 'warning');
+            showAlert('لطفاً وارد شوید.', 'warning');
             navigate("/");
             return;
         }
@@ -530,11 +530,11 @@ const ListCommiteeMembers = () => {
 
             if (response.data.httpStatusCode === 200) {
                 const statusText = PositionStatus.Text(statusValue);
-                showAlert(`Komite Üyesi başarıyla ${statusText} olarak ayarlandı!`, 'success');
+                showAlert(`Komite Üyesi başarıyla ${statusText} تنظیم شد!`, 'success');
                 getListCommiteeMembers();
                 resetFormAndState();
             } else {
-                showAlert(response.data.message || 'Durum güncellenirken bir hata oluştu.', 'error');
+                showAlert(response.data.message || 'هنگام به‌روزرسانی وضعیت خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
             handleApiError(e);
@@ -692,7 +692,7 @@ const ListCommiteeMembers = () => {
 
             autoTable(doc, {
                 startY: 65,
-                head: [['Adı', 'Soyadı', 'Pozisyon', 'Oluşturulma Tarihi', 'Durum']],
+                head: [['نام', 'نام خانوادگی', 'Pozisyon', 'تاریخ ایجاد', 'وضعیت']],
                 body: rows,
                 theme: 'grid',
                 styles: { font: 'Arial', fontStyle: 'normal', fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
@@ -707,7 +707,7 @@ const ListCommiteeMembers = () => {
 
                     doc.setFontSize(10);
                     doc.setFont('NotoSans', 'bold');
-                    doc.text(`Rapor Tarihi:`, 15, 40);
+                    doc.text(`تاریخ گزارش:`, 15, 40);
                     doc.setFont('NotoSans', 'normal');
                     doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -720,7 +720,7 @@ const ListCommiteeMembers = () => {
                     doc.setTextColor(0);
                     const companyInfo = [
                         'ترابوت',
-                        'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                        'ترابوت، دستیار هوشمند حمل‌ونقل',
                         'دستیار هوشمند حمل‌ونقل'
                     ];
                     let footerY = pageHeight - 20;
@@ -731,22 +731,22 @@ const ListCommiteeMembers = () => {
 
                     doc.setTextColor(0);
                     doc.setFontSize(10);
-                    doc.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                    doc.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                     doc.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                     const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
                     const pageCount = (doc as any).internal.getNumberOfPages();
-                    doc.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                    doc.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
                 },
                 showHead: 'everyPage',
                 margin: { top: 50, bottom: 45 },
             });
 
             doc.save('Tüm_Komite_Üyeleri_Raporu.pdf');
-            showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error: any) {
-            console.error('PDF oluşturulurken hata:', error);
-            showAlert('PDF oluşturulurken bir hata oluştu: ' + error.message, 'error');
+            console.error('خطا در ساخت PDF:', error);
+            showAlert('هنگام ساخت PDF خطایی رخ داد: ' + error.message, 'error');
         }
     };
 
@@ -758,7 +758,7 @@ const ListCommiteeMembers = () => {
             return;
         }
 
-        showAlert('Excel dosyası oluşturuluyor...', 'info');
+        showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -789,7 +789,7 @@ const ListCommiteeMembers = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 companyInfo.forEach(line => {
@@ -811,7 +811,7 @@ const ListCommiteeMembers = () => {
             }
             worksheet.mergeCells('A2:E2');
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -819,7 +819,7 @@ const ListCommiteeMembers = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['Adı', 'Soyadı', 'Pozisyon', 'Oluşturulma Tarihi', 'Durum'];
+            const tableHeaders = ['نام', 'نام خانوادگی', 'Pozisyon', 'تاریخ ایجاد', 'وضعیت'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -857,10 +857,10 @@ const ListCommiteeMembers = () => {
             const fileName = `Tüm_Komite_Üyeleri_Raporu_${new Date().toLocaleDateString('tr-TR')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         }
     };
 
@@ -895,7 +895,7 @@ const ListCommiteeMembers = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizlemek için tıklayınız." : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "برای پنهان کردن فرم ثبت کلیک کنید." : ""}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -916,10 +916,10 @@ const ListCommiteeMembers = () => {
                     <Grid container spacing={2}>
 
                         <Grid item xs={12} sm={6}>
-                            <CustomFormLabel htmlFor="member-name" required>Adı</CustomFormLabel>
+                            <CustomFormLabel htmlFor="member-name" required>نام</CustomFormLabel>
                             <CustomTextField
                                 id="member-name"
-                                placeholder="Adı"
+                                placeholder="نام"
                                 sx={{ width: '100%' }}
                                 size="small"
                                 value={name}
@@ -937,10 +937,10 @@ const ListCommiteeMembers = () => {
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
-                            <CustomFormLabel htmlFor="member-family" required>Soyadı</CustomFormLabel>
+                            <CustomFormLabel htmlFor="member-family" required>نام خانوادگی</CustomFormLabel>
                             <CustomTextField
                                 id="member-family"
-                                placeholder="Soyadı"
+                                placeholder="نام خانوادگی"
                                 sx={{ width: '100%' }}
                                 size="small"
                                 value={family}
@@ -1003,12 +1003,12 @@ const ListCommiteeMembers = () => {
                                             >
                                                 {loadingButton ? <>
                                                     <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Beklemek....
-                                                </> : 'Düzenlemek'}
+                                                </> : 'ویرایش'}
                                             </Button>
                                         </CustomTooltip>
                                         <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni Üye moduna dön" : ""}>
                                             <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
-                                                İptal Et
+                                                لغو
                                             </Button>
                                         </CustomTooltip>
                                     </>
@@ -1055,14 +1055,14 @@ const ListCommiteeMembers = () => {
                     <Stack direction="row" spacing={2} justifyContent="flex-end">
                         {hasDownloadPermission && (
                             <Grid item xs={12} sm={6} md={4} sx={{ textAlign: 'right' }}>
-                                <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm verileri farklı formatlarda indir" : ""}>
+                                <CustomTooltip title={isTooltipGloballyEnabled ? "دانلود همه‌ی داده‌ها در قالب‌های مختلف" : ""}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => setOpenDownloadModal(true)}
                                         startIcon={<IconFileDownload />}
                                     >
-                                        Tümünü İndir
+                                        دانلود همه
                                     </Button>
                                 </CustomTooltip>
                             </Grid>
@@ -1101,19 +1101,19 @@ const ListCommiteeMembers = () => {
                                     value="all"
                                     aria-label="all members"
                                 >
-                                    Tümü
+                                    همه
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="active"
                                     aria-label="active members"
                                 >
-                                    Aktif
+                                    فعال
                                 </StyledToggleButton>
                                 <StyledToggleButton
                                     value="inactive"
                                     aria-label="inactive members"
                                 >
-                                    Pasif
+                                    غیرفعال
                                 </StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
@@ -1130,7 +1130,7 @@ const ListCommiteeMembers = () => {
                                         onClick={() => handleRequestSort('name')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Adı</Typography>
+                                        <Typography variant="h6">نام</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1140,7 +1140,7 @@ const ListCommiteeMembers = () => {
                                         onClick={() => handleRequestSort('family')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Soyadı</Typography>
+                                        <Typography variant="h6">نام خانوادگی</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1160,7 +1160,7 @@ const ListCommiteeMembers = () => {
                                         onClick={() => handleRequestSort('createAt')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Oluşturulma Tarihi</Typography>
+                                        <Typography variant="h6">تاریخ ایجاد</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell>
@@ -1170,7 +1170,7 @@ const ListCommiteeMembers = () => {
                                         onClick={() => handleRequestSort('status')}
                                         style={{ color: "#171c23" }}
                                     >
-                                        <Typography variant="h6">Durum</Typography>
+                                        <Typography variant="h6">وضعیت</Typography>
                                     </TableSortLabel>
                                 </StyledTableCell>
                                 <StyledTableCell></StyledTableCell>
@@ -1221,7 +1221,7 @@ const ListCommiteeMembers = () => {
                                             />
                                         </StyledTableCell>
                                         <StyledTableCell>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                 <IconButton
                                                     id={`basic-button-${row.id}`}
                                                     aria-controls={openMenu ? 'basic-menu' : undefined}
@@ -1247,7 +1247,7 @@ const ListCommiteeMembers = () => {
                                                             <ListItemIcon>
                                                                 <DoNotDisturbOnRoundedIcon width={18} />
                                                             </ListItemIcon>
-                                                            Pasif Yap
+                                                            غیرفعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1257,7 +1257,7 @@ const ListCommiteeMembers = () => {
                                                             <ListItemIcon>
                                                                 <DoneRoundedIcon width={18} />
                                                             </ListItemIcon>
-                                                            Aktif Yap
+                                                            فعال کردن
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1267,7 +1267,7 @@ const ListCommiteeMembers = () => {
                                                             <ListItemIcon>
                                                                 <IconEdit width={18} />
                                                             </ListItemIcon>
-                                                            Düzenlemek
+                                                            ویرایش
                                                         </UiMenuItem>
                                                     </CustomTooltip>
                                                 )}
@@ -1305,7 +1305,7 @@ const ListCommiteeMembers = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Satır başına düşen:"
+                    labelRowsPerPage="تعداد در هر صفحه:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`}
                 />
             </BlankCard>
@@ -1322,7 +1322,7 @@ const ListCommiteeMembers = () => {
                 open={openDownloadModal}
                 onClose={() => setOpenDownloadModal(false)}
             >
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2}>
                         <Button
@@ -1331,7 +1331,7 @@ const ListCommiteeMembers = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleDownloadAllMembersPDF}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained"
@@ -1339,13 +1339,13 @@ const ListCommiteeMembers = () => {
                             startIcon={<IconFileDownload />}
                             onClick={handleExportExcel}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDownloadModal(false)} color="secondary">
-                        İptal
+                        انصراف
                     </Button>
                 </DialogActions>
             </Dialog>

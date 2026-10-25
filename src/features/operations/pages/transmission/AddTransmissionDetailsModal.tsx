@@ -123,14 +123,14 @@ const AddTransmissionDetailsModal: React.FC<AddTransmissionDetailsModalProps> = 
                     <Box>
                         <CustomFormLabel component="legend">Miktar Tipi</CustomFormLabel>
                         <RadioGroup row name="miktar-tipi" value={miktarTipi} onChange={(e) => setMiktarTipi(e.target.value as FormMiktarTipi)}>
-                            <FormControlLabel value="Yeni YG" control={<Radio size="small" />} label="Yeni YG" />
-                            <FormControlLabel value="Yeni AG" control={<Radio size="small" />} label="Yeni AG" />
+                            <FormControlLabel value="Yeni YG" control={<Radio size="small" />} label="فشار قوی جدید" />
+                            <FormControlLabel value="Yeni AG" control={<Radio size="small" />} label="فشار ضعیف جدید" />
                             <FormControlLabel value="DMM YG" control={<Radio size="small" />} label="DMM YG" />
                             <FormControlLabel value="DMM AG" control={<Radio size="small" />} label="DMM AG" />
                         </RadioGroup>
                     </Box>
                     <Box>
-                        <CustomFormLabel>Formül Başlığı</CustomFormLabel>
+                        <CustomFormLabel>عنوان فرمول</CustomFormLabel>
                         <TextField
                             fullWidth
                             size="small"
@@ -149,7 +149,7 @@ const AddTransmissionDetailsModal: React.FC<AddTransmissionDetailsModalProps> = 
                                 value={selectedItem}
                                 onChange={(_e, newValue) => setSelectedItem(newValue)}
                                 renderInput={(params) => <TextField {...params}
-                                    label="Öğe Seçin" variant="outlined" size="small" />}
+                                    label="آیتم را انتخاب کنید" variant="outlined" size="small" />}
                                 sx={{ flexGrow: 1 }}
                             />
                             {selectedItem && selectedItem.unit && (
@@ -158,7 +158,7 @@ const AddTransmissionDetailsModal: React.FC<AddTransmissionDetailsModalProps> = 
                                 </Typography>
                             )}
                             <TextField
-                                label="Miktar"
+                                label="مقدار"
                                 type="number"
                                 size="small"
                                 value={itemQuantity}
@@ -184,8 +184,8 @@ const AddTransmissionDetailsModal: React.FC<AddTransmissionDetailsModalProps> = 
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="error">İptal</Button>
-                <Button onClick={handleSave} color="primary" variant="contained">Kaydet</Button>
+                <Button onClick={onClose} color="error">انصراف</Button>
+                <Button onClick={handleSave} color="primary" variant="contained">ذخیره</Button>
             </DialogActions>
         </Dialog>
     );

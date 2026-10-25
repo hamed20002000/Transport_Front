@@ -9,7 +9,7 @@ export const driversRoutes: RouteObject[] = [
   {
     path: '/driver/list-driver/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListDrivers />
       </PermissionGuard>
     ),

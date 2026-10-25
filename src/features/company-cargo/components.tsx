@@ -4,6 +4,7 @@ import { Check, ChevronLeft, ChevronRight, Hash, LogOut, MapPin, Phone, RotateCc
 import { signOut } from 'src/core/auth/session';
 import { cn } from 'src/shared/utils/utils';
 import { toLatinDigits } from './api';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 const faNumber = (value: number) => value.toLocaleString('fa-IR');
 
@@ -350,10 +351,11 @@ export function SectionTitle({ title, hint, side }: { title: string; hint?: stri
 
 /** «خروج» in the company and driver panel headers (asks first: one tap should not end the session). */
 export function SignOutButton() {
+  const messageBox = useMessageBox();
   return (
     <button
       type="button"
-      onClick={() => window.confirm('از حساب خارج شوید؟') && signOut()}
+      onClick={async () => (await messageBox.confirm({ title: 'خروج از حساب', message: 'از حساب خارج شوید؟', confirmText: 'خروج' })) && signOut()}
       aria-label="خروج از حساب"
       title="خروج از حساب"
       className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-transparent tw-text-brand-navy hover:tw-bg-red-50 hover:tw-text-red-600"

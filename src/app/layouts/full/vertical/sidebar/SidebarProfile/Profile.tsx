@@ -121,7 +121,7 @@ export const Profile = () => {
             <Typography variant="caption">{activeRoleName}</Typography>
           </Box>
           <Box sx={{ ml: 'auto' }}>
-            <CustomTooltip title={isTooltipGloballyEnabled ? "Çıkış Yap" : ""} placement="top">
+            <CustomTooltip title={isTooltipGloballyEnabled ? "خروج" : ""} placement="top">
               <IconButton
                 color="primary"
                 onClick={handleLogout}
@@ -135,7 +135,7 @@ export const Profile = () => {
         </>
       ) : (
         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <CustomTooltip title={isTooltipGloballyEnabled ? "Çıkış Yap" : ""} placement="right">
+          <CustomTooltip title={isTooltipGloballyEnabled ? "خروج" : ""} placement="right">
             <IconButton
               color="primary"
               onClick={handleLogout}

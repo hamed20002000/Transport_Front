@@ -19,7 +19,7 @@ const DeleteAllConfirmationModal: React.FC<DeleteAllConfirmationModalProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} color="secondary">
-                    İptal
+                    انصراف
                 </Button>
                 <Button onClick={onConfirm} color="error" variant="contained" disabled={loading} startIcon={<IconTrash />}>
                     {loading ? <CircularProgress size={20} color="inherit" /> : 'Evet, Sil'}

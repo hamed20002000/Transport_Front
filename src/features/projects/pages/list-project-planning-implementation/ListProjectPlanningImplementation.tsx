@@ -87,7 +87,7 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
     doc.setFontSize(14);
     doc.text(title, pageWidth / 2, 35, { align: "center" });
     doc.setFontSize(10);
-    doc.text(`Rapor Tarihi: ${fmt(new Date())}`, 15, 45);
+    doc.text(`تاریخ گزارش: ${fmt(new Date())}`, 15, 45);
 };
 const addPdfFooter = (doc: jsPDF) => {
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -98,7 +98,7 @@ const addPdfFooter = (doc: jsPDF) => {
         pageWidth / 2, pageHeight - 30, { align: "center" }
     );
     doc.text(
-        "Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11",
+        "ترابوت، دستیار هوشمند حمل‌ونقل",
         pageWidth / 2, pageHeight - 26, { align: "center" }
     );
     doc.text(
@@ -108,7 +108,7 @@ const addPdfFooter = (doc: jsPDF) => {
     const docAny = doc as any;
     const pageCount = docAny.internal.getNumberOfPages();
     doc.setFontSize(10);
-    doc.text(`Sayfa ${docAny.internal.getCurrentPageInfo().pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+    doc.text(`صفحه ${docAny.internal.getCurrentPageInfo().pageNumber} / ${pageCount}`, 15, pageHeight - 10);
 };
 
 const exportPlanReportPdf = (
@@ -122,7 +122,7 @@ const exportPlanReportPdf = (
     addPdfHeader(doc, "Proje – Planlama Uygulama Raporu");
     if (subtitle) { doc.setFontSize(10); doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 52, { align: "center" }); }
 
-    const head = [["Proje", "Plan (Başlangıç–Bitiş)", "Tarih", "Durum"]];
+    const head = [["پروژه", "Plan (Başlangıç–Bitiş)", "تاریخ", "وضعیت"]];
     const body = rows.map(r => [
         project ? `${project.title} (${project.code})` : "-",
         planning ? `${fmt(planning.startDate)} – ${fmt(planning.endDate)}` : "-",
@@ -141,7 +141,7 @@ const exportPlanReportPdf = (
         margin: { top: 55, bottom: 40 }
     });
 
-    doc.save(`Proje_${project?.code || "Rapor"}_Plan.pdf`);
+    doc.save(`Proje_${project?.code || "گزارش"}_Plan.pdf`);
 };
 
 const exportPlanReportExcel = async (
@@ -156,14 +156,14 @@ const exportPlanReportExcel = async (
     const titleRow = ws.addRow([title]);
     titleRow.font = { name: "NotoSans", bold: true, size: 14 };
     ws.mergeCells(titleRow.number, 1, titleRow.number, 4);
-    ws.addRow([`Rapor Tarihi: ${fmt(new Date())}`]);
+    ws.addRow([`تاریخ گزارش: ${fmt(new Date())}`]);
     ws.addRow([]);
 
-    ws.addRow(["Proje", project ? `${project.title} (${project.code})` : "-"]);
+    ws.addRow(["پروژه", project ? `${project.title} (${project.code})` : "-"]);
     ws.addRow(["Plan", planning ? `${fmt(planning.startDate)} – ${fmt(planning.endDate)}` : "-"]);
     ws.addRow([]);
 
-    const header = ws.addRow(["Tarih", "Durum"]);
+    const header = ws.addRow(["تاریخ", "وضعیت"]);
     header.font = { name: "NotoSans", bold: true };
     header.eachCell(c => (c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9E1F2" } }));
 
@@ -171,7 +171,7 @@ const exportPlanReportExcel = async (
     ws.columns.forEach(col => (col.width = 24));
 
     const buf = await wb.xlsx.writeBuffer();
-    saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `Proje_${project?.code || "Rapor"}_Plan.xlsx`);
+    saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `Proje_${project?.code || "گزارش"}_Plan.xlsx`);
 };
 
 const LeftTabs = styled(Tabs)(() => ({
@@ -249,7 +249,7 @@ const ListProjectPlanningImplementation = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
     const [alertSeverity, setAlertSeverity] = useState<"success" | "error" | "warning" | "info">("info");
@@ -319,12 +319,12 @@ const ListProjectPlanningImplementation = () => {
                 setProjects(list);
             } else showAlert(res.data?.message || "Projeler alınamadı.", "error");
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoading(false); }
     }, [authToken, navigate, showAlert]);
 
@@ -338,12 +338,12 @@ const ListProjectPlanningImplementation = () => {
                 setForceMajors((res.data.data || []).filter(f => f.recordStatus === 0));
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [authToken, navigate]);
 
@@ -560,12 +560,12 @@ const ListProjectPlanningImplementation = () => {
                 showAlert(res.data?.message || "Kayıt oluşturulamadı.", "error");
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     };
 
@@ -637,7 +637,7 @@ const ListProjectPlanningImplementation = () => {
                             isOptionEqualToValue={(a, b) => a.id === b?.id}
                             renderInput={(p) => (
                                 <TextField
-                                    {...p} size="small" label="Proje"
+                                    {...p} size="small" label="پروژه"
                                     placeholder="Proje seçin"
                                 />
                             )}
@@ -671,7 +671,7 @@ const ListProjectPlanningImplementation = () => {
                                         onClick={() => setOpenDownloadModal(true)}
                                         disabled={!selectedProject || !activePlanning}
                                     >
-                                        Rapor
+                                        گزارش
                                     </Button>
                                 </span>
                             </CustomTooltip>
@@ -696,7 +696,7 @@ const ListProjectPlanningImplementation = () => {
                                     {loading && plannings.length === 0 ? (
                                         <Box display="flex" alignItems="center" justifyContent="center" height={360}>
                                             <CircularProgress size={20} />
-                                            <Typography sx={{ ml: 1 }}>Yükleniyor...</Typography>
+                                            <Typography sx={{ ml: 1 }}>در حال بارگذاری...</Typography>
                                         </Box>
                                     ) : plannings.length > 0 ? (
                                         <LeftTabs
@@ -729,7 +729,7 @@ const ListProjectPlanningImplementation = () => {
                                     <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2} flexWrap="wrap" gap={2}>
                                         <Box>
                                             <Typography variant="h6">
-                                                {selectedProject ? `${selectedProject.title} (Kod:${selectedProject.code})` : "Proje Seçilmedi"}
+                                                {selectedProject ? `${selectedProject.title} (کد:${selectedProject.code})` : "Proje Seçilmedi"}
                                             </Typography>
                                             <Typography variant="body2" mt={1} color="text.secondary">
                                                 {activePlanning ? (
@@ -880,7 +880,7 @@ const ListProjectPlanningImplementation = () => {
                                                                         fullWidth
                                                                         sx={{ width: { xs: "100%", sm: "auto" } }}
                                                                     >
-                                                                        Kaydet
+                                                                        ذخیره
                                                                     </Button>
                                                                 </Stack>
                                                             </ListItemSecondaryAction>
@@ -913,10 +913,10 @@ const ListProjectPlanningImplementation = () => {
             </Box>
 
             <Dialog open={openDownloadModal} onClose={() => setOpenDownloadModal(false)} maxWidth="xs">
-                <DialogTitle>Rapor İndir</DialogTitle>
+                <DialogTitle>دانلود گزارش</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" mb={2}>
-                        {selectedProject ? `${selectedProject.title} (${selectedProject.code})` : "Proje"} – {activePlanning ? `${fmt(activePlanning.startDate)} – ${fmt(activePlanning.endDate)}` : "Plan seçilmedi"}
+                        {selectedProject ? `${selectedProject.title} (${selectedProject.code})` : "پروژه"} – {activePlanning ? `${fmt(activePlanning.startDate)} – ${fmt(activePlanning.endDate)}` : "Plan seçilmedi"}
                     </Typography>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                         <Button
@@ -926,13 +926,13 @@ const ListProjectPlanningImplementation = () => {
                                     selectedProject,
                                     activePlanning,
                                     filteredRows,
-                                    selectedProject ? `Proje: ${selectedProject.title} (${selectedProject.code})` : undefined
+                                    selectedProject ? `پروژه: ${selectedProject.title} (${selectedProject.code})` : undefined
                                 );
                                 setOpenDownloadModal(false);
                             }}
                             disabled={!selectedProject || !activePlanning}
                         >
-                            PDF Olarak İndir
+                            دانلود PDF
                         </Button>
                         <Button
                             variant="contained" color="success" startIcon={<IconFileSpreadsheet />}
@@ -942,12 +942,12 @@ const ListProjectPlanningImplementation = () => {
                             }}
                             disabled={!selectedProject || !activePlanning}
                         >
-                            Excel Olarak İndir
+                            دانلود Excel
                         </Button>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDownloadModal(false)} color="secondary" startIcon={<IconX />}>Kapat</Button>
+                    <Button onClick={() => setOpenDownloadModal(false)} color="secondary" startIcon={<IconX />}>بستن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -963,7 +963,7 @@ const ListProjectPlanningImplementation = () => {
                                 <ListItem key={item.id} sx={{ borderBottom: '1px solid #eee' }}>
                                     <ListItemText
                                         primary={item.forceMajor?.title}
-                                        secondary={`Tarih: ${fmt(item.startDate)}`}
+                                        secondary={`تاریخ: ${fmt(item.startDate)}`}
                                     />
                                     <Chip label="Kayıtlı" size="small" color="error" variant="outlined" />
                                 </ListItem>
@@ -975,7 +975,7 @@ const ListProjectPlanningImplementation = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenHistoryModal(false)} variant="contained" color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -15,7 +15,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/baseinfo/list-categories',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListCategory />
       </PermissionGuard>
     ),
@@ -23,7 +23,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/baseinfo/list-units',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListUnit />
       </PermissionGuard>
     ),
@@ -31,7 +31,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/baseinfo/list-items',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListItem />
       </PermissionGuard>
     ),
@@ -39,7 +39,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/baseinfo/list-forcemajor',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListForceMajors />
       </PermissionGuard>
     ),
@@ -47,7 +47,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/product-type/list-product-types/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListProductTypes />
       </PermissionGuard>
     ),
@@ -55,7 +55,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/region/list-regions/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListRegion />
       </PermissionGuard>
     ),
@@ -63,7 +63,7 @@ export const referenceDataRoutes: RouteObject[] = [
   {
     path: '/provider/list-provider/',
     element: (
-      <PermissionGuard requiredOperationName="Görüntülemek">
+      <PermissionGuard requiredOperationName="مشاهده">
         <ListProviders />
       </PermissionGuard>
     ),

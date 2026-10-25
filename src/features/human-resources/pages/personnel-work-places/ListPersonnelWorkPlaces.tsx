@@ -33,7 +33,7 @@ const formatDateDisplay = (dateString: string | null): string => {
         const date = new Date(dateString.length === 10 ? dateString : String(dateString));
         return format(date, 'dd MMMM yyyy', { locale: tr });
     } catch (e) {
-        return "Geçersiz Tarih";
+        return "تاریخ نامعتبر";
     }
 };
 
@@ -180,9 +180,9 @@ const ListPersonnelWorkPlaces: React.FC = () => {
   };
 
     const hasCreatePermission = useMemo(() => hasPermission("Eklemek"), [allowedOperations, currentMenuOpIds]);
-    const hasEditPermission = useMemo(() => hasPermission("Düzenlemek"), [allowedOperations, currentMenuOpIds]);
+    const hasEditPermission = useMemo(() => hasPermission("ویرایش"), [allowedOperations, currentMenuOpIds]);
     const hasDeletePermission = useMemo(() => hasPermission("Silmek"), [allowedOperations, currentMenuOpIds]);
-    const hasDownloadPermission = useMemo(() => hasPermission("İndirmek ve Yazdırmak"), [allowedOperations, currentMenuOpIds]);
+    const hasDownloadPermission = useMemo(() => hasPermission("دانلود و چاپ"), [allowedOperations, currentMenuOpIds]);
 
 
     const { isTooltipGloballyEnabled } = useTooltip();
@@ -289,14 +289,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     })) as PersonnelLite[];
 
                 setPersonnels(filteredAndMapped);
-            } else { showAlert(res.data.message || 'Personel listesi alınamadı.', 'error'); }
+            } else { showAlert(res.data.message || 'فهرست پرسنل دریافت نشد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -315,7 +315,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 setLoadingData(false);
             } else { showAlert(result.data.message || 'Pozisyon listesi alınırken bir hata oluştu.', 'error'); setLoadingData(false); }
         }).catch((e) => {
-            if (e.response && e.response.status === 401) { localStorage.removeItem('authToken'); navigate('/'); showAlert('Oturumunuzun süresi doldu veya yetkiniz yok. Lütfen tekrar giriş yapın.', 'error'); }
+            if (e.response && e.response.status === 401) { localStorage.removeItem('authToken'); navigate('/'); showAlert('نشست شما منقضی شده یا دسترسی ندارید. لطفاً دوباره وارد شوید.', 'error'); }
             else { console.error('Error fetching positions list:', e); showAlert('Pozisyon listesi alınırken bir hata oluştu, lütfen tekrar deneyin.', 'error'); setLoadingData(false); }
         });
     }, [navigate]);
@@ -350,14 +350,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     createAt: item.createAt
                 })) as WarehouseType[];
                 setWarehousesList(mapped);
-            } else { showAlert(response.data.message || 'Depolar yüklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام بارگذاری انبارها خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -391,14 +391,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     createAt: item.createAt
                 })) as WorkhouseType[];
                 setWorkhousesList(mapped);
-            } else { showAlert(response.data.message || 'Şantiyeler yüklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(response.data.message || 'هنگام بارگذاری کارگاه‌ها خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -433,12 +433,12 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 setCarWarehousesList(mapped);
             } else { showAlert(response.data.message || 'Filo listesi alınamadı.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -453,12 +453,12 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 setStoresList(mapped);
             } else { showAlert(response.data.message || 'Şantiye depoları yüklenirken bir hata oluştu.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         }
     }, [navigate]);
 
@@ -474,11 +474,11 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     id: String(item.id),
                     username: item.username,
                     email: item.email,
-                    status: item.recordStatus === 0 ? 'Aktif' : 'Pasif'
+                    status: item.recordStatus === 0 ? 'فعال' : 'غیرفعال'
                 }));
                 setUsersList(formattedData as UserType[]);
-            } else { showAlert(result.data.message || 'Kullanıcı listesi alınırken bir hata oluştu.', 'error'); }
-        }).catch((_e) => { showAlert('Kullanıcı listesi alınırken bir hata oluştu.', 'error'); });
+            } else { showAlert(result.data.message || 'هنگام دریافت فهرست کاربران خطایی رخ داد.', 'error'); }
+        }).catch((_e) => { showAlert('هنگام دریافت فهرست کاربران خطایی رخ داد.', 'error'); });
     }, [navigate]);
 
 
@@ -525,12 +525,12 @@ const ListPersonnelWorkPlaces: React.FC = () => {
             }
         }
         catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
             return 'Hata';
         }
     };
@@ -598,15 +598,15 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
                 setAssignments(finalRows);
             } else {
-                showAlert(res.data.message || 'Kayıtlar yüklenirken bir hata oluştu.', 'error');
+                showAlert(res.data.message || 'هنگام بارگذاری رکوردها خطایی رخ داد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -670,7 +670,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
         if (!startDate) { setStartError(true); ok = false; } else setStartError(false);
 
-        if (!ok) showAlert('Lütfen tüm zorunlu alanları doldurun ve hataları düzeltin.', 'warning');
+        if (!ok) showAlert('لطفاً همه‌ی فیلدهای الزامی را پر کنید و خطاها را برطرف کنید.', 'warning');
         return ok;
     };
 
@@ -733,7 +733,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
         if (!validateForm()) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error'); setLoadingButton(false); return; }
 
         try {
             const payload = buildPayload(false);
@@ -742,14 +742,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 showAlert('Görevlendirme başarıyla eklendi!', 'success');
                 resetForm();
                 fetchAssignments();
-            } else { showAlert(res.data.message || 'Görevlendirme eklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام افزودن مأموریت خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -758,7 +758,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
         if (!validateForm()) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error'); setLoadingButton(false); return; }
 
         try {
             const payload = buildPayload(true);
@@ -770,14 +770,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 showAlert(`${selectedPersonnelIds.length} adet görevlendirme başarıyla eklendi!`, 'success');
                 resetForm();
                 fetchAssignments();
-            } else { showAlert(res.data.message || 'Toplu görevlendirme eklenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام افزودن گروهی مأموریت‌ها خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -785,7 +785,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
         if (!validateForm() || !editingId) return;
         setLoadingButton(true);
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) { showAlert('Kimlik doğrulama hatası: Lütfen tekrar giriş yapın.', 'error'); setLoadingButton(false); return; }
+        if (!authToken) { showAlert('خطای احراز هویت: لطفاً دوباره وارد شوید.', 'error'); setLoadingButton(false); return; }
         try {
             const payload = buildPayload(false);
             const res = await axios.put(`${server.baseurl}${server.hr}update-personnel-work-place`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' } });
@@ -793,14 +793,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 showAlert('Görevlendirme başarıyla güncellendi!', 'success');
                 resetForm();
                 fetchAssignments();
-            } else { showAlert(res.data.message || 'Görevlendirme güncellenirken bir hata oluştu.', 'error'); }
+            } else { showAlert(res.data.message || 'هنگام به‌روزرسانی مأموریت خطایی رخ داد.', 'error'); }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally { setLoadingButton(false); }
     };
 
@@ -894,15 +894,15 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 setOpenEndCooperationModal(false);
                 fetchAssignments();
             } else {
-                showAlert(res.data.message || 'İş birliği sonlandırılamadı.', 'error');
+                showAlert(res.data.message || 'همکاری پایان داده نشد.', 'error');
             }
         } catch (e: any) {
-            if (e.response?.status === 500) showAlert('Bu kayıt, başka bir işlemde için silinemez veya düzenlenemez.', 'error');
+            if (e.response?.status === 500) showAlert('این رکورد در عملیات دیگری استفاده شده و قابل حذف یا ویرایش نیست.', 'error');
             else if (e.response?.status === 401) {
                 localStorage.removeItem('authToken');
-                showAlert('Oturum süreniz doldu, lütfen tekrar giriş yapın.', 'error'); navigate("/");
+                showAlert('نشست شما به پایان رسید، لطفاً دوباره وارد شوید.', 'error'); navigate("/");
             }
-            else showAlert(e.response?.data?.message || 'Giriş belgesi güncellenirken bir hata oluştu.', 'error');
+            else showAlert(e.response?.data?.message || 'هنگام به‌روزرسانی سند ورود خطایی رخ داد.', 'error');
         } finally {
             setLoadingButton(false);
             setEndCoopError(false);
@@ -934,8 +934,8 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
 
     const exportToPdf = async (rows: PersonnelWorkPlace[], isFiltered: boolean) => {
-        if (!rows || rows.length === 0) { showAlert('PDF oluşturulacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Rapor oluşturuluyor...', 'info');
+        if (!rows || rows.length === 0) { showAlert('رکوردی برای ساخت PDF پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت گزارش...', 'info');
 
         const doc = new jsPDF();
         const docAny = doc as any;
@@ -951,20 +951,20 @@ const ListPersonnelWorkPlaces: React.FC = () => {
         docAny.setFont('NotoSans');
 
         const columns = [
-            'Personel', 'Pozisyon', 'Rol', 'Yer Türü', 'Yer', 'Başlangıç', 'Bitiş', 'Açıklama'
+            'پرسنل', 'Pozisyon', 'نقش', 'نوع محل', 'Yer', 'شروع', 'پایان', 'توضیحات'
         ];
         const body = rows.map(r => [
             r.personnelName || '-',
             r.position?.title || '-',
             r.userRole?.title || '-',
-            r.placeKind === 'WAREHOUSE' ? 'Depo' : r.placeKind === 'WORKHOUSE' ? 'Şantiye' : r.placeKind === 'WORKHOUSE_STORE' ? 'Şantiyenin Deposu' : 'Filo',
+            r.placeKind === 'WAREHOUSE' ? 'انبار' : r.placeKind === 'WORKHOUSE' ? 'کارگاه' : r.placeKind === 'WORKHOUSE_STORE' ? 'انبار کارگاه' : 'Filo',
             r.placeName || '-',
             formatDateDisplay(r.startDate),
             formatDateDisplay(r.endDate),
             r.description || '-'
         ]);
 
-        const title = isFiltered ? 'Filtrelenmiş Personel Görevlendirmeleri Raporu' : 'Tüm Personel Görevlendirmeleri Raporu';
+        const title = isFiltered ? 'گزارش مأموریت‌های فیلترشده‌ی پرسنل' : 'Tüm Personel Görevlendirmeleri Raporu';
 
         autoTable(docAny, {
             head: [columns],
@@ -984,7 +984,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
                 doc.setFontSize(10);
                 doc.setFont('NotoSans', 'bold');
-                doc.text(`Rapor Tarihi:`, 15, 40);
+                doc.text(`تاریخ گزارش:`, 15, 40);
                 doc.setFont('NotoSans', 'normal');
                 doc.text(`${formatDateDisplay(new Date().toISOString())}`, 40, 40);
 
@@ -998,7 +998,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 docAny.setTextColor(0);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل'
                 ];
                 let footerY = pageHeight - 20;
@@ -1009,12 +1009,12 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
                 docAny.setTextColor(0);
                 docAny.setFontSize(10);
-                docAny.text('İmza', pageWidth - 20, pageHeight - 12, { align: 'right' });
+                docAny.text('امضا', pageWidth - 20, pageHeight - 12, { align: 'right' });
                 docAny.line(pageWidth - 60, pageHeight - 10, pageWidth - 10, pageHeight - 10);
 
                 const pageNumber = (docAny as any).internal.getCurrentPageInfo().pageNumber;
                 const pageCount = (docAny as any).internal.getNumberOfPages();
-                docAny.text(`Sayfa ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
+                docAny.text(`صفحه ${pageNumber} / ${pageCount}`, 15, pageHeight - 10);
             },
             startY: 50,
             showHead: 'everyPage',
@@ -1023,13 +1023,13 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
         const fileName = isFiltered ? `Filtrelenmis_Gorevlendirmeler_Raporu_${format(new Date(), 'yyyyMMdd')}.pdf` : `Tum_Gorevlendirmeler_Raporu_${format(new Date(), 'yyyyMMdd')}.pdf`;
         docAny.save(fileName);
-        showAlert('PDF başarıyla oluşturuldu ve indiriliyor.', 'success');
+        showAlert('فایل PDF با موفقیت ساخته شد و در حال دانلود است.', 'success');
         setLoadingData(false);
     };
 
     const exportToExcel = async (rows: PersonnelWorkPlace[], isFiltered: boolean) => {
-        if (!rows || rows.length === 0) { showAlert('Dışa aktarılacak kayıt bulunamadı.', 'warning'); return; }
-        setLoadingData(true); showAlert('Excel dosyası oluşturuluyor...', 'info');
+        if (!rows || rows.length === 0) { showAlert('رکوردی برای خروجی پیدا نشد.', 'warning'); return; }
+        setLoadingData(true); showAlert('در حال ساخت فایل Excel...', 'info');
 
         try {
             const workbook = new Excel.Workbook();
@@ -1061,7 +1061,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 ws.addRow([]);
                 const companyInfo = [
                     'ترابوت',
-                    'Mansuroğlu Mh. 283/6 Sk. No: 2 Bayraklı - İZMİR Tel: +90 (232) 347 74 74 pbx Fax: +90 (232) 347 77 11',
+                    'ترابوت، دستیار هوشمند حمل‌ونقل',
                     'دستیار هوشمند حمل‌ونقل',
                 ];
                 companyInfo.forEach(line => {
@@ -1076,7 +1076,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
             };
 
             worksheet.addRow(['', '', '', '', '', '', '', '']);
-            const titleText = isFiltered ? 'Filtrelenmiş Personel Görevlendirmeleri Raporu' : 'Tüm Personel Görevlendirmeleri Raporu';
+            const titleText = isFiltered ? 'گزارش مأموریت‌های فیلترشده‌ی پرسنل' : 'Tüm Personel Görevlendirmeleri Raporu';
             const titleRow = worksheet.addRow([titleText]);
             if (titleRow) {
                 titleRow.font = { name: 'Times New Roman', size: 12, bold: true };
@@ -1084,7 +1084,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
             }
             worksheet.mergeCells(`A${titleRow.number}:H${titleRow.number}`);
 
-            worksheet.addRow([`Tarih: ${formatDateDisplay(new Date().toISOString())}`]);
+            worksheet.addRow([`تاریخ: ${formatDateDisplay(new Date().toISOString())}`]);
             const dateRow = worksheet.lastRow;
             if (dateRow) {
                 dateRow.getCell(1).font = { name: 'Times New Roman', size: 10, bold: false };
@@ -1092,7 +1092,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
             }
             worksheet.addRow([]);
 
-            const tableHeaders = ['Personel', 'Pozisyon', 'Rol', 'Yer Türü', 'Yer', 'Başlangıç', 'Bitiş', 'Açıklama'];
+            const tableHeaders = ['پرسنل', 'Pozisyon', 'نقش', 'نوع محل', 'Yer', 'شروع', 'پایان', 'توضیحات'];
             const headerRow = worksheet.addRow(tableHeaders);
             headerRow.eachCell((cell) => {
                 cell.style = fullHeaderStyle;
@@ -1103,7 +1103,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     r.personnelName || '-',
                     r.position?.title || '-',
                     r.userRole?.title || '-',
-                    r.placeKind === 'WAREHOUSE' ? 'Depo' : r.placeKind === 'WORKHOUSE' ? 'Şantiye' : r.placeKind === 'WORKHOUSE_STORE' ? 'Şantiyenin Deposu' : 'Filo',
+                    r.placeKind === 'WAREHOUSE' ? 'انبار' : r.placeKind === 'WORKHOUSE' ? 'کارگاه' : r.placeKind === 'WORKHOUSE_STORE' ? 'انبار کارگاه' : 'Filo',
                     r.placeName || '-',
                     formatDateDisplay(r.startDate),
                     formatDateDisplay(r.endDate),
@@ -1134,10 +1134,10 @@ const ListPersonnelWorkPlaces: React.FC = () => {
             const fileName = isFiltered ? `Filtrelenmis_Gorevlendirmeler_Raporu_${format(new Date(), 'yyyyMMdd')}.xlsx` : `Tum_Gorevlendirmeler_Raporu_${format(new Date(), 'yyyyMMdd')}.xlsx`;
             saveAs(new Blob([buffer]), fileName);
 
-            showAlert('Excel başarıyla oluşturuldu ve indiriliyor.', 'success');
+            showAlert('فایل Excel با موفقیت ساخته شد و در حال دانلود است.', 'success');
         } catch (error) {
-            console.error("Excel dışa aktarılırken hata:", error);
-            showAlert('Excel dışa aktarılırken bir hata oluştu. Lütfen konsolu kontrol edin.', 'error');
+            console.error("خطا در خروجی Excel:", error);
+            showAlert('هنگام خروجی Excel خطایی رخ داد. لطفاً کنسول را بررسی کنید.', 'error');
         } finally {
             setLoadingData(false);
         }
@@ -1183,7 +1183,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             </CustomTooltip>
                         )}
                         {isFormVisible && (
-                            <CustomTooltip title={isTooltipGloballyEnabled ? "Kayıt formunu gizle" : ""}>
+                            <CustomTooltip title={isTooltipGloballyEnabled ? "پنهان کردن فرم ثبت" : ""}>
                                 <Button variant="contained" color="error" onClick={resetForm} startIcon={<IconX size={20} />}>Gizle</Button>
                             </CustomTooltip>
                         )}
@@ -1214,7 +1214,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel required>Personel {assignmentMode === 'bulk' && <>(Çoklu Seçim)</>}</CustomFormLabel>
+                                <CustomFormLabel required>پرسنل {assignmentMode === 'bulk' && <>(Çoklu Seçim)</>}</CustomFormLabel>
                                 <FormControl size="small" sx={{ width: '100%' }} error={personnelError}>
 
                                     {assignmentMode === 'single' ? (
@@ -1222,7 +1222,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                             options={personnels}
                                             size="small"
                                             getOptionLabel={(option) => {
-                                                const isgStatus = option.hasISG ? '(İSG Var)' : '(İSG Yok)';
+                                                const isgStatus = option.hasISG ? '(ایمنی و بهداشت کار دارد)' : '(ایمنی و بهداشت کار ندارد)';
                                                 return `${option.name} ${option.family} ${isgStatus}`;
                                             }}
 
@@ -1241,9 +1241,9 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    label="Personel Seçin"
+                                                    label="پرسنل را انتخاب کنید"
                                                     error={personnelError}
-                                                    helperText={personnelError ? 'Zorunlu alan!' : ''}
+                                                    helperText={personnelError ? 'فیلد الزامی!' : ''}
                                                 />
                                             )}
                                         />
@@ -1258,7 +1258,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                                 if (personnelError) setPersonnelError(false);
                                             }}
 
-                                            input={<OutlinedInput id="select-multiple-chip" label="Personel Seçin" />}
+                                            input={<OutlinedInput id="select-multiple-chip" label="پرسنل را انتخاب کنید" />}
 
                                             renderValue={(selected: number[]) => (
                                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -1278,7 +1278,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                             )}
                                         >
                                             {personnels.map((p) => {
-                                                const isgStatus = p.hasISG ? '(İSG Var)' : '(İSG Yok)';
+                                                const isgStatus = p.hasISG ? '(ایمنی و بهداشت کار دارد)' : '(ایمنی و بهداشت کار ندارد)';
                                                 return (
                                                     <UiMenuItem key={p.id} value={p.id}>
                                                         <Checkbox checked={selectedPersonnelIds.indexOf(p.id) > -1} />
@@ -1368,14 +1368,14 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             )}
 
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel required>Yer Türü</CustomFormLabel>
+                                <CustomFormLabel required>نوع محل</CustomFormLabel>
                                 <FormControl size="small" sx={{ width: '100%' }}>
-                                    <InputLabel id="sel-placekind">Yer Türü Seçin</InputLabel>
-                                    <Select labelId="sel-placekind" label="Yer Türü Seçin" value={placeKind}
+                                    <InputLabel id="sel-placekind">نوع محل را انتخاب کنید</InputLabel>
+                                    <Select labelId="sel-placekind" label="نوع محل را انتخاب کنید" value={placeKind}
                                         onChange={(e) => setPlaceKind(e.target.value as PlaceKind)}>
-                                        <UiMenuItem value="WAREHOUSE">Depo</UiMenuItem>
-                                        <UiMenuItem value="WORKHOUSE">Şantiye</UiMenuItem>
-                                        <UiMenuItem value="WORKHOUSE_STORE">Şantiyenin Deposu</UiMenuItem>
+                                        <UiMenuItem value="WAREHOUSE">انبار</UiMenuItem>
+                                        <UiMenuItem value="WORKHOUSE">کارگاه</UiMenuItem>
+                                        <UiMenuItem value="WORKHOUSE_STORE">انبار کارگاه</UiMenuItem>
                                         <UiMenuItem value="FILO">Filo</UiMenuItem>
                                     </Select>
                                 </FormControl>
@@ -1383,7 +1383,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
                             {placeKind === 'WAREHOUSE' && (
                                 <Grid item xs={12} sm={4}>
-                                    <CustomFormLabel required>Depo</CustomFormLabel>
+                                    <CustomFormLabel required>انبار</CustomFormLabel>
                                     <Autocomplete
                                         options={warehousesList}
                                         size="small"
@@ -1400,7 +1400,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
-                                                label="Depo Seçin"
+                                                label="انبار را انتخاب کنید"
                                                 error={placeError}
                                                 helperText={placeError ? 'Bu alan zorunludur!' : ''}
                                             />
@@ -1410,7 +1410,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             )}
                             {placeKind === 'WORKHOUSE' && (
                                 <Grid item xs={12} sm={4}>
-                                    <CustomFormLabel required>Şantiye</CustomFormLabel>
+                                    <CustomFormLabel required>کارگاه</CustomFormLabel>
                                     <Autocomplete
                                         options={workhousesList}
                                         size="small"
@@ -1427,7 +1427,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
-                                                label="Şantiye Seçin"
+                                                label="کارگاه را انتخاب کنید"
                                                 error={placeError}
                                                 helperText={placeError ? 'Bu alan zorunludur!' : ''}
                                             />
@@ -1454,12 +1454,12 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                             }}
 
                                             renderInput={(params) => (
-                                                <TextField {...params} label="Şantiye Seçin" />
+                                                <TextField {...params} label="کارگاه را انتخاب کنید" />
                                             )}
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
-                                        <CustomFormLabel required>Şantiyenin Deposu</CustomFormLabel>
+                                        <CustomFormLabel required>انبار کارگاه</CustomFormLabel>
                                         <Autocomplete
                                             options={storesList}
                                             size="small"
@@ -1478,7 +1478,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    label="Depo Seçin"
+                                                    label="انبار را انتخاب کنید"
                                                     error={placeError}
                                                     helperText={placeError ? 'Bu alan zorunludur!' : ''}
                                                 />
@@ -1519,9 +1519,9 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             )}
 
                             <Grid item xs={12} sm={4}>
-                                <CustomFormLabel required>Başlangıç Tarihi</CustomFormLabel>
+                                <CustomFormLabel required>تاریخ شروع</CustomFormLabel>
                                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                    <DatePicker label="Başlangıç Tarihi"
+                                    <DatePicker label="تاریخ شروع"
                                         value={startDate}
                                         inputFormat="dd/MM/yyyy"
                                         onChange={(v) => { setStartDate(v); if (startError) setStartError(false); }} renderInput={(params) => <TextField {...params} size="small" fullWidth error={startError} helperText={startError ? 'Zorunlu alan' : ''} />} />
@@ -1529,8 +1529,8 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12}>
-                                <CustomFormLabel>Açıklama</CustomFormLabel>
-                                <CustomTextField placeholder="Açıklama" fullWidth multiline rows={4}
+                                <CustomFormLabel>توضیحات</CustomFormLabel>
+                                <CustomTextField placeholder="توضیحات" fullWidth multiline rows={4}
                                     value={description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)} inputRef={nameInputRef} />
                             </Grid>
 
@@ -1539,17 +1539,17 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                     {editingId !== null ? (
                                         <>
                                             <CustomTooltip title={isTooltipGloballyEnabled ? "Seçili görevlendirmeyi güncelle" : ""}>
-                                                <Button variant="contained" color="info" onClick={handleSubmitForm} disabled={loadingButton}>{loadingButton ? <><IconHelmet fontSize={20} /> Bekleniyor...</> : 'Düzenle'}</Button>
+                                                <Button variant="contained" color="info" onClick={handleSubmitForm} disabled={loadingButton}>{loadingButton ? <><IconHelmet fontSize={20} /> Bekleniyor...</> : 'ویرایش'}</Button>
                                             </CustomTooltip>
-                                            <CustomTooltip title={isTooltipGloballyEnabled ? "Güncellemeyi iptal et ve yeni kayıt moduna dön" : ""}>
-                                                <Button variant="outlined" color="secondary" onClick={resetForm}>İptal Et</Button>
+                                            <CustomTooltip title={isTooltipGloballyEnabled ? "لغو ویرایش و بازگشت به ثبت جدید" : ""}>
+                                                <Button variant="outlined" color="secondary" onClick={resetForm}>لغو</Button>
                                             </CustomTooltip>
                                         </>
                                     ) : (
                                         <>
                                             {hasCreatePermission && (
                                                 <CustomTooltip title={isTooltipGloballyEnabled ? "Yeni görevlendirme ekle" : ""}>
-                                                    <Button variant="contained" color="success" onClick={handleSubmitForm} disabled={loadingButton}>{loadingButton ? <><IconHelmet fontSize={20} /> Bekleniyor...</> : `Yeni ${assignmentMode === 'single' ? 'Görevlendirme' : 'Toplu Atama'} Ekle`}</Button>
+                                                    <Button variant="contained" color="success" onClick={handleSubmitForm} disabled={loadingButton}>{loadingButton ? <><IconHelmet fontSize={20} /> Bekleniyor...</> : `جدید ${assignmentMode === 'single' ? 'Görevlendirme' : 'Toplu Atama'} افزودن`}</Button>
                                                 </CustomTooltip>
                                             )}
                                         </>
@@ -1572,10 +1572,10 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 <Grid item xs={12} mt={2} mr={2}>
                     <Stack direction="row" spacing={3} justifyContent="flex-end" mb={2} mr={2}>
                         {isFilterActive && hasDownloadPermission && (
-                            <BlinkingButton variant="contained" color="secondary" onClick={handleOpenDownloadFilteredModal} isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />}>Filtrelenmişi İndir</BlinkingButton>
+                            <BlinkingButton variant="contained" color="secondary" onClick={handleOpenDownloadFilteredModal} isBlinking={true} disabled={loadingData} startIcon={<IconFileDownload />}>دانلود موارد فیلترشده</BlinkingButton>
                         )}
                         {hasDownloadPermission && (
-                            <Button variant="contained" color="primary" onClick={handleOpenDownloadAllModal} startIcon={<IconFileDownload />} disabled={loadingData}>Tümünü İndir</Button>
+                            <Button variant="contained" color="primary" onClick={handleOpenDownloadAllModal} startIcon={<IconFileDownload />} disabled={loadingData}>دانلود همه</Button>
                         )}
                     </Stack>
                 </Grid>
@@ -1601,10 +1601,10 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                             </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
-                            <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="Durum filtresi" fullWidth>
-                                <StyledToggleButton value="all" data-value="all">Tümü</StyledToggleButton>
-                                <StyledToggleButton value="active" data-value="active">Aktif</StyledToggleButton>
-                                <StyledToggleButton value="inactive" data-value="inactive">Pasif</StyledToggleButton>
+                            <ToggleButtonGroup value={statusFilter} exclusive onChange={handleStatusFilterChange} aria-label="فیلتر وضعیت" fullWidth>
+                                <StyledToggleButton value="all" data-value="all">همه</StyledToggleButton>
+                                <StyledToggleButton value="active" data-value="active">فعال</StyledToggleButton>
+                                <StyledToggleButton value="inactive" data-value="inactive">غیرفعال</StyledToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                     </Grid>
@@ -1614,7 +1614,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     {loadingData ? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                             <CircularProgress />
-                            <Typography variant="h6" sx={{ ml: 2 }}>Kayıtlar yükleniyor...</Typography>
+                            <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری رکوردها...</Typography>
                         </Box>
                     ) : (
                         <Table aria-label="personnel work places table">
@@ -1622,12 +1622,12 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                 <TableRow>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'personnelName'} direction={orderBy === 'personnelName' ? order : 'asc'} onClick={() => handleRequestSort('personnelName')} sx={{ color: 'inherit' }}>
-                                            <Typography variant="h6">Personel</Typography>
+                                            <Typography variant="h6">پرسنل</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Pozisyon</Typography></StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Rol</Typography></StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Yer Türü</Typography></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">نقش</Typography></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">نوع محل</Typography></StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'placeName'} direction={orderBy === 'placeName' ? order : 'asc'} onClick={() => handleRequestSort('placeName')} sx={{ color: 'inherit' }}>
                                             <Typography variant="h6">Yer</Typography>
@@ -1635,15 +1635,15 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'startDate'} direction={orderBy === 'startDate' ? order : 'asc'} onClick={() => handleRequestSort('startDate')} sx={{ color: 'inherit' }}>
-                                            <Typography variant="h6">Başlangıç</Typography>
+                                            <Typography variant="h6">شروع</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
                                     <StyledTableCell sx={{ color: "#171c23" }}>
                                         <TableSortLabel active={orderBy === 'endDate'} direction={orderBy === 'endDate' ? order : 'asc'} onClick={() => handleRequestSort('endDate')} sx={{ color: 'inherit' }}>
-                                            <Typography variant="h6">Bitiş</Typography>
+                                            <Typography variant="h6">پایان</Typography>
                                         </TableSortLabel>
                                     </StyledTableCell>
-                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">Açıklama</Typography></StyledTableCell>
+                                    <StyledTableCell sx={{ color: "#171c23" }}><Typography variant="h6">توضیحات</Typography></StyledTableCell>
                                     <StyledTableCell></StyledTableCell>
                                 </TableRow>
                             </TableHead>
@@ -1665,9 +1665,9 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                             <StyledTableCell>{row.userRole ? row.userRole.title : '-'}</StyledTableCell>
 
                                             <StyledTableCell>
-                                                {row.placeKind === 'WAREHOUSE' ? 'Depo' :
-                                                    row.placeKind === 'WORKHOUSE' ? 'Şantiye' :
-                                                        row.placeKind === 'WORKHOUSE_STORE' ? 'Şantiyenin Deposu' :
+                                                {row.placeKind === 'WAREHOUSE' ? 'انبار' :
+                                                    row.placeKind === 'WORKHOUSE' ? 'کارگاه' :
+                                                        row.placeKind === 'WORKHOUSE_STORE' ? 'انبار کارگاه' :
                                                             row.placeKind === 'FILO' ? 'Filo' : '-'}
                                             </StyledTableCell>
 
@@ -1681,13 +1681,13 @@ const ListPersonnelWorkPlaces: React.FC = () => {
 
                                             <StyledTableCell sx={{ maxWidth: 100 }}>
                                                 {row.description && row.description.trim().length > 0 ? (
-                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm açıklamayı gör" : ""}>
+                                                    <CustomTooltip title={isTooltipGloballyEnabled ? "دیدن کل توضیحات" : ""}>
                                                         <Button
                                                             variant="text"
                                                             style={{ fontSize: "10px", padding: "2px 5px" }}
                                                             onClick={() => handleOpenDescriptionModal(row.description)}
                                                         >
-                                                            Açıklamanı Oku
+                                                            خواندن توضیحات
                                                         </Button>
                                                     </CustomTooltip>
                                                 ) : (
@@ -1697,7 +1697,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                                 )}
                                             </StyledTableCell>
                                             <StyledTableCell>
-                                                <CustomTooltip title={isTooltipGloballyEnabled ? "Daha fazla seçenek" : ""}>
+                                                <CustomTooltip title={isTooltipGloballyEnabled ? "گزینه‌های بیشتر" : ""}>
                                                     <IconButton onClick={(e) => handleClickMenu(e, row)}><IconDots width={18} /></IconButton>
                                                 </CustomTooltip>
                                                 <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
@@ -1716,19 +1716,19 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                                         </UiMenuItem>
                                                     )}
                                                     {hasEditPermission && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı düzenle" : ""}>
-                                                            <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>Düzenlemek</UiMenuItem>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "ویرایش این رکورد" : ""}>
+                                                            <UiMenuItem onClick={handleEditClick}><ListItemIcon><IconEdit width={18} /></ListItemIcon>ویرایش</UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
 
                                                     {hasDeletePermission && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Bu kaydı sil" : ""}>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "حذف این رکورد" : ""}>
                                                             <UiMenuItem onClick={handleClickOpenDeleteModal}><ListItemIcon><IconTrash width={18} /></ListItemIcon>Silmek</UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                     {hasDownloadPermission && (
-                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "Kaydı indir" : ""}>
-                                                            <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> Bu satırı indir</UiMenuItem>
+                                                        <CustomTooltip placement="left" title={isTooltipGloballyEnabled ? "دانلود رکورد" : ""}>
+                                                            <UiMenuItem onClick={() => handleOpenRowDownloadModal(row)}><ListItemIcon><IconFileDownload width={18} /></ListItemIcon> دانلود این ردیف</UiMenuItem>
                                                         </CustomTooltip>
                                                     )}
                                                 </Menu>
@@ -1737,7 +1737,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <StyledTableCell colSpan={9} align="center"><Typography variant="subtitle1" color="textSecondary">Hiç kayıt bulunamadı.</Typography></StyledTableCell>
+                                        <StyledTableCell colSpan={9} align="center"><Typography variant="subtitle1" color="textSecondary">هیچ رکوردی پیدا نشد.</Typography></StyledTableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
@@ -1745,40 +1745,40 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     )}
                 </TableContainer>
 
-                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredAssignments.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="Satır başına düşen:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
+                <TablePagination rowsPerPageOptions={[5, 10, 25]} component="div" count={filteredAssignments.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} labelRowsPerPage="تعداد در هر صفحه:" labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count !== -1 ? count : `+${to}`}`} />
             </BlankCard>
 
             <Dialog open={openDownloadAllModal} onClose={handleCloseDownloadAllModal} maxWidth="xs">
                 <DialogTitle>Tüm Görevlendirmeleri İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadAll('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadAll('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseDownloadAllModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseDownloadAllModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openDownloadFilteredModal} onClose={handleCloseDownloadFilteredModal} maxWidth="xs">
                 <DialogTitle>Filtrelenmiş Görevlendirmeleri İndir</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadFiltered('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadFiltered('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseDownloadFilteredModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseDownloadFilteredModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openRowDownloadModal} onClose={handleCloseRowDownloadModal} maxWidth="xs">
-                <DialogTitle>Dosya Formatını Seçin</DialogTitle>
+                <DialogTitle>قالب فایل را انتخاب کنید</DialogTitle>
                 <DialogContent>
                     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>PDF Olarak İndir</Button>
-                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>Excel Olarak İndir</Button>
+                        <Button variant="contained" color="primary" startIcon={<IconFileText />} onClick={() => handleDownloadRow('pdf')}>دانلود PDF</Button>
+                        <Button variant="contained" color="success" startIcon={<IconFileSpreadsheet />} onClick={() => handleDownloadRow('excel')}>دانلود Excel</Button>
                     </Stack>
                 </DialogContent>
-                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">Kapat</Button></DialogActions>
+                <DialogActions><Button onClick={handleCloseRowDownloadModal} color="secondary">بستن</Button></DialogActions>
             </Dialog>
 
             <Dialog open={openEndCooperationModal} onClose={() => setOpenEndCooperationModal(false)} maxWidth="sm" fullWidth>
@@ -1786,13 +1786,13 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 <DialogContent>
                     {rowForEndCooperation && (
                         <Stack spacing={2}>
-                            <Typography>Personel: {rowForEndCooperation.personnelName}</Typography>
+                            <Typography>پرسنل: {rowForEndCooperation.personnelName}</Typography>
                             <Typography>Pozisyon: {rowForEndCooperation.position?.title || '-'}</Typography>
-                            <Typography>Başlangıç Tarihi: {formatDateDisplay(rowForEndCooperation.startDate)}</Typography>
+                            <Typography>تاریخ شروع: {formatDateDisplay(rowForEndCooperation.startDate)}</Typography>
 
-                            <CustomFormLabel required>Bitiş Tarihi</CustomFormLabel>
+                            <CustomFormLabel required>تاریخ پایان</CustomFormLabel>
                             <LocalizationProvider dateAdapter={AdapterDateFns} locale={tr}>
-                                <DatePicker label="Bitiş Tarihi Seçin"
+                                <DatePicker label="تاریخ پایان را انتخاب کنید"
                                     value={endCooperationDate}
 
                                     inputFormat="dd/MM/yyyy"
@@ -1810,8 +1810,8 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEndCooperationModal(false)} color="secondary">İptal</Button>
-                    <Button onClick={submitEndCooperation} color="error" disabled={loadingButton || !endCooperationDate}>Sonlandır</Button>
+                    <Button onClick={() => setOpenEndCooperationModal(false)} color="secondary">انصراف</Button>
+                    <Button onClick={submitEndCooperation} color="error" disabled={loadingButton || !endCooperationDate}>پایان دادن</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1822,7 +1822,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 maxWidth="md"
                 fullWidth
             >
-                <DialogTitle>Açıklamanın Tamamı</DialogTitle>
+                <DialogTitle>توضیحات کامل</DialogTitle>
                 <DialogContent dividers>
                     <DialogContentText>
                         <div dangerouslySetInnerHTML={{ __html: fullDescriptionContent }} />
@@ -1830,7 +1830,7 @@ const ListPersonnelWorkPlaces: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDescriptionModal} color="primary">
-                        Kapat
+                        بستن
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -13,8 +13,10 @@
   --text-secondary: #737783;
   --text-muted: #a0a4af;
 
-  --primary: #635bff;
-  --primary-soft: #efedff;
+  --primary: #f5761a;
+  --primary-dark: #dc6310;
+  --primary-soft: #fdeee3;
+  --ink: #0e1a3b;
 
   --success: #19a974;
   --success-soft: #e9f8f2;
@@ -88,7 +90,7 @@
     border-radius 620ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 620ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 320ms ease;
-  will-change: transform, top, left, width, height, opacity;
+  will-change: transform, opacity;
   top: 50%;
   left: 50%;
   transform: translate3d(-50%, -50%, 0);
@@ -183,22 +185,19 @@
 
 .agent-modal-shell.is-minimized {
   width: 380px !important;
-  height: fit-content;
   /* max-height: clamp(155px, 18vh, 190px) !important; */
   position: fixed !important;
   border-radius: 16px;
   padding-top: 52px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.32);
-  border: 1px solid rgba(99, 91, 255, 0.15);
+  border: 1px solid rgba(245, 118, 26, 0.15);
 }
 
+/* Size and place come from panelBox (inline): a fixed size keeps the history column at full height. */
 .agent-modal-shell.is-maximized {
   position: fixed !important;
-  width: auto !important;
-  height: auto !important;
-  max-height: calc(100vh - 28px) !important;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 40px 100px rgba(15, 23, 42, 0.4);
 }
 
@@ -1141,8 +1140,8 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
 }
 
 .composer:focus-within {
-  border-color: rgba(99, 91, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.08);
+  border-color: rgba(245, 118, 26, 0.4);
+  box-shadow: 0 0 0 3px rgba(245, 118, 26, 0.08);
 }
 
 .composer textarea {
@@ -1602,7 +1601,7 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
 
 .operation-actions button:hover {
   color: var(--primary);
-  border-color: rgba(99, 91, 255, 0.3);
+  border-color: rgba(245, 118, 26, 0.3);
 }
 
 /* =========================================================
@@ -2120,8 +2119,8 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
   border-radius: 18px;
   color: #fff;
   font-size: 24px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%);
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #f7934a 0%, #f5761a 50%, #dc6310 100%);
+  box-shadow: 0 12px 24px rgba(245, 118, 26, 0.3);
 }
 
 /* =========================================================
@@ -2217,7 +2216,7 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
     border-radius: 10px;
     color: #fff;
     font-size: 15px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #2563eb 100%);
+    background: linear-gradient(135deg, #f7934a 0%, #f5761a 50%, #dc6310 100%);
   }
 
   .agent-window-controls {
@@ -2502,6 +2501,220 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
 
   .agent-page.minimized-view .composer-container {
     flex-shrink: 0;
+  }
+}
+
+/* =========================================================
+   DRAG + POLISH
+   Comes after the rules above (but before reduced motion) so it wins.
+========================================================= */
+
+/* While the header is dragged nothing animates or gets selected; the panel follows the pointer 1:1. */
+.agent-modal-shell[data-dragging] {
+  transition: none !important;
+  user-select: none;
+}
+
+.agent-modal-shell[data-dragging] .agent-dialog-header {
+  cursor: grabbing;
+}
+
+/* Opening: a short fade and lift (the individual `translate` property leaves the placement transform alone). */
+.agent-modal-shell {
+  animation: agent-panel-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes agent-panel-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+@media (min-width: 801px) {
+  /* State changes are animated from AiAgentPage (transform/opacity only), so nothing transitions here: a
+     resized panel is laid out once, not on every frame. */
+  .agent-modal-shell {
+    transition: none;
+  }
+
+  /* The compact panel is as tall as its content (last answer + composer); AiAgentPage measures it. */
+  .agent-page.minimized-view {
+    height: auto;
+  }
+
+  /* touch and pen on a tablet drag the header instead of scrolling the page */
+  .agent-dialog-header {
+    touch-action: none;
+  }
+
+  .agent-panel-overlay .agent-window-bar {
+    padding: 0 18px 0 10px;
+    background: linear-gradient(90deg, #f5761a 0%, #f7853a 100%);
+  }
+
+  /* Persian letters must stay joined: no letter-spacing or uppercase on the title. */
+  .agent-panel-overlay .agent-window-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .agent-panel-overlay .agent-window-title::before {
+    content: "✦";
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+  }
+
+  /* real buttons instead of 12px dots: easy to hit, white glyphs on the orange bar */
+  .agent-panel-overlay .agent-window-controls {
+    gap: 4px;
+  }
+
+  .agent-panel-overlay .agent-window-button {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: none;
+    background: transparent;
+    color: #fff;
+    transition: background-color 160ms ease;
+  }
+
+  .agent-panel-overlay .agent-window-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .agent-panel-overlay .agent-window-button--close:hover {
+    background: rgba(14, 26, 59, 0.22);
+  }
+
+  .agent-panel-overlay .agent-window-button svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.2;
+  }
+}
+
+/* Composer: light, like the rest of the panel, with the brand accent on focus. */
+.agent-panel-overlay .composer {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  box-shadow: 0 1px 2px rgba(14, 26, 59, 0.04);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.agent-panel-overlay .composer:focus-within {
+  border-color: rgba(245, 118, 26, 0.55);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(245, 118, 26, 0.12);
+}
+
+.agent-panel-overlay .composer textarea {
+  color: var(--text);
+}
+
+.agent-panel-overlay .composer-button {
+  color: var(--text-secondary);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.agent-panel-overlay .composer-button:hover {
+  background: #eceef3;
+  color: var(--text);
+}
+
+.agent-panel-overlay .recording-button,
+.agent-panel-overlay .recording-button:hover {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.agent-panel-overlay .send-button {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(245, 118, 26, 0.3);
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.agent-panel-overlay .send-button:hover {
+  filter: none;
+  background: var(--primary-dark);
+}
+
+.agent-panel-overlay .send-button:active {
+  transform: scale(0.94);
+}
+
+.agent-panel-overlay .send-button.inactive {
+  background: #f8b383;
+  box-shadow: none;
+}
+
+/* History: a light card like the result panel; the heading without letter-spacing so the Persian stays joined. */
+.agent-panel-overlay .history-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  gap: 0;
+}
+
+.agent-panel-overlay .history-sidebar__header {
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.agent-panel-overlay .history-sidebar__search {
+  background: var(--surface);
+}
+
+.agent-panel-overlay .history-sidebar__search input:focus {
+  border-color: rgba(245, 118, 26, 0.55);
+  box-shadow: 0 0 0 3px rgba(245, 118, 26, 0.12);
+}
+
+.agent-panel-overlay .history-sidebar__list {
+  background: var(--surface);
+}
+
+/* Messages: the user's own bubble in brand navy (white on orange reads poorly), the assistant's avatar in orange. */
+.agent-panel-overlay .user-message .message-bubble {
+  background: var(--ink);
+}
+
+.agent-panel-overlay .message-bubble {
+  animation: agent-message-in 240ms ease-out both;
+}
+
+@keyframes agent-message-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-modal-shell,
+  .agent-panel-overlay .message-bubble {
+    animation: none;
   }
 }
 
