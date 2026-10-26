@@ -11,16 +11,17 @@
   --background: 210 25% 97%;
   --foreground: 215 32% 17%;
   --card: 0 0% 100%;
-  --primary: 163 78% 28%;
+  /* Trabot's brand orange (tailwind brand.orange) */
+  --primary: 25 91% 53%;
   --primary-foreground: 0 0% 100%;
   --secondary: 210 25% 96%;
   --muted: 210 25% 96%;
   --muted-foreground: 215 14% 46%;
-  --accent: 158 40% 94%;
+  --accent: 25 88% 94%;
   --destructive: 0 72% 51%;
   --border: 214 24% 90%;
   --input: 214 24% 87%;
-  --ring: 163 78% 28%;
+  --ring: 25 91% 53%;
   --radius: 0.75rem;
   font-family: Vazirmatn, Tahoma, sans-serif;
   font-size: 14px;
@@ -47,7 +48,7 @@ body { margin: 0; }
   --secondary: 217 20% 20%;
   --muted: 217 20% 20%;
   --muted-foreground: 215 18% 68%;
-  --accent: 163 30% 18%;
+  --accent: 25 35% 18%;
   --border: 217 20% 25%;
   --input: 217 20% 30%;
   color-scheme: dark;

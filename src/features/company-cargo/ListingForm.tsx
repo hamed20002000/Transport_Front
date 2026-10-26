@@ -182,7 +182,7 @@ export default function ListingForm({
         <p className="tw-m-0 tw-mb-3 tw-text-xs tw-text-brand-muted">
           نوع حمل از مبدأ و مقصد تشخیص داده می‌شود (داخل ایران: داخلی، ایران به خارج: صادراتی، خارج به ایران: وارداتی) و بار فقط به راننده‌های همان نوع می‌رسد.
         </p>
-        <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
           <Field label="مبدأ بارگیری" icon={MapPin} required>
             <input className={inputClass} value={fields.origin} onChange={set('origin')} maxLength={listingLimits.origin} placeholder="مثلاً تهران، انبار شادآباد" required />
           </Field>
@@ -193,7 +193,7 @@ export default function ListingForm({
       </Group>
 
       <Group title="مشخصات بار" plain={dialog}>
-        <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
           <Field label="نوع بار" icon={Package}>
             <input className={inputClass} value={fields.cargoType} onChange={set('cargoType')} maxLength={listingLimits.cargoType} placeholder="مثلاً کاشی و سرامیک" />
           </Field>
@@ -316,7 +316,7 @@ export default function ListingForm({
     );
 
   return (
-    <form onSubmit={onSubmit} noValidate className="tw-grid tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
+    <form onSubmit={onSubmit} noValidate className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
       {inputs}
       <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-48 lg:tw-self-start">
         <section className="tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">

@@ -167,7 +167,7 @@ export const getDynamicMenuItems = async (allowedOperations: string[]): Promise<
   const finalMenuItems: MenuitemsType[] = [];
   const dashboardItem = mappedMenuItems.find(item => item.title === 'Gösterge Paneli');
   if (dashboardItem) {
-    finalMenuItems.push({ navlabel: true, subheader: 'Ana Sayfa', id: uniqueId() });
+    finalMenuItems.push({ navlabel: true, subheader: 'صفحه‌ی اصلی', id: uniqueId() });
     finalMenuItems.push(dashboardItem);
   }
   mappedMenuItems.forEach(item => {

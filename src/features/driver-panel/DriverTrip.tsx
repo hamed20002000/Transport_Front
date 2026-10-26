@@ -8,7 +8,7 @@ import { ActionButton, Hero, useAsync } from './components';
 import DriverShell from './DriverShell';
 import { LoadSpecs, useLoadActions } from './DriverLoads';
 import LocationCard from './LocationCard';
-import { useLoadsChangedEvent } from './loadEvents';
+import { onRequest, useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
 // Big card for an accepted request: who to call, where to go, and «تحویل دادم».
@@ -113,6 +113,8 @@ function TripContent() {
   const state = useAsync(listActiveTrips, []);
   // the company handed over a load or recorded a delivery while this page is open
   useLoadsChangedEvent(state.reload);
+  // the company changed its phone or name: «تماس با شرکت» shows the new one
+  useListingContactEvent((contact) => state.setData((current) => current && current.map(onRequest(contact))));
   const trips = state.data ?? [];
   // reported: the card stays, waiting for the company; delivered (confirmed): it leaves the list
   const delivered = (trip: CargoRequest) =>

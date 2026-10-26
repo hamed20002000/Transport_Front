@@ -30,7 +30,7 @@ const NavListing = () => {
   if (menuItems.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
-        <Typography variant="body2" color="textSecondary">Henüz menü öğesi bulunamadı.</Typography>
+        <Typography variant="body2" color="textSecondary">هنوز آیتم منویی پیدا نشد.</Typography>
       </Box>
     );
   }

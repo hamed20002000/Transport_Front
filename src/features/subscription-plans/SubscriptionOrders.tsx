@@ -126,6 +126,8 @@ function OrderCard({ order, onDone, unlock, onLocked }: { order: Order; onDone: 
     try {
       const result = await approveReceipt(order.id, receipt.id);
       toast.success(result.notified ? 'اشتراک فعال شد و به کاربر خبر داده شد.' : 'اشتراک فعال شد؛ پیام به کاربر نرسید.');
+      // this payment took the driver past a purchase-reward tier
+      if (result.rewardDays) toast.info(`راننده به خاطر خریدهایش ${result.rewardDays.toLocaleString('fa-IR')} روز رایگان هدیه گرفت.`);
       onDone();
     } catch (error) {
       toast.error(adminError(error));

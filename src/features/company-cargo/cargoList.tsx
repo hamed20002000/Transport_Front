@@ -5,7 +5,7 @@ import { useAuth } from 'src/core/auth/AuthContext';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { getSummary, tripTypeLabels, type CargoSummary, type Page, type TripType } from './api';
+import { driversOfLoad, getSummary, type CargoSummary, type Page, type TripType } from './api';
 import { CARGO_CHANGED_EVENT, errorMessage } from './cargoText';
 import { useNotificationEvent } from './notificationSocket';
 import { CardSkeleton, EmptyState, IconButton, LoadFailed, Pager } from './components';
@@ -63,7 +63,7 @@ export function ListBody<T>({
 }) {
   if (state.loading)
     return (
-      <div className="tw-grid tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت بارها">
+      <div className="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت بارها">
         {[0, 1, 2, 3].map((i) => <CardSkeleton key={i} />)}
       </div>
     );
@@ -71,7 +71,7 @@ export function ListBody<T>({
   if (!state.data?.items.length) return <EmptyState {...empty} />;
   return (
     <>
-      <ul className="tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">{state.data.items.map(render)}</ul>
+      <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">{state.data.items.map(render)}</ul>
       <Pager page={state.data.page} total={state.data.total} pageSize={state.data.pageSize} onChange={onPage} />
     </>
   );
@@ -97,7 +97,7 @@ export function useCreatedToast() {
         ? `${count} ثبت شد و در نوبت بعدی اعلام خودکار برای راننده‌ها فرستاده می‌شود.`
         : createdCount !== undefined
           ? `${count} ثبت و برای راننده‌های هر نوع اعلام شد.`
-          : `بار ثبت شد و برای ${recipients!.toLocaleString('fa-IR')} رانندهٔ ${tripType ? tripTypeLabels[tripType] : ''} ارسال شد.`),
+          : `بار ثبت شد و برای ${recipients!.toLocaleString('fa-IR')} رانندهٔ ${tripType ? driversOfLoad(tripType) : ''} ارسال شد.`),
     );
     // Clearing the history state keeps the toast from repeating on refresh.
     navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
@@ -128,6 +128,8 @@ export function useCargoRefresh() {
   useDomainRefresh(['company_my_cargo', 'company_create_cargo', 'company_suggested_cargo'], reload, 'account');
   // The driver confirmed or declined a load the company handed over, or the offer ran out.
   useNotificationEvent('cargo-request-changed', reload);
+  // this company changed its phone or name (here or in a bot): its loads show the new ones
+  useNotificationEvent('cargo-listing-contact', reload);
   // Same for changes made on the cargo cards in the agent chat (they call the API directly).
   useEffect(() => {
     window.addEventListener(CARGO_CHANGED_EVENT, reload);

@@ -59,9 +59,12 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
   const { pathname, search } = useLocation();
   const tab = new URLSearchParams(search).get('tab');
   return (
-    <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-bg-brand-bg tw-text-brand-navy">
+    // clip: a child wider than the phone must not widen the page; then the side menu (fixed to the right edge)
+    // opened off to the left. clip, unlike hidden, keeps the header sticky.
+    <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-overflow-x-clip tw-bg-brand-bg tw-text-brand-navy">
       <header className="tw-sticky tw-top-0 tw-z-20 tw-pt-[env(safe-area-inset-top)] tw-border-b tw-border-brand-line tw-bg-white/95 tw-backdrop-blur">
-        <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-2 tw-px-3 sm:tw-px-6">
+        {/* phones: the name gets the first row whole, the icons go to a second row; one row from sm up */}
+        <div className="tw-mx-auto tw-flex tw-min-h-[4rem] tw-max-w-5xl tw-flex-wrap tw-items-center tw-justify-between tw-gap-x-2 tw-gap-y-1 tw-px-3 tw-py-2 sm:tw-h-16 sm:tw-flex-nowrap sm:tw-px-6 sm:tw-py-0">
           <FloatingPanelNav
             title="منوی شرکت"
             items={items.map((item) => ({
@@ -77,11 +80,11 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
           />
           <div className="tw-min-w-0 tw-flex-1">
             <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-              <strong className="tw-truncate tw-text-lg tw-font-bold tw-leading-none">{name || 'پنل شرکت'}</strong>
+              <strong className="tw-line-clamp-2 tw-text-base tw-font-bold tw-leading-snug sm:tw-line-clamp-none sm:tw-truncate sm:tw-text-lg sm:tw-leading-none">{name || 'پنل شرکت'}</strong>
               {name && <span className="tw-shrink-0 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">شرکت</span>}
             </div>
           </div>
-          <div className="tw-flex tw-shrink-0 tw-items-center tw-gap-1 sm:tw-gap-1.5">
+          <div className="tw-flex tw-w-full tw-shrink-0 tw-items-center tw-justify-end tw-gap-1 sm:tw-w-auto sm:tw-gap-1.5">
             <Link
               to="/account/company/filters"
               aria-label="تنظیمات نمایش بار"

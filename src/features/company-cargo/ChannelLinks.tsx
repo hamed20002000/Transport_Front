@@ -63,7 +63,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
 
   return (
     <form onSubmit={submit} noValidate className="tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">
-      <fieldset disabled={saving} className="tw-m-0 tw-grid tw-min-w-0 tw-gap-3 tw-border-0 tw-p-0 md:tw-grid-cols-[1fr_14rem_auto] md:tw-items-end">
+      <fieldset disabled={saving} className="tw-m-0 tw-grid tw-grid-cols-1 tw-min-w-0 tw-gap-3 tw-border-0 tw-p-0 md:tw-grid-cols-[1fr_14rem_auto] md:tw-items-end">
         <label className="tw-block tw-space-y-1.5">
           <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
             <Link2 size={15} aria-hidden className="tw-text-brand-muted" /> لینک گروه یا کانال
@@ -216,7 +216,7 @@ function ChannelsContent() {
       ) : !visible.length ? (
         <EmptyState icon={Link2} title="هنوز لینکی ثبت نکرده‌اید" hint="لینک گروه یا کانالی که در آن بار آگهی می‌شود را در فرم بالا وارد کنید." />
       ) : (
-        <ul className="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
+        <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
           {visible.map((channel) => (
             <ChannelRow key={`${channel.platform}-${channel.id}`} channel={channel} removing={removingId === channel.id} onRemove={() => remove(channel)} />
           ))}

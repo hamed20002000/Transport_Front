@@ -54,7 +54,7 @@ const NoDataView = () => (
             رکوردی پیدا نشد
         </Typography>
         <Typography variant="body2" color="textSecondary">
-            Şu anda görüntülenecek herhangi bir yakıt harcaması bulunamadı.
+            فعلاً هزینه‌ی سوختی برای نمایش نیست.
         </Typography>
     </Box>
 );
@@ -73,7 +73,7 @@ const CustomNoDataOverlay = () => (
         border: '1px solid #eee'
     }}>
         <Typography variant="body1" color="textSecondary" fontWeight={500}>
-            Grafik için veri yok
+            داده‌ای برای نمودار نیست
         </Typography>
     </div>
 );
@@ -134,7 +134,7 @@ const WorkhouseFuelStats = () => {
                     const otherData: FuelStatType = {
                         workhouse_id: 'other-stats-id',
                         workhouse_code: '-',
-                        workhouse_name: 'Şantiye Dışı ',
+                        workhouse_name: 'خارج از کارگاه',
                         fuel_type: 'سایر',
                         total_fuel_amount: 0,
                         total_price: parseNumber(otherItemRaw.total_price),
@@ -151,7 +151,7 @@ const WorkhouseFuelStats = () => {
             } catch (err: any) {
                 if (!axios.isCancel(err)) {
                     console.error(err);
-                    setError('Veriler yüklenirken bir hata oluştu');
+                    setError('هنگام بارگذاری داده‌ها خطایی رخ داد');
                 }
             } finally {
                 if (!controller.signal.aborted) setLoading(false);
@@ -309,11 +309,11 @@ const WorkhouseFuelStats = () => {
     return (
         <Box mt={4}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-                <Typography variant="h5" fontWeight={700}>Tüm Yakıt Harcamaları</Typography>
+                <Typography variant="h5" fontWeight={700}>همه‌ی هزینه‌های سوخت</Typography>
 
                 <Stack direction="row" spacing={2}>
                     {viewMode === 'chart' && !isDataEmpty && (
-                        <Tooltip title="Grafiği İndir">
+                        <Tooltip title="دانلود نمودار">
                             <IconButton
                                 onClick={handleDownloadChart}
                                 color="primary"
@@ -425,7 +425,7 @@ const WorkhouseFuelStats = () => {
                                                 onClick={() => setExpanded(!expanded)}
                                                 endIcon={expanded ? <IconChevronUp /> : <IconChevronDown />}
                                             >
-                                                {expanded ? 'Daha Az Göster' : `Daha Fazla Göster (${remainingItems.length})`}
+                                                {expanded ? 'نمایش کمتر' : `نمایش بیشتر (${remainingItems.length})`}
                                             </Button>
                                         </Box>
                                     </>

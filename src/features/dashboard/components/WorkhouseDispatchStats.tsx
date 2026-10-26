@@ -104,7 +104,7 @@ const WorkhouseDispatchStats = () => {
         <Box >
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                 <Box>
-                    <Typography variant="h4" fontWeight={900} color="#1e293b">Şantiye Sevk Tutarları</Typography>
+                    <Typography variant="h4" fontWeight={900} color="#1e293b">مبالغ ارسال کارگاه</Typography>
                 </Box>
 
                 <Stack direction="row" spacing={1.5}>

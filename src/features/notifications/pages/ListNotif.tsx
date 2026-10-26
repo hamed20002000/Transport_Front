@@ -143,11 +143,11 @@ export default function ListNotif() {
       if (result.data.httpStatusCode === 200 || result.data.success) {
         setNotifications(result.data.data);
       } else {
-        showAlert('Bildirim listesi alınamadı.', 'error');
+        showAlert('فهرست اعلان‌ها دریافت نشد.', 'error');
       }
     }).catch((e) => {
       console.error(e);
-      showAlert('Bildirim listesi alınırken hata oluştu.', 'error');
+      showAlert('هنگام دریافت فهرست اعلان‌ها خطایی رخ داد.', 'error');
     });
   }, [navigate, showAlert]);
 
@@ -206,11 +206,11 @@ export default function ListNotif() {
     if (!authToken) return navigate("/");
 
     if (targetType === 'role' && selectedRoleId === '') {
-      showAlert('Lütfen bir rol seçiniz.', 'warning');
+      showAlert('لطفاً یک نقش انتخاب کنید.', 'warning');
       return;
     }
     if (targetType === 'user' && selectedUserId === '') {
-      showAlert('Lütfen bir kullanıcı seçiniz.', 'warning');
+      showAlert('لطفاً یک کاربر انتخاب کنید.', 'warning');
       return;
     }
 
@@ -227,7 +227,7 @@ export default function ListNotif() {
           headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }
         });
         if (response.data.httpStatusCode === 200 || response.data.success) {
-          showAlert('Rol bildirim listesi başarıyla güncellendi.', 'success');
+          showAlert('اعلان‌های نقش با موفقیت به‌روزرسانی شد.', 'success');
         }
       } else {
         const payload = {
@@ -239,12 +239,12 @@ export default function ListNotif() {
           headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }
         });
         if (response.data.httpStatusCode === 200 || response.data.success) {
-          showAlert('Kullanıcı bildirim listesi başarıyla güncellendi.', 'success');
+          showAlert('اعلان‌های کاربر با موفقیت به‌روزرسانی شد.', 'success');
         }
       }
     } catch (error: any) {
       console.error(error);
-      showAlert(error.response?.data?.message || 'İşlem gerçekleştirilirken bir hata oluştu.', 'error');
+      showAlert(error.response?.data?.message || 'هنگام انجام عملیات خطایی رخ داد.', 'error');
     } finally {
       setLoadingButton(false);
     }
@@ -254,7 +254,7 @@ export default function ListNotif() {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="300px">
         <CircularProgress />
-        <Typography variant="h6" sx={{ ml: 2 }}>Veriler Yükleniyor...</Typography>
+        <Typography variant="h6" sx={{ ml: 2 }}>در حال بارگذاری داده‌ها...</Typography>
       </Box>
     );
   }
@@ -263,7 +263,7 @@ export default function ListNotif() {
     <Box sx={{ p: 1 }}>
       <BlankCard>
         <Box sx={{ padding: '20px 25px' }}>
-          <Typography variant="h5" mb={3}>Bildirim Listesi Yönetimi</Typography>
+          <Typography variant="h5" mb={3}>مدیریت اعلان‌ها</Typography>
 
           <Grid container spacing={3} alignItems="center">
             {/* انتخاب نوع فیلتر با رادیو باتن */}
@@ -274,8 +274,8 @@ export default function ListNotif() {
                   value={targetType}
                   onChange={(e) => setTargetType(e.target.value as 'role' | 'user')}
                 >
-                  <FormControlLabel value="role" control={<Radio color="primary" />} label="Role Göre" />
-                  <FormControlLabel value="user" control={<Radio color="primary" />} label="Kullanıcıya Göre" />
+                  <FormControlLabel value="role" control={<Radio color="primary" />} label="بر اساس نقش" />
+                  <FormControlLabel value="user" control={<Radio color="primary" />} label="بر اساس کاربر" />
                 </RadioGroup>
               </FormControl>
             </Grid>
@@ -291,7 +291,7 @@ export default function ListNotif() {
                   onChange={(e) => setSelectedRoleId(e.target.value as number)}
                   displayEmpty
                 >
-                  <UiMenuItem value="" disabled>Rol Seçiniz</UiMenuItem>
+                  <UiMenuItem value="" disabled>نقش را انتخاب کنید</UiMenuItem>
                   {rolesList.map((role) => (
                     <UiMenuItem key={role.id} value={role.id}>{role.name}</UiMenuItem>
                   ))}
@@ -302,7 +302,7 @@ export default function ListNotif() {
             {/* کمبو باکس یوزر ها */}
             <Grid item xs={12} sm={6} md={4}>
               <Stack direction="row" spacing={1} alignItems="center">
-                <CustomFormLabel sx={{ minWidth: '80px', mt: 0 }}>Kullanıcılar:</CustomFormLabel>
+                <CustomFormLabel sx={{ minWidth: '80px', mt: 0 }}>کاربران:</CustomFormLabel>
                 <Select
                   fullWidth
                   disabled={targetType !== 'user'}
@@ -310,7 +310,7 @@ export default function ListNotif() {
                   onChange={(e) => setSelectedUserId(e.target.value as string)}
                   displayEmpty
                 >
-                  <UiMenuItem value="" disabled>Kullanıcı Seçiniz</UiMenuItem>
+                  <UiMenuItem value="" disabled>کاربر را انتخاب کنید</UiMenuItem>
                   {usersList.map((user) => (
                     <UiMenuItem key={user.id} value={user.id}>{user.username}</UiMenuItem>
                   ))}
@@ -327,7 +327,7 @@ export default function ListNotif() {
           // حالت اول: اگر رول انتخاب شد (یک ستون یا ساختار فلت چک باکس دار)
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="h6" mb={2} color="primary.main">Rol Bildirim İzinleri</Typography>
+              <Typography variant="h6" mb={2} color="primary.main">اعلان‌های مجاز نقش</Typography>
               <Divider sx={{ mb: 2 }} />
               <FormGroup>
                 <Grid container spacing={2}>
@@ -356,9 +356,9 @@ export default function ListNotif() {
             <Grid item xs={12} md={6}>
               <Card variant="outlined" sx={{ height: '100%', minHeight: '250px' }}>
                 <CardContent>
-                  <Typography variant="h6" mb={1} color="success.main">Rolden Gelen Sabit İzinler (Sol Sütun)</Typography>
+                  <Typography variant="h6" mb={1} color="success.main">اعلان‌های ثابت از نقش</Typography>
                   <Typography variant="caption" color="textSecondary" display="block" mb={2}>
-                    Bu izinler kullanıcının bağlı olduğu rolden otomatik atanmıştır ve değiştirilemez.
+                    این موارد از نقش کاربر می‌آیند و قابل تغییر نیستند.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
 
@@ -390,9 +390,9 @@ export default function ListNotif() {
             <Grid item xs={12} md={6}>
               <Card variant="outlined" sx={{ height: '100%', minHeight: '250px' }}>
                 <CardContent>
-                  <Typography variant="h6" mb={1} color="info.main">Kullanıcıya Özel Ek İzinler (Sağ Sütun)</Typography>
+                  <Typography variant="h6" mb={1} color="info.main">اعلان‌های اضافه‌ی مخصوص کاربر</Typography>
                   <Typography variant="caption" color="textSecondary" display="block" mb={2}>
-                    Kullanıcıya özel olarak tanımlamak istediğiniz ek bildirimleri buradan işaretleyebilirsiniz.
+                    اعلان‌های اضافه‌ای را که فقط برای این کاربر می‌خواهید، اینجا انتخاب کنید.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
 
@@ -432,7 +432,7 @@ export default function ListNotif() {
 
       {/* دکمه ثبت نهایی تنظیمات */}
       <Box display="flex" justifyContent="flex-end" mt={4} mb={2}>
-        <CustomTooltip title={isTooltipGloballyEnabled ? "Tüm değişiklikleri kaydetmek için tıklayınız" : ""}>
+        <CustomTooltip title={isTooltipGloballyEnabled ? "برای ذخیره‌ی همه‌ی تغییرات کلیک کنید" : ""}>
           <Button
             variant="contained"
             color="success"
@@ -443,11 +443,11 @@ export default function ListNotif() {
           >
             {loadingButton ? (
               <>
-                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> İşlem Yapılıyor...
+                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> در حال انجام...
               </>
             ) : (
               <>
-                <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> Kaydet / Güncelle
+                <BoltIcon color="inherit" sx={{ mr: 1, fontSize: 20 }} /> ذخیره
               </>
             )}
           </Button>

@@ -7,6 +7,19 @@ export type ListingStatus = 'OPEN' | 'TAKEN';
 // a load is announced only to drivers of its own type.
 export type TripType = 'DOMESTIC' | 'EXPORT' | 'IMPORT';
 export const tripTypeLabels: Record<TripType, string> = { DOMESTIC: 'داخلی', EXPORT: 'صادراتی', IMPORT: 'وارداتی' };
+// A driver is domestic or international (DriverKind in transport_backend): an international driver takes export
+// and import loads. A load keeps its own type; this is who it goes to.
+export type DriverKind = 'DOMESTIC' | 'INTERNATIONAL';
+export const driverKindLabels: Record<DriverKind, string> = { DOMESTIC: 'داخلی', INTERNATIONAL: 'بین‌المللی' };
+export const driverKindHints: Record<DriverKind, string> = {
+  DOMESTIC: 'بار را داخل ایران جابه‌جا می‌کنند؛ بارهای داخلی را می‌گیرند',
+  INTERNATIONAL: 'بار را از ایران به خارج یا از خارج به ایران می‌برند؛ بارهای صادراتی و وارداتی را می‌گیرند',
+};
+export const driverKindTripTypes: Record<DriverKind, TripType[]> = { DOMESTIC: ['DOMESTIC'], INTERNATIONAL: ['EXPORT', 'IMPORT'] };
+export const driverKindOf = (types: readonly TripType[]): DriverKind => (types.some((type) => type !== 'DOMESTIC') ? 'INTERNATIONAL' : 'DOMESTIC');
+/** «داخلی» / «بین‌المللی»: the drivers a load of this type goes to */
+export const driversOfLoad = (type: TripType) => driverKindLabels[driverKindOf([type])];
+
 export const tripTypeHints: Record<TripType, string> = {
   DOMESTIC: 'بار را داخل ایران جابه‌جا می‌کنند',
   EXPORT: 'بار را از ایران به خارج می‌برند',
@@ -378,6 +391,9 @@ export interface UserProfile {
   lastName: string | null;
   nationalCode: string | null;
   companyName: string | null;
+  // optional names for domestic and for international (export/import) work; drivers pick the company under each kind
+  domesticCompanyName: string | null;
+  internationalCompanyName: string | null;
   companyNationalId: string | null;
   economicCode: string | null;
   registrationNo: string | null;
@@ -397,6 +413,8 @@ export const profileRules: Record<ProfileTextField, { max: number; pattern?: Reg
   lastName: { max: 100 },
   nationalCode: { max: 10, pattern: /^[0-9]{10}$/, message: 'کد ملی باید ۱۰ رقم باشد.' },
   companyName: { max: 200 },
+  domesticCompanyName: { max: 200 },
+  internationalCompanyName: { max: 200 },
   companyNationalId: { max: 11, pattern: /^[0-9]{11}$/, message: 'شناسه ملی شرکت باید ۱۱ رقم باشد.' },
   economicCode: { max: 30 },
   registrationNo: { max: 30 },

@@ -18,7 +18,7 @@ import { displayName, useProfile } from 'src/features/company-cargo/profileStore
 import { listActiveTrips, listLoads, listMyRequests, unreadLoadCount, type CargoRequest } from './api';
 import { Hero, useAsync } from './components';
 import { LoadCard, patchPage, removeFromPage, useLoadActions, useLoadStatusEvents } from './DriverLoads';
-import { useLoadsChangedEvent } from './loadEvents';
+import { onRequest, useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 import DriverShell from './DriverShell';
 import { TripCard } from './DriverTrip';
 import LocationCard from './LocationCard';
@@ -67,6 +67,10 @@ function HomeContent() {
     reloadLatest();
   }, [reloadSummary, reloadTrips, reloadLatest]);
   useLoadsChangedEvent(refresh);
+  useListingContactEvent((contact) => {
+    latest.setData((current) => current && { ...current, items: current.items.map(contact) });
+    trips.setData((current) => current && current.map(onRequest(contact)));
+  });
   const actions = useLoadActions(update);
   useLoadStatusEvents(removeFromPage(latest.setData), latest.data?.items, latest.reload);
 
@@ -115,7 +119,7 @@ function HomeContent() {
         <StatTile icon={CircleCheckBig} label="بار تحویل‌شده" value={summary.data?.delivered} />
       </div>
 
-      <div className="tw-grid tw-gap-4 lg:tw-grid-cols-[1.3fr_1fr]">
+      <div className="tw-grid tw-grid-cols-1 tw-gap-4 lg:tw-grid-cols-[1.3fr_1fr]">
         <LocationCard onSent={latest.reload} />
         <nav aria-label="میانبرها" className="tw-grid tw-gap-2">
           {shortcuts.map(({ to, title, hint, icon: Icon }) => (
@@ -148,14 +152,14 @@ function HomeContent() {
           }
         />
         {latest.loading && !latest.data ? (
-          <div className="tw-grid tw-gap-4 md:tw-grid-cols-2">
+          <div className="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-2">
             <CardSkeleton />
             <CardSkeleton />
           </div>
         ) : !latest.data?.items.length ? (
           <EmptyState icon={PackageSearch} title="فعلاً بار مناسبی نیست" hint="به محض اعلام بار تازه، خبرتان می‌کنیم. می‌توانید فیلترهای نمایش بار را بازتر کنید." />
         ) : (
-          <ul className="tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
+          <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
             {latest.data.items.map((load) => (
               <LoadCard
                 key={load.id}

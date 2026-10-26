@@ -84,6 +84,10 @@ function Requests() {
 
   // a new request, or one answered from a bot or another page
   useNotificationEvent('cargo-request-changed', () => setVersion((value) => value + 1));
+  // a driver on this page changed name, phone or vehicle: only then is the page fetched again
+  useNotificationEvent<{ userId: string }>('drivers-changed', ({ userId }) => {
+    if (data?.items.some((request) => request.driver?.userId === userId)) setVersion((value) => value + 1);
+  });
 
   async function decide(request: CompanyRequest, accept: boolean) {
     const route = request.cargo ? `${request.cargo.origin} به ${request.cargo.destination}` : 'این بار';
@@ -117,7 +121,7 @@ function Requests() {
         <EmptyState icon={Inbox} title="درخواست تازه‌ای ندارید" hint="وقتی راننده‌ای برای یکی از بارهای اعلام‌شده‌ی شما درخواست بدهد، اینجا می‌آید و خبرتان می‌کنیم." />
       ) : (
         <>
-          <ul className="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
+          <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
             {data.items.map((request) => (
               <RequestCard key={request.requestId} request={request} busy={busyId === request.requestId} onDecide={(accept) => void decide(request, accept)} />
             ))}

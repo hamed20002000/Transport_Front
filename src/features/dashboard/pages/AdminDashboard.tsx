@@ -33,6 +33,7 @@ import {
 } from 'src/shared/components/ui/card';
 import styles from '../styles/workspace.module.css';
 import { useWorkspaceOverview } from '../hooks/useWorkspaceOverview';
+import AdminStats from '../components/AdminStats';
 import { number } from '../model/workspace';
 
 function DashboardContent() {
@@ -105,6 +106,8 @@ function DashboardContent() {
             </Button>
           </div>
         </div>
+        {/* Trabot's own numbers (drivers, companies, payments) for administrators */}
+        {userRoles.some((role) => role.name === 'ADMIN') && <AdminStats />}
         <section className={styles.hero} aria-label="خوش‌آمدگویی">
           <div className={styles.heroText}>
             <span className={styles.heroTag}>
@@ -116,7 +119,7 @@ function DashboardContent() {
               از اینجا به بخش‌های مجاز سامانه دسترسی داشته باشید و ابزارهای پرکاربرد خود را به
               علاقه‌مندی‌ها اضافه کنید.
             </p>
-            <span className="tw-mt-4 tw-inline-flex tw-items-center tw-gap-2 tw-text-xs tw-text-emerald-100">
+            <span className="tw-mt-4 tw-inline-flex tw-items-center tw-gap-2 tw-text-xs tw-text-[#c9d2e6]">
               <CalendarDays size={14} />
               {date}
             </span>
@@ -285,7 +288,7 @@ function DashboardContent() {
                     <UserRound size={18} />
                     <span>{role.name}</span>
                     {role.name === activeRoleName && (
-                      <Badge className="tw-border-emerald-200 tw-bg-emerald-50 tw-text-emerald-700">
+                      <Badge className="tw-border-brand-orange/30 tw-bg-brand-orange-soft tw-text-brand-orange-ink">
                         فعال
                       </Badge>
                     )}

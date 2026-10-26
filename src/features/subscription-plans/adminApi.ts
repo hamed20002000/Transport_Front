@@ -48,6 +48,8 @@ export interface Policy {
   driversEnforced: boolean;
   driverTrialDays: number;
   driverTrialStartedAt: string;
+  /** purchase rewards: once a driver's approved purchases reach minTomans, freeDays free days (once per tier) */
+  driverRewards: { minTomans: number; freeDays: number }[];
 }
 
 const base = `${endpoints.baseurl}admin/`;
@@ -87,15 +89,41 @@ export async function receiptImage(orderId: string, receiptId: string, token: st
 }
 
 export const approveReceipt = (orderId: string, receiptId: string) =>
-  unwrap(axios.post<{ success: boolean; data: { expireAt: string; notified: boolean } }>(`${base}subscription-orders/${orderId}/receipts/${receiptId}/approve`, {}, config()));
+  unwrap(axios.post<{ success: boolean; data: { expireAt: string; notified: boolean; rewardDays: number } }>(`${base}subscription-orders/${orderId}/receipts/${receiptId}/approve`, {}, config()));
 
 export const rejectReceipt = (orderId: string, receiptId: string, reason: string) =>
   unwrap(axios.post<{ success: boolean; data: { notified: boolean } }>(`${base}subscription-orders/${orderId}/receipts/${receiptId}/reject`, { reason }, config()));
 
 export const getPolicy = () => unwrap(axios.get<{ success: boolean; data: Policy }>(`${base}subscription-policy`, config()));
 
-export const updatePolicy = (policy: Pick<Policy, 'enforced' | 'freeUntil' | 'driversEnforced' | 'driverTrialDays'>) =>
+export const updatePolicy = (policy: Pick<Policy, 'enforced' | 'freeUntil' | 'driversEnforced' | 'driverTrialDays' | 'driverRewards'>) =>
   unwrap(axios.put<{ success: boolean; data: Policy }>(`${base}subscription-policy`, policy, config()));
+
+/** transport_backend admin/stats: amounts are in rials (tomans converted); other currencies are listed apart. */
+export interface AdminStats {
+  users: {
+    drivers: { total: number; subscribed: number; inTrial: number; mustSubscribe: number; newThisMonth: number };
+    companies: { total: number; subscribed: number; newThisMonth: number };
+  };
+  revenue: { periods: { days: number; rials: string; payments: number }[]; total: { rials: string; payments: number } };
+  otherCurrencies: { currency: string; amount: string; payments: number }[];
+  pendingReceipts: number;
+  topDrivers: { userId: string; name: string | null; mobile: string | null; rials: string; payments: number; lastPaidAt: string }[];
+  /** loads by trip type; freight is that of the loads a driver took (tomans, other currencies apart) */
+  loads: { periods: { days: number; byType: Record<TripTypeKey, LoadTotals> }[]; total: Record<TripTypeKey, LoadTotals> };
+  generatedAt: string;
+}
+
+export type TripTypeKey = 'DOMESTIC' | 'EXPORT' | 'IMPORT' | 'UNKNOWN';
+export interface LoadTotals {
+  loads: number;
+  taken: number;
+  freightTomans: number;
+  freightOther: Record<string, number>;
+  takenUnpriced: number;
+}
+
+export const getAdminStats = () => unwrap(axios.get<{ success: boolean; data: AdminStats }>(`${base}stats`, config()));
 
 export function adminError(error: unknown): string {
   if (axios.isAxiosError(error)) {

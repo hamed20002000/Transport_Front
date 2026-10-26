@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useListingContactEvent } from 'src/features/driver-panel/loadEvents';
 import { LoadCard, useLoadActions } from 'src/features/driver-panel/DriverLoads';
 import { DRIVER_LOADS_CHANGED_EVENT } from 'src/features/driver-panel/loadEvents';
 import type { OpenLoad } from 'src/features/driver-panel/api';
@@ -14,6 +15,8 @@ const DIALOG_LAYER = 4000100;
  */
 export default function AgentDriverLoadList({ items: initial }: { items: DriverLoadItem[] }) {
   const [items, setItems] = useState(initial);
+  // the company changed its phone or name while these cards are in the chat
+  useListingContactEvent((contact) => setItems((current) => current.map(contact)));
   const { notify, element: notice } = useAgentNotice();
   const actions = useLoadActions(
     (id: string, patch: Partial<OpenLoad>) => setItems((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item))),

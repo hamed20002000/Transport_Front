@@ -35,11 +35,11 @@ const ChangeUserRoleModal = ({ open, onClose, userRoles, currentActiveRoleName, 
 
   const handleSave = async () => {
     if (selectedRole === null) {
-      showAlert('Lütfen bir rol seçin.', 'warning');
+      showAlert('لطفاً یک نقش انتخاب کنید.', 'warning');
       return;
     }
     if (selectedRole === currentActiveRoleName) {
-      showAlert('Seçilen rol zaten aktif rolünüzdür.', 'info');
+      showAlert('نقش انتخاب‌شده همین الان نقش فعال شماست.', 'info');
       onClose();
       return;
     }
@@ -47,11 +47,11 @@ const ChangeUserRoleModal = ({ open, onClose, userRoles, currentActiveRoleName, 
     setSaving(true);
     try {
       onRoleChange(selectedRole);
-      showAlert(`Aktif rolünüz "${selectedRole}" olarak değiştirildi.`, 'success');
+      showAlert(`نقش فعال شما به «${selectedRole}» تغییر کرد.`, 'success');
       onClose();
     } catch (error) {
       console.error("Error changing active role:", error);
-      showAlert('Aktif rol değiştirilirken bir hata oluştu.', 'error');
+      showAlert('هنگام تغییر نقش فعال خطایی رخ داد.', 'error');
     } finally {
       setSaving(false);
     }
@@ -59,17 +59,17 @@ const ChangeUserRoleModal = ({ open, onClose, userRoles, currentActiveRoleName, 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Aktif Rolü Değiştir</DialogTitle>
+      <DialogTitle>تغییر نقش فعال</DialogTitle>
       <DialogContent dividers>
         {userRoles.length > 0 ? (
-          <CustomTooltip title={isTooltipGloballyEnabled ? "Aktif rolünüzü seçmek için tıklayın" : ""}>
+          <CustomTooltip title={isTooltipGloballyEnabled ? "برای انتخاب نقش فعال کلیک کنید" : ""}>
             <FormControl fullWidth>
-              <InputLabel id="active-role-select-label">Rolü Seçin</InputLabel>
+              <InputLabel id="active-role-select-label">نقش را انتخاب کنید</InputLabel>
               <Select
                 labelId="active-role-select-label"
                 id="active-role-select"
                 value={selectedRole || ''}
-                label="Rolü Seçin"
+                label="نقش را انتخاب کنید"
                 onChange={handleSelectChange}
               >
                 {userRoles.map((role) => (
@@ -87,12 +87,12 @@ const ChangeUserRoleModal = ({ open, onClose, userRoles, currentActiveRoleName, 
         )}
       </DialogContent>
       <DialogActions>
-        <CustomTooltip title={isTooltipGloballyEnabled ? "Rol değiştirme işlemini iptal et" : ""}>
+        <CustomTooltip title={isTooltipGloballyEnabled ? "لغو تغییر نقش" : ""}>
           <Button onClick={onClose} color="error" disabled={saving}>
             لغو
           </Button>
         </CustomTooltip>
-        <CustomTooltip title={isTooltipGloballyEnabled ? "Seçilen rolü kaydet" : ""}>
+        <CustomTooltip title={isTooltipGloballyEnabled ? "ذخیره‌ی نقش انتخاب‌شده" : ""}>
           <Button onClick={handleSave} color="primary" variant="contained" disabled={saving}>
             {saving ? <CircularProgress size={20} color="inherit" /> : 'ذخیره'}
           </Button>

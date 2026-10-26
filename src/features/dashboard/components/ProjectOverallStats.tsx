@@ -83,7 +83,7 @@ const ProgressCircle = ({ value }: { value: number }) => (
             <Typography variant="h2" component="div" fontWeight="900">
                 %{Math.round(value)}
             </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.8 }}>İlerleme</Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>پیشرفت</Typography>
         </Box>
     </Box>
 );
@@ -183,7 +183,7 @@ const ProjectOverallStats = () => {
                                         <IconUser size={18} />
                                     </Avatar>
                                     <Typography variant="subtitle1" fontWeight="500">
-                                        {selectedProject.WorkhouseManager || 'Atanmamış'}
+                                        {selectedProject.WorkhouseManager || 'تخصیص‌نیافته'}
                                     </Typography>
                                 </Box>
                             </Stack>
@@ -199,7 +199,7 @@ const ProjectOverallStats = () => {
                                 <IconLayoutDashboard color={theme.palette.primary.main} /> فهرست پروژه‌ها
                             </Typography>
 
-                            <Tooltip title={isAutoPlay ? "Otomatik Geçişi Durdur" : "Otomatik Geçişi Başlat"}>
+                            <Tooltip title={isAutoPlay ? "توقف نمایش خودکار" : "شروع نمایش خودکار"}>
                                 <IconButton
                                     onClick={() => setIsAutoPlay(!isAutoPlay)}
                                     color={isAutoPlay ? "primary" : "default"}

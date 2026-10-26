@@ -48,7 +48,7 @@ const SidebarItems = () => {
     return (
       <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <CircularProgress size={20} />
-        <Typography variant="body1" sx={{ ml: 2 }}>Menüler yükleniyor...</Typography>
+        <Typography variant="body1" sx={{ ml: 2 }}>در حال بارگذاری منوها...</Typography>
       </Box>
     );
   }

@@ -111,13 +111,13 @@ const Search = () => {
         <Divider />
         <Box p={2} sx={{ maxHeight: '60vh', overflow: 'auto' }}>
           <Typography variant="h5" p={1}>
-            Hızlı Sayfa Bağlantıları
+            پیوندهای سریع
           </Typography>
           <Box>
             {loadingMenus ? (
               <Box display="flex" justifyContent="center" alignItems="center" height="100px">
                 <CircularProgress size={20} />
-                <Typography ml={1}>Menüler yükleniyor...</Typography>
+                <Typography ml={1}>در حال بارگذاری منوها...</Typography>
               </Box>
             ) : (
               <List component="nav">
@@ -127,7 +127,7 @@ const Search = () => {
                   ))
                 ) : (
                   <Typography variant="body2" color="textSecondary" align="center" mt={2}>
-                    {searchTerm ? 'Hiçbir sonuç bulunamadı.' : 'Lütfen aramak için yazmaya başlayın.'}
+                    {searchTerm ? 'نتیجه‌ای پیدا نشد.' : 'برای جستجو شروع به نوشتن کنید.'}
                   </Typography>
                 )}
               </List>

@@ -39,7 +39,7 @@
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
-  background: #103e37;
+  background: linear-gradient(135deg, #13224a 0%, #0e1a3b 70%);
   color: #fff;
   border-radius: 16px;
   padding: 28px 32px;
@@ -56,7 +56,7 @@
   font-weight: 600;
 }
 .heroText p {
-  color: #b2d5c9;
+  color: #a9b3cc;
   line-height: 1.9;
   max-width: 470px;
 }
@@ -64,7 +64,7 @@
   display: inline-flex;
   gap: 7px;
   align-items: center;
-  color: #b5efcb;
+  color: #f7934a;
   font-size: 12px;
 }
 .heroArt {
@@ -73,7 +73,7 @@
   width: 230px;
   align-self: stretch;
   position: relative;
-  color: #b9f1d3;
+  color: #f7934a;
   flex-shrink: 0;
 }
 .heroArt::before,
@@ -102,8 +102,8 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #23594c;
-  border: 1px solid #407660;
+  background: #1c2f63;
+  border: 1px solid #2b3f7a;
 }
 .floatingIcon:first-of-type {
   top: 0;

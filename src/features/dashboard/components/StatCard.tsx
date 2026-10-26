@@ -89,7 +89,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
                 {!hasActiveData && (
                     <Box mt={2}>
-                        <Typography variant="caption" color="textSecondary">Toplam Kayıt</Typography>
+                        <Typography variant="caption" color="textSecondary">تعداد کل</Typography>
                     </Box>
                 )}
 

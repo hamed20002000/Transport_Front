@@ -7,7 +7,6 @@ import { StopCircleSharp as BoltIcon } from 'src/shared/components/compat/icons'
 import { Mic } from 'src/shared/components/compat/icons';
 import { Stop as StopIcon } from 'src/shared/components/compat/icons';
 import { Cancel as CancelIcon } from 'src/shared/components/compat/icons';
-import { TrendingFlat as ArrowRight } from 'src/shared/components/compat/icons';
 import { ArrowUpwardOutlined as Arrow } from 'src/shared/components/compat/icons';
 import { uniqueId } from "lodash";
 import { ArrowRight as BackGlyph, ChevronUp as RestoreGlyph, Maximize2 as MaximizeGlyph, Minimize2 as UnmaximizeGlyph, Minus as MinimizeGlyph, X as CloseGlyph } from "lucide-react";
@@ -138,6 +137,17 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
     }));
     const debounceRef = useRef<number | null>(null);
     const shellRef = useRef<HTMLDivElement | null>(null);
+    const threadRef = useRef<HTMLDivElement | null>(null);
+
+    // Like a messenger, the newest exchange comes into view; a long answer (a list of loads) is shown from its
+    // start, the question on top, not from its last card.
+    useEffect(() => {
+        const thread = threadRef.current;
+        const latest = thread?.querySelector<HTMLElement>(".chat-exchange:last-child");
+        if (!thread || !latest) return;
+        const top = latest.getBoundingClientRect().top - thread.getBoundingClientRect().top + thread.scrollTop;
+        thread.scrollTo({ top: Math.min(top, thread.scrollHeight - thread.clientHeight), behavior: "smooth" });
+    }, [history]);
     // phones get the docked panel from CSS; the desktop panel is placed by panelBox
     const [isDesktop, setIsDesktop] = useState(() => typeof window === 'undefined' || !window.matchMedia(MOBILE_PANEL_QUERY).matches);
     useEffect(() => {
@@ -786,8 +796,9 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
 
     }
 
+    // A chat thread: each request is the user's bubble on one side and its answer the agent's bubble on the
+    // other, oldest at the top (history is kept newest first).
     const generatePreviousItems = (history: FunctionCallResultType[]) => {
-
         return history.map((item, index) => {
             const isSuccess = item.result === "success";
             const isClickable = isSuccess && !!currentSessionId;
@@ -796,73 +807,65 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
             const message = cards ? item.message?.split("\n")[0] : item.message;
 
             return (
-                <div
-                    className={`operation-card ${isSuccess ? "success" : "error"}`}
-                    key={item.id}
-                    onClick={
-                        isClickable
-                            ? () => onClickSuccesItem(item)
-                            : undefined
-                    }
-                    role={isClickable ? "button" : undefined}
-                    tabIndex={isClickable ? 0 : undefined}
-                    onKeyDown={
-                        isClickable
-                            ? (event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                    event.preventDefault();
-                                    onClickSuccesItem(item!);
-                                }
-                            }
-                            : undefined
-                    }
-                >
-                    <div className="operation-top">
-                        <div className={`${isSuccess ? "operation-success" : "operation-error"}`}>
-                            <span>{isSuccess ? "✓" : "x"}</span>
+                <div className="chat-exchange" key={item.id}>
+                    <div className="chat-row chat-row--user">
+                        <div className="chat-bubble chat-bubble--user">
+                            <p className="chat-text">{item.prompt}</p>
+                            <span className="chat-meta">{item.time}</span>
                         </div>
+                    </div>
 
-                        <div style={{ flex: "1", minWidth: 0, overflow: "hidden", overflowWrap: "break-word", display: "flex" }}>
-                            <div style={{ display: "flex", alignItems: "center" }}><strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "flex", alignItems: "center" }}>{item.prompt}</strong></div>
-                            <div className="operation-arrow"><ArrowRight style={{ fill: isSuccess ? "#28ab2a" : "red" }} /></div>
-                            <div style={{ display: "flex", gap: "8px", minWidth: "0" }}>
-                                <strong style={{ overflow: "hidden", textWrap: "nowrap", textOverflow: "ellipsis", display: "block", minWidth: "0" }}>
-                                    {message}
-                                </strong>
+                    <div className="chat-row chat-row--agent">
+                        <div
+                            className={`chat-bubble chat-bubble--agent ${isSuccess ? "" : "is-error"} ${isClickable ? "is-clickable" : ""}`}
+                            onClick={isClickable ? () => onClickSuccesItem(item) : undefined}
+                            role={isClickable ? "button" : undefined}
+                            tabIndex={isClickable ? 0 : undefined}
+                            onKeyDown={
+                                isClickable
+                                    ? (event) => {
+                                        if (event.key === "Enter" || event.key === " ") {
+                                            event.preventDefault();
+                                            onClickSuccesItem(item!);
+                                        }
+                                    }
+                                    : undefined
+                            }
+                        >
+                            <p className="chat-text">{message}</p>
+                            {item.continuePrompt && <p className="chat-hint">{item.continuePrompt}</p>}
+                            <div className="chat-meta">
                                 {item.toolName && (
                                     <a
+                                        className="chat-link"
                                         href={generateResultViewLink(item.toolName)}
-                                        style={{ color: "blue", textDecoration: "underline", textWrap: "nowrap" }}
                                         target="_blank"
                                         onClick={(event) => event.stopPropagation()}
                                     >
                                         مشاهده نتیجه
                                     </a>
                                 )}
-                                <span style={{ fontWeight: "bold", color: "black" }}>
-                                    {item.time}
-                                </span>
+                                <span>{item.time}</span>
+                                {!isSuccess && <span className="chat-status">خطا</span>}
                             </div>
                         </div>
-
-                        <span className={`${isSuccess ? "success-pill" : "error-pill"}`}>
-                            {isSuccess ? "موفق" : "خطا"}
-                        </span>
                     </div>
-                    {item.continuePrompt && (
-                        <h5 style={{ margin: "0", color: "#977200" }}>{item.continuePrompt}</h5>
+
+                    {cards && (
+                        <div className="chat-cards">
+                            {cards.some(isChannel)
+                                ? <AgentChannelList items={cards.filter(isChannel)} />
+                                : cards.some(isDriverLoad)
+                                    ? <AgentDriverLoadList items={cards.filter(isDriverLoad)} />
+                                    : <AgentCargoList items={cards} />}
+                        </div>
                     )}
-                    {cards && (cards.some(isChannel)
-                        ? <AgentChannelList items={cards.filter(isChannel)} />
-                        : cards.some(isDriverLoad)
-                            ? <AgentDriverLoadList items={cards.filter(isDriverLoad)} />
-                            : <AgentCargoList items={cards} />)}
                     {
                         specialPrompt && index == 0 && handleSpecialPrompt()
                     }
                 </div>
             );
-        })
+        }).reverse()
 
     }
 
@@ -1010,6 +1013,8 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         <div className="agent-panel-overlay">
             <div
                 ref={shellRef}
+                // the panel scrolls natively; the page's smooth scrolling (Lenis) would swallow its wheel
+                data-lenis-prevent
                 dir="rtl"
                 className={`agent-modal-shell ${isMinimized ? "is-minimized" : ""} ${isMaximized ? "is-maximized" : ""}`}
                 style={isDesktop ? desktopPanelStyle() : undefined}
@@ -1364,7 +1369,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                     </div>
 
 
-                                    <div className="result-content">
+                                    <div className="result-content" ref={threadRef}>
 
 
                                         {history.length ? (

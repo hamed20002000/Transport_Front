@@ -3,8 +3,14 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import fs from 'fs/promises';
+import { readFileSync } from 'fs';
+import { createHash } from 'crypto';
 import svgr from '@svgr/rollup';
 import { VitePWA } from 'vite-plugin-pwa';
+
+// The service worker only updates when its own file changes; the version of push-sw.js in its import does
+// that whenever the push handlers (notification icon, badge, …) change.
+const pushSwVersion = createHash('sha256').update(readFileSync(resolve(__dirname, 'public/push-sw.js'))).digest('hex').slice(0, 10);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -71,11 +77,13 @@ export default defineConfig({
                     { src: '/pwa/trabot-icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
                     { src: '/pwa/trabot-icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
                     { src: '/pwa/trabot-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+                    // the status bar icon of the installed app: only the shape counts, drawn in white
+                    { src: '/pwa/trabot-monochrome-512.png', sizes: '512x512', type: 'image/png', purpose: 'monochrome' },
                 ],
             },
             workbox: {
                 // phone notifications: the push and notification-click handlers (public/push-sw.js)
-                importScripts: ['push-sw.js'],
+                importScripts: [`push-sw.js?v=${pushSwVersion}`],
                 // App shell only; API calls and sockets always go to the network.
                 // Install the shell first; load and cache other routes when they are visited.
                 globPatterns: ['**/*.{css,html,woff2}', 'assets/index-*.js', 'pwa/*.png', '*.{svg,png}'],
@@ -96,11 +104,24 @@ export default defineConfig({
                         },
                     },
                     {
-                        urlPattern: ({ request, sameOrigin }) => sameOrigin && request.destination === 'image',
+                        // built images carry a content hash in /assets/: a changed image is a new address
+                        urlPattern: ({ request, sameOrigin, url }) =>
+                            sameOrigin && request.destination === 'image' && url.pathname.startsWith('/assets/'),
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'images',
                             expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 },
+                        },
+                    },
+                    {
+                        // the rest keep their address when they change (public logos, uploaded photos, dev files):
+                        // shown from the cache at once, and replaced by the new copy for next time
+                        urlPattern: ({ request, sameOrigin, url }) =>
+                            sameOrigin && request.destination === 'image' && !url.pathname.startsWith('/assets/'),
+                        handler: 'StaleWhileRevalidate',
+                        options: {
+                            cacheName: 'images-mutable',
+                            expiration: { maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60 },
                         },
                     },
                 ],

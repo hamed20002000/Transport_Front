@@ -354,7 +354,13 @@ export function getRouteBorders(id: string, route: number) {
   return unwrap<RouteBorder[]>(axios.get(url(`loads/${id}/borders`), { ...config({ route }), timeout: 60000 }));
 }
 
-export interface DriverCompany { userId: string; name: string }
+// a company with its name for each kind of work; null where it does not do that kind (DriverCompanyOption)
+export interface DriverCompany {
+  userId: string;
+  name: string;
+  domesticName: string | null;
+  internationalName: string | null;
+}
 export function getDriverCompanies() {
   return unwrap<DriverCompany[]>(axios.get(url('profile/companies'), config()));
 }

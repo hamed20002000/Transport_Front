@@ -70,7 +70,7 @@ export function PhoneLinks({ phones }: { phones: string[] }) {
   );
 }
 
-// «کد بار» chip; a click copies the code (drivers quote it on the phone).
+// «کد بار» chip, white on the brand navy so it stands out next to the orange buttons on every cargo card; a click copies the code (drivers quote it on the phone).
 export function CargoCode({ code }: { code?: string | null }) {
   const [copied, setCopied] = useState(false);
   if (!code) return null;
@@ -89,9 +89,9 @@ export function CargoCode({ code }: { code?: string | null }) {
       onClick={copy}
       title={copied ? 'کپی شد' : 'کپی کد بار'}
       aria-label={`کد بار ${code}، کپی`}
-      className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border tw-border-brand-line tw-bg-white tw-px-2 tw-py-0.5 tw-text-xs tw-font-bold tw-text-brand-navy tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange-ink"
+      className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border tw-border-brand-navy tw-bg-brand-navy tw-px-2 tw-py-0.5 tw-text-xs tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-border-brand-orange hover:tw-bg-brand-orange"
     >
-      {copied ? <Check size={12} aria-hidden className="tw-text-green-600" /> : <Hash size={12} aria-hidden className="tw-text-brand-muted" />}
+      {copied ? <Check size={12} aria-hidden /> : <Hash size={12} aria-hidden className="tw-text-brand-orange" />}
       <span dir="ltr">{code}</span>
     </button>
   );
@@ -171,7 +171,7 @@ export function StatTile({ icon, label, value, accent, tone }: { icon: Icon; lab
     <div className={cn('tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-bg-white tw-p-4 tw-shadow-sm', tone ? cargoTones[tone].border : 'tw-border-brand-line')}>
       <IconTile icon={icon} tone={tone} />
       <div className="tw-min-w-0">
-        <div className={cn('tw-text-xl tw-font-bold tw-leading-tight', accent ? 'tw-text-brand-orange' : 'tw-text-brand-navy')}>
+        <div className={cn('tw-text-lg sm:tw-text-xl tw-font-bold tw-leading-tight', accent ? 'tw-text-brand-orange' : 'tw-text-brand-navy')}>
           {value === undefined ? <span className="tw-inline-block tw-h-5 tw-w-8 tw-animate-pulse tw-rounded tw-bg-brand-sky" /> : faNumber(value)}
         </div>
         <div className="tw-truncate tw-text-xs tw-text-brand-muted">{label}</div>

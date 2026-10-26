@@ -24,7 +24,7 @@ const Languages = [
     value: 'ch',
   },
   {
-    flagname: 'français (French)',
+    flagname: 'فرانسوی',
     icon: FlagFr,
     value: 'fr',
   },

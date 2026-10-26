@@ -67,9 +67,9 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-25613826'], (function (workbox) { 'use strict';
+define(['./workbox-06918fc1'], (function (workbox) { 'use strict';
 
-  importScripts("push-sw.js");
+  importScripts("push-sw.js?v=aaa77fe81d");
   self.skipWaiting();
   workbox.clientsClaim();
   /**
@@ -79,7 +79,7 @@ define(['./workbox-25613826'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "/index.html",
-    "revision": "0.8bu1hc2k1a8"
+    "revision": "0.4sekkm5tuhg"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
@@ -99,12 +99,24 @@ define(['./workbox-25613826'], (function (workbox) { 'use strict';
   }), 'GET');
   workbox.registerRoute(({
     request,
-    sameOrigin
-  }) => sameOrigin && request.destination === "image", new workbox.CacheFirst({
+    sameOrigin,
+    url
+  }) => sameOrigin && request.destination === "image" && url.pathname.startsWith("/assets/"), new workbox.CacheFirst({
     "cacheName": "images",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 200,
       maxAgeSeconds: 2592000
+    })]
+  }), 'GET');
+  workbox.registerRoute(({
+    request,
+    sameOrigin,
+    url
+  }) => sameOrigin && request.destination === "image" && !url.pathname.startsWith("/assets/"), new workbox.StaleWhileRevalidate({
+    "cacheName": "images-mutable",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 200,
+      maxAgeSeconds: 604800
     })]
   }), 'GET');
 

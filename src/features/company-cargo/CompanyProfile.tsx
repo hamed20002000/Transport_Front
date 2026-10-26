@@ -5,6 +5,7 @@ import {
   AtSign,
   Building2,
   FileBadge,
+  Globe2,
   Hash,
   IdCard,
   Mailbox,
@@ -107,6 +108,8 @@ function ProfileContent() {
   // پروفایلی که با agent ویرایش شد همین‌جا دیده شود
   useDomainRefresh('company_profile', () => setVersion((v) => v + 1), 'account');
   const pending = useRef(false);
+  // which kinds of work the company does; ticking one opens its name box, untick clears it
+  const [kinds, setKinds] = useState({ domestic: false, international: false });
 
   useEffect(() => {
     let active = true;
@@ -116,6 +119,7 @@ function ProfileContent() {
         if (!active) return;
         setProfile(result);
         setFields(toFields(result));
+        setKinds({ domestic: !!result.domesticCompanyName, international: !!result.internationalCompanyName });
         setCachedProfile(result);
       })
       .catch((e) => {
@@ -162,6 +166,9 @@ function ProfileContent() {
     // Only changed fields are sent; a cleared field goes as null so the server removes it.
     const body: UserProfileInput = {};
     if (fields.profileType !== saved.profileType) body.profileType = fields.profileType;
+    if (kinds.domestic && !fields.domesticCompanyName.trim()) return toast.error('نام شرکت داخلی را بنویسید، یا تیک «داخلی» را بردارید.');
+    if (kinds.international && !fields.internationalCompanyName.trim())
+      return toast.error('نام شرکت بین‌المللی را بنویسید، یا تیک «بین‌المللی» را بردارید.');
     for (const key of textFields) {
       if (!changed(key)) continue;
       const value = toLatinDigits(fields[key].trim());
@@ -176,6 +183,7 @@ function ProfileContent() {
       const updated = await updateUserProfile(body);
       setProfile(updated);
       setFields(toFields(updated));
+      setKinds({ domestic: !!updated.domesticCompanyName, international: !!updated.internationalCompanyName });
       setCachedProfile(updated); // header and home greeting pick up the new name
       toast.success('پروفایل ذخیره شد.');
     } catch (e) {
@@ -191,10 +199,10 @@ function ProfileContent() {
   return (
     <form onSubmit={submit} noValidate className="tw-space-y-6">
       <SectionTitle title="پروفایل" hint="اطلاعات شخصی و شرکتی خود را تکمیل یا اصلاح کنید" />
-      <div className="tw-grid tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
+      <div className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
         <fieldset disabled={saving} className="tw-m-0 tw-min-w-0 tw-space-y-6 tw-border-0 tw-p-0">
           <Card title="اطلاعات شخصی">
-            <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+            <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
               <Field label="نام" icon={User}>
                 {input('firstName')}
               </Field>
@@ -222,7 +230,7 @@ function ProfileContent() {
             }
           >
             {isCompany ? (
-              <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+              <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
                 <Field label="نام شرکت" icon={Building2} className="sm:tw-col-span-2">
                   {input('companyName')}
                 </Field>
@@ -244,8 +252,46 @@ function ProfileContent() {
             )}
           </Card>
 
+          <Card title="زمینه‌ی کاری شرکت">
+            <p className="tw-m-0 tw-mb-4 tw-text-sm tw-text-brand-muted">
+              هر کدام را که کار می‌کنید انتخاب کنید و نام شرکت را برای آن بنویسید. راننده‌های داخلی شرکت را زیر «داخلی» و راننده‌های
+              بین‌المللی زیر «بین‌المللی» با همین نام می‌بینند و عضو می‌شوند.
+            </p>
+            <div className="tw-grid tw-grid-cols-1 tw-gap-3 sm:tw-grid-cols-2">
+              {(
+                [
+                  { kind: 'domestic', field: 'domesticCompanyName', label: 'داخلی', hint: 'بار داخل ایران', icon: MapPinned, placeholder: 'مثلاً باربری ستاره' },
+                  { kind: 'international', field: 'internationalCompanyName', label: 'بین‌المللی', hint: 'صادرات و واردات', icon: Globe2, placeholder: 'مثلاً ترابر بین‌المللی ستاره' },
+                ] as const
+              ).map(({ kind, field, label, hint, icon: Icon, placeholder }) => (
+                <div key={kind} className={cn('tw-space-y-3 tw-rounded-xl tw-border tw-p-3', kinds[kind] ? 'tw-border-brand-orange tw-bg-brand-orange-soft/50' : 'tw-border-brand-line')}>
+                  <label className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2">
+                    <input
+                      type="checkbox"
+                      checked={kinds[kind]}
+                      onChange={(e) => {
+                        const on = e.target.checked;
+                        setKinds((current) => ({ ...current, [kind]: on }));
+                        if (!on) setFields((current) => current && { ...current, [field]: '' });
+                      }}
+                      className="tw-h-4 tw-w-4 tw-accent-brand-orange"
+                    />
+                    <Icon size={16} aria-hidden className="tw-text-brand-muted" />
+                    <span className="tw-text-sm tw-font-bold">{label}</span>
+                    <span className="tw-text-xs tw-text-brand-muted">({hint})</span>
+                  </label>
+                  {kinds[kind] && (
+                    <Field label={`نام شرکت ${label}`} icon={Building2}>
+                      {input(field, { placeholder })}
+                    </Field>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+
           <Card title="راه‌های ارتباطی">
-            <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+            <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
               <Field label="تلفن ثابت" icon={Phone}>
                 {input('phone', { ltr: true, placeholder: '021 1234 5678' })}
               </Field>

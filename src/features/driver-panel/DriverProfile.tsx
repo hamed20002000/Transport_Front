@@ -1,4 +1,4 @@
-import { tripTypeHints, tripTypeLabels, type TripType } from 'src/features/company-cargo/api';
+import { driverKindHints, driverKindLabels, driverKindOf, driverKindTripTypes, type DriverKind } from 'src/features/company-cargo/api';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
@@ -105,7 +105,7 @@ function Card({ title, hint, icon: Icon, children }: { title: string; hint: stri
           <p className="tw-m-0 tw-text-xs tw-text-brand-muted">{hint}</p>
         </div>
       </header>
-      <div className="tw-grid tw-gap-4 tw-p-5 sm:tw-grid-cols-2">{children}</div>
+      <div className="tw-grid tw-grid-cols-1 tw-gap-4 tw-p-5 sm:tw-grid-cols-2">{children}</div>
     </section>
   );
 }
@@ -113,7 +113,7 @@ function Card({ title, hint, icon: Icon, children }: { title: string; hint: stri
 // Looks like an Iranian plate: blue band, 2 digits, letter, 3 digits | «ایران» + region code. Reads left to right.
 function PlateInput({ value, onChange, invalid }: { value: Plate; onChange: (plate: Plate) => void; invalid: boolean }) {
   const digits = (text: string, size: number) => toLatinDigits(text).replace(/\D/g, '').slice(0, size);
-  const box = 'tw-h-full tw-min-w-0 tw-border-0 tw-bg-transparent tw-text-center tw-text-2xl tw-font-bold tw-tracking-widest tw-text-brand-navy tw-outline-none placeholder:tw-text-stone-300';
+  const box = 'tw-h-full tw-min-w-0 tw-border-0 tw-bg-transparent tw-text-center tw-text-xl sm:tw-text-2xl tw-font-bold tw-tracking-widest tw-text-brand-navy tw-outline-none placeholder:tw-text-stone-300';
   return (
     <div
       dir="ltr"
@@ -391,7 +391,7 @@ function ProfileContent() {
           role="img"
           aria-label={`پروفایل ${percent.toLocaleString('fa-IR')} درصد کامل است`}
         >
-          <span className="tw-flex tw-h-[4.25rem] tw-w-[4.25rem] tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-2xl tw-font-bold tw-text-brand-orange">
+          <span className="tw-flex tw-h-[4.25rem] tw-w-[4.25rem] tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-brand-orange">
             {name ? name.trim()[0] : <User size={28} aria-hidden />}
           </span>
         </div>
@@ -424,7 +424,7 @@ function ProfileContent() {
 
       <AnnouncementPreferences profile={profile} onSaved={setProfile} />
 
-      <div className="tw-grid tw-gap-6 lg:tw-grid-cols-2">
+      <div className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-2">
         <Card title="اطلاعات شخصی" hint="نام شما در درخواست بار به شرکت نمایش داده می‌شود" icon={User}>
           <Field label="نام" icon={User}>{text('firstName', 'مثلاً رضا')}</Field>
           <Field label="نام خانوادگی" icon={User}>{text('lastName', 'مثلاً کریمی')}</Field>
@@ -500,7 +500,7 @@ function ProfileContent() {
             </p>
           </div>
         </div>
-        <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
           <PhotoSlot kind="face" title="عکس خودتان" hint="از روبه‌رو و واضح؛ شرکت‌ها هنگام سپردن بار می‌بینند" version={profile.photos.face} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
           <PhotoSlot kind="vehicle" title="عکس ماشین" hint="از کنار، طوری که کل ماشین دیده شود" version={profile.photos.vehicle} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
           <PhotoSlot kind="plate" title="عکس پلاک" hint="از روبه‌رو و خوانا" version={profile.photos.plate} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
@@ -528,12 +528,14 @@ function ProfileContent() {
   );
 }
 
-const tripTypes: TripType[] = ['DOMESTIC', 'EXPORT', 'IMPORT'];
+const driverKinds: DriverKind[] = ['DOMESTIC', 'INTERNATIONAL'];
+// the name a company goes by for this kind of work; none: the company does not do it
+const companyNameFor = (company: DriverCompany, kind: DriverKind) => (kind === 'DOMESTIC' ? company.domesticName : company.internationalName);
 
 // Saved on its own click: it decides which announced loads reach the driver, apart from the profile form.
 function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile; onSaved: (profile: DriverProfile) => void }) {
   const toast = useToast();
-  const [types, setTypes] = useState<TripType[]>(profile.tripTypes ?? [profile.tripType]);
+  const [kind, setKind] = useState<DriverKind>(driverKindOf(profile.tripTypes ?? [profile.tripType]));
   const [memberships, setMemberships] = useState<string[]>(profile.companyUserIds ?? []);
   const [companies, setCompanies] = useState<DriverCompany[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -547,7 +549,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
   }, [hash]);
   const [version, setVersion] = useState(0);
   useEffect(() => {
-    setTypes(profile.tripTypes ?? [profile.tripType]);
+    setKind(driverKindOf(profile.tripTypes ?? [profile.tripType]));
     setMemberships(profile.companyUserIds ?? []);
   }, [profile.tripTypes, profile.tripType, profile.companyUserIds]);
   useEffect(() => {
@@ -556,27 +558,24 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
     getDriverCompanies().then((rows) => { if (active) setCompanies(rows); }).catch(() => { if (active) setFailed(true); });
     return () => { active = false; };
   }, [version]);
-  const toggleType = (type: TripType) => {
-    if (types.includes(type) && types.length === 1) {
-      toast.error('حداقل یک نوع حمل را انتخاب کنید.');
-      return;
-    }
-    setTypes(types.includes(type) ? types.filter((item) => item !== type) : [...types, type]);
-  };
   const toggleCompany = (id: string) => setMemberships((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   async function savePreferences() {
     setSaving(true);
     try {
-      onSaved(await updateDriverProfile({ tripTypes: types, companyUserIds: memberships }));
-      toast.success('شرکت‌ها و نوع‌های حمل ذخیره شدند.');
+      // only the companies of the chosen kind (and an inactive one, kept until it is unticked)
+      const companyUserIds = memberships.filter((id) => kindCompanies.some((company) => company.userId === id) || unavailable.includes(id));
+      onSaved(await updateDriverProfile({ tripTypes: driverKindTripTypes[kind], companyUserIds }));
+      toast.success(`شرکت‌ها و نوع راننده («${driverKindLabels[kind]}») ذخیره شدند.`);
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
       setSaving(false);
     }
   }
-  const visible = companies?.filter((company) => company.name.includes(search.trim())) ?? [];
+  const kindCompanies = companies?.filter((company) => companyNameFor(company, kind)) ?? [];
+  const visible = kindCompanies.filter((company) => companyNameFor(company, kind)!.includes(search.trim()));
   const unavailable = memberships.filter((id) => companies && !companies.some((company) => company.userId === id));
+  const joined = memberships.filter((id) => kindCompanies.some((company) => company.userId === id)).length;
   return (
     // scroll-mt: clear of the sticky header when opened at #announcements (right after signing in)
     <section
@@ -587,42 +586,52 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
     >
       <div>
         <h3 className="tw-m-0 tw-text-base tw-font-bold">دریافت اعلام بار</h3>
-        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌هایی که عضو آن‌ها هستید و برای نوع‌های حمل انتخابی، اعلام بار دریافت می‌کنید.</p>
+        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌هایی که عضو آن‌ها هستید و فقط بارهای نوع خودتان (داخلی یا بین‌المللی) اعلام می‌شود.</p>
       </div>
-      <fieldset disabled={saving} className="tw-space-y-3">
-        <legend className="tw-text-sm tw-font-bold">نوع فعالیت راننده؛ می‌توانید چند مورد را انتخاب کنید</legend>
-        <div className="tw-grid tw-gap-2 sm:tw-grid-cols-3">
-          {tripTypes.map((type) => (
-            <button key={type} type="button" role="checkbox" aria-checked={types.includes(type)} onClick={() => toggleType(type)}
-              className={cn('tw-rounded-xl tw-border tw-p-3 tw-text-start', types.includes(type) ? 'tw-border-brand-orange tw-bg-brand-orange-soft' : 'tw-border-brand-line')}>
-              <strong className="tw-block tw-text-sm">{types.includes(type) ? '✓ ' : ''}{tripTypeLabels[type]}</strong>
-              <span className="tw-block tw-text-xs tw-text-brand-muted">{tripTypeHints[type]}</span>
-            </button>
+      {/* each kind with its own companies right under it: domestic companies under «داخلی», international under «بین‌المللی» */}
+      <fieldset disabled={saving} className="tw-m-0 tw-min-w-0 tw-space-y-3 tw-border-0 tw-p-0">
+        <legend className="tw-mb-3 tw-text-sm tw-font-bold">نوع راننده؛ یکی را انتخاب کنید، بعد شرکت‌های همان نوع را</legend>
+        <div role="radiogroup" aria-label="نوع راننده" className="tw-space-y-3">
+          {driverKinds.map((value) => (
+            <div key={value} className={cn('tw-rounded-xl tw-border', kind === value ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line')}>
+              <button type="button" role="radio" aria-checked={kind === value} onClick={() => { setKind(value); setSearch(''); }}
+                className="tw-flex tw-w-full tw-items-start tw-gap-3 tw-rounded-xl tw-border-0 tw-bg-transparent tw-p-3 tw-text-start">
+                <span aria-hidden className={cn('tw-mt-0.5 tw-flex tw-h-5 tw-w-5 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-border-2', kind === value ? 'tw-border-brand-orange' : 'tw-border-brand-line')}>
+                  {kind === value && <span className="tw-h-2.5 tw-w-2.5 tw-rounded-full tw-bg-brand-orange" />}
+                </span>
+                <span>
+                  <strong className="tw-block tw-text-sm">{driverKindLabels[value]}</strong>
+                  <span className="tw-block tw-text-xs tw-text-brand-muted">{driverKindHints[value]}</span>
+                </span>
+              </button>
+              {kind === value && (
+                <div className="tw-space-y-3 tw-border-t tw-border-brand-line tw-p-3">
+                  <h4 className="tw-m-0 tw-text-sm tw-font-bold">شرکت‌های {driverKindLabels[value]} ({joined.toLocaleString('fa-IR')} انتخاب)</h4>
+                  <input aria-label={`جستجوی شرکت ${driverKindLabels[value]}`} placeholder="جستجوی نام شرکت…" value={search} onChange={(event) => setSearch(event.target.value)} className={inputClass} />
+                  {failed ? <div role="alert">دریافت شرکت‌ها انجام نشد. <button type="button" onClick={() => setVersion((v) => v + 1)}>تلاش دوباره</button></div>
+                    : companies === null ? <p role="status">در حال دریافت شرکت‌ها…</p>
+                    : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
+                      {visible.map((company) => (
+                        <label key={company.userId} className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
+                          <input type="checkbox" disabled={saving} checked={memberships.includes(company.userId)} onChange={() => toggleCompany(company.userId)} />
+                          <span>{companyNameFor(company, value)}</span>
+                        </label>
+                      ))}
+                      {!visible.length && <p className="tw-text-sm tw-text-brand-muted">{kindCompanies.length ? 'شرکتی با این نام پیدا نشد.' : `هنوز شرکت ${driverKindLabels[value]}ی ثبت نشده است.`}</p>}
+                      {unavailable.map((id) => <label key={id} className="tw-flex tw-items-center tw-gap-2 tw-p-3">
+                        <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت غیرفعال؛ برای حذف عضویت، تیک را بردارید
+                      </label>)}
+                    </div>}
+                  {!joined && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">هنوز عضو شرکت {driverKindLabels[value]}ی نیستید و اعلام باری دریافت نمی‌کنید.</p>}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </fieldset>
-      <div className="tw-space-y-3">
-        <h4 className="tw-m-0 tw-text-sm tw-font-bold">عضویت در شرکت‌ها ({memberships.length.toLocaleString('fa-IR')} انتخاب)</h4>
-        <input aria-label="جستجوی شرکت" placeholder="جستجوی نام شرکت…" value={search} onChange={(event) => setSearch(event.target.value)} className={inputClass} />
-        {failed ? <div role="alert">دریافت شرکت‌ها انجام نشد. <button type="button" onClick={() => setVersion((value) => value + 1)}>تلاش دوباره</button></div>
-          : companies === null ? <p role="status">در حال دریافت شرکت‌ها…</p>
-          : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
-            {visible.map((company) => (
-              <label key={company.userId} className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-p-3">
-                <input type="checkbox" disabled={saving} checked={memberships.includes(company.userId)} onChange={() => toggleCompany(company.userId)} />
-                <span>{company.name}</span>
-              </label>
-            ))}
-            {!visible.length && <p className="tw-text-sm tw-text-brand-muted">شرکتی پیدا نشد.</p>}
-            {unavailable.map((id) => <label key={id} className="tw-flex tw-items-center tw-gap-2 tw-p-3">
-              <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت غیرفعال؛ برای حذف عضویت، تیک را بردارید
-            </label>)}
-          </div>}
-        {!memberships.length && <p className="tw-text-sm tw-text-brand-muted">هنوز عضو شرکتی نیستید و اعلام باری دریافت نمی‌کنید.</p>}
-      </div>
-      <button type="button" disabled={saving || companies === null || failed || !types.length} onClick={savePreferences}
+      <button type="button" disabled={saving || companies === null || failed} onClick={savePreferences}
         className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-3 tw-font-bold tw-text-white disabled:tw-opacity-50">
-        {saving ? 'در حال ذخیره…' : 'ذخیره شرکت‌ها و نوع حمل'}
+        {saving ? 'در حال ذخیره…' : 'ذخیره شرکت‌ها و نوع راننده'}
       </button>
     </section>
   );

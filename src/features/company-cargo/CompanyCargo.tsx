@@ -8,7 +8,7 @@ import {
   listUnannounced,
   listSuggestions,
   markAllSuggestionsRead,
-  tripTypeLabels,
+  driversOfLoad,
   type CargoListing,
 } from './api';
 import CompanyShell from './CompanyShell';
@@ -44,7 +44,7 @@ function UnannouncedListings({ onChanged, version }: { onChanged: () => void; ve
       const announced = await announceListing(listing.id);
       setItems((current) => current.filter((row) => row.id !== listing.id));
       onChanged();
-      toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${tripTypeLabels[listing.tripType]} اعلام شد و به «بارهای من» رفت.`);
+      toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${driversOfLoad(listing.tripType)} اعلام شد و به «بارهای من» رفت.`);
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -59,7 +59,7 @@ function UnannouncedListings({ onChanged, version }: { onChanged: () => void; ve
         title={`بارهای من که اعلام نشده‌اند (${items.length.toLocaleString('fa-IR')})`}
         hint="ثبت شده‌اند ولی هنوز راننده‌ی مناسبی نبود (عضو شرکت شما، با همین نوع حمل و فیلتر جور)، یا در صف اعلام خودکارند"
       />
-      <ul className="tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
+      <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
         {items.map((listing) => (
           <ListingCard
             key={listing.id}

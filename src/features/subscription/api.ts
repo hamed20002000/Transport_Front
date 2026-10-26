@@ -2,11 +2,11 @@ import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 
 // transport_backend SubscriptionController (api/subscription) and SubscriptionAccessService.
-export type AccessReason = 'subscribed' | 'trial' | 'free' | 'required';
+export type AccessReason = 'subscribed' | 'bonus' | 'trial' | 'free' | 'required';
 export type OrderStatus = 'WAITING_FOR_RECEIPT' | 'RECEIPT_SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
 export interface SubscriptionState {
-  access: { allowed: boolean; reason: AccessReason; isDriver: boolean; trialEndsAt: string | null; expireAt: string | null };
+  access: { allowed: boolean; reason: AccessReason; isDriver: boolean; trialEndsAt: string | null; expireAt: string | null; bonusUntil: string | null };
   accountType: 'DRIVER' | 'COMPANY' | 'BROKER' | null;
   plans: { id: string; title: string; durationDays: number; price: string; currency: string }[];
   payment: { cardNumber: string; cardOwner: string };

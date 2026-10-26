@@ -111,6 +111,10 @@ function Trips() {
 
   // A driver confirmed an offer, registered delivery, or the company did it from a bot.
   useNotificationEvent('cargo-request-changed', () => setVersion((value) => value + 1));
+  // a driver on this page changed name, phone or vehicle: only then is the page fetched again
+  useNotificationEvent<{ userId: string }>('drivers-changed', ({ userId }) => {
+    if (data?.items.some((trip) => trip.driver?.userId === userId)) setVersion((value) => value + 1);
+  });
   // The driver sent a location (or a Live Location moved): update that card in place, no reload.
   useNotificationEvent<{ requestId: string; location: CompanyTrip['location'] }>('trip-location', ({ requestId, location }) =>
     setData((current) => current && { ...current, items: current.items.map((trip) => (trip.requestId === requestId ? { ...trip, location } : trip)) }),
@@ -163,7 +167,7 @@ function Trips() {
         <EmptyState icon={Truck} title="سفر فعالی ندارید" hint="وقتی باری را به راننده بسپارید و تأیید کند، یا درخواست راننده‌ای را قبول کنید، سفرش اینجا می‌آید." />
       ) : (
         <>
-          <ul className="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
+          <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
             {data.items.map((trip) => (
               <TripCard key={trip.requestId} trip={trip} busy={busyId === trip.requestId} onDeliver={() => void deliver(trip)} onReject={() => void reject(trip)} />
             ))}

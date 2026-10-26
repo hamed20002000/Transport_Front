@@ -32,7 +32,7 @@ const Error = () => {
           Eyvah!
         </Typography>
         <Typography align="center" variant="h4" mb={4}>
-          Aradığınız sayfa bulunamadı
+          صفحه‌ای که دنبالش هستید پیدا نشد
         </Typography>
         <Button
           color="primary"
@@ -40,7 +40,7 @@ const Error = () => {
           onClick={handleGoBack} // Use onClick to trigger our conditional logic
           disableElevation
         >
-          Ana Sayfaya Geri Dön
+          بازگشت به صفحه‌ی اصلی
         </Button>
       </Container>
     </Box>

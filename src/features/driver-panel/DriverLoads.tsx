@@ -41,7 +41,7 @@ import OfferAnswer from './OfferAnswer';
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
-import { useLoadsChangedEvent } from './loadEvents';
+import { useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 
 export function LoadSpecs({ load, muted }: { load: Pick<OpenLoad, 'cargoType' | 'weight' | 'vehicleType' | 'price'>; muted?: boolean }) {
   return (
@@ -206,6 +206,8 @@ function LoadsContent() {
   const actions = useLoadActions(update);
   useLoadStatusEvents(removeFromPage(state.setData), state.data?.items, () => page === 1 && state.reload());
   useLoadsChangedEvent(state.reload);
+  // the company changed its phone or name: the cards change in place
+  useListingContactEvent((contact) => state.setData((current) => current && { ...current, items: current.items.map(contact) }));
   // درخواست یا جستجویی که با agent انجام شد
   useDomainRefresh('driver_loads', state.reload, 'account');
 
@@ -257,7 +259,7 @@ function LoadsContent() {
         <IconButton icon={RefreshCw} label="به‌روزرسانی" onClick={state.reload} spinning={state.loading} />
       </div>
 
-      <form onSubmit={search} className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm sm:tw-grid-cols-[1fr_auto_1fr_auto] sm:tw-items-center">
+      <form onSubmit={search} className="tw-grid tw-grid-cols-1 tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm sm:tw-grid-cols-[1fr_auto_1fr_auto] sm:tw-items-center">
         <label className="tw-relative tw-block">
           <span className="tw-sr-only">مبدأ</span>
           <MapPin size={18} aria-hidden className="tw-absolute tw-right-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-brand-orange" />
@@ -312,7 +314,7 @@ function LoadsContent() {
       />
 
       {state.loading && !state.data ? (
-        <div className="tw-grid tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت بارها">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت بارها">
           {[0, 1, 2, 3].map((i) => (
             <CardSkeleton key={i} />
           ))}
@@ -331,7 +333,7 @@ function LoadsContent() {
         />
       ) : (
         <>
-          <ul className={cn('tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2', state.loading && 'tw-opacity-60')}>
+          <ul className={cn('tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2', state.loading && 'tw-opacity-60')}>
             {state.data.items.map((load) => (
               <LoadCard
                 key={load.id}

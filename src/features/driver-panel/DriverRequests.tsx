@@ -9,7 +9,7 @@ import { cancelRequest, errorMessage, listMyRequests, type CargoRequest } from '
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
 import { LoadSpecs, type ListingChangedEvent } from './DriverLoads';
 import DriverShell from './DriverShell';
-import { useLoadsChangedEvent } from './loadEvents';
+import { onRequest, useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 import OfferAnswer from './OfferAnswer';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
@@ -90,6 +90,7 @@ function RequestsContent() {
   // درخواستی که با agent یا از کارت‌های چت فرستاده شد
   useDomainRefresh('driver_loads', state.reload, 'account');
   useLoadsChangedEvent(state.reload);
+  useListingContactEvent((contact) => state.setData((current) => current && { ...current, items: current.items.map(onRequest(contact)) }));
 
   // The company's answer reaches the bots; a status change on a listing is the web signal, so refresh.
   useNotificationEvent<ListingChangedEvent>('cargo-listing-changed', (event) => {
@@ -121,7 +122,7 @@ function RequestsContent() {
         <IconButton icon={RefreshCw} label="به‌روزرسانی" onClick={state.reload} spinning={state.loading} />
       </div>
 
-      <ol className="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0 sm:tw-grid-cols-3">
+      <ol className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 sm:tw-grid-cols-3">
         {steps.map((step, i) => (
           <li key={step.title} className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4">
             <span className="tw-flex tw-h-8 tw-w-8 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-sm tw-font-bold tw-text-brand-orange">
@@ -136,7 +137,7 @@ function RequestsContent() {
       </ol>
 
       {state.loading && !state.data ? (
-        <div className="tw-grid tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت درخواست‌ها">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت درخواست‌ها">
           {[0, 1].map((i) => (
             <CardSkeleton key={i} />
           ))}
@@ -147,7 +148,7 @@ function RequestsContent() {
         <EmptyState icon={ClipboardList} title="هنوز درخواستی نداده‌اید" hint="از صفحه «بارها» بار مناسب را پیدا کنید و «درخواست بار» بزنید." />
       ) : (
         <>
-          <ul className="tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
+          <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
             {state.data.items.map((request) => (
               <RequestCard
                 key={request.id}

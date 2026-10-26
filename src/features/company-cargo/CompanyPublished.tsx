@@ -4,7 +4,7 @@ import { Archive, CircleCheck, CircleDot, Layers, RefreshCw, SquarePlus, Truck }
 import PageContainer from 'src/shared/components/container/PageContainer';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
-import { announceListing, listMyListings, tripTypeLabels, type CargoListing, type ListingStage } from './api';
+import { announceListing, listMyListings, driversOfLoad, type CargoListing, type ListingStage } from './api';
 import CompanyShell from './CompanyShell';
 import { useListingToggle } from './cargoActions';
 import { ListingCard } from './cargoCards';
@@ -40,7 +40,7 @@ function PublishedList({ stage, onChanged }: { stage: ListingStage | 'ALL'; onCh
     try {
       const announced = await announceListing(listing.id);
       state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === listing.id ? { ...row, announcedAt: announced.announcedAt } : row)) });
-      toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${tripTypeLabels[listing.tripType]} اعلام شد.`);
+      toast.success(`بار ${listing.code} برای ${announced.recipients.toLocaleString('fa-IR')} رانندهٔ ${driversOfLoad(listing.tripType)} اعلام شد.`);
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {

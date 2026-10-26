@@ -91,7 +91,7 @@ const WorkhouseBetonStats = () => {
                     setData([]);
                 }
             } catch (err) {
-                setError('Veri alınırken bir hata oluştu');
+                setError('هنگام دریافت داده خطایی رخ داد');
             } finally {
                 setLoading(false);
             }
@@ -129,7 +129,7 @@ const WorkhouseBetonStats = () => {
     return (
         <Box>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h5" fontWeight={700}>Şantiye Beton Analizi</Typography>
+                <Typography variant="h5" fontWeight={700}>تحلیل بتن کارگاه</Typography>
                 <Stack direction="row" spacing={1}>
                     {viewMode === 'chart' && !isDataEmpty && (
                         <IconButton onClick={handleDownloadChart} color="primary" sx={{ border: '1px solid #e5eaef' }}>

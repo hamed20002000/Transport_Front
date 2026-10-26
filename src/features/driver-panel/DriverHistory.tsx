@@ -7,7 +7,7 @@ import { tripHistory, type CargoRequest, type TripHistoryFilters } from './api';
 import { LoadFrame, LoadHead, RouteLine, useAsync } from './components';
 import { LoadSpecs } from './DriverLoads';
 import DriverShell from './DriverShell';
-import { useLoadsChangedEvent } from './loadEvents';
+import { onRequest, useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 
@@ -117,6 +117,7 @@ function HistoryContent() {
   const state = useAsync(() => tripHistory(page, filters), [key]);
   // a delivery the company just confirmed shows up here
   useLoadsChangedEvent(state.reload);
+  useListingContactEvent((contact) => state.setData((current) => current && { ...current, items: current.items.map(onRequest(contact)) }));
 
   const counts = state.data?.byTripType;
   const total = counts ? counts.DOMESTIC + counts.EXPORT + counts.IMPORT : undefined;
@@ -169,7 +170,7 @@ function HistoryContent() {
           />
         </div>
 
-        <div className="tw-grid tw-gap-3 sm:tw-grid-cols-3">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-3 sm:tw-grid-cols-3">
           <Labeled icon={CalendarRange} label="زمان تحویل">
             <select className={selectClass} value={filters.days ?? 0} onChange={(event) => update({ days: event.target.value === '0' ? undefined : event.target.value })}>
               {periods.map((period) => (
@@ -212,7 +213,7 @@ function HistoryContent() {
       </section>
 
       {state.loading && !state.data ? (
-        <div className="tw-grid tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت سفرها">
+        <div className="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-2" role="status" aria-label="در حال دریافت سفرها">
           {[0, 1, 2, 3].map((i) => (
             <CardSkeleton key={i} />
           ))}
@@ -228,7 +229,7 @@ function HistoryContent() {
       ) : (
         <>
           <p className="tw-m-0 tw-text-xs tw-text-brand-muted">{fa(state.data.total)} سفر</p>
-          <ul className="tw-m-0 tw-grid tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
+          <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-4 tw-p-0 md:tw-grid-cols-2">
             {state.data.items.map((request) => (
               <TripCard key={request.id} request={request} />
             ))}

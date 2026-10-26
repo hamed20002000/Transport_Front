@@ -59,7 +59,7 @@ const NoDataView = () => (
             رکوردی پیدا نشد
         </Typography>
         <Typography variant="body2" color="textSecondary">
-            Şu anda görüntülenecek herhangi bir maaş verisi bulunamadı.
+            فعلاً داده‌ی حقوقی برای نمایش نیست.
         </Typography>
     </Box>
 );
@@ -78,7 +78,7 @@ const CustomNoDataOverlay = () => (
         border: '1px solid #eee'
     }}>
         <Typography variant="body1" color="textSecondary" fontWeight={500}>
-            Grafik için veri yok
+            داده‌ای برای نمودار نیست
         </Typography>
     </div>
 );
@@ -106,12 +106,12 @@ const WorkhouseSalaryStats = () => {
                 } else {
                     setData([]);
                     if (!response.data.success) {
-                        setError(response.data.message || 'Veri alınamadı');
+                        setError(response.data.message || 'داده‌ای دریافت نشد');
                     }
                 }
             } catch (err) {
                 console.error(err);
-                setError('Bir hata oluştu');
+                setError('خطایی رخ داد');
             } finally {
                 setLoading(false);
             }
@@ -210,12 +210,12 @@ const WorkhouseSalaryStats = () => {
         <Box mt={4}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
                 <Typography variant="h5" fontWeight={700}>
-                    Şantiye Toplam Maaşlar
+                    جمع حقوق کارگاه
                 </Typography>
 
                 <Stack direction="row" spacing={2}>
                     {viewMode === 'chart' && !isDataEmpty && (
-                        <Tooltip title="Grafiği İndir">
+                        <Tooltip title="دانلود نمودار">
                             <IconButton
                                 onClick={handleDownloadChart}
                                 color="primary"
@@ -330,7 +330,7 @@ const WorkhouseSalaryStats = () => {
                                                 endIcon={expanded ? <IconChevronUp /> : <IconChevronDown />}
                                                 sx={{ borderRadius: '20px', px: 4 }}
                                             >
-                                                {expanded ? 'Daha Az Göster' : `Daha Fazla Göster (${remainingItems.length} kayıt)`}
+                                                {expanded ? 'نمایش کمتر' : `نمایش بیشتر (${remainingItems.length} رکورد)`}
                                             </Button>
                                         </Box>
                                     </>

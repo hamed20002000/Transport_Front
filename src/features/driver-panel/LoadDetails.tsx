@@ -495,7 +495,7 @@ export default function LoadDetails({
                 </p>
               )}
 
-              <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
+              <div className="tw-grid tw-grid-cols-1 tw-gap-3 sm:tw-grid-cols-2">
                 <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-brand-line tw-p-3">
                   <span className="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-blue-50 tw-text-blue-600">
                     <CarFront size={20} aria-hidden />

@@ -4,6 +4,7 @@ import axios from 'axios';
 import {
   Banknote,
   Building2,
+  ChevronDown,
   Flag,
   Info,
   MapPin,
@@ -225,7 +226,7 @@ function FilterCard({
   const set = (patch: Partial<Draft>) => onDraft({ ...draft, ...patch });
 
   return (
-    <li className={cn('tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm', draft.isActive ? 'tw-border-brand-line' : 'tw-border-dashed tw-border-brand-line tw-opacity-80')}>
+    <li id={`filter-${row.key}`} className={cn('tw-scroll-mt-24 tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm', draft.isActive ? 'tw-border-brand-line' : 'tw-border-dashed tw-border-brand-line tw-opacity-80')}>
       <div className="tw-flex tw-items-center tw-gap-3 tw-border-b tw-border-brand-line tw-px-5 tw-py-3">
         <h3 className="tw-m-0 tw-min-w-0 tw-flex-1 tw-truncate tw-text-base tw-font-bold tw-text-brand-navy">
           {draft.label.trim() || (saved ? 'فیلتر بدون عنوان' : 'فیلتر جدید')}
@@ -233,7 +234,7 @@ function FilterCard({
         {/* A saved filter switches on/off at once; a new one keeps the choice until it is saved. */}
         <Toggle label="فعال بودن فیلتر" checked={draft.isActive} disabled={busy} onChange={(value) => (saved ? onToggle(value) : set({ isActive: value }))} />
       </div>
-      <fieldset disabled={busy} className="tw-m-0 tw-grid tw-min-w-0 tw-gap-4 tw-border-0 tw-p-5 sm:tw-grid-cols-2">
+      <fieldset disabled={busy} className="tw-m-0 tw-grid tw-grid-cols-1 tw-min-w-0 tw-gap-4 tw-border-0 tw-p-5 sm:tw-grid-cols-2">
         {/* A real labelled field (it used to be the bare card heading, which nobody recognised as editable). */}
         <label className="tw-block tw-space-y-1.5 sm:tw-col-span-2">
           <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
@@ -258,7 +259,8 @@ function FilterCard({
             بازه کرایه
             {!draft.minPrice && !draft.maxPrice && <span className="tw-text-xs tw-font-normal tw-text-brand-muted">(همه)</span>}
           </span>
-          <div className="tw-flex tw-gap-3">
+          {/* side by side once both amounts fit (۱۲۰,۰۰۰,۰۰۰ was cut on a 360px phone) */}
+          <div className="tw-flex tw-flex-col tw-gap-3 min-[420px]:tw-flex-row">
             <PriceInput label="از" value={draft.minPrice} onChange={(minPrice) => set({ minPrice })} />
             <PriceInput label="تا" value={draft.maxPrice} onChange={(maxPrice) => set({ maxPrice })} />
           </div>
@@ -295,6 +297,8 @@ function FilterCard({
   );
 }
 
+const HELP_OPEN_KEY = 'cargo-filters-help-open';
+
 export function FiltersContent({ audience = 'company' }: { audience?: FilterAudience }) {
   const toast = useToast();
   const messageBox = useMessageBox();
@@ -305,6 +309,31 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
   // فیلتری که با agent ساخته/عوض شد همین‌جا دیده شود
   useDomainRefresh('company_cargo_display_filters', () => setVersion((v) => v + 1), 'account');
   const newKey = useRef(0);
+  // the card just added, brought into view once it is drawn
+  const [addedKey, setAddedKey] = useState('');
+  // the help box: only its first line (the active filter) unless opened; the choice is remembered
+  const [helpOpen, setHelpOpen] = useState(() => {
+    try {
+      return localStorage.getItem(HELP_OPEN_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleHelp = () =>
+    setHelpOpen((open) => {
+      try {
+        localStorage.setItem(HELP_OPEN_KEY, open ? '0' : '1');
+      } catch {
+        // private mode: it just is not remembered
+      }
+      return !open;
+    });
+
+  useEffect(() => {
+    if (!addedKey) return;
+    document.getElementById(`filter-${addedKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setAddedKey('');
+  }, [addedKey]);
 
   useEffect(() => {
     let active = true;
@@ -374,7 +403,12 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
     });
   };
 
-  const add = () => setRows((current) => [...(current ?? []), { key: `new-${++newKey.current}`, saved: null, draft: toDraft(null) }]);
+  // a new filter goes first, where the user is looking, not under all the saved ones
+  const add = () => {
+    const key = `new-${++newKey.current}`;
+    setRows((current) => [{ key, saved: null, draft: toDraft(null) }, ...(current ?? [])]);
+    setAddedKey(key);
+  };
 
   const active = rows?.find((row) => row.saved?.isActive)?.saved ?? null;
 
@@ -396,9 +430,10 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
         }
       />
 
-      <div className="tw-flex tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-brand-sky/60 tw-p-4 tw-text-sm tw-leading-7">
+      <div className="tw-flex tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-brand-sky/60 tw-px-4 tw-py-3 tw-text-sm tw-leading-7">
         <Info size={20} aria-hidden className="tw-mt-1 tw-shrink-0 tw-text-brand-navy" />
-        <ul className="tw-m-0 tw-list-disc tw-space-y-0.5 tw-ps-4">
+        <div className="tw-min-w-0 tw-flex-1">
+          <ul id="filters-help" className="tw-m-0 tw-list-disc tw-space-y-0.5 tw-ps-4">
           <li>
             {active ? (
               <>
@@ -410,11 +445,22 @@ export function FiltersContent({ audience = 'company' }: { audience?: FilterAudi
               </>
             )}
           </li>
-          <li>در هر لحظه فقط یک فیلتر فعال است؛ با روشن کردن یک فیلتر، بقیه خاموش می‌شوند (ذخیره می‌مانند).</li>
-          <li>در هر فیلتر، خانه خالی یعنی «همه». چند مقدار در یک خانه یعنی «هر کدام».</li>
-          <li>جست‌وجو «شامل بودن» است؛ مثلاً «تهران» با «تهران - میدان آزادی» هم جور می‌شود.</li>
-          <li>تغییرات روی بارهایی اعمال می‌شود که از این به بعد می‌رسند.</li>
-        </ul>
+          <li hidden={!helpOpen}>در هر لحظه فقط یک فیلتر فعال است؛ با روشن کردن یک فیلتر، بقیه خاموش می‌شوند (ذخیره می‌مانند).</li>
+          <li hidden={!helpOpen}>در هر فیلتر، خانه خالی یعنی «همه». چند مقدار در یک خانه یعنی «هر کدام».</li>
+          <li hidden={!helpOpen}>جست‌وجو «شامل بودن» است؛ مثلاً «تهران» با «تهران - میدان آزادی» هم جور می‌شود.</li>
+          <li hidden={!helpOpen}>تغییرات روی بارهایی اعمال می‌شود که از این به بعد می‌رسند.</li>
+          </ul>
+          <button
+            type="button"
+            onClick={toggleHelp}
+            aria-expanded={helpOpen}
+            aria-controls="filters-help"
+            className="tw-mt-1 tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-brand-orange-ink hover:tw-underline"
+          >
+            {helpOpen ? 'نمایش کمتر' : 'راهنمای فیلترها'}
+            <ChevronDown size={14} aria-hidden className={cn('tw-transition-transform', helpOpen && 'tw-rotate-180')} />
+          </button>
+        </div>
       </div>
 
       {loadFailed ? (

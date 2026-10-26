@@ -1394,114 +1394,138 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
   display: none;
 }
 
-.operation-card {
+/* ---------- Chat thread: the user's requests on one side, the agent's answers on the other ---------- */
+.result-content {
+  /* stays put behind the messages while they scroll */
+  /* a white veil keeps the pattern faint behind the messages */
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)),
+    #f1f7f7 url("../../../shared/assets/images/backgrounds/ai-pattern.jpg") center / cover no-repeat;
+}
+
+.chat-exchange {
   /* Cards inside (agent lists) must not widen it past the chat panel. */
   min-width: 0;
-  margin: 16px;
-  padding: 15px 16px;
-  border: 1px solid rgba(167, 187, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 16px 4px;
+  animation: chat-in 0.22s ease-out;
+}
+
+@keyframes chat-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.chat-row {
+  display: flex;
+  min-width: 0;
+}
+
+/* start side = right in the Persian panel, like one's own messages in a messenger */
+.chat-row--user { justify-content: flex-start; }
+.chat-row--agent { justify-content: flex-end; }
+
+.chat-bubble {
+  max-width: min(78%, 560px);
+  min-width: 0;
+  padding: 8px 12px 6px;
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 246, 251, 0.96));
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-  margin-bottom: 0px;
-  margin-top: 5px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.04);
+  overflow-wrap: anywhere;
 }
 
-.operation-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
+.chat-bubble--user {
+  border-end-start-radius: 5px;
+  background: linear-gradient(160deg, #fb8a37, var(--primary-dark));
+  color: #fff;
 }
 
-.operation-card.success {
-  border-color: rgba(19, 170, 97, 0.5);
-  background: linear-gradient(180deg, rgba(235, 255, 246, 0.98), rgba(242, 252, 247, 0.98));
+.chat-bubble--agent {
+  border-end-end-radius: 5px;
+  border: 1px solid #eee7df;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.chat-bubble--agent.is-error {
+  border-color: #f6cdc8;
+  background: #fff4f2;
+}
+
+.chat-bubble--agent.is-clickable {
   cursor: pointer;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-.operation-card.error {
-  border-color: rgba(214, 76, 76, 0.5);
-  background: linear-gradient(180deg, rgba(255, 242, 242, 0.98), rgba(253, 245, 245, 0.98));
-  cursor: default;
+.chat-bubble--agent.is-clickable:hover {
+  border-color: rgba(245, 118, 26, 0.45);
+  box-shadow: 0 6px 16px rgba(245, 118, 26, 0.12);
 }
 
-.operation-card.success:focus-visible {
-  outline: 2px solid rgba(31, 215, 124, 0.8);
+.chat-bubble--agent.is-clickable:focus-visible {
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-.operation-top {
+.chat-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.chat-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #9a6400;
+}
+
+.chat-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.operation-success {
-  width: 32px;
-  height: 32px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  background: linear-gradient(180deg, #1fd77c, #0fab67);
-  color: white;
-  font-weight: 800;
-  box-shadow: 0 8px 16px rgba(31, 215, 124, 0.25);
-}
-
-.operation-error {
-  width: 32px;
-  height: 32px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  background: linear-gradient(180deg, #ff6c6c, #e33e3e);
-  color: white;
-  font-weight: 800;
-  box-shadow: 0 8px 16px rgba(227, 62, 62, 0.2);
-}
-
-.operation-error span {
-  color: white !important;
-}
-
-.operation-top strong {
-  display: block;
-  font-size: 12px;
-  color: #1b2333;
-}
-
-.operation-top>div>span {
-  display: block;
-
-  /* margin-top: 2px; */
-
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.4;
   color: var(--text-muted);
-
-  font-size: 9px;
 }
 
-.success-pill {
-  margin-left: auto;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #2ad982, #18a663);
-  color: white;
-  font-size: 9px;
-  font-weight: 700;
-  box-shadow: 0 8px 16px rgba(24, 166, 99, 0.22);
+.chat-bubble--user .chat-meta {
+  display: block;
+  text-align: end;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.error-pill {
-  margin-left: auto;
-  padding: 5px 9px;
+.chat-link {
+  color: var(--primary-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.chat-link:hover {
+  text-decoration: underline;
+}
+
+.chat-status {
+  padding: 1px 7px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ff7b7b, #e24646);
-  color: white;
-  font-size: 9px;
+  background: #fde2de;
+  color: #c43a2c;
   font-weight: 700;
-  box-shadow: 0 8px 16px rgba(226, 70, 70, 0.2);
+}
+
+.chat-cards {
+  min-width: 0;
+}
+
+/* The cards round their corners with overflow: hidden, which makes each one a scroll box of its own: over a card
+   the wheel stopped there and the thread did not scroll. clip rounds the same without being a scroll box. */
+.chat-cards .tw-overflow-hidden {
+  overflow: clip;
 }
 
 .role-card {
@@ -1993,12 +2017,12 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
     min-width: 100px;
   }
 
-  .success-pill {
-    display: none;
+  .chat-exchange {
+    padding: 8px 10px 2px;
   }
 
-  .operation-card {
-    margin: 10px;
+  .chat-bubble {
+    max-width: 86%;
   }
 
   .data-section {
@@ -2072,11 +2096,6 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
   width: 8px;
   height: 8px;
   stroke-width: 3;
-}
-
-/* The arrow between the prompt and its result points along the reading direction. */
-.agent-modal-shell[dir="rtl"] .operation-arrow svg {
-  transform: scaleX(-1);
 }
 
 .result-header__actions {
@@ -2339,8 +2358,8 @@ body:has(.confirm-dialog-paper) [data-radix-popper-content-wrapper] {
     padding: 4px 0;
   }
 
-  .operation-card {
-    margin: 8px 12px;
+  .chat-exchange {
+    padding: 8px 12px 2px;
   }
 
   .composer-container {

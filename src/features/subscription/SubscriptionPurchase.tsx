@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { BadgeCheck, Check, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Sparkles, TriangleAlert, X } from 'lucide-react';
+import { BadgeCheck, Check, Copy, CreditCard, Gift, Hourglass, ImagePlus, LoaderCircle, Sparkles, TriangleAlert, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { CardSkeleton, LoadFailed, SectionTitle } from 'src/features/company-cargo/components';
@@ -25,6 +25,13 @@ function StatusCard({ state }: { state: SubscriptionState }) {
     return (
       <Banner tone="ok" icon={BadgeCheck} title="اشتراک شما فعال است">
         تا {faDate(access.expireAt)} ({faNumber(daysLeft(access.expireAt))} روز دیگر). برای تمدید می‌توانید همین حالا طرح جدید بخرید.
+      </Banner>
+    );
+  }
+  if (access.reason === 'bonus' && access.bonusUntil) {
+    return (
+      <Banner tone="ok" icon={Gift} title="روزهای رایگان هدیه">
+        به خاطر خریدهای شما تا {faDate(access.bonusUntil)} ({faNumber(daysLeft(access.bonusUntil))} روز دیگر) بدون اشتراک کار می‌کنید.
       </Banner>
     );
   }
@@ -195,7 +202,7 @@ export default function SubscriptionPurchase({ onActivated }: { onActivated?: ()
             </div>
           ) : (
             <>
-              <fieldset className="tw-m-0 tw-grid tw-gap-3 tw-border-0 tw-p-0 sm:tw-grid-cols-2">
+              <fieldset className="tw-m-0 tw-grid tw-grid-cols-1 tw-gap-3 tw-border-0 tw-p-0 sm:tw-grid-cols-2">
                 <legend className="tw-mb-2 tw-text-sm tw-font-bold">۱. طرح را انتخاب کنید</legend>
                 {state.plans.map((item) => {
                   const selected = item.id === planId;

@@ -77,7 +77,7 @@ const Customizer: FC = () => {
         {/* ------------------------------------------- */}
         <Scrollbar sx={{ height: 'calc(100vh - 5px)' }}>
           <Box p={2} display="flex" justifyContent={'space-between'} alignItems="center">
-            <Typography variant="h4">Ayarlar</Typography>
+            <Typography variant="h4">تنظیمات</Typography>
 
             <IconButton color="inherit" onClick={() => setShowDrawer(false)}>
               <IconX size="1rem" />
@@ -89,20 +89,20 @@ const Customizer: FC = () => {
             {/* ------------ Dark light theme setting ------------- */}
             {/* ------------------------------------------- */}
             <Typography variant="h6" gutterBottom>
-              Tema Seçeneği
+              حالت نمایش
             </Typography>
             <Stack direction={'row'} gap={2} my={2}>
               <StyledBox onClick={() => dispatch(setDarkMode('light'))} display="flex" gap={1}>
                 <WbSunnyTwoToneIcon
                   color={customizer.activeMode === 'light' ? 'primary' : 'inherit'}
                 />
-                Işık
+                روشن
               </StyledBox>
               <StyledBox onClick={() => dispatch(setDarkMode('dark'))} display="flex" gap={1}>
                 <DarkModeTwoToneIcon
                   color={customizer.activeMode === 'dark' ? 'primary' : 'inherit'}
                 />
-                Karanlık
+                تیره
               </StyledBox>
             </Stack>
 
@@ -112,7 +112,7 @@ const Customizer: FC = () => {
             {/* ------------ Layout Horizontal / Vertical ------------- */}
             {/* ------------------------------------------- */}
             <Typography variant="h6" gutterBottom>
-              Düzen Türü
+              نوع چیدمان
             </Typography>
             <Stack direction={'row'} gap={2} my={2}>
               <StyledBox onClick={() => dispatch(toggleHorizontal(false))} display="flex" gap={1}>
@@ -131,7 +131,7 @@ const Customizer: FC = () => {
             {/* ------------ Layout Boxed / Full ------------- */}
             {/* ------------------------------------------- */}
             <Typography variant="h6" gutterBottom>
-              Konteyner Seçeneği
+              عرض صفحه
             </Typography>
             <Stack direction={'row'} gap={2} my={2}>
               <StyledBox onClick={() => dispatch(toggleLayout('boxed'))} display="flex" gap={1}>
@@ -160,7 +160,7 @@ const Customizer: FC = () => {
             ) : (
               <>
                 <Typography variant="h6" gutterBottom>
-                  Kenar Çubuğu Türü
+                  نوع منوی کناری
                 </Typography>
                 <Stack direction={'row'} gap={2} my={2}>
                   <StyledBox onClick={() => dispatch(toggleSidebar())} display="flex" gap={1}>
@@ -169,7 +169,7 @@ const Customizer: FC = () => {
                   </StyledBox>
                   <StyledBox onClick={() => dispatch(toggleSidebar())} display="flex" gap={1}>
                     <ViewSidebarTwoToneIcon color={customizer.isCollapse ? 'primary' : 'inherit'} />
-                    küçük
+                    جمع‌شده
                   </StyledBox>
                 </Stack>
               </>
@@ -181,11 +181,11 @@ const Customizer: FC = () => {
             <Stack direction={'row'} gap={2} my={2}>
               <StyledBox onClick={() => dispatch(setCardShadow(false))} display="flex" gap={1}>
                 <BorderOuter color={!customizer.isCardShadow ? 'primary' : 'inherit'} />
-                Sınır
+                حاشیه
               </StyledBox>
               <StyledBox onClick={() => dispatch(setCardShadow(true))} display="flex" gap={1}>
                 <CallToActionTwoToneIcon color={customizer.isCardShadow ? 'primary' : 'inherit'} />
-                Gölge
+                سایه
               </StyledBox>
             </Stack>
             <Box pt={4} />
@@ -193,7 +193,7 @@ const Customizer: FC = () => {
             {/* ------------ Theme Color setting ------------- */}
             {/* ------------------------------------------- */}
             <Typography variant="h6" gutterBottom>
-              Tema Sınır Yarıçapı
+              گردی گوشه‌ها
             </Typography>
 
             <Slider

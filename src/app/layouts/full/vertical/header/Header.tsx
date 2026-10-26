@@ -41,9 +41,9 @@ const Header = () => {
     if (userRoles.length > 1) {
       setOpenRoleSelectionModal(true);
     } else if (userRoles.length === 1) {
-      showHeaderAlert("Bu kullanıcının zaten tek bir rolü var.", "info");
+      showHeaderAlert("این حساب فقط یک نقش دارد.", "info");
     } else {
-      showHeaderAlert("Bu kullanıcı için rol bulunamadı.", "warning");
+      showHeaderAlert("نقشی برای این حساب پیدا نشد.", "warning");
     }
   };
 
@@ -88,7 +88,7 @@ const Header = () => {
         <Stack spacing={1} direction="row" alignItems="center">
           <Notifications />
           {userRoles.length > 1 && (
-            <CustomTooltip title="Aktif Rolü Seçin">
+            <CustomTooltip title="نقش فعال را انتخاب کنید">
               <Button
                 variant="outlined"
                 color="primary"
@@ -96,7 +96,7 @@ const Header = () => {
                 startIcon={<IconUserShield size={20} />}
                 size="small"
               >
-                {activeRoleName || "Rol Seç"}
+                {activeRoleName || "انتخاب نقش"}
               </Button>
             </CustomTooltip>
           )}

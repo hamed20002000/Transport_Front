@@ -168,7 +168,7 @@ const toNoti = (payload: any): Noti => {
     return {
         id: payload?.id ?? (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
         title: String(payload?.type ?? 'bildirim'),
-        body: `Tanımlayıcı: ${payload?.id ?? 'belirtilmemiş'}`,
+        body: `Tanımlayıcı: ${payload?.id ?? 'مشخص نشده'}`,
         at: new Date().toLocaleString(),
         atISO: new Date().toISOString(),
         type: payload?.type as NotifyType | undefined,

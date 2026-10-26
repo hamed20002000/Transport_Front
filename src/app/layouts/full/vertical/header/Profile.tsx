@@ -213,7 +213,7 @@ const Profile = () => {
                 startIcon={<IconUserShield size={20} />}
                 fullWidth
               >
-                Rolü Değiştir
+                تغییر نقش
               </Button>
             </CustomTooltip>
           </Box>

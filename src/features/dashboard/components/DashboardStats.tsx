@@ -55,11 +55,11 @@ const DashboardStats = () => {
                 if (response.data.httpStatusCode === 200 && response.data.data) {
                     setStats(response.data.data);
                 } else {
-                    setError(response.data.message || 'Veri alınamadı');
+                    setError(response.data.message || 'داده‌ای دریافت نشد');
                 }
             } catch (err) {
                 console.error(err);
-                setError('Bir hata oluştu');
+                setError('خطایی رخ داد');
             } finally {
                 setLoading(false);
             }
@@ -81,8 +81,8 @@ const DashboardStats = () => {
                             title="پرسنل"
                             total={stats.all_personnel}
                             active={stats.active_personnel}
-                            activeLabel="Çalışanlar"
-                            inactiveLabel="Ayrılanlar"
+                            activeLabel="کارکنان"
+                            inactiveLabel="جداشده‌ها"
                             icon={IconUsers}
                             color="#5D87FF"
                         />
@@ -95,7 +95,7 @@ const DashboardStats = () => {
 
 
                         <StatCard
-                            title="Şantiyeler"
+                            title="کارگاه‌ها"
                             total={stats.all_workhouses}
                             active={stats.active_workhouses}
                             activeLabel="Aktivler"
@@ -126,7 +126,7 @@ const DashboardStats = () => {
 
                     <Box onClick={() => navigate('/tender/define-work/')} sx={{ cursor: 'pointer' }}>
                         <StatCard
-                            title="İşler"
+                            title="کارها"
                             total={stats.all_works}
                             active={stats.active_works}
                             activeLabel="Aktivler"
@@ -142,7 +142,7 @@ const DashboardStats = () => {
 
                     <Box onClick={() => navigate('/tender/list-tender')} sx={{ cursor: 'pointer' }}>
                         <StatCard
-                            title="İhaleler"
+                            title="مناقصه‌ها"
                             total={stats.all_tender}
                             active={stats.accepted_tender}
                             activeLabel="Aktivler"
@@ -159,7 +159,7 @@ const DashboardStats = () => {
 
                 <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/care-warehouse/list-details-care-warehouse/')}>
                     <StatCard
-                        title="Araçlar"
+                        title="خودروها"
                         total={stats.car_count}
                         icon={IconCar}
                         color="#0074BA"
@@ -168,7 +168,7 @@ const DashboardStats = () => {
 
                 <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/hr/list-consignments/')}>
                     <StatCard
-                        title="Demirbaş Sayısı"
+                        title="تعداد اموال"
                         total={stats.consignment_count}
                         icon={IconPackage}
                         color="#757575"
@@ -177,7 +177,7 @@ const DashboardStats = () => {
 
                 <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/education/list-teachers/')}>
                     <StatCard
-                        title="Eğitimler"
+                        title="آموزش‌ها"
                         total={stats.course_count}
                         icon={IconSchool}
                         color="#8E24AA"
@@ -189,7 +189,7 @@ const DashboardStats = () => {
 
                 <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/warehouse/list-warehouse/')}>
                     <StatCard
-                        title="Depo Ürünleri"
+                        title="کالاهای انبار"
                         total={stats.warhouse_items_count}
                         icon={IconBuildingStore}
                         color="#2E7D32"
@@ -198,7 +198,7 @@ const DashboardStats = () => {
 
                 <Grid item xs={12} sm={6} md={4} onClick={() => navigate('/workhouse/list-workhouse/')}>
                     <StatCard
-                        title="Şantiye Ürünleri"
+                        title="کالاهای کارگاه"
                         total={stats.store_items_count}
                         icon={IconBasket}
                         color="#D84315"

@@ -45,58 +45,58 @@ const TYPE_META: Record<
   { label: string; bg: any; icon: React.ReactNode; to: To }
 > = {
   'warehouse-dispatch': {
-    label: 'Depo Sevk', bg: 'info.main', icon: <IconTruck size={22} />,
+    label: 'ارسال انبار', bg: 'info.main', icon: <IconTruck size={22} />,
     to: (n) => ROUTES['warehouse-dispatch'](String(n.warehouseId)),
   },
   'warehouse-dispatch-destruction': {
-    label: 'Depoya İmha Sevk', bg: 'error.main', icon: <IconTrash size={22} />,
+    label: 'ارسال برای امحا به انبار', bg: 'error.main', icon: <IconTrash size={22} />,
     to: (n) => ROUTES['warehouse-dispatch-destruction'](String(n.warehouseId)),
   },
   'warehouse-dispatch-between-warehouse': {
-    label: 'Depolar Arası Sevk', bg: 'warning.main', icon: <IconArrowsExchange size={22} />,
+    label: 'ارسال بین انبارها', bg: 'warning.main', icon: <IconArrowsExchange size={22} />,
     to: (n) => ROUTES['warehouse-dispatch-between-warehouse'](String(n.warehouseId)),
   },
   'store-dispatch-to-project': {
-    label: 'Şantiye Depo Sevk', bg: 'info.main', icon: <IconHome size={22} />,
+    label: 'ارسال انبار کارگاه', bg: 'info.main', icon: <IconHome size={22} />,
     to: (n) => ROUTES['store-dispatch-to-project'](String(n.storeId)),
   },
   'store-dispatch-to-center': {
-    label: 'Merkez Depo Sevk', bg: 'info.main', icon: <IconBuilding size={22} />,
+    label: 'ارسال انبار مرکزی', bg: 'info.main', icon: <IconBuilding size={22} />,
     to: (n) => ROUTES['store-dispatch-to-center'](String(n.storeId)),
   },
   'store-dispatch-destruction-to-center': {
-    label: 'Merkez Depoya İmha Sevk', bg: 'error.main', icon: <IconTrash size={22} />,
+    label: 'ارسال برای امحا به انبار مرکزی', bg: 'error.main', icon: <IconTrash size={22} />,
     to: (n) => ROUTES['store-dispatch-destruction-to-center'](String(n.storeId)),
   },
   'store-dispatch-between-store': {
-    label: 'Şantiye Depo Arası', bg: 'warning.main', icon: <IconArrowsExchange size={22} />,
+    label: 'بین انبارهای کارگاه', bg: 'warning.main', icon: <IconArrowsExchange size={22} />,
     to: (n) => ROUTES['store-dispatch-between-store'](String(n.storeId)),
   },
   'project-planning-date-created': {
-    label: 'Planlama Uygulama', bg: 'secondary.main', icon: <IconCalendarEvent size={22} />,
+    label: 'اجرای برنامه‌ریزی', bg: 'secondary.main', icon: <IconCalendarEvent size={22} />,
     to: (n) => ROUTES['project-planning-date-created'](String(n.projectId)),
   },
 
-  'order': { label: 'Satın Alma', bg: 'primary.main', icon: <IconPackages size={22} />, to: '/order/list-order/' },
-  'invoice-to-warehouse': { label: 'Depo Faturaları', bg: 'secondary.main', icon: <IconFileInvoice size={22} />, to: '/invoice/list-invoice/' },
-  'invoice-to-store': { label: 'Şantiye Faturaları', bg: 'secondary.main', icon: <IconFileInvoice size={22} />, to: '/invoice/list-store-invoice/' },
-  'project-created': { label: 'Yeni Proje Kaydı', bg: 'success.main', icon: <IconClipboardList size={22} />, to: '/project/list-projects/' },
-  'project-planning-created': { label: 'Proje Planlama', bg: 'success.main', icon: <IconCalendarPlus size={22} />, to: '/project/project-planing/' },
-  'project-planning-implementation-created': { label: 'Proje Planlama Uygulama', bg: 'success.main', icon: <IconClipboardList size={22} />, to: '/project/project-planing-implementation/' },
-  'personnel-created': { label: 'Yeni Personel Kaydı', bg: 'primary.main', icon: <IconUserPlus size={22} />, to: '/hr/personnal/' },
+  'order': { label: 'خرید', bg: 'primary.main', icon: <IconPackages size={22} />, to: '/order/list-order/' },
+  'invoice-to-warehouse': { label: 'فاکتورهای انبار', bg: 'secondary.main', icon: <IconFileInvoice size={22} />, to: '/invoice/list-invoice/' },
+  'invoice-to-store': { label: 'فاکتورهای کارگاه', bg: 'secondary.main', icon: <IconFileInvoice size={22} />, to: '/invoice/list-store-invoice/' },
+  'project-created': { label: 'ثبت پروژه‌ی جدید', bg: 'success.main', icon: <IconClipboardList size={22} />, to: '/project/list-projects/' },
+  'project-planning-created': { label: 'برنامه‌ریزی پروژه', bg: 'success.main', icon: <IconCalendarPlus size={22} />, to: '/project/project-planing/' },
+  'project-planning-implementation-created': { label: 'اجرای برنامه‌ریزی پروژه', bg: 'success.main', icon: <IconClipboardList size={22} />, to: '/project/project-planing-implementation/' },
+  'personnel-created': { label: 'ثبت پرسنل جدید', bg: 'primary.main', icon: <IconUserPlus size={22} />, to: '/hr/personnal/' },
   'request': {
-    label: 'Yeni Talep/Onay',
+    label: 'درخواست/تأیید جدید',
     bg: 'secondary.main',
     icon: <IconClipboardList size={22} />,
     to: `/store/list-requests/`,
   },
   'tender': {
-    label: 'Yeni İhale',
+    label: 'مناقصه‌ی جدید',
     bg: 'warning.main',
     icon: <IconGavel size={22} />,
     to: '/tender/list-tender'
   },
-  'leave-created': { label: 'Yeni İzin Kaydı', bg: 'warning.main', icon: <IconCalendarEvent size={22} />, to: '/hr/leaves/' },
+  'leave-created': { label: 'ثبت مرخصی جدید', bg: 'warning.main', icon: <IconCalendarEvent size={22} />, to: '/hr/leaves/' },
 };
 
 const TYPES_NEED_ID: Record<NotifyType, 'warehouse' | 'store' | 'project' | null> = {
@@ -121,7 +121,7 @@ const TYPES_NEED_ID: Record<NotifyType, 'warehouse' | 'store' | 'project' | null
 };
 
 const DEFAULT_META = {
-  label: 'Bildirim',
+  label: 'اعلان',
   bg: 'primary.main' as const,
   icon: <IconAlertTriangle size={22} />,
   to: '/notifications',
@@ -173,7 +173,7 @@ const Notifications = () => {
           .map((x: any): Noti => ({
             id: String(x.id),
             title: String(x.type ?? 'bildirim'),
-            body: `Tanımlayıcı: ${x.id ?? ''}`,
+            body: `شناسه: ${x.id ?? ''}`,
             at: x.createdAt ? new Date(x.createdAt).toLocaleString() : undefined,
             atISO: x.createdAt ?? undefined,
             type: x.type as NotifyType | undefined,
@@ -452,7 +452,7 @@ const Notifications = () => {
   const handleClose2 = () => setAnchorEl2(null);
 
   const totalCount = items.length;
-  const chipText = totalCount > 0 ? `${totalCount} yeni` : 'Yeni yok';
+  const chipText = totalCount > 0 ? `${totalCount} yeni` : 'مورد جدیدی نیست';
 
   const filteredWarehouses = useMemo(
     () => warehouses.filter(w => selectEntityIds.includes(String(w.id))),
@@ -493,7 +493,7 @@ const Notifications = () => {
       <IconButton
         id="notifications-button"
         size="large"
-        aria-label="yeni bildirimleri göster"
+        aria-label="نمایش اعلان‌های جدید"
         color="inherit"
         aria-haspopup="menu"
         aria-expanded={Boolean(anchorEl2) || undefined}
@@ -518,14 +518,14 @@ const Notifications = () => {
         sx={{ '& .UiMenu-paper': { width: 360 } }}
       >
         <Stack direction="row" py={2} px={4} justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Bildirim</Typography>
+          <Typography variant="h6">اعلان</Typography>
           <Chip label={chipText} color={totalCount > 0 ? 'primary' : 'default'} size="small" />
         </Stack>
 
         <Scrollbar sx={{ height: 385 }}>
           {groupedByType.length === 0 ? (
             <Box px={4} py={2}>
-              <Typography variant="body2" color="text.secondary">Henüz bildirim yok.</Typography>
+              <Typography variant="body2" color="text.secondary">هنوز اعلانی نیست.</Typography>
             </Box>
           ) : (
             groupedByType.map(({ type, entityIds, notifIds, sample, count }) => {
@@ -565,14 +565,14 @@ const Notifications = () => {
               setOpenAll(true);
             }}
           >
-            Tüm bildirimleri gör
+            دیدن همه‌ی اعلان‌ها
           </Button>
         </Box>
       </Menu>
 
       <Dialog open={openAll} onClose={() => setOpenAll(false)} fullWidth maxWidth="md">
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h6">Tüm Bildirimler</Typography>
+          <Typography variant="h6">همه‌ی اعلان‌ها</Typography>
           <IconButton onClick={() => setOpenAll(false)} aria-label="kapat"><IconX size={20} /></IconButton>
         </DialogTitle>
 
@@ -622,7 +622,7 @@ const Notifications = () => {
 
       <Dialog open={selectOpen} onClose={() => setSelectOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>
-          {selectType ? getMeta(selectType).label : 'Seçiniz'}
+          {selectType ? getMeta(selectType).label : 'انتخاب کنید'}
         </DialogTitle>
         <DialogContent dividers>
           {selectLoading ? (

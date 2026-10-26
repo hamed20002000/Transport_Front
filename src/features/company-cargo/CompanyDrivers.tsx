@@ -1,10 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ArrowDownToLine, ArrowUpFromLine, MapPinned, Search, Truck, Users } from 'lucide-react';
+import { Globe2, MapPinned, Search, Truck, Users } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
-import { listDrivers, tripTypeHints, tripTypeLabels, type DriverCard, type Page, type TripType } from './api';
+import { driverKindHints, driverKindLabels, driverKindTripTypes, listDrivers, type DriverCard, type DriverKind, type Page } from './api';
 import { DriverPhoto } from './AssignDriverDialog';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, Pager, PhoneLinks, SectionTitle, Segmented } from './components';
@@ -13,10 +13,10 @@ import { useNotificationEvent } from './notificationSocket';
 const PAGE_SIZE = 20;
 const fa = (value: number) => value.toLocaleString('fa-IR');
 
-const tabs: Array<{ value: TripType; icon: typeof Truck }> = [
+// a driver is domestic or international (export and import loads)
+const tabs: Array<{ value: DriverKind; icon: typeof Truck }> = [
   { value: 'DOMESTIC', icon: MapPinned },
-  { value: 'EXPORT', icon: ArrowUpFromLine },
-  { value: 'IMPORT', icon: ArrowDownToLine },
+  { value: 'INTERNATIONAL', icon: Globe2 },
 ];
 
 function DriverItem({ driver }: { driver: DriverCard }) {
@@ -44,7 +44,7 @@ function DriverItem({ driver }: { driver: DriverCard }) {
 }
 
 function Drivers() {
-  const [type, setType] = useState<TripType>('DOMESTIC');
+  const [type, setType] = useState<DriverKind>('DOMESTIC');
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState('');
@@ -57,7 +57,7 @@ function Drivers() {
     let active = true;
     setLoading(true);
     setFailed(false);
-    listDrivers(type, page, search)
+    listDrivers(driverKindTripTypes[type][0], page, search)
       .then((result) => active && setData(result))
       .catch(() => active && setFailed(true))
       .finally(() => active && setLoading(false));
@@ -88,13 +88,13 @@ function Drivers() {
               setType(value);
               setPage(1);
             }}
-            options={tabs.map(({ value, icon }) => ({ value, label: tripTypeLabels[value], icon }))}
+            options={tabs.map(({ value, icon }) => ({ value, label: driverKindLabels[value], icon }))}
           />
         }
       />
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
         <p className="tw-m-0 tw-text-sm tw-text-brand-muted">
-          رانندگان {tripTypeLabels[type]}: {tripTypeHints[type]}
+          رانندگان {driverKindLabels[type]}: {driverKindHints[type]}
           {data && !loading ? ` · ${fa(data.total)} راننده` : ''}
         </p>
         <form onSubmit={submit} className="tw-flex tw-items-center tw-gap-2" role="search">
@@ -125,12 +125,12 @@ function Drivers() {
       ) : !data?.items.length ? (
         <EmptyState
           icon={Users}
-          title={search ? 'راننده‌ای با این مشخصات پیدا نشد' : `رانندهٔ ${tripTypeLabels[type]} ثبت نشده`}
+          title={search ? 'راننده‌ای با این مشخصات پیدا نشد' : `رانندهٔ ${driverKindLabels[type]} ثبت نشده`}
           hint="راننده‌ها نوع خودشان (داخلی، صادراتی یا وارداتی) را در پروفایل پنل یا تنظیمات ربات انتخاب می‌کنند."
         />
       ) : (
         <>
-          <ul className="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
+          <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
             {data.items.map((driver) => (
               <DriverItem key={driver.userId} driver={driver} />
             ))}

@@ -178,7 +178,7 @@ export const getDynamicMenuItems = async (allowedOperations: string[]): Promise<
   if (dashboardItem) {
     finalMenuItems.push({
       navlabel: true,
-      subheader: 'Ana Sayfa',
+      subheader: 'صفحه‌ی اصلی',
       id: uniqueId(),
     });
     finalMenuItems.push(dashboardItem);
