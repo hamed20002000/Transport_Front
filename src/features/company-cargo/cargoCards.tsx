@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { Banknote, BellDot, CheckCheck, CircleCheck, CircleDot, Clock, FileText, Megaphone, Package, PackageCheck, RefreshCw, RotateCcw, Send, Truck, Weight, X, Hourglass, Timer, Globe2, ClipboardList } from 'lucide-react';
+import { Banknote, BellDot, CheckCheck, CircleCheck, CircleDot, Clock, FileText, Megaphone, Package, PackageCheck, RefreshCw, RotateCcw, Send, Truck, Weight, X, Hourglass, Timer, Globe2, ClipboardList, Factory } from 'lucide-react';
+import { CargoPicture, listingImageUrl, suggestionImageUrl, useCargoDisplay } from './cargoDisplay';
 import { cn } from 'src/shared/utils/utils';
 import { getSuggestionDraft, listingStage, publishSuggestion, type CargoListing, type CargoSuggestion, tripTypeLabels } from './api';
 import { stageLabels, statusLabels } from './cargoText';
@@ -37,6 +38,7 @@ function CargoCard({
   notes,
   extra,
   footer,
+  image,
 }: {
   tone: CargoTone;
   // an unread suggestion: a stronger border in the same colour
@@ -47,6 +49,8 @@ function CargoCard({
   notes?: string | null;
   extra?: JSX.Element;
   footer: JSX.Element;
+  // the load's picture when the user sees loads as pictures (useCargoDisplay)
+  image?: { src: string; alt: string };
 }) {
   return (
     <li
@@ -59,11 +63,14 @@ function CargoCard({
       <div className={cn('tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3', cargoTones[tone].head)}>
         {head}
       </div>
-      <div className="tw-flex-1 tw-space-y-4 tw-p-5">
-        {route}
-        <div className="tw-flex tw-flex-wrap tw-gap-2">{specs}</div>
-        {notes && <p className="tw-text-sm tw-leading-7 tw-text-brand-muted">{notes}</p>}
-        {extra}
+      <div className="tw-flex tw-flex-1 tw-items-start tw-gap-4 tw-p-5">
+        {image && <CargoPicture src={image.src} alt={image.alt} />}
+        <div className="tw-min-w-0 tw-flex-1 tw-space-y-4">
+          {route}
+          <div className="tw-flex tw-flex-wrap tw-gap-2">{specs}</div>
+          {notes && <p className="tw-text-sm tw-leading-7 tw-text-brand-muted">{notes}</p>}
+          {extra}
+        </div>
       </div>
       <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">{footer}</div>
     </li>
@@ -83,12 +90,14 @@ function Specs({ cargoType, weight, vehicleType, price, priceHighlight = true }:
 
 export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSuggestion; onRead: () => void; onAnnounce: () => void }) {
   const [open, setOpen] = useState(false);
+  const [display] = useCargoDisplay();
   const { cargo } = item;
   const receivedAt = cargo.receivedAt || item.createdAt;
   return (
     <CargoCard
       tone="suggestion"
       highlighted={!item.isRead}
+      image={display === 'IMAGE' ? { src: suggestionImageUrl(item.id), alt: `بار ${cargo.cargoType ?? ''}` } : undefined}
       head={
         <>
           <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
@@ -98,6 +107,11 @@ export function SuggestionCard({ item, onRead, onAnnounce }: { item: CargoSugges
             </time>
           </div>
           <div className="tw-flex tw-gap-1.5">
+            {cargo.source === 'FACTORY' && cargo.factory && (
+              <Badge tone="sky">
+                <Factory size={12} aria-hidden /> کارخانه {cargo.factory.name}
+              </Badge>
+            )}
             {cargo.tripType && (
               <Badge tone="muted">
                 <Globe2 size={12} aria-hidden />
@@ -202,6 +216,7 @@ export function ListingCard({
   const inTrip = taken && listing.assignment?.status === 'ACCEPTED';
   const delivered = taken && listing.assignment?.status === 'DELIVERED';
   const stage = listingStage(listing);
+  const [display] = useCargoDisplay();
   const ToggleIcon = saving ? RefreshCw : taken ? RotateCcw : waiting ? Hourglass : PackageCheck;
   const toggleContent = (
     <>
@@ -212,6 +227,7 @@ export function ListingCard({
   return (
     <CargoCard
       tone={queued ? 'queued' : stage}
+      image={display === 'IMAGE' ? { src: listingImageUrl(listing.id), alt: `بار ${listing.cargoType ?? ''}` } : undefined}
       head={
         <>
           <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">

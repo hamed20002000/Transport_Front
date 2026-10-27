@@ -11,11 +11,13 @@ const AiAgentPage = lazy(() => import('src/features/ai-agent/pages/AiAgentPage')
  * Shown only to logged-in users.
  */
 export default function AiLauncher() {
-  const { isAuth } = useAuth();
+  const { isAuth, userRoles } = useAuth();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
 
-  if (!isAuth || pathname.startsWith('/auth')) return null;
+  // a factory only sends loads to its transport companies: no assistant there (nor on an invite link)
+  const factoryOnly = userRoles.length > 0 && userRoles.every((role) => role.name === 'FACTORY');
+  if (!isAuth || pathname.startsWith('/auth') || pathname.startsWith('/invite/') || pathname.startsWith('/join/') || pathname.startsWith('/driver-invite/') || factoryOnly) return null;
 
   return (
     <>

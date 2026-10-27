@@ -38,7 +38,10 @@ function RequestCard({ request, busy, onDecide }: { request: CompanyRequest; bus
         <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-brand-sky/50 tw-p-3">
           <DriverPhoto driver={driver} />
           <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
-            <p className="tw-m-0 tw-font-bold">{driver.name}</p>
+            <p className="tw-m-0 tw-font-bold">
+              {driver.name}
+              {driver.broker && <span className="tw-mr-1.5 tw-inline-flex tw-items-center tw-rounded-full tw-bg-brand-orange-soft tw-px-2 tw-py-0.5 tw-align-middle tw-text-[11px] tw-font-medium tw-text-brand-orange-ink">واسط</span>}
+            </p>
             <p className="tw-m-0 tw-text-xs tw-text-brand-muted">
               {[driver.vehicleType, driver.vehicleModel, driver.capacityTons ? `${driver.capacityTons.toLocaleString('fa-IR')} تن` : null, driver.homeCity]
                 .filter(Boolean)

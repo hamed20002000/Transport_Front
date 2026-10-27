@@ -358,6 +358,8 @@ export function getRouteBorders(id: string, route: number) {
 export interface DriverCompany {
   userId: string;
   name: string;
+  /** the parent company: its loads always reach the driver; only the load filter («شرکت») leaves them out */
+  isParent: boolean;
   domesticName: string | null;
   internationalName: string | null;
 }

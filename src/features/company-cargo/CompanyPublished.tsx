@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Archive, CircleCheck, CircleDot, Layers, RefreshCw, SquarePlus, Truck } from 'lucide-react';
+import { CargoDisplayToggle } from './cargoDisplay';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
@@ -125,15 +126,18 @@ function PublishedContent() {
               title={stage === 'ALL' ? 'همهٔ بارها' : stageLabels[stage]}
               hint={stage === 'ALL' ? 'منتشرشده، در حال انتقال و تحویل‌شده' : stages.find((item) => item.stage === stage)?.hint}
               side={
-                <Segmented
-                  label="وضعیت"
-                  value={stage}
-                  onChange={select}
-                  options={[
-                    { value: 'ALL', label: 'همه', icon: Layers },
-                    ...stages.map(({ stage: value, icon }) => ({ value, label: stageLabels[value], icon })),
-                  ]}
-                />
+                <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+                  <CargoDisplayToggle />
+                  <Segmented
+                    label="وضعیت"
+                    value={stage}
+                    onChange={select}
+                    options={[
+                      { value: 'ALL', label: 'همه', icon: Layers },
+                      ...stages.map(({ stage: value, icon }) => ({ value, label: stageLabels[value], icon })),
+                    ]}
+                  />
+                </div>
               }
             />
             <PublishedList key={`${stage}-${refreshKey}`} stage={stage} onChanged={loadSummary} />

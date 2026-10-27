@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useState, type ReactNode } from 'react';
 import {
   Ban,
   Building2,
@@ -10,6 +10,7 @@ import {
   Send,
   type LucideIcon,
 } from 'lucide-react';
+import { CargoPicture } from 'src/features/company-cargo/cargoDisplay';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import { CargoCode, RouteLine, timeAgo, formatDate } from 'src/features/company-cargo/components';
@@ -78,6 +79,13 @@ export function RequestBadge({ status, short }: { status: RequestStatus; short?:
   );
 }
 
+/**
+ * The broker panel (واسط) shows the driver's lists of loads and requests: it requests loads like a driver but has no
+ * trips, filters page or location, so their links are hidden there.
+ */
+export const BrokerView = createContext(false);
+export const useBrokerView = () => useContext(BrokerView);
+
 // Card frame shared by loads, requests and trips: tinted head, body, action footer.
 export function LoadFrame({
   tone = 'sky',
@@ -85,12 +93,15 @@ export function LoadFrame({
   children,
   footer,
   as: Tag = 'li',
+  image,
 }: {
   tone?: 'sky' | 'orange' | 'green';
   head: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   as?: 'li' | 'article';
+  // the load's picture when the driver sees loads as pictures (useCargoDisplay)
+  image?: { src: string; alt: string };
 }) {
   const tones = {
     sky: 'tw-border-brand-line [&>div:first-child]:tw-bg-brand-sky/60',
@@ -100,7 +111,14 @@ export function LoadFrame({
   return (
     <Tag className={cn('tw-flex tw-flex-col tw-overflow-hidden tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm tw-transition-shadow hover:tw-shadow-md', tones[tone])}>
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3">{head}</div>
-      <div className="tw-flex-1 tw-space-y-4 tw-p-5">{children}</div>
+      {image ? (
+        <div className="tw-flex tw-flex-1 tw-items-start tw-gap-4 tw-p-5">
+          <CargoPicture src={image.src} alt={image.alt} />
+          <div className="tw-min-w-0 tw-flex-1 tw-space-y-4">{children}</div>
+        </div>
+      ) : (
+        <div className="tw-flex-1 tw-space-y-4 tw-p-5">{children}</div>
+      )}
       {footer && <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">{footer}</div>}
     </Tag>
   );

@@ -3,10 +3,13 @@ export enum AccountType {
   Driver = 'DRIVER',
   Company = 'COMPANY',
   Broker = 'BROKER',
+  Factory = 'FACTORY',
 }
 
 /** Account types people pick for themselves at sign-up. */
 export const SELF_SERVICE_ACCOUNT_TYPES = [
   { type: AccountType.Driver, label: 'راننده', hint: 'دیدن بارها، اعلام آمادگی و وضعیت مرزها' },
   { type: AccountType.Company, label: 'شرکت حمل‌ونقل', hint: 'ثبت و اعلام بار به رانندگان' },
+  { type: AccountType.Factory, label: 'کارخانه', hint: 'ثبت بار و فرستادن آن برای شرکت حمل‌ونقل' },
+  { type: AccountType.Broker, label: 'واسط', hint: 'دیدن بارها و درخواست بار' },
 ] as const;

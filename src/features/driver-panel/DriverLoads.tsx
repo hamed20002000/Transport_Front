@@ -20,6 +20,8 @@ import {
   Weight,
   X,
 } from 'lucide-react';
+import { CargoDisplayToggle } from 'src/features/company-cargo/cargoDisplay';
+import { listingImageUrl, useCargoDisplay } from 'src/features/company-cargo/cargoDisplay';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
@@ -38,7 +40,7 @@ import {
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type CargoRequest, type OpenLoad, type Page } from './api';
 import OfferAnswer from './OfferAnswer';
-import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
+import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView } from './components';
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
 import { useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
@@ -74,9 +76,11 @@ export function LoadCard({
   const taken = load.status === 'TAKEN';
   const status = load.myRequest?.status;
   const canRequest = !taken && !load.reserved && (!status || status === 'CANCELLED' || status === 'DECLINED' || status === 'EXPIRED');
+  const [display] = useCargoDisplay();
   return (
     <LoadFrame
       tone={status === 'ACCEPTED' ? 'green' : fresh ? 'orange' : 'sky'}
+      image={display === 'IMAGE' ? { src: listingImageUrl(load.id), alt: `بار ${load.cargoType ?? ''}` } : undefined}
       head={
         <>
           <LoadHead code={load.code} at={load.createdAt} company={load.companyName} />
@@ -192,12 +196,14 @@ export function useLoadStatusEvents(
 const inputClass =
   'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-pe-3 tw-ps-10 tw-text-sm tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange';
 
-function LoadsContent() {
+export function LoadsContent() {
+  // a broker has no filters: every open load
+  const broker = useBrokerView();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
   const origin = params.get('origin') ?? '';
   const destination = params.get('destination') ?? '';
-  const scope = params.get('scope') === 'all' ? 'all' : 'mine';
+  const scope = broker || params.get('scope') === 'all' ? 'all' : 'mine';
   const [page, setPage] = useState(1);
   const [draft, setDraft] = useState({ origin, destination });
   const [freshIds, setFreshIds] = useState<Set<string>>(new Set());
@@ -291,24 +297,29 @@ function LoadsContent() {
         title={searching ? 'نتیجه جستجو' : 'بارهای باز'}
         hint={state.data ? `${state.data.total.toLocaleString('fa-IR')} بار` : undefined}
         side={
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <Segmented
-              label="دامنه نمایش"
-              value={scope}
-              onChange={(value) => setQuery({ scope: value === 'all' ? 'all' : '' })}
-              options={[
-                { value: 'mine', label: 'مطابق فیلترهای من', icon: Filter },
-                { value: 'all', label: 'همه بارها', icon: Layers },
-              ]}
-            />
-            <Link
-              to="/account/driver/filters"
-              title="تنظیمات نمایش بار"
-              aria-label="تنظیمات نمایش بار"
-              className="tw-inline-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-brand-line tw-bg-white tw-text-brand-navy tw-shadow-sm hover:tw-border-brand-orange hover:tw-text-brand-orange"
-            >
-              <SlidersHorizontal size={18} aria-hidden />
-            </Link>
+          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            <CargoDisplayToggle />
+            {!broker && (
+              <>
+                <Segmented
+                  label="دامنه نمایش"
+                  value={scope}
+                  onChange={(value) => setQuery({ scope: value === 'all' ? 'all' : '' })}
+                  options={[
+                    { value: 'mine', label: 'مطابق فیلترهای من', icon: Filter },
+                    { value: 'all', label: 'همه بارها', icon: Layers },
+                  ]}
+                />
+                <Link
+                  to="/account/driver/filters"
+                  title="تنظیمات نمایش بار"
+                  aria-label="تنظیمات نمایش بار"
+                  className="tw-inline-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-border tw-border-brand-line tw-bg-white tw-text-brand-navy tw-shadow-sm hover:tw-border-brand-orange hover:tw-text-brand-orange"
+                >
+                  <SlidersHorizontal size={18} aria-hidden />
+                </Link>
+              </>
+            )}
           </div>
         }
       />

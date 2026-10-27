@@ -87,7 +87,10 @@ export function useOtpLogin() {
     const { status } = error.response;
     const raw = (error.response.data as { message?: unknown } | undefined)?.message;
     const detail = (Array.isArray(raw) ? raw.join(' ') : typeof raw === 'string' ? raw : '').toLowerCase();
-    if (status === 429) {
+    // the server's own Persian reason (e.g. a revoked invite link at sign-up)
+    const persian = Array.isArray(raw) ? null : typeof raw === 'string' && /[\u0600-\u06FF]/.test(raw) ? raw : null;
+    if (persian) setError(persian);
+    else if (status === 429) {
       setError(
         step === 'code'
           ? 'تعداد تلاش‌ها بیش از حد مجاز است. کد جدید درخواست کنید.'

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import axios from 'axios';
-import { Banknote, Building2, Flag, MapPin, NotebookPen, Package, Phone, Plus, Send, Truck, Weight, X } from 'lucide-react';
+import { Banknote, Building2, Camera, Flag, LoaderCircle, MapPin, NotebookPen, Package, Phone, Plus, Send, Truck, Weight, X } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import { listingLimits, phonePattern, type CargoListing, type CargoListingInput } from './api';
+import { uploadCargoPhoto } from './cargoDisplay';
 
-type Fields = Omit<Required<CargoListingInput>, 'contactPhones'>;
+type Fields = Omit<Required<CargoListingInput>, 'contactPhones' | 'photo'>;
 
 // What the form can be prefilled with; null/missing values stay empty.
 export type ListingDefaults = Partial<Record<keyof Fields, string | null>> & { contactPhones?: string[] | null; code?: string | null };
@@ -71,6 +72,8 @@ function errorMessage(error: unknown) {
     if (!error.response) return 'ارتباط با سرور برقرار نشد. اتصال را بررسی و دوباره تلاش کنید.';
     const response = error.response.data as { code?: string; message?: string } | undefined;
     if (response?.code === 'noCargoRecipients' && typeof response.message === 'string') return response.message;
+    // the server's own Persian reason (e.g. a factory sending to a company that did not invite it)
+    if (typeof response?.message === 'string' && /[\u0600-\u06FF]/.test(response.message)) return response.message;
     const { status } = error.response;
     if (status === 400) return 'اطلاعات بار معتبر نیست. فیلدها را بررسی کنید.';
     if (status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';
@@ -84,9 +87,10 @@ function errorMessage(error: unknown) {
 /**
  * Editable cargo listing with a live preview of the drivers' message. Used by the «ثبت بار» page and
  * the «اعلام بار» dialog; `initial` shows at once, `load` (company name, phones, cargo draft) fills
- * whatever the user has not typed yet.
+ * whatever the user has not typed yet. audience «company»: a factory sending its load to a transport company,
+ * which announces it to drivers under its own name (no company name, no code, no drivers' preview).
  */
-export default function ListingForm({
+export default function ListingForm<T = PublishedListing>({
   variant,
   initial,
   load,
@@ -94,15 +98,20 @@ export default function ListingForm({
   onDone,
   onCancel,
   submitLabel = 'ثبت و ارسال برای راننده‌ها',
+  audience = 'drivers',
+  disabled = false,
 }: {
   variant: 'page' | 'dialog';
   initial?: ListingDefaults;
   load: () => Promise<ListingDefaults>;
-  submit: (input: CargoListingInput) => Promise<PublishedListing>;
-  onDone: (listing: PublishedListing) => void;
+  submit: (input: CargoListingInput) => Promise<T>;
+  onDone: (result: T) => void;
   onCancel?: () => void;
   submitLabel?: string;
+  audience?: 'drivers' | 'company';
+  disabled?: boolean;
 }) {
+  const forCompany = audience === 'company';
   const [fields, setFields] = useState<Fields>(() => merge(empty, initial));
   const [phones, setPhones] = useState<string[]>(() => (initial?.contactPhones?.length ? initial.contactPhones.slice(0, listingLimits.phones) : ['']));
   const [saving, setSaving] = useState(false);
@@ -111,6 +120,28 @@ export default function ListingForm({
   const [code, setCode] = useState(initial?.code ?? '');
   const pending = useRef(false);
   const dialog = variant === 'dialog';
+  // an optional photo of the load, uploaded as soon as it is chosen; without it a picture of its kind is shown
+  const [photo, setPhoto] = useState<{ name: string; preview: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
+  useEffect(() => () => {
+    if (photo) URL.revokeObjectURL(photo.preview);
+  }, [photo]);
+
+  async function choosePhoto(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast.error('فقط عکس (JPG، PNG یا WebP) را انتخاب کنید.');
+    if (file.size > 8 * 1024 * 1024) return toast.error('حجم عکس بیشتر از ۸ مگابایت است.');
+    setUploading(true);
+    try {
+      setPhoto({ name: await uploadCargoPhoto(file), preview: URL.createObjectURL(file) });
+    } catch {
+      toast.error('بارگذاری عکس انجام نشد؛ دوباره تلاش کنید.');
+    } finally {
+      setUploading(false);
+      if (photoInput.current) photoInput.current.value = '';
+    }
+  }
 
   // The form stays usable if this fails; the user can fill the rest by hand.
   useEffect(() => {
@@ -147,7 +178,7 @@ export default function ListingForm({
     setSaving(true);
     try {
       const listing = await submit({
-        companyName: optional(fields.companyName),
+        companyName: forCompany ? undefined : optional(fields.companyName),
         origin,
         destination,
         cargoType: optional(fields.cargoType),
@@ -156,6 +187,7 @@ export default function ListingForm({
         price: optional(fields.price),
         extraNotes: optional(fields.extraNotes),
         contactPhones,
+        ...(photo && { photo: photo.name }),
       });
       onDone(listing);
     } catch (e) {
@@ -167,8 +199,8 @@ export default function ListingForm({
   }
 
   const inputs = (
-    <fieldset disabled={saving} className={cn('tw-m-0 tw-min-w-0 tw-border-0 tw-p-0', dialog ? 'tw-space-y-5' : 'tw-space-y-6')}>
-      {code && (
+    <fieldset disabled={saving || disabled || uploading} className={cn('tw-m-0 tw-min-w-0 tw-border-0 tw-p-0', dialog ? 'tw-space-y-5' : 'tw-space-y-6')}>
+      {code && !forCompany && (
         <p className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-sm">
           <span className="tw-text-brand-muted">کد بار</span>
           <span dir="ltr" className="tw-rounded-lg tw-bg-brand-sky tw-px-2 tw-py-0.5 tw-font-bold">
@@ -180,7 +212,9 @@ export default function ListingForm({
 
       <Group title="مسیر" plain={dialog}>
         <p className="tw-m-0 tw-mb-3 tw-text-xs tw-text-brand-muted">
-          نوع حمل از مبدأ و مقصد تشخیص داده می‌شود (داخل ایران: داخلی، ایران به خارج: صادراتی، خارج به ایران: وارداتی) و بار فقط به راننده‌های همان نوع می‌رسد.
+          {forCompany
+            ? 'بار به «بارهای پیشنهادی» شرکت حمل‌ونقل می‌رود و شرکت آن را برای رانندگان اعلام می‌کند.'
+            : 'نوع حمل از مبدأ و مقصد تشخیص داده می‌شود (داخل ایران: داخلی، ایران به خارج: صادراتی، خارج به ایران: وارداتی) و بار فقط به راننده‌های همان نوع می‌رسد.'}
         </p>
         <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
           <Field label="مبدأ بارگیری" icon={MapPin} required>
@@ -218,13 +252,38 @@ export default function ListingForm({
             />
           </Field>
         </div>
+        <div className="tw-mt-4 tw-space-y-1.5">
+          <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
+            <Camera size={15} aria-hidden className="tw-text-brand-muted" /> عکس بار <span className="tw-text-xs tw-font-normal tw-text-brand-muted">(اختیاری؛ بدون آن تصویری از نوع بار نشان داده می‌شود)</span>
+          </span>
+          <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" className="tw-hidden" onChange={(e) => void choosePhoto(e.target.files?.[0])} />
+          {photo ? (
+            <div className="tw-flex tw-items-center tw-gap-3">
+              <img src={photo.preview} alt="عکس بار" className="tw-h-20 tw-w-32 tw-rounded-xl tw-object-cover" />
+              <button type="button" onClick={() => setPhoto(null)} className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-bg-transparent tw-px-1 tw-py-1 tw-text-sm tw-font-medium tw-text-red-600">
+                <X size={16} aria-hidden /> حذف عکس
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => photoInput.current?.click()}
+              className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-dashed tw-border-brand-line tw-bg-white tw-px-4 tw-text-sm tw-font-medium hover:tw-border-brand-orange"
+            >
+              {uploading ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Camera size={16} aria-hidden />}
+              {uploading ? 'در حال بارگذاری…' : 'انتخاب عکس'}
+            </button>
+          )}
+        </div>
       </Group>
 
       <Group title="اطلاعات تماس" plain={dialog}>
         <div className="tw-space-y-4">
-          <Field label="نام شرکت" icon={Building2}>
-            <input className={inputClass} value={fields.companyName} onChange={set('companyName')} maxLength={listingLimits.companyName} />
-          </Field>
+          {!forCompany && (
+            <Field label="نام شرکت" icon={Building2}>
+              <input className={inputClass} value={fields.companyName} onChange={set('companyName')} maxLength={listingLimits.companyName} />
+            </Field>
+          )}
           <div className="tw-space-y-1.5">
             <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
               <Phone size={15} aria-hidden className="tw-text-brand-muted" />
@@ -276,9 +335,9 @@ export default function ListingForm({
   const submitButton = (
     <button
       type="submit"
-      disabled={saving}
+      disabled={saving || disabled}
       className={cn(
-        'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark',
+        'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-opacity-50',
         dialog ? 'tw-h-11 tw-flex-1 tw-px-5 tw-text-sm sm:tw-flex-none' : 'tw-h-12 tw-w-full tw-text-base',
       )}
     >
@@ -320,7 +379,7 @@ export default function ListingForm({
       {inputs}
       <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-48 lg:tw-self-start">
         <section className="tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">
-          <h2 className="tw-mb-3 tw-text-base tw-font-bold">پیش‌نمایش پیام راننده</h2>
+          <h2 className="tw-mb-3 tw-text-base tw-font-bold">{forCompany ? 'پیش‌نمایش بار' : 'پیش‌نمایش پیام راننده'}</h2>
           {preview}
         </section>
         {submitButton}

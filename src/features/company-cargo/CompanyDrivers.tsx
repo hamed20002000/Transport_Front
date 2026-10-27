@@ -9,6 +9,7 @@ import { DriverPhoto } from './AssignDriverDialog';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, Pager, PhoneLinks, SectionTitle, Segmented } from './components';
 import { useNotificationEvent } from './notificationSocket';
+import DriverInvites from './DriverInvites';
 
 const PAGE_SIZE = 20;
 const fa = (value: number) => value.toLocaleString('fa-IR');
@@ -77,6 +78,7 @@ function Drivers() {
 
   return (
     <div className="tw-space-y-5">
+      <DriverInvites />
       <SectionTitle
         title="رانندگان"
         hint="بار هر نوع فقط به راننده‌های همان نوع اعلام می‌شود"

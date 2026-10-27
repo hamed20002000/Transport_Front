@@ -28,6 +28,9 @@ export const tripTypeHints: Record<TripType, string> = {
 
 // Mirrors CargoDetectedEvent in transport_backend (domain/constants/cargoEvents.ts).
 export interface CargoDetails {
+  // a load a factory sent to this company (transport_backend FactoryService), not one seen in a channel
+  source?: 'FACTORY';
+  factory?: { userId: string; name: string; phones: string[] } | null;
   // Tracking code tarabari gives each cargo (e.g. TRB100123); older cargo has none.
   code?: string | null;
   rawText?: string;
@@ -92,6 +95,8 @@ export interface DriverCard {
   homeCity: string | null;
   tripType: TripType;
   photos: { face: boolean; vehicle: boolean };
+  /** a broker (واسط) asked, not a driver: no vehicle; it brings the driver */
+  broker?: boolean;
   // When this driver asked for the load; absent for drivers found by search.
   requestedAt?: string | null;
 }
@@ -162,6 +167,8 @@ export function listMyListings(page: number, stage?: ListingStage) {
 
 // Same fields and limits as PublishCargoListingDto in transport_backend.
 export interface CargoListingInput {
+  /** a photo sent before (uploadCargoPhoto); none: a picture of its kind of cargo is shown */
+  photo?: string;
   companyName?: string;
   origin: string;
   destination: string;
@@ -247,9 +254,9 @@ export interface ExcelCargoRow {
   tripType?: TripType;
 }
 
-export interface ExcelImportResult {
+export interface ExcelImportResult<C = { row: number; id: string; code: string | null; origin: string; destination: string; recipients: number; tripType: TripType; pending: boolean; pendingReason: 'automatic' | 'noDrivers' | null }> {
   // Published loads; empty on dryRun or when any row has an error (then nothing is published).
-  created: Array<{ row: number; id: string; code: string | null; origin: string; destination: string; recipients: number; tripType: TripType; pending: boolean; pendingReason: 'automatic' | 'noDrivers' | null }>;
+  created: C[];
   rows: ExcelCargoRow[];
   errors: Array<{ row: number; column?: string; message: string }>;
   dryRun: boolean;
@@ -400,12 +407,14 @@ export interface UserProfile {
   phone: string | null;
   postalCode: string | null;
   address: string | null;
+  /** how loads are shown, on the web and in the messengers (transport_backend User.cargoDisplay) */
+  cargoDisplay: 'TEXT' | 'IMAGE';
 }
 
-export type ProfileTextField = Exclude<keyof UserProfile, 'id' | 'username' | 'email' | 'mobile' | 'profileType'>;
+export type ProfileTextField = Exclude<keyof UserProfile, 'id' | 'username' | 'email' | 'mobile' | 'profileType' | 'cargoDisplay'>;
 
 // null clears a field; omitted fields are left unchanged.
-export type UserProfileInput = Partial<Record<ProfileTextField, string | null>> & { profileType?: ProfileType | null };
+export type UserProfileInput = Partial<Record<ProfileTextField, string | null>> & { profileType?: ProfileType | null; cargoDisplay?: 'TEXT' | 'IMAGE' };
 
 // Same rules as UpdateUserProfileDto.
 export const profileRules: Record<ProfileTextField, { max: number; pattern?: RegExp; message?: string }> = {

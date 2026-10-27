@@ -238,7 +238,7 @@ function OrderCard({ order, onDone, unlock, onLocked }: { order: Order; onDone: 
  * Receipt photos carry names and card digits: besides the admin login they need the receipts password, which
  * opens them for 15 minutes in this tab only (kept in memory, gone on refresh).
  */
-function UnlockPanel({ unlock, onUnlock, onLock }: { unlock: ReceiptUnlock | null; onUnlock: (value: ReceiptUnlock) => void; onLock: () => void }) {
+export function UnlockPanel({ unlock, onUnlock, onLock }: { unlock: ReceiptUnlock | null; onUnlock: (value: ReceiptUnlock) => void; onLock: () => void }) {
   const toast = useToast();
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);

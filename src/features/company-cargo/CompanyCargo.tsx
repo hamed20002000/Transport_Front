@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { BellDot, CheckCheck, CircleDot, Inbox, Layers, Mail, RefreshCw, SlidersHorizontal, SquarePlus, Truck } from 'lucide-react';
+import { CargoDisplayToggle } from './cargoDisplay';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import {
@@ -118,7 +119,8 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
           title="بارهای پیشنهادی"
           hint="بارهایی که در کانال‌های شما دیده شده‌اند"
           side={
-            <div className="tw-flex tw-items-center tw-gap-2">
+            <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+              <CargoDisplayToggle />
               <Segmented
                 label="فیلتر"
                 value={filter}

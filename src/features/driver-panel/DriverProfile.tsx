@@ -575,7 +575,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
   const kindCompanies = companies?.filter((company) => companyNameFor(company, kind)) ?? [];
   const visible = kindCompanies.filter((company) => companyNameFor(company, kind)!.includes(search.trim()));
   const unavailable = memberships.filter((id) => companies && !companies.some((company) => company.userId === id));
-  const joined = memberships.filter((id) => kindCompanies.some((company) => company.userId === id)).length;
+  const joined = kindCompanies.filter((company) => company.isParent || memberships.includes(company.userId)).length;
   return (
     // scroll-mt: clear of the sticky header when opened at #announcements (right after signing in)
     <section
@@ -611,7 +611,16 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
                   {failed ? <div role="alert">دریافت شرکت‌ها انجام نشد. <button type="button" onClick={() => setVersion((v) => v + 1)}>تلاش دوباره</button></div>
                     : companies === null ? <p role="status">در حال دریافت شرکت‌ها…</p>
                     : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
-                      {visible.map((company) => (
+                      {visible.map((company) => company.isParent ? (
+                        // always on: the parent company's loads reach every driver; the load filter can leave them out
+                        <label key={company.userId} className="tw-flex tw-items-start tw-gap-2 tw-rounded-xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-3">
+                          <input type="checkbox" checked disabled className="tw-mt-1" />
+                          <span>
+                            <span className="tw-block">{companyNameFor(company, value)} <span className="tw-text-xs tw-font-bold tw-text-emerald-700">(شرکت مادر)</span></span>
+                            <span className="tw-block tw-text-xs tw-text-brand-muted">بارهایش همیشه برای شما اعلام می‌شود؛ برای کنار گذاشتنش، در «فیلتر بار» شرکت‌های دلخواه را بدون آن انتخاب کنید.</span>
+                          </span>
+                        </label>
+                      ) : (
                         <label key={company.userId} className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
                           <input type="checkbox" disabled={saving} checked={memberships.includes(company.userId)} onChange={() => toggleCompany(company.userId)} />
                           <span>{companyNameFor(company, value)}</span>

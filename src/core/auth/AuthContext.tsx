@@ -85,6 +85,7 @@ const ADMIN_SUBSCRIPTION_MENU = [
   { id: 'subscription-plans', title: 'پلن‌های اشتراک', href: '/admin/subscription-plans', icon: IconCrown },
   { id: 'subscription-orders', title: 'رسیدهای پرداخت', href: '/admin/subscription-orders', icon: IconReceipt },
   { id: 'subscription-policy', title: 'تنظیمات اشتراک', href: '/admin/subscription-policy', icon: IconSettings },
+  { id: 'company-features', title: 'امکانات شرکت‌ها', href: '/admin/company-features', icon: IconBuildingWarehouse },
 ];
 
 export interface MenuitemsType {
@@ -350,7 +351,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       validIdentity = true;
       const identityRoles = identity.roles ?? (Array.isArray(identity.role) ? identity.role : [identity.role]);
       const accountRoles = identityRoles.filter((role): role is string =>
-        typeof role === 'string' && ['COMPANY', 'DRIVER', 'BROKER'].includes(role));
+        typeof role === 'string' && ['COMPANY', 'DRIVER', 'BROKER', 'FACTORY'].includes(role));
       // Basic account pages need no legacy administration menus or operation IDs.
       if (accountRoles.length && accountRoles.length === identityRoles.length) {
         const savedRole = localStorage.getItem('activeUserRoleName');

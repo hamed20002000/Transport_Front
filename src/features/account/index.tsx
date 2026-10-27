@@ -1,17 +1,24 @@
+import { lazy } from 'react';
 import { Link, Navigate, type RouteObject } from 'react-router-dom';
-import { Archive, Building2, ChevronLeft, Handshake, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, UserRound } from 'lucide-react';
+import { Archive, Building2, ChevronLeft, Factory, Handshake, Inbox, Link2, SlidersHorizontal, SquarePlus, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { CompanyShell, displayName, useProfile } from 'src/features/company-cargo';
 import { driverHasNoCompany } from 'src/features/driver-panel';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
+import Loadable from 'src/shared/components/loadable/Loadable';
+
+const BrokerPanel = Loadable(lazy(() => import('src/features/broker/BrokerPanel')));
 
 const accounts = {
   COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2, profile: '/account/company/profile' },
   // straight to «دریافت اعلام بار» (only while the driver is in no company: until then no load reaches them)
   DRIVER: { path: '/account/driver', title: 'راننده', icon: Truck, profile: '/account/driver/profile#announcements' },
+  // the broker panel opens on its profile until a parent company approves it (features/broker)
   BROKER: { path: '/account/broker', title: 'واسط', icon: Handshake, profile: undefined },
+  // the factory panel is in features/factory (only sending loads to the companies that invited it)
+  FACTORY: { path: '/account/factory', title: 'کارخانه', icon: Factory, profile: undefined },
 };
 
 const companyTiles = [
@@ -19,6 +26,7 @@ const companyTiles = [
   { to: '/account/company/cargo/new', title: 'ثبت بار', icon: SquarePlus },
   { to: '/account/company/published', title: 'بارهای منتشرشده', icon: Archive },
   { to: '/account/company/channels', title: 'گروه‌ها و کانال‌ها', icon: Link2 },
+  { to: '/account/company/factories', title: 'کارخانه‌ها', icon: Factory },
   { to: '/account/company/filters', title: 'تنظیمات نمایش بار', icon: SlidersHorizontal },
   { to: '/account/company/profile', title: 'پروفایل', icon: UserRound },
 ];
@@ -110,4 +118,5 @@ function AccountHome({ type }: { type: keyof typeof accounts }) {
 
 // The driver home lives in the driver panel's routes; the company home goes under CompanyLayout (see the app router).
 export const companyHomeRoute: RouteObject = { path: accounts.COMPANY.path, element: <AccountHome type="COMPANY" /> };
-export const accountRoutes: RouteObject[] = [{ path: accounts.BROKER.path, element: <AccountHome type="BROKER" /> }];
+// the broker (واسط) panel: the open loads and its requests (features/broker)
+export const accountRoutes: RouteObject[] = [{ path: accounts.BROKER.path, element: <BrokerPanel /> }];

@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleAlert, Clock3, LoaderCircle, MessageSquareText, Smartphone, Truck, Building2 } from 'lucide-react';
+import { ArrowLeft, Building2, CircleAlert, Clock3, Factory, Handshake, LoaderCircle, MessageSquareText, Smartphone, Truck } from 'lucide-react';
 import { Button } from 'src/shared/components/ui/button';
 import { Input } from 'src/shared/components/ui/input';
 import { useOtpLogin } from '../hooks/useOtpLogin';
@@ -9,7 +9,7 @@ const faDigits = (value: string | number) => String(value).replace(/\d/g, (digit
 const clock = (seconds: number) =>
   faDigits(`${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`);
 
-const TYPE_ICONS = { [AccountType.Driver]: Truck, [AccountType.Company]: Building2 } as const;
+const TYPE_ICONS = { [AccountType.Driver]: Truck, [AccountType.Company]: Building2, [AccountType.Factory]: Factory, [AccountType.Broker]: Handshake } as const;
 
 /** Sign in or sign up with the mobile number and an SMS code; no username or password. */
 export default function AuthOtp() {

@@ -33,6 +33,8 @@ import {
   type UserProfileInput,
 } from './api';
 import CompanyShell from './CompanyShell';
+import VerificationCard from './VerificationCard';
+import { reloadCompanyFeatures } from './featuresApi';
 import { setCachedProfile } from './profileStore';
 import { CardSkeleton, LoadFailed, SectionTitle, Segmented } from './components';
 
@@ -62,12 +64,14 @@ function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'عملیات انجام نشد.';
 }
 
-function Field({ label, icon: Icon, className, children }: { label: string; icon: LucideIcon; className?: string; children: ReactNode }) {
+// required: what the parent company checks a company with before approving it (AccountVerificationService)
+function Field({ label, icon: Icon, className, required, children }: { label: string; icon: LucideIcon; className?: string; required?: boolean; children: ReactNode }) {
   return (
     <label className={cn('tw-block tw-space-y-1.5', className)}>
       <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
         <Icon size={15} aria-hidden className="tw-text-brand-muted" />
         {label}
+        {required && <span className="tw-text-brand-orange" aria-hidden>*</span>}
       </span>
       {children}
     </label>
@@ -105,6 +109,8 @@ function ProfileContent() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [version, setVersion] = useState(0);
+  // each save: the verification card checks again what is still missing
+  const [saves, setSaves] = useState(0);
   // پروفایلی که با agent ویرایش شد همین‌جا دیده شود
   useDomainRefresh('company_profile', () => setVersion((v) => v + 1), 'account');
   const pending = useRef(false);
@@ -185,6 +191,7 @@ function ProfileContent() {
       setFields(toFields(updated));
       setKinds({ domestic: !!updated.domesticCompanyName, international: !!updated.internationalCompanyName });
       setCachedProfile(updated); // header and home greeting pick up the new name
+      setSaves((value) => value + 1);
       toast.success('پروفایل ذخیره شد.');
     } catch (e) {
       toast.error(errorMessage(e));
@@ -199,6 +206,8 @@ function ProfileContent() {
   return (
     <form onSubmit={submit} noValidate className="tw-space-y-6">
       <SectionTitle title="پروفایل" hint="اطلاعات شخصی و شرکتی خود را تکمیل یا اصلاح کنید" />
+      {/* a company that signed up on its own: the parent company checks it before anything else opens */}
+      <VerificationCard dirty={dirty} version={saves} onChange={(state) => state.status === 'APPROVED' && void reloadCompanyFeatures()} />
       <div className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
         <fieldset disabled={saving} className="tw-m-0 tw-min-w-0 tw-space-y-6 tw-border-0 tw-p-0">
           <Card title="اطلاعات شخصی">
@@ -231,7 +240,7 @@ function ProfileContent() {
           >
             {isCompany ? (
               <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
-                <Field label="نام شرکت" icon={Building2} className="sm:tw-col-span-2">
+                <Field label="نام تجاری شرکت" icon={Building2} className="sm:tw-col-span-2" required>
                   {input('companyName')}
                 </Field>
                 <Field label="شناسه ملی شرکت" icon={FileBadge}>
@@ -240,7 +249,7 @@ function ProfileContent() {
                 <Field label="شماره ثبت" icon={Hash}>
                   {input('registrationNo', { ltr: true })}
                 </Field>
-                <Field label="کد اقتصادی" icon={Hash}>
+                <Field label="کد اقتصادی" icon={Hash} required>
                   {input('economicCode', { ltr: true })}
                 </Field>
               </div>
@@ -292,7 +301,7 @@ function ProfileContent() {
 
           <Card title="راه‌های ارتباطی">
             <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
-              <Field label="تلفن ثابت" icon={Phone}>
+              <Field label="شماره شرکت" icon={Phone} required>
                 {input('phone', { ltr: true, placeholder: '021 1234 5678' })}
               </Field>
               <Field label="کد پستی" icon={Mailbox}>

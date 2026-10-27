@@ -27,6 +27,9 @@ export function useEnterSession() {
     async (accessToken: string, firstStop: (role: string | undefined) => string | undefined | Promise<string | undefined>) => {
       const identity = decodeJwtToken(accessToken);
       const roles = identity?.roles ?? (Array.isArray(identity?.role) ? identity.role : [identity?.role]);
+      // an invite link that sent the user to sign in comes first: it joins the factory to the inviting company
+      const requested = returnPath(search, '');
+      if (['/invite/', '/join/', '/driver-invite/'].some((path) => requested.startsWith(path))) return navigate(requested, { replace: true });
       const home = (await Promise.all(roles.map((role) => firstStop(role)))).find(Boolean);
       navigate(home || returnPath(search), { replace: true });
     },

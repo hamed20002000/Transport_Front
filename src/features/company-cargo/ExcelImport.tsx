@@ -28,17 +28,31 @@ function errorMessage(error: unknown) {
  * then publish every row. If any row is invalid nothing is published, so re-uploading the fixed file
  * never duplicates loads.
  */
-export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportResult['created']) => void }) {
+/** audience «company»: a factory sending its loads to a transport company (its own import and template). */
+export default function ExcelImport<C = ExcelImportResult['created'][number]>({
+  onDone,
+  importFile = importExcelListings as unknown as (file: File, dryRun: boolean) => Promise<ExcelImportResult<C>>,
+  downloadTemplate = downloadExcelTemplate,
+  audience = 'drivers',
+  disabled = false,
+}: {
+  onDone: (created: C[]) => void;
+  importFile?: (file: File, dryRun: boolean) => Promise<ExcelImportResult<C>>;
+  downloadTemplate?: () => Promise<void>;
+  audience?: 'drivers' | 'company';
+  disabled?: boolean;
+}) {
+  const forCompany = audience === 'company';
   const toast = useToast();
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [check, setCheck] = useState<ExcelImportResult | null>(null);
+  const [check, setCheck] = useState<ExcelImportResult<C> | null>(null);
   const [busy, setBusy] = useState<'template' | 'check' | 'publish' | null>(null);
 
   async function template() {
     setBusy('template');
     try {
-      await downloadExcelTemplate();
+      await downloadTemplate();
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -60,7 +74,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
     setCheck(null);
     setBusy('check');
     try {
-      setCheck(await importExcelListings(chosen, true));
+      setCheck(await importFile(chosen, true));
     } catch (e) {
       toast.error(errorMessage(e));
       reset();
@@ -73,7 +87,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
     if (!file || busy) return;
     setBusy('publish');
     try {
-      const result = await importExcelListings(file, false);
+      const result = await importFile(file, false);
       // The file changed on disk or another rule failed since the check: show the new errors.
       if (result.errors.length) return setCheck(result);
       onDone(result.created);
@@ -96,7 +110,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
           <h3 className="tw-m-0 tw-text-base tw-font-bold">ثبت چند بار با فایل اکسل</h3>
           <p className="tw-m-0 tw-text-sm tw-text-brand-muted">
             فایل نمونه را دانلود کنید، هر بار را در یک ردیف بنویسید و فایل را بارگذاری کنید (حداکثر {faNumber(excelUploadLimit.rows)} بار).
-            شماره تماس خالی با شماره‌های پروفایل شرکت پر می‌شود.
+            شماره تماس خالی با شماره‌های پروفایل {forCompany ? 'کارخانه' : 'شرکت'} پر می‌شود.
           </p>
         </div>
       </div>
@@ -105,7 +119,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
         <SecondaryButton onClick={template} disabled={busy !== null}>
           <Download size={16} aria-hidden /> {busy === 'template' ? 'در حال دانلود…' : 'دانلود فایل نمونه'}
         </SecondaryButton>
-        <SecondaryButton onClick={() => input.current?.click()} disabled={busy !== null}>
+        <SecondaryButton onClick={() => input.current?.click()} disabled={busy !== null || disabled}>
           <Upload size={16} aria-hidden /> {busy === 'check' ? 'در حال بررسی فایل…' : 'بارگذاری فایل پرشده'}
         </SecondaryButton>
         <input
@@ -148,7 +162,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
                 <table className="tw-w-full tw-border-collapse tw-text-sm">
                   <thead className="tw-sticky tw-top-0 tw-bg-brand-sky">
                     <tr>
-                      {['ردیف', 'مبدأ', 'مقصد', 'ارسال برای راننده‌های', 'نوع بار', 'وزن', 'نوع خودرو', 'کرایه'].map((title) => (
+                      {['ردیف', 'مبدأ', 'مقصد', ...(forCompany ? [] : ['ارسال برای راننده‌های']), 'نوع بار', 'وزن', 'نوع خودرو', 'کرایه'].map((title) => (
                         <th key={title} className="tw-whitespace-nowrap tw-px-3 tw-py-2 tw-text-right tw-font-medium">
                           {title}
                         </th>
@@ -161,7 +175,7 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
                         <td className="tw-px-3 tw-py-2 tw-text-brand-muted">{faNumber(index + 1)}</td>
                         <td className="tw-px-3 tw-py-2">{row.origin}</td>
                         <td className="tw-px-3 tw-py-2">{row.destination}</td>
-                        <td className="tw-whitespace-nowrap tw-px-3 tw-py-2 tw-font-medium">{row.tripType ? tripTypeLabels[row.tripType] : '—'}</td>
+                        {!forCompany && <td className="tw-whitespace-nowrap tw-px-3 tw-py-2 tw-font-medium">{row.tripType ? tripTypeLabels[row.tripType] : '—'}</td>}
                         <td className="tw-px-3 tw-py-2">{row.cargoType ?? '—'}</td>
                         <td className="tw-px-3 tw-py-2">{row.weight ?? '—'}</td>
                         <td className="tw-px-3 tw-py-2">{row.vehicleType ?? '—'}</td>
@@ -172,9 +186,9 @@ export default function ExcelImport({ onDone }: { onDone: (created: ExcelImportR
                 </table>
               </div>
               <div className="tw-flex tw-flex-wrap tw-gap-2">
-                <PrimaryButton onClick={publish} disabled={busy !== null}>
+                <PrimaryButton onClick={publish} disabled={busy !== null || disabled}>
                   <Send size={16} aria-hidden />
-                  {busy === 'publish' ? 'در حال اعلام…' : `اعلام ${faNumber(rows.length)} بار برای راننده‌ها`}
+                  {busy === 'publish' ? 'در حال ارسال…' : forCompany ? `ارسال ${faNumber(rows.length)} بار برای شرکت` : `اعلام ${faNumber(rows.length)} بار برای راننده‌ها`}
                 </PrimaryButton>
                 <SecondaryButton onClick={reset} disabled={busy !== null}>
                   <X size={16} aria-hidden /> انصراف

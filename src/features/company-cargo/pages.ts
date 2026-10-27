@@ -12,6 +12,10 @@ const loaders = {
   drivers: () => import('./CompanyDrivers'),
   trips: () => import('./CompanyTrips'),
   requests: () => import('./CompanyRequests'),
+  features: () => import('./CompanyFeatures'),
+  factories: () => import('./CompanyFactories'),
+  invites: () => import('./CompanyInvites'),
+  verifications: () => import('./CompanyVerifications'),
 };
 
 export const CompanyCargo = lazy(loaders.cargo);
@@ -23,6 +27,10 @@ export const CargoFilters = lazy(loaders.filters);
 export const CompanyDrivers = lazy(loaders.drivers);
 export const CompanyTrips = lazy(loaders.trips);
 export const CompanyRequests = lazy(loaders.requests);
+export const CompanyFeatures = lazy(loaders.features);
+export const CompanyFactories = lazy(loaders.factories);
+export const CompanyInvites = lazy(loaders.invites);
+export const CompanyVerifications = lazy(loaders.verifications);
 
 // The other tabs, fetched in the background so switching to them doesn't wait on the network.
 export function preloadCompanyPages() {

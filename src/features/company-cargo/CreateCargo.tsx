@@ -6,7 +6,7 @@ import { createListing, getListingDefaults, type ExcelImportResult } from './api
 import CompanyShell from './CompanyShell';
 import { SectionTitle } from './components';
 import ExcelImport from './ExcelImport';
-import ListingForm from './ListingForm';
+import ListingForm, { type PublishedListing } from './ListingForm';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 
@@ -31,7 +31,7 @@ function CreateForm() {
           })
         }
       />
-      <ListingForm
+      <ListingForm<PublishedListing>
         variant="page"
         load={getListingDefaults}
         submit={createListing}

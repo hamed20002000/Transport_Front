@@ -55,7 +55,10 @@ function DriverRow({ driver, selected, onSelect }: { driver: DriverCard; selecte
       >
         <DriverPhoto driver={driver} />
         <span className="tw-min-w-0 tw-flex-1 tw-space-y-0.5">
-          <strong className="tw-block tw-truncate">{driver.name}</strong>
+          <strong className="tw-block tw-truncate">
+            {driver.name}
+            {driver.broker && <span className="tw-mr-1.5 tw-inline-flex tw-items-center tw-rounded-full tw-bg-brand-orange-soft tw-px-2 tw-py-0.5 tw-align-middle tw-text-[11px] tw-font-medium tw-text-brand-orange-ink">واسط</span>}
+          </strong>
           {driver.mobile && (
             <span dir="ltr" className="tw-block tw-text-xs tw-text-brand-muted">
               {driver.mobile}

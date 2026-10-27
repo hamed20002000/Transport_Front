@@ -62,7 +62,9 @@ export function watchSubscriptionRequired() {
   if (interceptorInstalled) return;
   interceptorInstalled = true;
   axios.interceptors.response.use(undefined, (error) => {
-    if (axios.isAxiosError(error) && error.response?.status === 402) window.dispatchEvent(new Event(SUBSCRIPTION_REQUIRED_EVENT));
+    // a company menu not bought (COMPANY_FEATURE_REQUIRED) is a 402 too, but the subscription is fine
+    const code = axios.isAxiosError(error) ? (error.response?.data as { code?: string } | undefined)?.code : undefined;
+    if (axios.isAxiosError(error) && error.response?.status === 402 && code !== 'COMPANY_FEATURE_REQUIRED') window.dispatchEvent(new Event(SUBSCRIPTION_REQUIRED_EVENT));
     return Promise.reject(error);
   });
 }

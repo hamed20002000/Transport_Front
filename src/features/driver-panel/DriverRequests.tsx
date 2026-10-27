@@ -6,7 +6,7 @@ import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { CardSkeleton, EmptyState, IconButton, LoadFailed, Pager, PhoneLinks, timeAgo } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { cancelRequest, errorMessage, listMyRequests, type CargoRequest } from './api';
-import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync } from './components';
+import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView } from './components';
 import { LoadSpecs, type ListingChangedEvent } from './DriverLoads';
 import DriverShell from './DriverShell';
 import { onRequest, useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
@@ -34,6 +34,7 @@ function RequestCard({
   onCancel: () => void;
   onAnswered: (request: CargoRequest) => void;
 }) {
+  const broker = useBrokerView();
   const listing = request.listing;
   if (!listing) return null;
   const ended = ['REJECTED', 'CANCELLED', 'DECLINED', 'EXPIRED'].includes(request.status);
@@ -55,7 +56,8 @@ function RequestCard({
               <Undo2 size={16} aria-hidden /> لغو درخواست
             </ActionButton>
           )}
-          {request.status === 'ACCEPTED' && (
+          {request.status === 'ACCEPTED' && broker && <span className="tw-text-sm tw-font-bold tw-text-emerald-700">قبول شد؛ راننده را با شرکت هماهنگ کنید</span>}
+          {request.status === 'ACCEPTED' && !broker && (
             <Link
               to="/account/driver/trip"
               className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-emerald-600 tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white tw-shadow-sm hover:tw-bg-emerald-700"
@@ -81,7 +83,7 @@ const steps = [
   { title: 'سفر', hint: 'موقعیت بفرستید و بعد از تخلیه «تحویل دادم» بزنید' },
 ];
 
-function RequestsContent() {
+export function RequestsContent() {
   const toast = useToast();
   const messageBox = useMessageBox();
   const [page, setPage] = useState(1);
