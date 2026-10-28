@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { ClipboardList, Handshake, PackageSearch, UserRound } from 'lucide-react';
+import { ClipboardList, Handshake, PackageSearch, Unlock, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -14,12 +14,14 @@ import { RequestsContent } from 'src/features/driver-panel/DriverRequests';
 import FactoryProfile from 'src/features/factory/FactoryProfile';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import { BrokerAccessBanner, BrokerAccessContent } from './BrokerAccess';
 
-type Tab = 'loads' | 'requests' | 'profile';
+type Tab = 'loads' | 'requests' | 'access' | 'profile';
 
 const tabs = [
   { value: 'loads' as const, label: 'بارها', icon: PackageSearch },
   { value: 'requests' as const, label: 'درخواست‌های من', icon: ClipboardList },
+  { value: 'access' as const, label: 'خرید شرکت‌ها', icon: Unlock },
   { value: 'profile' as const, label: 'پروفایل', icon: UserRound },
 ];
 
@@ -30,7 +32,13 @@ function PanelContent() {
   return (
     <div className="tw-space-y-5">
       <Segmented label="بخش پنل واسط" value={tab} onChange={(value) => setParams(value === 'loads' ? {} : { tab: value })} options={tabs} />
-      {tab === 'loads' && <LoadsContent />}
+      {tab === 'loads' && (
+        <>
+          <BrokerAccessBanner onBuy={() => setParams({ tab: 'access' })} />
+          <LoadsContent />
+        </>
+      )}
+      {tab === 'access' && <BrokerAccessContent />}
       {tab === 'requests' && <RequestsContent />}
       {tab === 'profile' && <FactoryProfile kind="BROKER" />}
     </div>

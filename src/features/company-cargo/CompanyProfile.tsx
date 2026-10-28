@@ -38,6 +38,7 @@ import { reloadCompanyFeatures } from './featuresApi';
 import { setCachedProfile } from './profileStore';
 import { CardSkeleton, LoadFailed, SectionTitle, Segmented } from './components';
 import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
+import EitaaLinkCard from 'src/shared/components/messenger/EitaaLinkCard';
 
 type Fields = Record<ProfileTextField, string> & { profileType: ProfileType | null };
 
@@ -362,6 +363,7 @@ export default function CompanyProfile() {
         <div className="tw-space-y-6">
           <ProfileContent />
           <PushDeviceCard />
+          <EitaaLinkCard />
         </div>
       </CompanyShell>
     </PageContainer>

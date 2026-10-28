@@ -225,3 +225,86 @@ export const approveFeatureOrder = (orderId: string) =>
 
 export const rejectFeatureOrder = (orderId: string, reason: string) =>
   unwrap(axios.post<{ success: boolean; data: { orderId: string } }>(`${features}/orders/${orderId}/reject`, { reason }, config()));
+
+// transport_backend admin/broker-access: whether a broker (واسط) buys the companies whose loads it sees, the prices,
+// and the receipts brokers send.
+export interface BrokerAccessPolicy {
+  enabled: boolean;
+  /** companies the base price covers */
+  includedCompanies: number;
+  basePrice: string;
+  /** each company past includedCompanies */
+  extraCompanyPrice: string;
+  durationDays: number;
+  currency: string;
+}
+
+export interface BrokerAccessOrder {
+  id: string;
+  userId: string;
+  broker: string | null;
+  mobile: string | null;
+  accountCode: string | null;
+  /** NEW: a new period; ADD: companies added to the open period */
+  kind: 'NEW' | 'ADD';
+  companies: { userId: string; name: string }[];
+  durationDays: number;
+  amount: string;
+  currency: string;
+  status: 'RECEIPT_SUBMITTED' | 'APPROVED' | 'REJECTED';
+  rejectionReason: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+}
+
+const brokerAccess = `${base}broker-access`;
+
+export const getBrokerPolicy = () => unwrap(axios.get<{ success: boolean; data: BrokerAccessPolicy }>(`${brokerAccess}/policy`, config()));
+
+export const saveBrokerPolicy = (policy: BrokerAccessPolicy) =>
+  unwrap(axios.put<{ success: boolean; data: BrokerAccessPolicy }>(`${brokerAccess}/policy`, policy, config()));
+
+export const listBrokerOrders = (status?: 'APPROVED' | 'REJECTED') =>
+  unwrap(axios.get<{ success: boolean; data: BrokerAccessOrder[] }>(`${brokerAccess}/orders`, { ...config(), params: status ? { status } : undefined }));
+
+/** The receipt photo, opened with the same receipts password as the subscription receipts. */
+export async function brokerReceiptImage(orderId: string, token: string): Promise<string> {
+  const request = config();
+  const { data } = await axios.get<Blob>(`${brokerAccess}/orders/${orderId}/receipt`, {
+    ...request,
+    headers: { ...request.headers, 'X-Receipt-Token': token },
+    responseType: 'blob',
+  });
+  return URL.createObjectURL(data);
+}
+
+export const approveBrokerOrder = (orderId: string) =>
+  unwrap(axios.post<{ success: boolean; data: { expireAt: string } }>(`${brokerAccess}/orders/${orderId}/approve`, {}, config()));
+
+export const rejectBrokerOrder = (orderId: string, reason: string) =>
+  unwrap(axios.post<{ success: boolean; data: { orderId: string } }>(`${brokerAccess}/orders/${orderId}/reject`, { reason }, config()));
+
+export interface AdminBroker {
+  userId: string;
+  name: string | null;
+  mobile: string | null;
+  accountCode: string | null;
+  /** end of the open period; null without one */
+  expireAt: string | null;
+  companies: number;
+}
+
+export interface AdminBrokerStatus {
+  period: { id: string; startAt: string; expireAt: string; companies: { userId: string; name: string }[] } | null;
+  next: { id: string; startAt: string; expireAt: string; companies: { userId: string; name: string }[] } | null;
+  companies: { userId: string; name: string }[];
+}
+
+export const listBrokers = () => unwrap(axios.get<{ success: boolean; data: AdminBroker[] }>(`${brokerAccess}/brokers`, config()));
+
+export const getBrokerStatus = (userId: string) =>
+  unwrap(axios.get<{ success: boolean; data: AdminBrokerStatus }>(`${brokerAccess}/brokers/${userId}`, config()));
+
+/** Access without a purchase (a gift or a make-good): a new period of days, or companies added to the open one. */
+export const grantBrokerAccess = (userId: string, kind: 'NEW' | 'ADD', companyUserIds: string[], days: number) =>
+  unwrap(axios.post<{ success: boolean; data: { expireAt: string } }>(`${brokerAccess}/brokers/${userId}/grants`, { kind, companyUserIds, days }, config()));

@@ -9,7 +9,7 @@ import {
   IconDashboard, IconApps, IconUserCircle, IconCircles, IconCategory, IconBuilding,
   IconPackage, IconGavel, IconPlus, IconChecklist, IconRoute, IconUserCog,
   IconInfoCircle, IconClipboardList, IconProgressCheck, IconGlobe, IconMap,
-  IconBoxSeam, IconBuildingWarehouse, IconReceipt, IconShoppingCart, IconCar,
+  IconBoxSeam, IconBuildingWarehouse, IconHeartHandshake, IconReceipt, IconShoppingCart, IconCar,
   IconBuildingFactory, IconFileInvoice, IconSitemap, IconHelmet, IconBuildingStore,
   IconArrowsExchange, IconFolders, IconBulb, IconTornado, IconListCheck, IconCalendar,
   IconFileDollar, IconTimeline, IconBriefcase, IconHierarchy, IconFileExport,
@@ -86,6 +86,7 @@ const ADMIN_SUBSCRIPTION_MENU = [
   { id: 'subscription-orders', title: 'رسیدهای پرداخت', href: '/admin/subscription-orders', icon: IconReceipt },
   { id: 'subscription-policy', title: 'تنظیمات اشتراک', href: '/admin/subscription-policy', icon: IconSettings },
   { id: 'company-features', title: 'امکانات شرکت‌های حمل‌ونقل', href: '/admin/company-features', icon: IconBuildingWarehouse },
+  { id: 'broker-access', title: 'خرید واسط', href: '/admin/broker-access', icon: IconHeartHandshake },
 ];
 
 export interface MenuitemsType {

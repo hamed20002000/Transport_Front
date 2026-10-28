@@ -217,6 +217,7 @@ const conflicts: Record<string, string> = {
   reserved: 'این بار فعلاً به راننده‌ی دیگری سپرده شده و منتظر تأیید اوست.',
   notOffered: 'این بار دیگر منتظر تأیید شما نیست.',
   offerExpired: 'مهلت تأیید این بار تمام شده است.',
+  notPurchased: 'بار این شرکت در شرکت‌های خریداری‌شده‌ی شما نیست؛ از بخش «خرید شرکت‌ها» اضافه‌اش کنید.',
 };
 
 export function errorMessage(error: unknown) {

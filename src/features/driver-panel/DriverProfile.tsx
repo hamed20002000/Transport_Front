@@ -40,6 +40,7 @@ import DriverShell from './DriverShell';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
+import EitaaLinkCard from 'src/shared/components/messenger/EitaaLinkCard';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 type TextKey = 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber';
@@ -656,6 +657,7 @@ export default function DriverProfilePage() {
       <div className="tw-space-y-6">
         <ProfileContent />
         <PushDeviceCard />
+        <EitaaLinkCard />
       </div>
     </DriverShell>
   );
