@@ -39,6 +39,8 @@ import {
 import DriverShell from './DriverShell';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
+import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 type TextKey = 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber';
 type Plate = { left: string; letter: string; middle: string; region: string };
@@ -382,7 +384,7 @@ function ProfileContent() {
 
   return (
     <form onSubmit={save} className="tw-space-y-6" noValidate>
-      <SectionTitle title="پروفایل راننده" hint="این اطلاعات به شرکت‌ها کمک می‌کند درخواست شما را سریع‌تر قبول کنند" />
+      <SectionTitle title="پروفایل راننده" hint="این اطلاعات به شرکت‌های حمل‌ونقل کمک می‌کند درخواست شما را سریع‌تر قبول کنند" />
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-5 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">
         <div
@@ -403,6 +405,7 @@ function ProfileContent() {
                 <Smartphone size={14} aria-hidden /> {profile.mobile}
               </span>
             )}
+            <AccountCode code={profile.accountCode} />
             {fields.vehicleType && (
               <span className="tw-inline-flex tw-items-center tw-gap-1">
                 <Truck size={14} aria-hidden /> {fields.vehicleType}
@@ -425,7 +428,7 @@ function ProfileContent() {
       <AnnouncementPreferences profile={profile} onSaved={setProfile} />
 
       <div className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-2">
-        <Card title="اطلاعات شخصی" hint="نام شما در درخواست بار به شرکت نمایش داده می‌شود" icon={User}>
+        <Card title="اطلاعات شخصی" hint="نام شما در درخواست بار به شرکت حمل‌ونقل نمایش داده می‌شود" icon={User}>
           <Field label="نام" icon={User}>{text('firstName', 'مثلاً رضا')}</Field>
           <Field label="نام خانوادگی" icon={User}>{text('lastName', 'مثلاً کریمی')}</Field>
           <Field label="کد ملی" icon={IdCard} error={shownErrors.nationalCode}>{text('nationalCode', '۱۰ رقم', { digits: true, max: 10, ltr: true })}</Field>
@@ -434,7 +437,7 @@ function ProfileContent() {
           </Field>
         </Card>
 
-        <Card title="مدارک راننده" hint="برای اعتماد بیشتر شرکت‌ها" icon={CreditCard}>
+        <Card title="مدارک راننده" hint="برای اعتماد بیشتر شرکت‌های حمل‌ونقل" icon={CreditCard}>
           <Field label="شماره کارت هوشمند راننده" icon={CreditCard} error={shownErrors.smartCardNumber}>{text('smartCardNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
           <Field label="شماره گواهینامه" icon={IdCard} error={shownErrors.licenseNumber}>{text('licenseNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
           <Field label="شهر محل فعالیت" icon={MapPin} hint="برای پیشنهاد بار برگشتی" className="sm:tw-col-span-2">{text('homeCity', 'مثلاً تبریز')}</Field>
@@ -496,12 +499,12 @@ function ProfileContent() {
           <div>
             <h3 className="tw-m-0 tw-text-base tw-font-bold">عکس خودتان، ماشین و پلاک</h3>
             <p className="tw-m-0 tw-flex tw-items-center tw-gap-1 tw-text-xs tw-text-brand-muted">
-              <Info size={12} aria-hidden /> اختیاری. عکس خودتان و ماشین را شرکتی می‌بیند که می‌خواهد بار را به شما بسپارد؛ عکس پلاک فقط برای خودتان است. عکس بلافاصله بعد از انتخاب ذخیره می‌شود.
+              <Info size={12} aria-hidden /> اختیاری. عکس خودتان و ماشین را شرکت حمل‌ونقلی می‌بیند که می‌خواهد بار را به شما بسپارد؛ عکس پلاک فقط برای خودتان است. عکس بلافاصله بعد از انتخاب ذخیره می‌شود.
             </p>
           </div>
         </div>
         <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
-          <PhotoSlot kind="face" title="عکس خودتان" hint="از روبه‌رو و واضح؛ شرکت‌ها هنگام سپردن بار می‌بینند" version={profile.photos.face} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
+          <PhotoSlot kind="face" title="عکس خودتان" hint="از روبه‌رو و واضح؛ شرکت‌های حمل‌ونقل هنگام سپردن بار می‌بینند" version={profile.photos.face} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
           <PhotoSlot kind="vehicle" title="عکس ماشین" hint="از کنار، طوری که کل ماشین دیده شود" version={profile.photos.vehicle} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
           <PhotoSlot kind="plate" title="عکس پلاک" hint="از روبه‌رو و خوانا" version={profile.photos.plate} onChange={(p) => setProfile({ ...profile, photos: p.photos })} />
         </div>
@@ -565,7 +568,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
       // only the companies of the chosen kind (and an inactive one, kept until it is unticked)
       const companyUserIds = memberships.filter((id) => kindCompanies.some((company) => company.userId === id) || unavailable.includes(id));
       onSaved(await updateDriverProfile({ tripTypes: driverKindTripTypes[kind], companyUserIds }));
-      toast.success(`شرکت‌ها و نوع راننده («${driverKindLabels[kind]}») ذخیره شدند.`);
+      toast.success(`شرکت‌های حمل‌ونقل و نوع راننده («${driverKindLabels[kind]}») ذخیره شدند.`);
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -586,11 +589,11 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
     >
       <div>
         <h3 className="tw-m-0 tw-text-base tw-font-bold">دریافت اعلام بار</h3>
-        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌هایی که عضو آن‌ها هستید و فقط بارهای نوع خودتان (داخلی یا بین‌المللی) اعلام می‌شود.</p>
+        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌های حمل‌ونقلی که عضو آن‌ها هستید و فقط بارهای نوع خودتان (داخلی یا بین‌المللی) اعلام می‌شود.</p>
       </div>
       {/* each kind with its own companies right under it: domestic companies under «داخلی», international under «بین‌المللی» */}
       <fieldset disabled={saving} className="tw-m-0 tw-min-w-0 tw-space-y-3 tw-border-0 tw-p-0">
-        <legend className="tw-mb-3 tw-text-sm tw-font-bold">نوع راننده؛ یکی را انتخاب کنید، بعد شرکت‌های همان نوع را</legend>
+        <legend className="tw-mb-3 tw-text-sm tw-font-bold">نوع راننده؛ یکی را انتخاب کنید، بعد شرکت‌های حمل‌ونقل همان نوع را</legend>
         <div role="radiogroup" aria-label="نوع راننده" className="tw-space-y-3">
           {driverKinds.map((value) => (
             <div key={value} className={cn('tw-rounded-xl tw-border', kind === value ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line')}>
@@ -606,10 +609,10 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
               </button>
               {kind === value && (
                 <div className="tw-space-y-3 tw-border-t tw-border-brand-line tw-p-3">
-                  <h4 className="tw-m-0 tw-text-sm tw-font-bold">شرکت‌های {driverKindLabels[value]} ({joined.toLocaleString('fa-IR')} انتخاب)</h4>
-                  <input aria-label={`جستجوی شرکت ${driverKindLabels[value]}`} placeholder="جستجوی نام شرکت…" value={search} onChange={(event) => setSearch(event.target.value)} className={inputClass} />
-                  {failed ? <div role="alert">دریافت شرکت‌ها انجام نشد. <button type="button" onClick={() => setVersion((v) => v + 1)}>تلاش دوباره</button></div>
-                    : companies === null ? <p role="status">در حال دریافت شرکت‌ها…</p>
+                  <h4 className="tw-m-0 tw-text-sm tw-font-bold">شرکت‌های حمل‌ونقل {driverKindLabels[value]} ({joined.toLocaleString('fa-IR')} انتخاب)</h4>
+                  <input aria-label={`جستجوی شرکت حمل‌ونقل ${driverKindLabels[value]}`} placeholder="جستجوی نام شرکت حمل‌ونقل…" value={search} onChange={(event) => setSearch(event.target.value)} className={inputClass} />
+                  {failed ? <div role="alert">دریافت شرکت‌های حمل‌ونقل انجام نشد. <button type="button" onClick={() => setVersion((v) => v + 1)}>تلاش دوباره</button></div>
+                    : companies === null ? <p role="status">در حال دریافت شرکت‌های حمل‌ونقل…</p>
                     : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
                       {visible.map((company) => company.isParent ? (
                         // always on: the parent company's loads reach every driver; the load filter can leave them out
@@ -626,12 +629,12 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
                           <span>{companyNameFor(company, value)}</span>
                         </label>
                       ))}
-                      {!visible.length && <p className="tw-text-sm tw-text-brand-muted">{kindCompanies.length ? 'شرکتی با این نام پیدا نشد.' : `هنوز شرکت ${driverKindLabels[value]}ی ثبت نشده است.`}</p>}
+                      {!visible.length && <p className="tw-text-sm tw-text-brand-muted">{kindCompanies.length ? 'شرکت حمل‌ونقلی با این نام پیدا نشد.' : `هنوز شرکت حمل‌ونقل ${driverKindLabels[value]}ی ثبت نشده است.`}</p>}
                       {unavailable.map((id) => <label key={id} className="tw-flex tw-items-center tw-gap-2 tw-p-3">
-                        <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت غیرفعال؛ برای حذف عضویت، تیک را بردارید
+                        <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت حمل‌ونقل غیرفعال؛ برای حذف عضویت، تیک را بردارید
                       </label>)}
                     </div>}
-                  {!joined && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">هنوز عضو شرکت {driverKindLabels[value]}ی نیستید و اعلام باری دریافت نمی‌کنید.</p>}
+                  {!joined && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">هنوز عضو شرکت حمل‌ونقل {driverKindLabels[value]}ی نیستید و اعلام باری دریافت نمی‌کنید.</p>}
                 </div>
               )}
             </div>
@@ -640,7 +643,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
       </fieldset>
       <button type="button" disabled={saving || companies === null || failed} onClick={savePreferences}
         className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-3 tw-font-bold tw-text-white disabled:tw-opacity-50">
-        {saving ? 'در حال ذخیره…' : 'ذخیره شرکت‌ها و نوع راننده'}
+        {saving ? 'در حال ذخیره…' : 'ذخیره شرکت‌های حمل‌ونقل و نوع راننده'}
       </button>
     </section>
   );
@@ -650,7 +653,10 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
 export default function DriverProfilePage() {
   return (
     <DriverShell title="پروفایل راننده">
-      <ProfileContent />
+      <div className="tw-space-y-6">
+        <ProfileContent />
+        <PushDeviceCard />
+      </div>
     </DriverShell>
   );
 }

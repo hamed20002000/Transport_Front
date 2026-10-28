@@ -179,7 +179,7 @@ export default function AdminStats() {
             <Chip tone="warn" label="باید اشتراک بخرند" value={drivers.mustSubscribe} />
           </div>
         </Tile>
-        <Tile icon={Building2} label="شرکت‌ها" value={fa(companies.total)} hint={`${fa(companies.newThisMonth)} شرکت در ۳۰ روز اخیر`}>
+        <Tile icon={Building2} label="شرکت‌های حمل‌ونقل" value={fa(companies.total)} hint={`${fa(companies.newThisMonth)} شرکت حمل‌ونقل در ۳۰ روز اخیر`}>
           <div className="tw-flex tw-flex-wrap tw-gap-1.5">
             <Chip tone="ok" label="با اشتراک" value={companies.subscribed} />
             <Chip tone="muted" label="بدون اشتراک" value={Math.max(0, companies.total - companies.subscribed)} />

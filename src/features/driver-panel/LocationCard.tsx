@@ -44,7 +44,7 @@ export default function LocationCard({ compact, onSent }: { compact?: boolean; o
   function sent(result: { sent: number; receivedAt: string }, latitude: number, longitude: number, where?: string) {
     state.setData({ latitude, longitude, liveUntil: null, receivedAt: result.receivedAt });
     const target = where ? `موقعیت ${where} ثبت شد` : 'موقعیت شما ثبت شد';
-    toast.success(result.sent ? `${target} و برای ${result.sent.toLocaleString('fa-IR')} شرکت فرستاده شد.` : `${target}.`);
+    toast.success(result.sent ? `${target} و برای ${result.sent.toLocaleString('fa-IR')} شرکت حمل‌ونقل فرستاده شد.` : `${target}.`);
     onSent?.();
   }
 
@@ -115,7 +115,7 @@ export default function LocationCard({ compact, onSent }: { compact?: boolean; o
           )}
           {!compact && (
             <p className="tw-m-0 tw-mt-2 tw-text-xs tw-leading-6 tw-text-brand-muted">
-              شرکتِ سفر فعال شما موقعیت را می‌بیند و فاصله‌تان تا مبدأ بارها هم از همین محاسبه می‌شود. برای موقعیت زنده، در ربات تلگرام «Live Location» بفرستید.
+              شرکت حمل‌ونقلِ سفر فعال شما موقعیت را می‌بیند و فاصله‌تان تا مبدأ بارها هم از همین محاسبه می‌شود. برای موقعیت زنده، در ربات تلگرام «Live Location» بفرستید.
             </p>
           )}
         </div>
@@ -175,7 +175,7 @@ export default function LocationCard({ compact, onSent }: { compact?: boolean; o
               <X size={16} aria-hidden />
             </button>
           </div>
-          <p className="tw-m-0 tw-text-[11px] tw-text-brand-muted">موقعیت تقریبی (مرکز شهر یا محله) برای شرکت ثبت می‌شود.</p>
+          <p className="tw-m-0 tw-text-[11px] tw-text-brand-muted">موقعیت تقریبی (مرکز شهر یا محله) برای شرکت حمل‌ونقل ثبت می‌شود.</p>
         </form>
       )}
     </section>

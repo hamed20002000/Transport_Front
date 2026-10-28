@@ -211,7 +211,7 @@ const conflicts: Record<string, string> = {
   taken: 'این بار دیگر باز نیست (برداشته شده).',
   own: 'این بار را خودتان اعلام کرده‌اید.',
   already: 'برای این بار قبلاً درخواست داده‌اید.',
-  rejected: 'شرکت قبلاً درخواست شما برای این بار را رد کرده است.',
+  rejected: 'شرکت حمل‌ونقل قبلاً درخواست شما برای این بار را رد کرده است.',
   notPending: 'این درخواست دیگر در انتظار نیست.',
   notActive: 'این سفر دیگر فعال نیست.',
   reserved: 'این بار فعلاً به راننده‌ی دیگری سپرده شده و منتظر تأیید اوست.',
@@ -240,6 +240,8 @@ export function errorMessage(error: unknown) {
 export interface DriverProfile {
   username: string;
   mobile: string | null;
+  /** the account's own code (transport_backend User.accountCode), e.g. 10023; null for accounts with no kind */
+  accountCode: string | null;
   firstName: string | null;
   lastName: string | null;
   nationalCode: string | null;

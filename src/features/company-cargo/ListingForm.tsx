@@ -54,7 +54,7 @@ function Group({ title, plain, children }: { title: string; plain: boolean; chil
 function previewText(fields: Fields, phones: string[], code: string) {
   const rows: Array<[string, string]> = [
     ['کد بار', code],
-    ['شرکت', fields.companyName],
+    ['شرکت حمل‌ونقل', fields.companyName],
     ['مبدا', fields.origin],
     ['مقصد', fields.destination],
     ['نوع بار', fields.cargoType],
@@ -280,7 +280,7 @@ export default function ListingForm<T = PublishedListing>({
       <Group title="اطلاعات تماس" plain={dialog}>
         <div className="tw-space-y-4">
           {!forCompany && (
-            <Field label="نام شرکت" icon={Building2}>
+            <Field label="نام شرکت حمل‌ونقل" icon={Building2}>
               <input className={inputClass} value={fields.companyName} onChange={set('companyName')} maxLength={listingLimits.companyName} />
             </Field>
           )}

@@ -28,7 +28,7 @@ export default function OfferAnswer({
     setBusy(accept ? 'yes' : 'no');
     try {
       const updated = await respondOffer(requestId, accept);
-      toast.success(accept ? 'بار را تأیید کردید؛ سفر شما شروع شد.' : 'بار را نپذیرفتید؛ به شرکت خبر دادیم.');
+      toast.success(accept ? 'بار را تأیید کردید؛ سفر شما شروع شد.' : 'بار را نپذیرفتید؛ به شرکت حمل‌ونقل خبر دادیم.');
       onAnswered(updated);
       window.dispatchEvent(new Event(DRIVER_LOADS_CHANGED_EVENT));
     } catch (error) {

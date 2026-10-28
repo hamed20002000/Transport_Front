@@ -37,6 +37,7 @@ import VerificationCard from './VerificationCard';
 import { reloadCompanyFeatures } from './featuresApi';
 import { setCachedProfile } from './profileStore';
 import { CardSkeleton, LoadFailed, SectionTitle, Segmented } from './components';
+import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
 
 type Fields = Record<ProfileTextField, string> & { profileType: ProfileType | null };
 
@@ -324,6 +325,7 @@ function ProfileContent() {
             <p className="tw-truncate tw-text-base tw-font-bold">{profile.companyName || fullName || profile.username}</p>
             <ReadOnly icon={User} label="نام کاربری" value={profile.username} />
             <ReadOnly icon={Smartphone} label="موبایل" value={profile.mobile} />
+            <ReadOnly icon={Hash} label="کد اختصاصی حساب" value={profile.accountCode} />
             <ReadOnly icon={AtSign} label="ایمیل" value={profile.email} />
           </section>
           <button
@@ -357,7 +359,10 @@ export default function CompanyProfile() {
   return (
     <PageContainer title="پروفایل | ترابوت" description="ویرایش اطلاعات شخصی و شرکتی">
       <CompanyShell>
-        <ProfileContent />
+        <div className="tw-space-y-6">
+          <ProfileContent />
+          <PushDeviceCard />
+        </div>
       </CompanyShell>
     </PageContainer>
   );

@@ -145,7 +145,7 @@ export function useLoadActions(
       const patch = { myRequest: { id: created.id, status: created.status } };
       update(load.id, patch);
       setDetails((current) => (current?.id === load.id ? { ...current, ...patch } : current));
-      say.success('درخواست شما برای شرکت فرستاده شد؛ جوابش را همین‌جا و در پیام‌رسان خبر می‌دهیم.');
+      say.success('درخواست شما برای شرکت حمل‌ونقل فرستاده شد؛ جوابش را همین‌جا و در پیام‌رسان خبر می‌دهیم.');
       options.onChanged?.();
     } catch (error) {
       say.error(errorMessage(error));
@@ -260,7 +260,7 @@ export function LoadsContent() {
         <div>
           <p className="tw-text-sm tw-font-bold tw-text-brand-orange-ink">پیدا کردن بار</p>
           <h1 className="tw-mt-1 tw-text-2xl tw-font-bold sm:tw-text-3xl">بارهای اعلام‌شده</h1>
-          <p className="tw-mt-2 tw-text-sm tw-text-brand-muted">بارهای باز شرکت‌ها را ببینید، مسیر و کرایه را بسنجید و درخواست بدهید</p>
+          <p className="tw-mt-2 tw-text-sm tw-text-brand-muted">بارهای باز شرکت‌های حمل‌ونقل را ببینید، مسیر و کرایه را بسنجید و درخواست بدهید</p>
         </div>
         <IconButton icon={RefreshCw} label="به‌روزرسانی" onClick={state.reload} spinning={state.loading} />
       </div>
@@ -339,7 +339,7 @@ export function LoadsContent() {
           hint={
             scope === 'mine'
               ? 'فقط بارهایی نمایش داده می‌شوند که با فیلترهای شما جورند. «همه بارها» را امتحان کنید یا فیلترها را باز کنید.'
-              : 'به محض اینکه شرکتی بار تازه اعلام کند، همین‌جا و در پیام‌رسان‌هایتان خبر می‌دهیم.'
+              : 'به محض اینکه شرکت حمل‌ونقلی بار تازه اعلام کند، همین‌جا و در پیام‌رسان‌هایتان خبر می‌دهیم.'
           }
         />
       ) : (

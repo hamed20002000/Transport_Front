@@ -22,11 +22,11 @@ export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivere
 
   // the driver reports it; the load becomes «تحویل‌شده» once the company confirms
   async function deliver() {
-    if (!(await messageBox.confirm({ title: 'اعلام تحویل', message: 'تحویل این بار را اعلام می‌کنید؟ شرکت خبردار می‌شود و بعد از تأیید شرکت، بار تحویل‌شده می‌شود.', confirmText: 'اعلام تحویل' }))) return;
+    if (!(await messageBox.confirm({ title: 'اعلام تحویل', message: 'تحویل این بار را اعلام می‌کنید؟ شرکت حمل‌ونقل خبردار می‌شود و بعد از تأیید آن، بار تحویل‌شده می‌شود.', confirmText: 'اعلام تحویل' }))) return;
     setSaving(true);
     try {
       onDelivered(await markDelivered(trip.id));
-      toast.success('اعلام تحویل ثبت شد و به شرکت خبر دادیم. بعد از تأیید شرکت، بار تحویل‌شده می‌شود.');
+      toast.success('اعلام تحویل ثبت شد و به شرکت حمل‌ونقل خبر دادیم. بعد از تأیید آن، بار تحویل‌شده می‌شود.');
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -81,7 +81,7 @@ export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivere
         {listing.extraNotes && <p className="tw-m-0 tw-mt-3 tw-text-sm tw-leading-7 tw-text-brand-muted">{listing.extraNotes}</p>}
         {!!listing.contactPhones.length && (
           <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-xs tw-text-brand-muted">
-            تماس با شرکت: <PhoneLinks phones={listing.contactPhones} />
+            تماس با شرکت حمل‌ونقل: <PhoneLinks phones={listing.contactPhones} />
           </div>
         )}
       </div>
@@ -89,7 +89,7 @@ export function TripCard({ trip, onDelivered }: { trip: CargoRequest; onDelivere
       <div className="tw-mt-5 tw-flex tw-flex-wrap tw-gap-2">
         {trip.deliveryReportedAt ? (
           <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-white/15 tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white">
-            <Timer size={16} aria-hidden /> تحویل را {timeAgo(trip.deliveryReportedAt)} اعلام کردید؛ منتظر تأیید شرکت
+            <Timer size={16} aria-hidden /> تحویل را {timeAgo(trip.deliveryReportedAt)} اعلام کردید؛ منتظر تأیید شرکت حمل‌ونقل
           </span>
         ) : (
           <ActionButton variant="success" onClick={deliver} busy={saving}>
@@ -128,7 +128,7 @@ function TripContent() {
         <div>
           <p className="tw-text-sm tw-font-bold tw-text-brand-orange-ink">در جاده</p>
           <h1 className="tw-mt-1 tw-text-2xl tw-font-bold sm:tw-text-3xl">سفر فعال</h1>
-          <p className="tw-mt-2 tw-text-sm tw-text-brand-muted">باری که شرکت درخواستتان را قبول کرده؛ موقعیت بفرستید و تحویل را ثبت کنید</p>
+          <p className="tw-mt-2 tw-text-sm tw-text-brand-muted">باری که شرکت حمل‌ونقل درخواستتان را قبول کرده؛ موقعیت بفرستید و تحویل را ثبت کنید</p>
         </div>
         <IconButton icon={RefreshCw} label="به‌روزرسانی" onClick={state.reload} spinning={state.loading} />
       </div>
@@ -138,7 +138,7 @@ function TripContent() {
       ) : state.failed ? (
         <LoadFailed onRetry={state.reload} />
       ) : !trips.length ? (
-        <EmptyState icon={Navigation} title="سفر فعالی ندارید" hint="وقتی شرکتی درخواست شما را قبول کند، سفر اینجا می‌آید. از «بارها» برای بارهای باز درخواست بدهید." />
+        <EmptyState icon={Navigation} title="سفر فعالی ندارید" hint="وقتی شرکت حمل‌ونقلی درخواست شما را قبول کند، سفر اینجا می‌آید. از «بارها» برای بارهای باز درخواست بدهید." />
       ) : (
         <div className="tw-space-y-5">
           {trips.map((trip) => (

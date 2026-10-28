@@ -152,7 +152,7 @@ export function CompanyOnly({ children }: { children: ReactNode }) {
   if (!userRoles.some((role) => role.name === 'COMPANY'))
     return (
       <div dir="rtl" className="tw-p-6">
-        <ErrorBox message="این بخش فقط برای حساب شرکت در دسترس است." />
+        <ErrorBox message="این بخش فقط برای حساب شرکت حمل‌ونقل در دسترس است." />
       </div>
     );
   return <>{children}</>;

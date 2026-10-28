@@ -51,7 +51,7 @@ const lists: Array<{ key: ListKey; label: string; icon: LucideIcon; placeholder:
   { key: 'cargoTypes', label: 'نوع بار', icon: Package, placeholder: 'مثلاً آهن‌آلات' },
   { key: 'vehicleTypes', label: 'نوع خودرو', icon: Truck, placeholder: 'مثلاً تریلی' },
   // Only cargo published by a company carries its name, so this list is offered to drivers alone.
-  { key: 'companies', label: 'شرکت اعلام‌کننده', icon: Building2, placeholder: 'مثلاً باربری ستاره' },
+  { key: 'companies', label: 'شرکت حمل‌ونقل اعلام‌کننده', icon: Building2, placeholder: 'مثلاً باربری ستاره' },
 ];
 
 const listsFor = (audience: FilterAudience) => lists.filter(({ key }) => key !== 'companies' || audience === 'driver');

@@ -12,13 +12,13 @@ import Loadable from 'src/shared/components/loadable/Loadable';
 const BrokerPanel = Loadable(lazy(() => import('src/features/broker/BrokerPanel')));
 
 const accounts = {
-  COMPANY: { path: '/account/company', title: 'شرکت', icon: Building2, profile: '/account/company/profile' },
+  COMPANY: { path: '/account/company', title: 'شرکت حمل‌ونقل', icon: Building2, profile: '/account/company/profile' },
   // straight to «دریافت اعلام بار» (only while the driver is in no company: until then no load reaches them)
   DRIVER: { path: '/account/driver', title: 'راننده', icon: Truck, profile: '/account/driver/profile#announcements' },
   // the broker panel opens on its profile until a parent company approves it (features/broker)
   BROKER: { path: '/account/broker', title: 'واسط', icon: Handshake, profile: undefined },
   // the factory panel is in features/factory (only sending loads to the companies that invited it)
-  FACTORY: { path: '/account/factory', title: 'کارخانه', icon: Factory, profile: undefined },
+  FACTORY: { path: '/account/factory', title: 'شرکت / کارخانه', icon: Factory, profile: undefined },
 };
 
 const companyTiles = [
@@ -26,7 +26,7 @@ const companyTiles = [
   { to: '/account/company/cargo/new', title: 'ثبت بار', icon: SquarePlus },
   { to: '/account/company/published', title: 'بارهای منتشرشده', icon: Archive },
   { to: '/account/company/channels', title: 'گروه‌ها و کانال‌ها', icon: Link2 },
-  { to: '/account/company/factories', title: 'کارخانه‌ها', icon: Factory },
+  { to: '/account/company/factories', title: 'شرکت‌ها / کارخانه‌ها', icon: Factory },
   { to: '/account/company/filters', title: 'تنظیمات نمایش بار', icon: SlidersHorizontal },
   { to: '/account/company/profile', title: 'پروفایل', icon: UserRound },
 ];
@@ -62,8 +62,8 @@ function CompanyHome({ username }: { username: string }) {
   return (
     <CompanyShell>
       <div className="tw-space-y-8">
-        <Welcome title="شرکت" username={username} />
-        <nav aria-label="بخش‌های شرکت" className="tw-grid tw-grid-cols-2 tw-gap-3 sm:tw-max-w-2xl sm:tw-grid-cols-3">
+        <Welcome title="شرکت حمل‌ونقل" username={username} />
+        <nav aria-label="بخش‌های شرکت حمل‌ونقل" className="tw-grid tw-grid-cols-2 tw-gap-3 sm:tw-max-w-2xl sm:tw-grid-cols-3">
           {companyTiles.map(({ to, title, icon: TileIcon }) => (
             <Link
               key={to}

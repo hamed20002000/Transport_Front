@@ -26,6 +26,7 @@ import {
   type FactoryCompany,
   type FactoryLoad,
 } from './api';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 type Tab = 'single' | 'excel' | 'history' | 'profile';
 
@@ -177,9 +178,9 @@ function PanelContent() {
           disabled={!company}
           load={async () => ({ contactPhones: (await getFactoryDraft()).contactPhones })}
           submit={(input) => sendFactoryLoad(companyId, input)}
-          submitLabel={company ? `ارسال برای ${company.name}` : 'ارسال برای شرکت'}
+          submitLabel={company ? `ارسال برای ${company.name}` : 'ارسال برای شرکت حمل‌ونقل'}
           onDone={() => {
-            toast.success(`بار برای ${company?.name ?? 'شرکت'} فرستاده شد و در بارهای پیشنهادی آن است.`);
+            toast.success(`بار برای ${company?.name ?? 'شرکت حمل‌ونقل'} فرستاده شد و در بارهای پیشنهادی آن است.`);
             setFormKey((value) => value + 1);
           }}
         />
@@ -192,7 +193,7 @@ function PanelContent() {
           importFile={(file, dryRun) => importFactoryExcel(companyId, file, dryRun)}
           downloadTemplate={downloadFactoryTemplate}
           onDone={(created) => {
-            toast.success(`${fa(created.length)} بار برای ${company?.name ?? 'شرکت'} فرستاده شد.`);
+            toast.success(`${fa(created.length)} بار برای ${company?.name ?? 'شرکت حمل‌ونقل'} فرستاده شد.`);
             setTab('history');
           }}
         />
@@ -227,12 +228,13 @@ function VerifiedPanel() {
 /** The factory's whole panel: send loads (one by one or with Excel) to the transport companies that invited it. */
 export default function FactoryPanel() {
   const { username, isAuth, isAuthDataLoading, userRoles } = useAuth();
-  const name = displayName(useProfile());
+  const profile = useProfile();
+  const name = displayName(profile);
   if (isAuthDataLoading) return <Spinner />;
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'FACTORY')) return <Navigate to="/auth/404" replace />;
   return (
-    <PageContainer title="پنل کارخانه | ترابوت" description="ثبت بار کارخانه برای شرکت‌های حمل‌ونقل">
+    <PageContainer title="پنل شرکت / کارخانه | ترابوت" description="ثبت بار شرکت / کارخانه برای شرکت‌های حمل‌ونقل">
       <div dir="rtl" lang="fa" className="tw-min-h-[100dvh] tw-overflow-x-clip tw-bg-brand-bg tw-text-brand-navy">
         <header className="tw-sticky tw-top-0 tw-z-20 tw-border-b tw-border-brand-line tw-bg-white/95 tw-pt-[env(safe-area-inset-top)] tw-backdrop-blur">
           <div className="tw-mx-auto tw-flex tw-h-16 tw-max-w-5xl tw-items-center tw-justify-between tw-gap-3 tw-px-4 sm:tw-px-6">
@@ -240,8 +242,9 @@ export default function FactoryPanel() {
               <img src={trabotIcon} alt="" className="tw-h-9 tw-w-9 tw-shrink-0 tw-rounded-xl tw-object-cover" />
               <strong className="tw-truncate">{name || username}</strong>
               <span className="tw-inline-flex tw-shrink-0 tw-items-center tw-gap-1 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">
-                <Factory size={12} aria-hidden /> کارخانه
+                <Factory size={12} aria-hidden /> شرکت / کارخانه
               </span>
+              <AccountCode code={profile?.accountCode} />
             </div>
             <SignOutButton />
           </div>

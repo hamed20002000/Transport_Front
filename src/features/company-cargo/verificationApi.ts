@@ -24,6 +24,8 @@ export interface VerificationRequest {
   userId: string;
   kind: 'COMPANY' | 'FACTORY' | 'BROKER';
   mobile: string | null;
+  /** the account's own code (transport_backend User.accountCode), e.g. 10023; null for accounts with no kind */
+  accountCode: string | null;
   status: VerificationStatus;
   requests: number;
   remaining: number;

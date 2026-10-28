@@ -10,6 +10,6 @@ export enum AccountType {
 export const SELF_SERVICE_ACCOUNT_TYPES = [
   { type: AccountType.Driver, label: 'راننده', hint: 'دیدن بارها، اعلام آمادگی و وضعیت مرزها' },
   { type: AccountType.Company, label: 'شرکت حمل‌ونقل', hint: 'ثبت و اعلام بار به رانندگان' },
-  { type: AccountType.Factory, label: 'کارخانه', hint: 'ثبت بار و فرستادن آن برای شرکت حمل‌ونقل' },
+  { type: AccountType.Factory, label: 'شرکت / کارخانه', hint: 'ثبت بار و فرستادن آن برای شرکت حمل‌ونقل' },
   { type: AccountType.Broker, label: 'واسط', hint: 'دیدن بارها و درخواست بار' },
 ] as const;

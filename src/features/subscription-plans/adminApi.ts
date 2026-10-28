@@ -157,6 +157,7 @@ export interface AdminCompany {
   userId: string;
   name: string | null;
   mobile: string | null;
+  accountCode: string | null;
   isParentCompany: boolean;
 }
 
@@ -175,6 +176,7 @@ export interface CompanyFeatureOrder {
   userId: string;
   company: string | null;
   mobile: string | null;
+  accountCode: string | null;
   feature: CompanyFeature;
   title: string;
   durationDays: number;

@@ -12,6 +12,7 @@ import CompanyShell from './CompanyShell';
 import { CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, PrimaryButton, RouteLine, SecondaryButton, SectionTitle, Spec, timeAgo } from './components';
 import { useNotificationEvent } from './notificationSocket';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 const PAGE_SIZE = 20;
 
@@ -40,6 +41,7 @@ function RequestCard({ request, busy, onDecide }: { request: CompanyRequest; bus
           <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
             <p className="tw-m-0 tw-font-bold">
               {driver.name}
+              <AccountCode code={driver.accountCode} className="tw-mr-1.5 tw-align-middle" />
               {driver.broker && <span className="tw-mr-1.5 tw-inline-flex tw-items-center tw-rounded-full tw-bg-brand-orange-soft tw-px-2 tw-py-0.5 tw-align-middle tw-text-[11px] tw-font-medium tw-text-brand-orange-ink">واسط</span>}
             </p>
             <p className="tw-m-0 tw-text-xs tw-text-brand-muted">

@@ -48,10 +48,10 @@ function InviteCard({ invite, open, onToggle, featureCount }: { invite: CompanyI
         <InviteLinks
           link={link}
           messengers={invite.messengers}
-          who="شرکت"
-          note={`این لینک فقط برای شماره‌ی ${invite.mobile} کار می‌کند؛ شرکت با همین شماره و کد پیامکی وارد می‌شود.`}
-          messengerNote={`اگر شرکت با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${invite.mobile} را بدهد.`}
-          shareText={`حساب شرکت شما در سامانه ساخته شد. برای ورود، این لینک را باز کنید و با شماره‌ی ${invite.mobile} وارد شوید:\n${link}`}
+          who="شرکت حمل‌ونقل"
+          note={`این لینک فقط برای شماره‌ی ${invite.mobile} کار می‌کند؛ شرکت حمل‌ونقل با همین شماره و کد پیامکی وارد می‌شود.`}
+          messengerNote={`اگر شرکت حمل‌ونقل با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${invite.mobile} را بدهد.`}
+          shareText={`حساب شرکت حمل‌ونقل شما در سامانه ساخته شد. برای ورود، این لینک را باز کنید و با شماره‌ی ${invite.mobile} وارد شوید:\n${link}`}
         />
       )}
     </article>
@@ -90,9 +90,9 @@ function InvitesContent() {
       setOpened(invite.token);
       setMobile('');
       setName('');
-      const smsNote = inviteSmsText(invite.sms, 'شرکت');
-      if (invite.sms.status === 'sent') toast.success(`حساب شرکت ساخته شد. ${smsNote}`);
-      else toast.info(`حساب شرکت ساخته شد. ${smsNote}`);
+      const smsNote = inviteSmsText(invite.sms, 'شرکت حمل‌ونقل');
+      if (invite.sms.status === 'sent') toast.success(`حساب شرکت حمل‌ونقل ساخته شد. ${smsNote}`);
+      else toast.info(`حساب شرکت حمل‌ونقل ساخته شد. ${smsNote}`);
     } catch (error) {
       toast.error(factoryError(error));
     } finally {
@@ -103,21 +103,21 @@ function InvitesContent() {
   return (
     <div className="tw-space-y-6">
       <SectionTitle
-        title="دعوت شرکت‌ها"
+        title="دعوت شرکت‌های حمل‌ونقل"
         hint="شماره‌ی شرکت حمل‌ونقل را وارد کنید تا حسابش ساخته شود؛ بعد لینک یا کد دعوت را برایش بفرستید. همه‌ی بخش‌های پنلش تا وقتی آن‌ها را نخرد قفل‌اند."
       />
 
       <form onSubmit={submit} className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm" aria-busy={saving}>
         <h3 className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-base tw-font-bold">
-          <UserPlus size={18} aria-hidden /> دعوت شرکت تازه
+          <UserPlus size={18} aria-hidden /> دعوت شرکت حمل‌ونقل تازه
         </h3>
         <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
           <label className="tw-space-y-1.5 tw-text-sm tw-font-medium">
-            شماره موبایل شرکت <span className="tw-text-brand-orange" aria-hidden>*</span>
+            شماره موبایل شرکت حمل‌ونقل <span className="tw-text-brand-orange" aria-hidden>*</span>
             <input value={mobile} onChange={(event) => setMobile(event.target.value)} inputMode="tel" dir="ltr" placeholder="0912 123 4567" maxLength={20} className={cn(inputClass, 'tw-text-left')} />
           </label>
           <label className="tw-space-y-1.5 tw-text-sm tw-font-medium">
-            نام شرکت (اختیاری)
+            نام شرکت حمل‌ونقل (اختیاری)
             <input value={name} onChange={(event) => setName(event.target.value)} maxLength={200} placeholder="مثلاً باربری آسا" className={inputClass} />
           </label>
         </div>
@@ -132,13 +132,13 @@ function InvitesContent() {
       </form>
 
       <section className="tw-space-y-3">
-        <h3 className="tw-m-0 tw-text-base tw-font-bold">شرکت‌های دعوت‌شده ({fa(invites?.length ?? 0)})</h3>
+        <h3 className="tw-m-0 tw-text-base tw-font-bold">شرکت‌های حمل‌ونقل دعوت‌شده ({fa(invites?.length ?? 0)})</h3>
         {failed ? (
           <LoadFailed onRetry={load} />
         ) : !invites ? (
           <CardSkeleton />
         ) : !invites.length ? (
-          <EmptyState icon={Building2} title="هنوز شرکتی دعوت نکرده‌اید" hint="با شماره‌ی شرکت، حسابش را بسازید و لینک دعوت را برایش بفرستید." />
+          <EmptyState icon={Building2} title="هنوز شرکت حمل‌ونقلی دعوت نکرده‌اید" hint="با شماره‌ی شرکت حمل‌ونقل، حسابش را بسازید و لینک دعوت را برایش بفرستید." />
         ) : (
           invites.map((invite) => (
             <InviteCard

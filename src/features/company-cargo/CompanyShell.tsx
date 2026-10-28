@@ -14,6 +14,7 @@ import { useNotificationEvent } from './notificationSocket';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { COMPANY_FEATURES_PATH, featureByPath, lockedFeature, reloadCompanyFeatures, useCompanyFeatures } from './featuresApi';
 import FeatureLocked from './FeatureLocked';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 const items = [
   { to: '/account/company', label: 'خانه', icon: House, match: (path: string, tab: string | null) => path === '/account/company' && !tab },
@@ -24,13 +25,13 @@ const items = [
   { to: '/account/company/trips', label: 'سفرها', icon: Truck, match: (path: string) => path === '/account/company/trips' },
   { to: '/account/company/drivers', label: 'رانندگان', icon: Users, match: (path: string) => path === '/account/company/drivers' },
   { to: '/account/company/channels', label: 'کانال‌ها', icon: Link2, match: (path: string) => path === '/account/company/channels' },
-  { to: '/account/company/factories', label: 'کارخانه‌ها', icon: Factory, match: (path: string) => path === '/account/company/factories' },
+  { to: '/account/company/factories', label: 'شرکت‌ها / کارخانه‌ها', icon: Factory, match: (path: string) => path === '/account/company/factories' },
   { to: '/account/company/profile', label: 'پروفایل', icon: Building2, match: (path: string) => path === '/account/company/profile' },
   { to: COMPANY_FEATURES_PATH, label: 'خرید امکانات', icon: Gem, match: (path: string) => path === COMPANY_FEATURES_PATH },
 ];
 // only the parent company: inviting new transport companies, and checking those that signed up on their own
 const PARENT_ITEMS = [
-  { to: '/account/company/companies', label: 'دعوت شرکت‌ها', icon: Crown, match: (path: string) => path === '/account/company/companies' },
+  { to: '/account/company/companies', label: 'دعوت شرکت‌های حمل‌ونقل', icon: Crown, match: (path: string) => path === '/account/company/companies' },
   { to: '/account/company/verifications', label: 'بررسی اعتبار', icon: BadgeCheck, match: (path: string) => path === '/account/company/verifications' },
 ];
 
@@ -41,7 +42,8 @@ const UnreadContext = createContext<(count: number | undefined) => void>(() => u
 
 // Company frame with a shared floating navigation drawer.
 function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
-  const name = displayName(useProfile());
+  const profile = useProfile();
+  const name = displayName(profile);
   const toast = useToast();
   // Trips with no delivery registered for days: a count on the «سفرها» tab, so a reminder missed while offline still shows.
   const [overdue, setOverdue] = useState<{ count: number; days: number } | null>(null);
@@ -81,7 +83,7 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
         {/* phones: the name gets the first row whole, the icons go to a second row; one row from sm up */}
         <div className="tw-mx-auto tw-flex tw-min-h-[4rem] tw-max-w-5xl tw-flex-wrap tw-items-center tw-justify-between tw-gap-x-2 tw-gap-y-1 tw-px-3 tw-py-2 sm:tw-h-16 sm:tw-flex-nowrap sm:tw-px-6 sm:tw-py-0">
           <FloatingPanelNav
-            title="منوی شرکت"
+            title="منوی شرکت حمل‌ونقل"
             items={[...items, ...(features?.isParent ? PARENT_ITEMS : [])].map((item) => ({
               ...item,
               label: lockedFeature(features, featureByPath[item.to]) ? `${item.label} 🔒` : item.label,
@@ -96,8 +98,9 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
           />
           <div className="tw-min-w-0 tw-flex-1">
             <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-              <strong className="tw-line-clamp-2 tw-text-base tw-font-bold tw-leading-snug sm:tw-line-clamp-none sm:tw-truncate sm:tw-text-lg sm:tw-leading-none">{name || 'پنل شرکت'}</strong>
-              {name && <span className="tw-shrink-0 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">شرکت</span>}
+              <strong className="tw-line-clamp-2 tw-text-base tw-font-bold tw-leading-snug sm:tw-line-clamp-none sm:tw-truncate sm:tw-text-lg sm:tw-leading-none">{name || 'پنل شرکت حمل‌ونقل'}</strong>
+              {name && <span className="tw-shrink-0 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">شرکت حمل‌ونقل</span>}
+              <AccountCode code={profile?.accountCode} />
             </div>
           </div>
           <div className="tw-flex tw-w-full tw-shrink-0 tw-items-center tw-justify-end tw-gap-1 sm:tw-w-auto sm:tw-gap-1.5">
@@ -128,8 +131,8 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
             </Link>
             <Link
               to="/account/company/profile"
-              aria-label="پروفایل شرکت"
-              title="پروفایل شرکت"
+              aria-label="پروفایل شرکت حمل‌ونقل"
+              title="پروفایل شرکت حمل‌ونقل"
               className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-brand-orange"
             >
               <Truck size={20} aria-hidden />
@@ -177,7 +180,7 @@ function Unverified() {
         <ShieldCheck size={26} aria-hidden />
       </span>
       <p className="tw-m-0 tw-text-lg tw-font-bold">حساب شما تا بررسی اعتبار فعال نیست</p>
-      <p className="tw-m-0 tw-max-w-sm tw-text-sm tw-leading-7 tw-text-brand-muted">پروفایل شرکت را کامل کنید و «درخواست بررسی اعتبار» را بزنید؛ بعد از تأیید شرکت مادر، پنل باز می‌شود.</p>
+      <p className="tw-m-0 tw-max-w-sm tw-text-sm tw-leading-7 tw-text-brand-muted">پروفایل شرکت حمل‌ونقل را کامل کنید و «درخواست بررسی اعتبار» را بزنید؛ بعد از تأیید شرکت مادر، پنل باز می‌شود.</p>
       <Link to={PROFILE_PATH} className="tw-mt-2 tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark">
         رفتن به پروفایل
       </Link>

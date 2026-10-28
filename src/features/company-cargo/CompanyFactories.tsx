@@ -7,6 +7,7 @@ import { createFactoryInvite, factoryError, getCompanyFactories, inviteSmsText, 
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, SectionTitle } from './components';
 import InviteLinks from './InviteLinks';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -26,7 +27,7 @@ function FactoryCard({ factory, open, onToggle, onRemove, removing }: { factory:
         <button type="button" onClick={onToggle} disabled={!link} aria-expanded={open} className="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-justify-between tw-gap-3 tw-border-0 tw-bg-transparent tw-p-0 tw-text-start">
           <span className="tw-min-w-0">
             <span className="tw-flex tw-items-center tw-gap-2 tw-font-bold">
-              <Factory size={16} aria-hidden className="tw-text-brand-muted" /> {factory.name}
+              <Factory size={16} aria-hidden className="tw-text-brand-muted" /> {factory.name} <AccountCode code={factory.accountCode} />
             </span>
             <span className="tw-mt-1 tw-block tw-text-xs tw-text-brand-muted">
               {factory.mobile && <span dir="ltr">{factory.mobile}</span>} · عضو از {faDate(factory.joinedAt)} · {fa(factory.loads)} بار
@@ -53,7 +54,7 @@ function FactoryCard({ factory, open, onToggle, onRemove, removing }: { factory:
         <InviteLinks
           link={link}
           messengers={factory.messengers}
-          who="کارخانه"
+          who="شرکت / کارخانه"
           note={`این لینک فقط برای شماره‌ی ${factory.mobile} کار می‌کند؛ کارخانه با همین شماره و کد پیامکی وارد می‌شود.`}
           messengerNote={`اگر کارخانه با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${factory.mobile} را بدهد.`}
           shareText={`برای ثبت بارهای کارخانه‌تان این لینک را باز کنید و با شماره‌ی ${factory.mobile} وارد شوید؛ بار مستقیم به دست ما می‌رسد:\n${link}`}
@@ -94,7 +95,7 @@ function FactoriesContent() {
       const invite = await createFactoryInvite(number, name.trim() || undefined);
       setMobile('');
       setName('');
-      const smsNote = inviteSmsText(invite.sms, 'کارخانه');
+      const smsNote = inviteSmsText(invite.sms, 'شرکت / کارخانه');
       if (invite.sms.status === 'sent') toast.success(`کارخانه اضافه شد. ${smsNote}`);
       else toast.info(`کارخانه اضافه شد. ${smsNote}`);
       setFactories(await getCompanyFactories());
@@ -143,7 +144,7 @@ function FactoriesContent() {
             <input value={name} onChange={(event) => setName(event.target.value)} maxLength={200} placeholder="مثلاً کارخانه سیمان تهران" className={inputClass} />
           </label>
         </div>
-        <p className="tw-m-0 tw-text-xs tw-text-brand-muted">کارخانه‌ای که شرکت دیگری قبلاً دعوتش کرده، فقط به لیست شما هم اضافه می‌شود. شماره‌ی راننده یا شرکت را نمی‌شود دعوت کرد.</p>
+        <p className="tw-m-0 tw-text-xs tw-text-brand-muted">کارخانه‌ای که شرکت حمل‌ونقل دیگری قبلاً دعوتش کرده، فقط به لیست شما هم اضافه می‌شود. شماره‌ی راننده یا شرکت را نمی‌شود دعوت کرد.</p>
         <button
           type="submit"
           disabled={saving || !mobile.trim()}

@@ -10,6 +10,7 @@ import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, Pager, PhoneLinks, SectionTitle, Segmented } from './components';
 import { useNotificationEvent } from './notificationSocket';
 import DriverInvites from './DriverInvites';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 const PAGE_SIZE = 20;
 const fa = (value: number) => value.toLocaleString('fa-IR');
@@ -26,7 +27,7 @@ function DriverItem({ driver }: { driver: DriverCard }) {
     <li className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
       <DriverPhoto driver={driver} />
       <div className="tw-min-w-0 tw-flex-1 tw-space-y-1.5">
-        <p className="tw-m-0 tw-font-bold">{driver.name}</p>
+        <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-font-bold">{driver.name}<AccountCode code={driver.accountCode} /></p>
         {(vehicle || driver.plate) && (
           <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-x-2 tw-gap-y-1 tw-text-sm">
             {vehicle && (

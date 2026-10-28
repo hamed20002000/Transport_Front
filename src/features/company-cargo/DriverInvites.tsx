@@ -83,7 +83,7 @@ function Outcomes({ outcomes, sms }: { outcomes: DriverInviteOutcome[]; sms: Inv
             {outcome.status === 'refused' ? <CircleX size={14} className="tw-shrink-0 tw-text-red-600" aria-hidden /> : <CircleCheck size={14} className="tw-shrink-0 tw-text-emerald-600" aria-hidden />}
             <span dir="ltr">{outcome.mobile}</span>
             <span className="tw-text-brand-muted">
-              {outcome.status === 'refused' ? outcome.reason : outcome.status === 'created' ? 'حساب راننده ساخته شد' : 'راننده‌ی سامانه بود؛ شرکت شما به لیستش اضافه شد'}
+              {outcome.status === 'refused' ? outcome.reason : outcome.status === 'created' ? 'حساب راننده ساخته شد' : 'راننده‌ی سامانه بود؛ شرکت حمل‌ونقل شما به لیستش اضافه شد'}
             </span>
           </li>
         ))}
@@ -168,7 +168,7 @@ export default function DriverInvites() {
 
   async function remove(invite: DriverInvite) {
     const confirmed = await messageBox.confirm({
-      message: `دعوت «${invite.name}» باطل و شرکت شما از لیست شرکت‌های این راننده برداشته شود؟ دیگر بارهای شما برایش اعلام نمی‌شود.`,
+      message: `دعوت «${invite.name}» باطل و شرکت حمل‌ونقل شما از لیست شرکت‌های حمل‌ونقل این راننده برداشته شود؟ دیگر بارهای شما برایش اعلام نمی‌شود.`,
       confirmText: 'حذف',
       tone: 'danger',
     });

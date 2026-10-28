@@ -9,7 +9,7 @@ export default function FeatureLocked({ title, feature }: { title: string; featu
       <span className="tw-flex tw-h-14 tw-w-14 tw-items-center tw-justify-center tw-rounded-2xl tw-bg-brand-orange-soft tw-text-brand-orange-ink">
         <Lock size={26} aria-hidden />
       </span>
-      <p className="tw-m-0 tw-text-lg tw-font-bold">بخش «{title}» برای شرکت شما فعال نیست</p>
+      <p className="tw-m-0 tw-text-lg tw-font-bold">بخش «{title}» برای شرکت حمل‌ونقل شما فعال نیست</p>
       <p className="tw-m-0 tw-max-w-sm tw-text-sm tw-leading-7 tw-text-brand-muted">برای استفاده از این بخش، آن را بخرید. بعد از تأیید رسید پرداخت، همین‌جا باز می‌شود.</p>
       <Link
         to={`${COMPANY_FEATURES_PATH}?feature=${feature}`}

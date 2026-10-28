@@ -11,7 +11,7 @@ import { createPlan, deletePlan, listPlans, type Plan, type PlanInput } from './
 import { currencies, type Currency } from './currencies';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 
-const accounts = { DRIVER: 'راننده', COMPANY: 'شرکت', BROKER: 'واسط' };
+const accounts = { DRIVER: 'راننده', COMPANY: 'شرکت حمل‌ونقل', BROKER: 'واسط' };
 // Broker is hidden from new plans for now; its label still names existing broker plans.
 const offeredAccounts = (['DRIVER', 'COMPANY'] as const).map((value) => [value, accounts[value]] as const);
 const digits = (value: string) =>

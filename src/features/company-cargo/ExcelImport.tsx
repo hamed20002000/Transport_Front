@@ -110,7 +110,7 @@ export default function ExcelImport<C = ExcelImportResult['created'][number]>({
           <h3 className="tw-m-0 tw-text-base tw-font-bold">ثبت چند بار با فایل اکسل</h3>
           <p className="tw-m-0 tw-text-sm tw-text-brand-muted">
             فایل نمونه را دانلود کنید، هر بار را در یک ردیف بنویسید و فایل را بارگذاری کنید (حداکثر {faNumber(excelUploadLimit.rows)} بار).
-            شماره تماس خالی با شماره‌های پروفایل {forCompany ? 'کارخانه' : 'شرکت'} پر می‌شود.
+            شماره تماس خالی با شماره‌های پروفایل {forCompany ? 'شرکت / کارخانه' : 'شرکت حمل‌ونقل'} پر می‌شود.
           </p>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function ExcelImport<C = ExcelImportResult['created'][number]>({
               <div className="tw-flex tw-flex-wrap tw-gap-2">
                 <PrimaryButton onClick={publish} disabled={busy !== null || disabled}>
                   <Send size={16} aria-hidden />
-                  {busy === 'publish' ? 'در حال ارسال…' : forCompany ? `ارسال ${faNumber(rows.length)} بار برای شرکت` : `اعلام ${faNumber(rows.length)} بار برای راننده‌ها`}
+                  {busy === 'publish' ? 'در حال ارسال…' : forCompany ? `ارسال ${faNumber(rows.length)} بار برای شرکت حمل‌ونقل` : `اعلام ${faNumber(rows.length)} بار برای راننده‌ها`}
                 </PrimaryButton>
                 <SecondaryButton onClick={reset} disabled={busy !== null}>
                   <X size={16} aria-hidden /> انصراف

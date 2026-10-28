@@ -23,7 +23,7 @@ function CreateForm() {
   const navigate = useNavigate();
   return (
     <div className="tw-space-y-6">
-      <SectionTitle title="ثبت بار جدید" hint="بار به نام شرکت شما برای راننده‌های مشترک فرستاده می‌شود" />
+      <SectionTitle title="ثبت بار جدید" hint="بار به نام شرکت حمل‌ونقل شما برای راننده‌های مشترک فرستاده می‌شود" />
       <ExcelImport
         onDone={(created) =>
           navigate(created.some((item) => item.pending) ? '/account/company/cargo' : '/account/company/published', {

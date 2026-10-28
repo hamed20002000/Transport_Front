@@ -79,7 +79,7 @@ export default function JoinPage() {
             <>
               <h1 className="tw-m-0 tw-text-xl tw-font-bold">دعوت از طرف {info.parentName}</h1>
               <p className="tw-m-0 tw-text-sm tw-leading-7 tw-text-brand-muted">
-                حساب شرکت شما با شماره‌ی <bdi dir="ltr">{info.mobile}</bdi> ساخته شده است. با همین شماره و کد پیامکی وارد شوید. بخش‌های پنل (ثبت بار، پیشنهادها، رانندگان و…) را هر کدام جدا می‌خرید و بعد از تأیید پرداخت باز می‌شوند.
+                حساب شرکت حمل‌ونقل شما با شماره‌ی <bdi dir="ltr">{info.mobile}</bdi> ساخته شده است. با همین شماره و کد پیامکی وارد شوید. بخش‌های پنل (ثبت بار، پیشنهادها، رانندگان و…) را هر کدام جدا می‌خرید و بعد از تأیید پرداخت باز می‌شوند.
               </p>
               <Link
                 to={signIn}

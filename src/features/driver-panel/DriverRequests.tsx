@@ -17,7 +17,7 @@ import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvi
 function lastEvent(request: CargoRequest) {
   if (request.status === 'DELIVERED' && request.deliveredAt) return `تحویل ${timeAgo(request.deliveredAt)}`;
   // reported by the driver, not yet confirmed by the company
-  if (request.status === 'ACCEPTED' && request.deliveryReportedAt) return `تحویل اعلام شد ${timeAgo(request.deliveryReportedAt)}؛ منتظر تأیید شرکت`;
+  if (request.status === 'ACCEPTED' && request.deliveryReportedAt) return `تحویل اعلام شد ${timeAgo(request.deliveryReportedAt)}؛ منتظر تأیید شرکت حمل‌ونقل`;
   if (request.decidedAt && (request.status === 'ACCEPTED' || request.status === 'REJECTED'))
     return `${request.status === 'ACCEPTED' ? 'قبول' : 'رد'} ${timeAgo(request.decidedAt)}`;
   return `درخواست ${timeAgo(request.createdAt)}`;
@@ -56,7 +56,7 @@ function RequestCard({
               <Undo2 size={16} aria-hidden /> لغو درخواست
             </ActionButton>
           )}
-          {request.status === 'ACCEPTED' && broker && <span className="tw-text-sm tw-font-bold tw-text-emerald-700">قبول شد؛ راننده را با شرکت هماهنگ کنید</span>}
+          {request.status === 'ACCEPTED' && broker && <span className="tw-text-sm tw-font-bold tw-text-emerald-700">قبول شد؛ راننده را با شرکت حمل‌ونقل هماهنگ کنید</span>}
           {request.status === 'ACCEPTED' && !broker && (
             <Link
               to="/account/driver/trip"
@@ -79,7 +79,7 @@ function RequestCard({
 
 const steps = [
   { title: 'درخواست', hint: 'از «بارها» روی «درخواست بار» بزنید' },
-  { title: 'جواب شرکت', hint: 'قبول یا رد را همین‌جا و در پیام‌رسان می‌بینید' },
+  { title: 'جواب شرکت حمل‌ونقل', hint: 'قبول یا رد را همین‌جا و در پیام‌رسان می‌بینید' },
   { title: 'سفر', hint: 'موقعیت بفرستید و بعد از تخلیه «تحویل دادم» بزنید' },
 ];
 

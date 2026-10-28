@@ -140,7 +140,7 @@ function FeaturesContent() {
   if (state.isParent) {
     return (
       <div className="tw-space-y-5">
-        <SectionTitle title="امکانات شرکت" />
+        <SectionTitle title="امکانات شرکت حمل‌ونقل" />
         <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4">
           <Crown size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" aria-hidden />
           <div>

@@ -13,6 +13,7 @@ import { LoadsContent } from 'src/features/driver-panel/DriverLoads';
 import { RequestsContent } from 'src/features/driver-panel/DriverRequests';
 import FactoryProfile from 'src/features/factory/FactoryProfile';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 type Tab = 'loads' | 'requests' | 'profile';
 
@@ -60,7 +61,8 @@ function VerifiedPanel() {
 /** The broker's (واسط) panel: like a driver it sees the open loads and requests them; it has no trips of its own. */
 export default function BrokerPanel() {
   const { username, isAuth, isAuthDataLoading, userRoles } = useAuth();
-  const name = displayName(useProfile());
+  const profile = useProfile();
+  const name = displayName(profile);
   if (isAuthDataLoading) return <Spinner />;
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'BROKER')) return <Navigate to="/auth/404" replace />;
@@ -75,6 +77,7 @@ export default function BrokerPanel() {
               <span className="tw-inline-flex tw-shrink-0 tw-items-center tw-gap-1 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">
                 <Handshake size={12} aria-hidden /> واسط
               </span>
+              <AccountCode code={profile?.accountCode} />
             </div>
             <SignOutButton />
           </div>

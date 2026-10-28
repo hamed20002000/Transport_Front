@@ -88,6 +88,8 @@ export interface DriverCard {
   userId: string;
   name: string;
   mobile: string | null;
+  /** the account's own code (transport_backend User.accountCode), e.g. 10023; null for accounts with no kind */
+  accountCode: string | null;
   vehicleType: string | null;
   vehicleModel: string | null;
   plate: string | null;
@@ -393,6 +395,8 @@ export interface UserProfile {
   username: string;
   email: string | null;
   mobile: string | null;
+  /** the account's own code (transport_backend User.accountCode), e.g. 10023; null for accounts with no kind */
+  accountCode: string | null;
   profileType: ProfileType | null;
   firstName: string | null;
   lastName: string | null;
@@ -411,7 +415,7 @@ export interface UserProfile {
   cargoDisplay: 'TEXT' | 'IMAGE';
 }
 
-export type ProfileTextField = Exclude<keyof UserProfile, 'id' | 'username' | 'email' | 'mobile' | 'profileType' | 'cargoDisplay'>;
+export type ProfileTextField = Exclude<keyof UserProfile, 'id' | 'username' | 'email' | 'mobile' | 'accountCode' | 'profileType' | 'cargoDisplay'>;
 
 // null clears a field; omitted fields are left unchanged.
 export type UserProfileInput = Partial<Record<ProfileTextField, string | null>> & { profileType?: ProfileType | null; cargoDisplay?: 'TEXT' | 'IMAGE' };

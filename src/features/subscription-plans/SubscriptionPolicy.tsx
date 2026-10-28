@@ -220,9 +220,9 @@ function PolicyContent() {
               )}
             </Section>
 
-            <Section icon={Building2} title="شرکت‌ها و واسط‌ها">
+            <Section icon={Building2} title="شرکت‌های حمل‌ونقل و واسط‌ها">
               <Row title="اشتراک لازم است" hint="برای پیشنهاد بار، ثبت گروه و کانال و منوی ربات‌ها.">
-                <Switch checked={draft.enforced} onChange={(value) => setDraft({ ...draft, enforced: value })} label="اشتراک اجباری شرکت" />
+                <Switch checked={draft.enforced} onChange={(value) => setDraft({ ...draft, enforced: value })} label="اشتراک اجباری شرکت حمل‌ونقل" />
               </Row>
               <label className={cn('tw-block tw-space-y-2', !draft.enforced && 'tw-opacity-50')}>
                 <span className="tw-font-bold">چند روز دیگر رایگان باشد؟ (اختیاری)</span>
@@ -240,7 +240,7 @@ function PolicyContent() {
                 </span>
               </label>
               <p className="tw-m-0 tw-rounded-lg tw-bg-brand-sky tw-px-3 tw-py-2 tw-text-sm">
-                الان برای شرکت‌ها اشتراک {policy.required ? 'لازم است' : 'لازم نیست'}.
+                الان برای شرکت‌های حمل‌ونقل اشتراک {policy.required ? 'لازم است' : 'لازم نیست'}.
               </p>
             </Section>
 

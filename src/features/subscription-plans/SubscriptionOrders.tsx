@@ -18,7 +18,7 @@ const tabs = [
   { value: 'REJECTED' as const, label: 'ردشده', icon: CircleX },
 ];
 const providers: Record<Order['provider'], string> = { WEB: 'برنامه', TELEGRAM: 'تلگرام', BALE: 'بله', RUBIKA: 'روبیکا', WHATSAPP: 'واتساپ' };
-const accounts: Record<Order['accountType'], string> = { DRIVER: 'راننده', COMPANY: 'شرکت', BROKER: 'واسط' };
+const accounts: Record<Order['accountType'], string> = { DRIVER: 'راننده', COMPANY: 'شرکت حمل‌ونقل', BROKER: 'واسط' };
 const currencyNames: Record<string, string> = { IRR: 'ریال', IRT: 'تومان' };
 
 const faNumber = (value: number | string) => Number(value).toLocaleString('fa-IR');

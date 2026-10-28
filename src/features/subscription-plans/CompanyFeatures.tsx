@@ -28,12 +28,13 @@ import {
   type CompanyFeaturePlan,
   type ReceiptUnlock,
 } from './adminApi';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 type Section = 'companies' | 'plans' | 'orders';
 type OrderTab = 'review' | 'APPROVED' | 'REJECTED';
 
 const sections = [
-  { value: 'companies' as const, label: 'شرکت‌ها', icon: Building2 },
+  { value: 'companies' as const, label: 'شرکت‌های حمل‌ونقل', icon: Building2 },
   { value: 'plans' as const, label: 'قیمت بخش‌ها', icon: Gem },
   { value: 'orders' as const, label: 'رسیدها', icon: Receipt },
 ];
@@ -90,7 +91,7 @@ function Companies() {
     try {
       await setParentCompany(company.userId, next);
       setCompanies((current) => current?.map((item) => (item.userId === company.userId ? { ...item, isParentCompany: next } : item)) ?? null);
-      toast.success(next ? 'شرکت مادر تعیین شد.' : 'شرکت دیگر مادر نیست.');
+      toast.success(next ? 'شرکت مادر تعیین شد.' : 'شرکت حمل‌ونقل دیگر مادر نیست.');
     } catch (error) {
       toast.error(adminError(error));
     } finally {
@@ -116,14 +117,14 @@ function Companies() {
 
   if (failed) return <LoadFailed onRetry={load} />;
   if (!companies) return <CardSkeleton />;
-  const needle = search.trim();
-  const visible = companies.filter((company) => !needle || `${company.name ?? ''} ${company.mobile ?? ''}`.includes(needle));
+  const needle = search.trim().replace(/[۰-۹]/g, (digit) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)));
+  const visible = companies.filter((company) => !needle || `${company.name ?? ''} ${company.mobile ?? ''} ${company.accountCode ?? ''}`.includes(needle));
 
   return (
     <div className="tw-space-y-3">
-      <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جستجوی نام یا موبایل شرکت…" aria-label="جستجوی شرکت" className={inputClass} />
+      <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جستجوی نام، موبایل یا کد شرکت حمل‌ونقل…" aria-label="جستجوی شرکت" className={inputClass} />
       {!visible.length ? (
-        <EmptyState icon={Building2} title="شرکتی پیدا نشد" hint="شرکت‌های حمل‌ونقل فعال اینجا فهرست می‌شوند." />
+        <EmptyState icon={Building2} title="شرکت حمل‌ونقلی پیدا نشد" hint="شرکت‌های حمل‌ونقل فعال اینجا فهرست می‌شوند." />
       ) : (
         visible.map((company) => (
           <article key={company.userId} className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4">
@@ -131,6 +132,7 @@ function Companies() {
               <div className="tw-min-w-0">
                 <p className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-font-bold">
                   {company.name || 'بدون نام'}
+                  <AccountCode code={company.accountCode} />
                   {company.isParentCompany && (
                     <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2 tw-py-0.5 tw-text-xs tw-text-emerald-700">
                       <Crown size={12} aria-hidden /> شرکت مادر
@@ -370,7 +372,7 @@ function OrderCard({ order, unlock, onLocked, onDone }: { order: CompanyFeatureO
     setBusy(true);
     try {
       await rejectFeatureOrder(order.id, reason.trim());
-      toast.success('رسید رد شد؛ دلیلش در صفحه‌ی خرید شرکت دیده می‌شود.');
+      toast.success('رسید رد شد؛ دلیلش در صفحه‌ی خرید شرکت حمل‌ونقل دیده می‌شود.');
       onDone();
     } catch (error) {
       toast.error(adminError(error));
@@ -387,7 +389,7 @@ function OrderCard({ order, unlock, onLocked, onDone }: { order: CompanyFeatureO
           <div>
             <h3 className="tw-m-0 tw-text-base tw-font-bold">{order.title} · {faNumber(order.durationDays)} روز</h3>
             <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">
-              {order.company ?? 'شرکت'} {order.mobile && <span dir="ltr">({order.mobile})</span>} · {faDateTime(order.createdAt)}
+              {order.company ?? 'شرکت حمل‌ونقل'} {order.mobile && <span dir="ltr">({order.mobile})</span>} <AccountCode code={order.accountCode} /> · {faDateTime(order.createdAt)}
             </p>
           </div>
           <span className="tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-sm tw-font-bold tw-text-brand-orange-ink">{price(order.amount, order.currency)}</span>
@@ -491,12 +493,12 @@ function Orders() {
 function CompanyFeaturesContent() {
   const [section, setSection] = useState<Section>('companies');
   return (
-    <PageContainer title="امکانات شرکت‌ها" description="شرکت مادر، قیمت بخش‌های پنل شرکت و رسیدهای خرید آن‌ها">
+    <PageContainer title="امکانات شرکت‌های حمل‌ونقل" description="شرکت مادر، قیمت بخش‌های پنل شرکت حمل‌ونقل و رسیدهای خرید آن‌ها">
       <main dir="rtl" lang="fa" className="tw-mx-auto tw-max-w-5xl tw-space-y-5 tw-p-4 tw-text-brand-navy">
         <div>
-          <h1 className="tw-m-0 tw-text-2xl tw-font-bold">امکانات شرکت‌ها</h1>
+          <h1 className="tw-m-0 tw-text-2xl tw-font-bold">امکانات شرکت‌های حمل‌ونقل</h1>
           <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">
-            شرکت مادر همه‌ی بخش‌ها را بدون خرید دارد. بقیه‌ی شرکت‌ها هر بخشی را که پلن دارد جدا می‌خرند؛ بخش بدون پلن برای همه رایگان است.
+            شرکت مادر همه‌ی بخش‌ها را بدون خرید دارد. بقیه‌ی شرکت‌های حمل‌ونقل هر بخشی را که پلن دارد جدا می‌خرند؛ بخش بدون پلن برای همه رایگان است.
           </p>
         </div>
         <Segmented value={section} onChange={setSection} options={sections} label="بخش" />

@@ -10,6 +10,7 @@ import { CardSkeleton, EmptyState, LoadFailed, SectionTitle, Segmented } from '.
 import { useCompanyFeatures } from './featuresApi';
 import { useNotificationEvent } from './notificationSocket';
 import { approveVerification, listVerifications, rejectVerification, type VerificationRequest } from './verificationApi';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 type Tab = 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -50,7 +51,7 @@ const fieldsFor = (kind: VerificationRequest['kind']): FieldRow[] =>
         { key: 'postalCode', title: 'کد پستی', ltr: true },
         { key: 'address', title: 'آدرس' },
       ];
-const KIND_TITLES: Record<VerificationRequest['kind'], string> = { COMPANY: 'شرکت حمل‌ونقل', FACTORY: 'کارخانه', BROKER: 'واسط' };
+const KIND_TITLES: Record<VerificationRequest['kind'], string> = { COMPANY: 'شرکت حمل‌ونقل', FACTORY: 'شرکت / کارخانه', BROKER: 'واسط' };
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDateTime = (value: string) => new Date(value).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -69,10 +70,10 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
       title: 'تأیید اعتبار',
       message:
         request.kind === 'FACTORY'
-          ? `کارخانه‌ی «${name}» تأیید شود؟ به کارخانه‌های شما اضافه می‌شود و بارش را برای شما می‌فرستد.`
+          ? `شرکت / کارخانهی «${name}» تأیید شود؟ به شرکت‌ها / کارخانه‌های شما اضافه می‌شود و بارش را برای شما می‌فرستد.`
           : request.kind === 'BROKER'
             ? `واسط «${name}» تأیید شود؟ حسابش فعال می‌شود و می‌تواند روی بارها درخواست بدهد.`
-            : `شرکت «${name}» تأیید شود؟ حسابش فعال می‌شود و هر بخش پنل را باید بخرد.`,
+            : `شرکت حمل‌ونقل «${name}» تأیید شود؟ حسابش فعال می‌شود و هر بخش پنل را باید بخرد.`,
       confirmText: 'تأیید',
     });
     if (!confirmed) return;
@@ -107,7 +108,7 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
       <div className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-2">
         <div className="tw-min-w-0">
           <h3 className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-base tw-font-bold">
-            {request.kind === 'FACTORY' ? <Factory size={17} aria-hidden /> : request.kind === 'BROKER' ? <Handshake size={17} aria-hidden /> : <Building2 size={17} aria-hidden />} {name}
+            {request.kind === 'FACTORY' ? <Factory size={17} aria-hidden /> : request.kind === 'BROKER' ? <Handshake size={17} aria-hidden /> : <Building2 size={17} aria-hidden />} {name} <AccountCode code={request.accountCode} />
           </h3>
           <p className="tw-m-0 tw-mt-1 tw-text-xs tw-text-brand-muted">
             {kind} · درخواست {fa(request.requests)}
@@ -195,7 +196,7 @@ function VerificationsContent() {
     <div className="tw-space-y-5">
       <SectionTitle
         title="بررسی اعتبار"
-        hint="شرکت‌ها، کارخانه‌ها و واسط‌هایی که خودشان ثبت‌نام کرده‌اند، با اطلاعات پروفایلشان. بعد از استعلام تأیید یا با دلیل رد کنید."
+        hint="شرکت‌های حمل‌ونقل، شرکت‌ها / کارخانه‌ها و واسط‌هایی که خودشان ثبت‌نام کرده‌اند، با اطلاعات پروفایلشان. بعد از استعلام تأیید یا با دلیل رد کنید."
         side={<Segmented value={tab} onChange={setTab} options={tabs} label="وضعیت درخواست‌ها" />}
       />
       {failed ? (

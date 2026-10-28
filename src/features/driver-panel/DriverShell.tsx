@@ -17,6 +17,7 @@ import FloatingPanelNav from 'src/shared/components/FloatingPanelNav';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import SubscriptionPurchase from 'src/features/subscription/SubscriptionPurchase';
 import { getSubscription, SUBSCRIPTION_REQUIRED_EVENT, watchSubscriptionRequired, type SubscriptionState } from 'src/features/subscription/api';
+import AccountCode from 'src/shared/components/account-code/AccountCode';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -95,7 +96,8 @@ function TrialReminder({ endsAt }: { endsAt: string }) {
 
 // Driver frame, sharing the floating navigation drawer with the company panel.
 function Frame({ children }: { children: ReactNode }) {
-  const name = displayName(useProfile());
+  const profile = useProfile();
+  const name = displayName(profile);
   const unread = useUnread();
   const { pathname } = useLocation();
   const toast = useToast();
@@ -117,6 +119,7 @@ function Frame({ children }: { children: ReactNode }) {
           <div className="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
             <strong className="tw-line-clamp-2 tw-text-base tw-font-bold tw-leading-snug sm:tw-line-clamp-none sm:tw-truncate sm:tw-text-lg sm:tw-leading-none">{name || 'پنل راننده'}</strong>
             {name && <span className="tw-shrink-0 tw-rounded-full tw-bg-brand-orange-soft tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-text-brand-orange-ink">راننده</span>}
+            <AccountCode code={profile?.accountCode} />
           </div>
           <div className="tw-flex tw-w-full tw-shrink-0 tw-items-center tw-justify-end tw-gap-1 sm:tw-w-auto sm:tw-gap-1.5">
             <Link

@@ -46,7 +46,7 @@ async function loadSummary() {
 const shortcuts: Array<{ to: string; title: string; hint: string; icon: LucideIcon }> = [
   { to: '/account/driver/loads', title: 'پیدا کردن بار', hint: 'جستجو بر اساس مبدأ و مقصد', icon: PackageSearch },
   { to: '/account/driver/filters', title: 'تنظیمات نمایش بار', hint: 'مسیر، خودرو و کرایه دلخواه', icon: SlidersHorizontal },
-  { to: '/account/driver/profile', title: 'پروفایل', hint: 'نام و شماره تماس برای شرکت‌ها', icon: UserRound },
+  { to: '/account/driver/profile', title: 'پروفایل', hint: 'نام و شماره تماس برای شرکت‌های حمل‌ونقل', icon: UserRound },
 ];
 
 function HomeContent() {
@@ -99,7 +99,7 @@ function HomeContent() {
               <p className="tw-m-0 tw-max-w-md tw-text-sm tw-leading-7 tw-text-white/75">
                 {summary.data?.matching
                   ? `${summary.data.matching.toLocaleString('fa-IR')} بار باز مطابق فیلترهای شما منتظر راننده است.`
-                  : 'بارهای تازه شرکت‌ها را ببینید، مسیر و کرایه را بسنجید و با یک دکمه درخواست بدهید.'}
+                  : 'بارهای تازه شرکت‌های حمل‌ونقل را ببینید، مسیر و کرایه را بسنجید و با یک دکمه درخواست بدهید.'}
               </p>
             </div>
             <Link

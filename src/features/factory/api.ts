@@ -43,6 +43,8 @@ export interface CompanyFactory {
   userId: string;
   name: string;
   mobile: string | null;
+  /** the account's own code (transport_backend User.accountCode), e.g. 10023; null for accounts with no kind */
+  accountCode: string | null;
   joinedAt: string;
   loads: number;
   token: string | null;

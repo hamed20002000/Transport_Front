@@ -53,7 +53,7 @@ function TripCard({ request }: { request: CargoRequest }) {
             <CheckCircle2 size={14} aria-hidden /> تحویل {formatDate(request.deliveredAt)}
           </span>
           {length && (
-            <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted" title="از قبول شرکت تا تحویل">
+            <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-xs tw-text-brand-muted" title="از قبول شرکت حمل‌ونقل تا تحویل">
               <Timer size={14} aria-hidden /> {length}
             </span>
           )}
@@ -129,7 +129,7 @@ function HistoryContent() {
         <div>
           <p className="tw-text-sm tw-font-bold tw-text-brand-orange-ink">کارنامه</p>
           <h1 className="tw-mt-1 tw-text-2xl tw-font-bold sm:tw-text-3xl">سفرهای رفته</h1>
-          <p className="tw-mt-2 tw-text-sm tw-text-brand-muted">بارهایی که تحویل داده‌اید و شرکت تحویلشان را ثبت کرده است</p>
+          <p className="tw-mt-2 tw-text-sm tw-text-brand-muted">بارهایی که تحویل داده‌اید و شرکت حمل‌ونقل تحویلشان را ثبت کرده است</p>
         </div>
         <IconButton icon={RefreshCw} label="به‌روزرسانی" onClick={state.reload} spinning={state.loading} />
       </div>
@@ -148,7 +148,7 @@ function HistoryContent() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="جست‌وجو در کد بار، مبدأ، مقصد یا نام شرکت"
+            placeholder="جست‌وجو در کد بار، مبدأ، مقصد یا نام شرکت حمل‌ونقل"
             aria-label="جست‌وجو"
             className="tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-brand-bg tw-pl-3 tw-pr-9 tw-text-sm focus:tw-border-brand-orange focus:tw-bg-white focus:tw-outline-none"
           />
@@ -180,9 +180,9 @@ function HistoryContent() {
               ))}
             </select>
           </Labeled>
-          <Labeled icon={Building2} label="شرکت">
+          <Labeled icon={Building2} label="شرکت حمل‌ونقل">
             <select className={selectClass} value={filters.companyId ?? ''} onChange={(event) => update({ company: event.target.value || undefined })}>
-              <option value="">همهٔ شرکت‌ها</option>
+              <option value="">همهٔ شرکت‌های حمل‌ونقل</option>
               {state.data?.companies.map((company) => (
                 <option key={company.id} value={company.id}>
                   {`${company.name || 'بدون نام'} (${fa(company.trips)} سفر)`}
@@ -224,7 +224,7 @@ function HistoryContent() {
         filtered ? (
           <EmptyState icon={FilterX} title="سفری با این فیلترها نیست" hint="فیلترها را تغییر دهید یا «پاک کردن فیلترها» را بزنید." />
         ) : (
-          <EmptyState icon={History} title="هنوز سفری تحویل نداده‌اید" hint="بعد از اینکه شرکت تحویل بار را ثبت کند، سفر اینجا می‌آید." />
+          <EmptyState icon={History} title="هنوز سفری تحویل نداده‌اید" hint="بعد از اینکه شرکت حمل‌ونقل تحویل بار را ثبت کند، سفر اینجا می‌آید." />
         )
       ) : (
         <>
