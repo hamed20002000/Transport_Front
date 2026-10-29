@@ -42,6 +42,7 @@ import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvi
 import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
 import EitaaLinkCard from 'src/shared/components/messenger/EitaaLinkCard';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import FloatingActions from 'src/shared/components/FloatingActions';
 
 type TextKey = 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber';
 type Plate = { left: string; letter: string; middle: string; region: string };
@@ -512,21 +513,20 @@ function ProfileContent() {
       </section>
 
       {dirty && (
-        <div className="tw-sticky tw-bottom-4 tw-z-10 tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-orange/40 tw-bg-white/95 tw-p-3 tw-shadow-lg tw-backdrop-blur">
-          <span className="tw-text-sm tw-font-medium">تغییرات ذخیره‌نشده دارید</span>
+        <FloatingActions>
           <div className="tw-flex tw-gap-2">
-            <button type="button" onClick={() => setFields(saved)} className="tw-rounded-xl tw-bg-transparent tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-brand-muted hover:tw-text-brand-navy">
+            <button type="button" onClick={() => setFields(saved)} className="tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-brand-navy tw-shadow-lg hover:tw-bg-brand-sky">
               لغو
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-brand-orange tw-px-5 tw-py-2 tw-text-sm tw-font-bold tw-text-white tw-shadow-sm hover:tw-bg-brand-orange-dark disabled:tw-opacity-60"
+              className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-brand-orange tw-px-5 tw-py-2 tw-text-sm tw-font-bold tw-text-white tw-shadow-lg hover:tw-bg-brand-orange-dark"
             >
               <Save size={16} aria-hidden className={saving ? 'tw-animate-pulse' : undefined} /> {saving ? 'در حال ذخیره…' : 'ذخیره پروفایل'}
             </button>
           </div>
-        </div>
+        </FloatingActions>
       )}
     </form>
   );
@@ -643,7 +643,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
         </div>
       </fieldset>
       <button type="button" disabled={saving || companies === null || failed} onClick={savePreferences}
-        className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-3 tw-font-bold tw-text-white disabled:tw-opacity-50">
+        className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-3 tw-font-bold tw-text-white">
         {saving ? 'در حال ذخیره…' : 'ذخیره شرکت‌های حمل‌ونقل و نوع راننده'}
       </button>
     </section>

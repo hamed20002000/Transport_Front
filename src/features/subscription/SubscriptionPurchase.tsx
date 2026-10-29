@@ -288,7 +288,7 @@ export default function SubscriptionPurchase({ onActivated }: { onActivated?: ()
                 type="button"
                 onClick={send}
                 disabled={!plan || !file || sending}
-                className="tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-[0_10px_24px_rgba(245,118,26,0.3)] tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-opacity-50 disabled:tw-shadow-none"
+                className="tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-[0_10px_24px_rgba(245,118,26,0.3)] tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-shadow-none"
               >
                 {sending && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
                 {sending ? 'در حال ارسال…' : 'ارسال رسید و خرید اشتراک'}

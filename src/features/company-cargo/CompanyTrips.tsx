@@ -29,7 +29,7 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
         <div className="tw-flex tw-items-center tw-gap-2">
           {trip.deliveryReportedAt ? (
             <Badge tone="orange">
-              <CheckCircle2 size={13} aria-hidden /> راننده تحویل را {timeAgo(trip.deliveryReportedAt)} اعلام کرد
+              <CheckCircle2 size={13} aria-hidden /> {driver?.broker ? 'واسط' : 'راننده'} تحویل را {timeAgo(trip.deliveryReportedAt)} اعلام کرد
             </Badge>
           ) : (
             overdue && (
@@ -55,7 +55,10 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
         <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-brand-sky/50 tw-p-3">
           <DriverPhoto driver={driver} />
           <div className="tw-min-w-0 tw-flex-1 tw-space-y-1">
-            <p className="tw-m-0 tw-font-bold">{driver.name}</p>
+            <p className="tw-m-0 tw-font-bold">
+              {driver.name}
+              {driver.broker && <span className="tw-mr-1.5 tw-inline-flex tw-items-center tw-rounded-full tw-bg-brand-orange-soft tw-px-2 tw-py-0.5 tw-align-middle tw-text-[11px] tw-font-medium tw-text-brand-orange-ink">واسط</span>}
+            </p>
             {driver.plate && <span className="tw-rounded tw-bg-white tw-px-1.5 tw-text-xs">{driver.plate}</span>}
             {driver.mobile && <PhoneLinks phones={[driver.mobile]} />}
           </div>
@@ -63,7 +66,10 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
       )}
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-pt-3">
-        {location ? (
+        {/* a broker answers for the load: no vehicle to follow, it reports the delivery itself */}
+        {driver?.broker ? (
+          <span className="tw-text-sm tw-text-brand-muted">طرف حساب این بار واسط است؛ تحویل را خودش اعلام می‌کند</span>
+        ) : location ? (
           <a
             href={`https://www.google.com/maps?q=${location.latitude},${location.longitude}`}
             target="_blank"

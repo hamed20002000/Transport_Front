@@ -23,7 +23,7 @@ import {
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
 const outlineButton =
-  'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky disabled:tw-opacity-50';
+  'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
 
 function InviteRow({ invite, open, onToggle, onRemove, removing }: { invite: DriverInvite; open: boolean; onToggle: () => void; onRemove: () => void; removing: boolean }) {
   const link = driverInviteUrl(invite.token);
@@ -61,7 +61,6 @@ function InviteRow({ invite, open, onToggle, onRemove, removing }: { invite: Dri
           who="راننده"
           note={`این لینک فقط برای شماره‌ی ${invite.mobile} کار می‌کند؛ راننده با همین شماره و کد پیامکی وارد می‌شود.`}
           messengerNote={`اگر راننده با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${invite.mobile} را بدهد.`}
-          shareText={`شما به رانندگان ما اضافه شدید و بارهای ما برایتان اعلام می‌شود. برای ورود این لینک را باز کنید و با شماره‌ی ${invite.mobile} وارد شوید:\n${link}`}
         />
       )}
     </article>
@@ -231,7 +230,7 @@ export default function DriverInvites() {
         <button
           type="submit"
           disabled={saving || !lines.length}
-          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-50"
+          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
         >
           {saving ? <LoaderCircle size={18} className="tw-animate-spin" aria-hidden /> : <UserPlus size={18} aria-hidden />}
           {lines.length > 1 ? `دعوت ${fa(lines.length)} راننده` : 'دعوت راننده'}

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, Navigation, RefreshCw, Undo2 } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Navigation, RefreshCw, Undo2 } from 'lucide-react';
 import { useDomainRefresh } from 'src/features/ai-agent/hooks/Usedomainrefres';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { CardSkeleton, EmptyState, IconButton, LoadFailed, Pager, PhoneLinks, timeAgo } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
-import { cancelRequest, errorMessage, listMyRequests, type CargoRequest } from './api';
+import { cancelRequest, errorMessage, listMyRequests, markDelivered, type CargoRequest } from './api';
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView } from './components';
 import { LoadSpecs, type ListingChangedEvent } from './DriverLoads';
 import DriverShell from './DriverShell';
@@ -27,11 +27,13 @@ function RequestCard({
   request,
   busy,
   onCancel,
+  onDeliver,
   onAnswered,
 }: {
   request: CargoRequest;
   busy: boolean;
   onCancel: () => void;
+  onDeliver: () => void;
   onAnswered: (request: CargoRequest) => void;
 }) {
   const broker = useBrokerView();
@@ -56,7 +58,12 @@ function RequestCard({
               <Undo2 size={16} aria-hidden /> لغو درخواست
             </ActionButton>
           )}
-          {request.status === 'ACCEPTED' && broker && <span className="tw-text-sm tw-font-bold tw-text-emerald-700">قبول شد؛ راننده را با شرکت حمل‌ونقل هماهنگ کنید</span>}
+          {/* the broker answers for the load: it reports the delivery, the company confirms it and the trip ends */}
+          {request.status === 'ACCEPTED' && broker && !request.deliveryReportedAt && (
+            <ActionButton variant="success" onClick={onDeliver} busy={busy}>
+              <CheckCircle2 size={16} aria-hidden /> بار تحویل داده شد
+            </ActionButton>
+          )}
           {request.status === 'ACCEPTED' && !broker && (
             <Link
               to="/account/driver/trip"
@@ -83,7 +90,15 @@ const steps = [
   { title: 'سفر', hint: 'موقعیت بفرستید و بعد از تخلیه «تحویل دادم» بزنید' },
 ];
 
+// a broker has no trip of its own: it answers for the load until the company confirms the delivery
+const brokerSteps = [
+  steps[0],
+  steps[1],
+  { title: 'تحویل', hint: 'بعد از تحویل بار «بار تحویل داده شد» را بزنید؛ با تأیید شرکت حمل‌ونقل سفر تمام می‌شود' },
+];
+
 export function RequestsContent() {
+  const broker = useBrokerView();
   const toast = useToast();
   const messageBox = useMessageBox();
   const [page, setPage] = useState(1);
@@ -113,6 +128,20 @@ export function RequestsContent() {
     }
   }
 
+  async function deliver(request: CargoRequest) {
+    if (!(await messageBox.confirm({ message: 'این بار تحویل داده شده است؟ به شرکت حمل‌ونقل خبر می‌دهیم تا تأیید کند.', confirmText: 'بله، تحویل شد', cancelText: 'هنوز نه' }))) return;
+    setBusyId(request.id);
+    try {
+      const updated = await markDelivered(request.id);
+      state.setData((current) => current && { ...current, items: current.items.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)) });
+      toast.success('تحویل اعلام شد؛ بعد از تأیید شرکت حمل‌ونقل سفر تمام می‌شود.');
+    } catch (error) {
+      toast.error(errorMessage(error));
+    } finally {
+      setBusyId('');
+    }
+  }
+
   return (
     <div className="tw-space-y-6">
       <div className="tw-flex tw-items-end tw-justify-between tw-gap-4">
@@ -125,7 +154,7 @@ export function RequestsContent() {
       </div>
 
       <ol className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 sm:tw-grid-cols-3">
-        {steps.map((step, i) => (
+        {(broker ? brokerSteps : steps).map((step, i) => (
           <li key={step.title} className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4">
             <span className="tw-flex tw-h-8 tw-w-8 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-navy tw-text-sm tw-font-bold tw-text-brand-orange">
               {(i + 1).toLocaleString('fa-IR')}
@@ -157,6 +186,7 @@ export function RequestsContent() {
                 request={request}
                 busy={busyId === request.id}
                 onCancel={() => cancel(request)}
+                onDeliver={() => deliver(request)}
                 onAnswered={(updated) =>
                   state.setData((current) => current && { ...current, items: current.items.map((row) => (row.id === updated.id ? { ...row, ...updated } : row)) })
                 }

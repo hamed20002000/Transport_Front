@@ -7,6 +7,8 @@ import Spinner from 'src/shared/components/spinner/Spinner';
 import 'src/shared/utils/i18n';
 // Renews the sign-in (refresh token) for every request from the first one.
 import 'src/core/auth/session';
+// A button ignores clicks while the request it sent is still running.
+import 'src/core/api/busyButtons';
 import 'src/app/mocks';
 import 'src/app/styles/admin.css';
 

@@ -14,7 +14,7 @@ const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { 
 const inputClass =
   'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange';
 const outlineButton =
-  'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky disabled:tw-opacity-50';
+  'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
 const digits = (value: string) =>
   value.replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
@@ -57,7 +57,6 @@ function FactoryCard({ factory, open, onToggle, onRemove, removing }: { factory:
           who="شرکت / کارخانه"
           note={`این لینک فقط برای شماره‌ی ${factory.mobile} کار می‌کند؛ کارخانه با همین شماره و کد پیامکی وارد می‌شود.`}
           messengerNote={`اگر کارخانه با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${factory.mobile} را بدهد.`}
-          shareText={`برای ثبت بارهای کارخانه‌تان این لینک را باز کنید و با شماره‌ی ${factory.mobile} وارد شوید؛ بار مستقیم به دست ما می‌رسد:\n${link}`}
         />
       )}
     </article>
@@ -148,7 +147,7 @@ function FactoriesContent() {
         <button
           type="submit"
           disabled={saving || !mobile.trim()}
-          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-50"
+          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
         >
           {saving ? <LoaderCircle size={18} className="tw-animate-spin" aria-hidden /> : <UserPlus size={18} aria-hidden />} افزودن کارخانه و ساخت لینک دعوت
         </button>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { BadgeCheck, Check, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Search, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
+import FloatingActions from 'src/shared/components/FloatingActions';
 import { subscriptionError } from 'src/features/subscription/api';
 import { CardSkeleton, LoadFailed, SectionTitle } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
@@ -297,15 +298,17 @@ export function BrokerAccessContent() {
           )}
 
           {selected.length > 0 && (
-            <button
-              type="button"
-              onClick={send}
-              disabled={(!free && !file) || sending}
-              className="tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-[0_10px_24px_rgba(245,118,26,0.3)] tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-opacity-50 disabled:tw-shadow-none"
-            >
-              {sending && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
-              {sending ? 'در حال ارسال…' : free ? `افزودن ${faNumber(selected.length)} شرکت` : 'ارسال رسید و خرید'}
-            </button>
+            <FloatingActions>
+              <button
+                type="button"
+                onClick={send}
+                disabled={(!free && !file) || sending}
+                className="tw-flex tw-h-11 tw-items-center tw-px-5 tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-[0_10px_24px_rgba(245,118,26,0.3)] tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-shadow-none"
+              >
+                {sending && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
+                {sending ? 'در حال ارسال…' : free ? `افزودن ${faNumber(selected.length)} شرکت` : 'ارسال رسید و خرید'}
+              </button>
+            </FloatingActions>
           )}
         </>
       )}

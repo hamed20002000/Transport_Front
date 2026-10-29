@@ -94,7 +94,7 @@ export default function VerificationCard({ dirty = false, version = 0, onChange 
           type="button"
           onClick={send}
           disabled={sending || state.missing.length > 0}
-          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-50"
+          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
         >
           {sending ? <LoaderCircle size={18} className="tw-animate-spin" aria-hidden /> : <BadgeCheck size={18} aria-hidden />} درخواست بررسی اعتبار
         </button>

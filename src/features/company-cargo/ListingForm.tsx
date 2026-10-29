@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Banknote, Building2, Camera, Flag, LoaderCircle, MapPin, NotebookPen, Package, Phone, Plus, Send, Truck, Weight, X } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
+import FloatingActions from 'src/shared/components/FloatingActions';
 import { listingLimits, phonePattern, type CargoListing, type CargoListingInput } from './api';
 import { uploadCargoPhoto } from './cargoDisplay';
 
@@ -332,13 +333,13 @@ export default function ListingForm<T = PublishedListing>({
 
   const preview = <p className="tw-m-0 tw-whitespace-pre-wrap tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{previewText(fields, phones, code)}</p>;
 
-  const submitButton = (
+  const submitButton = (floating = false) => (
     <button
       type="submit"
       disabled={saving || disabled}
       className={cn(
-        'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-opacity-50',
-        dialog ? 'tw-h-11 tw-flex-1 tw-px-5 tw-text-sm sm:tw-flex-none' : 'tw-h-12 tw-w-full tw-text-base',
+        'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed',
+        dialog || floating ? 'tw-h-11 tw-flex-1 tw-px-5 tw-text-sm sm:tw-flex-none' : 'tw-h-12 tw-w-full tw-text-base',
       )}
     >
       <Send size={18} aria-hidden className={saving ? 'tw-animate-pulse' : undefined} />
@@ -368,7 +369,7 @@ export default function ListingForm<T = PublishedListing>({
                 انصراف
               </button>
             )}
-            {submitButton}
+            {submitButton()}
           </div>
         </div>
       </form>
@@ -382,8 +383,11 @@ export default function ListingForm<T = PublishedListing>({
           <h2 className="tw-mb-3 tw-text-base tw-font-bold">{forCompany ? 'پیش‌نمایش بار' : 'پیش‌نمایش پیام راننده'}</h2>
           {preview}
         </section>
-        {submitButton}
+        {/* wide screens: the aside is sticky, so the button stays in view next to the form */}
+        <div className="tw-hidden lg:tw-block">{submitButton()}</div>
       </aside>
+      {/* phones: the aside comes after the whole form, so the button floats instead */}
+      <FloatingActions className="lg:tw-hidden">{submitButton(true)}</FloatingActions>
     </form>
   );
 }

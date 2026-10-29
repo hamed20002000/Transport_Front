@@ -251,7 +251,7 @@ export default function AssignDriverDialog({
                   <button
                     type="submit"
                     disabled={searching}
-                    className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-text-sm tw-font-medium tw-text-brand-navy hover:tw-bg-brand-sky disabled:tw-opacity-60"
+                    className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-text-sm tw-font-medium tw-text-brand-navy hover:tw-bg-brand-sky"
                   >
                     <Search size={16} aria-hidden /> {searching ? 'جستجو…' : 'جستجو'}
                   </button>

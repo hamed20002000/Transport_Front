@@ -46,7 +46,7 @@ export default function AuthOtp() {
                 type="button"
                 disabled={form.loading}
                 onClick={() => form.chooseAccountType(item.type)}
-                className="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-text-start tw-transition-colors hover:tw-border-brand-orange hover:tw-bg-brand-orange-soft disabled:tw-opacity-60"
+                className="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-text-start tw-transition-colors hover:tw-border-brand-orange hover:tw-bg-brand-orange-soft"
               >
                 <span className="tw-grid tw-h-11 tw-w-11 tw-shrink-0 tw-place-items-center tw-rounded-xl tw-bg-brand-orange-soft tw-text-brand-orange-ink">
                   <Icon size={22} aria-hidden="true" />

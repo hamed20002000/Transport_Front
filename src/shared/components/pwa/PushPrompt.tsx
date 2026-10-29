@@ -91,7 +91,7 @@ export default function PushPrompt({ hint = 'درخواست رانندگان، �
             type="button"
             onClick={() => void enable()}
             disabled={busy}
-            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-60"
+            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
           >
             {busy ? 'در حال روشن کردن…' : 'روشن کردن'}
           </button>

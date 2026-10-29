@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
+import FloatingActions from 'src/shared/components/FloatingActions';
 import { getUserProfile, profileRules, updateUserProfile, type ProfileTextField, type UserProfile } from 'src/features/company-cargo/api';
 import { CardSkeleton, LoadFailed } from 'src/features/company-cargo/components';
 import { setCachedProfile } from 'src/features/company-cargo/profileStore';
@@ -128,13 +129,15 @@ export default function FactoryProfile({
             </label>
           ))}
         </fieldset>
-        <button
-          type="submit"
-          disabled={saving || !dirty}
-          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-navy tw-px-5 tw-font-bold tw-text-white disabled:tw-opacity-50"
-        >
-          {saving ? <LoaderCircle size={18} className="tw-animate-spin" aria-hidden /> : <Save size={18} aria-hidden />} ذخیره‌ی پروفایل
-        </button>
+        <FloatingActions>
+          <button
+            type="submit"
+            disabled={saving || !dirty}
+            className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white tw-shadow-lg hover:tw-bg-brand-orange-dark"
+          >
+            {saving ? <LoaderCircle size={18} className="tw-animate-spin" aria-hidden /> : <Save size={18} aria-hidden />} ذخیره‌ی پروفایل
+          </button>
+        </FloatingActions>
       </form>
     </div>
   );

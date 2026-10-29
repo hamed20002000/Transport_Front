@@ -302,7 +302,7 @@ function StationsVoice({ listingId, route, fuels, element }: { listingId: string
       type="button"
       onClick={toggle}
       disabled={state === 'loading'}
-      className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-lg tw-border tw-border-emerald-200 tw-bg-white tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold tw-text-emerald-700 hover:tw-bg-emerald-50 disabled:tw-opacity-60"
+      className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-lg tw-border tw-border-emerald-200 tw-bg-white tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold tw-text-emerald-700 hover:tw-bg-emerald-50"
     >
       {state === 'playing' ? <Square size={14} aria-hidden /> : <Volume2 size={14} aria-hidden className={state === 'loading' ? 'tw-animate-pulse' : undefined} />}
       {state === 'playing' ? 'توقف' : state === 'loading' ? 'در حال آماده‌سازی صدا…' : 'شنیدن دوباره'}

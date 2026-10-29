@@ -161,7 +161,7 @@ export default function LocationCard({ compact, onSent }: { compact?: boolean; o
             <button
               type="submit"
               disabled={sending || !place.trim()}
-              className="tw-h-10 tw-shrink-0 tw-rounded-xl tw-bg-brand-navy tw-px-4 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-navy/90 disabled:tw-opacity-50"
+              className="tw-h-10 tw-shrink-0 tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
             >
               ثبت
             </button>

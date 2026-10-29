@@ -116,19 +116,19 @@ export default function PushDeviceCard() {
         {failed && <p className="tw-m-0 tw-text-xs tw-text-red-700">انجام نشد. اتصال را بررسی کنید و دوباره امتحان کنید.</p>}
         {state === 'mine' && (
           <button type="button" onClick={() => void turnOff()} disabled={busy}
-            className="tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-brand-navy hover:tw-border-red-300 hover:tw-text-red-700 disabled:tw-opacity-60">
+            className="tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-brand-navy hover:tw-border-red-300 hover:tw-text-red-700">
             {busy ? 'در حال خاموش کردن…' : 'خاموش کردن اعلان این گوشی'}
           </button>
         )}
         {state === 'other' && (
           <button type="button" onClick={() => void turnOn(true)} disabled={busy}
-            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-60">
+            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark">
             {busy ? 'در حال انتقال…' : 'انتقال به این حساب'}
           </button>
         )}
         {state === 'none' && (
           <button type="button" onClick={() => void turnOn()} disabled={busy}
-            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-60">
+            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark">
             {busy ? 'در حال روشن کردن…' : 'روشن کردن'}
           </button>
         )}

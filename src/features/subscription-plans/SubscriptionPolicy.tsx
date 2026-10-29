@@ -248,7 +248,7 @@ function PolicyContent() {
               type="button"
               onClick={save}
               disabled={!daysValid || !freeDaysValid || !rewardsValid || saving}
-              className="tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-50"
+              className="tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
             >
               {saving && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
               ذخیره‌ی تنظیمات

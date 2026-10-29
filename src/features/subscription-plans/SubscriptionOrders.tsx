@@ -209,7 +209,7 @@ function OrderCard({ order, onDone, unlock, onLocked }: { order: Order; onDone: 
             <div className="tw-flex tw-flex-wrap tw-gap-2">
               {rejecting ? (
                 <>
-                  <button type="button" onClick={reject} disabled={busy || !reason.trim()} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-bg-red-600 tw-px-4 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-red-700 disabled:tw-opacity-50">
+                  <button type="button" onClick={reject} disabled={busy || !reason.trim()} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-bg-red-600 tw-px-4 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-red-700">
                     <CircleX size={16} aria-hidden /> ثبت رد
                   </button>
                   <button type="button" onClick={() => setRejecting(false)} disabled={busy} className="tw-h-10 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-text-sm tw-font-bold">
@@ -218,7 +218,7 @@ function OrderCard({ order, onDone, unlock, onLocked }: { order: Order; onDone: 
                 </>
               ) : (
                 <>
-                  <button type="button" onClick={approve} disabled={busy} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-bg-emerald-600 tw-px-4 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-emerald-700 disabled:tw-opacity-50">
+                  <button type="button" onClick={approve} disabled={busy} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-bg-emerald-600 tw-px-4 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-emerald-700">
                     {busy ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <CircleCheck size={16} aria-hidden />} تأیید پرداخت
                   </button>
                   <button type="button" onClick={() => setRejecting(true)} disabled={busy} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-red-200 tw-bg-white tw-px-4 tw-text-sm tw-font-bold tw-text-red-700 hover:tw-bg-red-50">
@@ -288,7 +288,7 @@ export function UnlockPanel({ unlock, onUnlock, onLock }: { unlock: ReceiptUnloc
         aria-label="رمز رسیدها"
         className="tw-h-10 tw-w-48 tw-rounded-xl tw-border tw-border-brand-line tw-px-3 tw-text-sm"
       />
-      <button type="submit" disabled={!password || busy} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-text-sm tw-font-bold tw-text-white disabled:tw-opacity-50">
+      <button type="submit" disabled={!password || busy} className="tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-text-sm tw-font-bold tw-text-white">
         {busy ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <LockOpen size={16} aria-hidden />} باز کردن
       </button>
     </form>

@@ -43,6 +43,11 @@ export default function JoinPage() {
 
   const signIn = `/auth/login?url=${encodeURIComponent(`/join/${token}`)}`;
 
+  // not signed in: the link goes straight to sign-in, which also offers this invite's messengers
+  useEffect(() => {
+    if (info?.valid && !isAuthDataLoading && !isAuth) navigate(signIn, { replace: true });
+  }, [info, isAuth, isAuthDataLoading, navigate, signIn]);
+
   return (
     <PageContainer title="دعوت شرکت حمل‌ونقل | ترابوت" description="ورود شرکت حمل‌ونقل دعوت‌شده از طرف شرکت مادر">
       <main dir="rtl" lang="fa" className="tw-flex tw-min-h-[100dvh] tw-items-center tw-justify-center tw-bg-brand-bg tw-p-4 tw-text-brand-navy">

@@ -103,7 +103,7 @@ export default function MarketPicker({ onClose, onSaved }: { onClose: () => void
                       onClick={() => toggle(item.symbol)}
                       aria-pressed={on}
                       className={cn(
-                        'tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-p-2.5 tw-text-start tw-transition-colors disabled:tw-opacity-40',
+                        'tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-p-2.5 tw-text-start tw-transition-colors',
                         on ? 'tw-border-brand-orange tw-bg-brand-orange-soft' : 'tw-border-brand-line tw-bg-white hover:tw-border-brand-orange/50',
                       )}
                     >
@@ -139,7 +139,7 @@ export default function MarketPicker({ onClose, onSaved }: { onClose: () => void
               type="button"
               onClick={save}
               disabled={saving || !catalog}
-              className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-60"
+              className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
             >
               {saving ? 'در حال ذخیره…' : 'ذخیره'}
             </button>

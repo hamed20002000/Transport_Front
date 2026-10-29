@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { ClipboardList, Handshake, PackageSearch, Unlock, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
+import PushPrompt from 'src/shared/components/pwa/PushPrompt';
+import { useToast } from 'src/shared/components/toast/ToastProvider';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { CardSkeleton, LoadFailed, Segmented, SignOutButton } from 'src/features/company-cargo/components';
@@ -71,6 +73,11 @@ export default function BrokerPanel() {
   const { username, isAuth, isAuthDataLoading, userRoles } = useAuth();
   const profile = useProfile();
   const name = displayName(profile);
+  const toast = useToast();
+  // a company's answer (accepted, delivery confirmed, …): the same news the messengers get, live while the panel is open
+  useNotificationEvent<{ type?: string; text?: string }>('cargo-request-changed', (event) => {
+    if (event.type === 'driverNotice' && event.text) toast.info(event.text);
+  });
   if (isAuthDataLoading) return <Spinner />;
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'BROKER')) return <Navigate to="/auth/404" replace />;
@@ -91,6 +98,7 @@ export default function BrokerPanel() {
           </div>
         </header>
         <main className="tw-mx-auto tw-max-w-5xl tw-space-y-5 tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
+          <PushPrompt hint="جواب شرکت‌های حمل‌ونقل به درخواست‌ها، تأیید تحویل و نتیجه‌ی بررسی اعتبار را حتی وقتی برنامه بسته است به‌صورت اعلان روی گوشی ببینید." />
           <BrokerView.Provider value>
             <VerifiedPanel />
           </BrokerView.Provider>

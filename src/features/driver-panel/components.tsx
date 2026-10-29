@@ -170,7 +170,7 @@ export function ActionButton({
       disabled={disabled || busy}
       aria-busy={busy || undefined}
       className={cn(
-        'tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-transition-colors disabled:tw-cursor-not-allowed disabled:tw-opacity-60',
+        'tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-transition-colors disabled:tw-cursor-not-allowed',
         variants[variant],
         busy && 'tw-animate-pulse',
       )}

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 import type { InviteSms, MessengerInvites } from 'src/features/factory/api';
+import type { InviteInfo } from 'src/features/factory/api';
 
 // transport_backend CompanyDriverInviteController (api/company/driver-invites) and DriverInviteInfoController
 // (api/driver-invites): a company invites drivers by their numbers, one or many; each driver's account is made right
@@ -68,7 +69,7 @@ export async function downloadDriverTemplate() {
 
 // before sign-in: no token header; the invited number comes back partly hidden (0912***4567)
 export const getDriverInviteInfo = (token: string) =>
-  unwrap(axios.get<{ success: boolean; data: { valid: boolean; companyName: string | null; mobile: string | null } }>(`${endpoints.baseurl}driver-invites/${encodeURIComponent(token)}`, { timeout: 20000 }));
+  unwrap(axios.get<{ success: boolean; data: InviteInfo }>(`${endpoints.baseurl}driver-invites/${encodeURIComponent(token)}`, { timeout: 20000 }));
 
 export const getDriverInviteMembership = (token: string) =>
   unwrap(axios.get<{ success: boolean; data: { member: boolean } }>(`${endpoints.baseurl}driver-invites/${encodeURIComponent(token)}/membership`, config()));

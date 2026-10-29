@@ -22,6 +22,9 @@
   --border: 214 24% 90%;
   --input: 214 24% 87%;
   --ring: 25 91% 53%;
+  /* a disabled button: its own grey, not a faded copy of its colour */
+  --disabled: 214 20% 90%;
+  --disabled-foreground: 215 12% 58%;
   --radius: 0.75rem;
   font-family: Vazirmatn, Tahoma, sans-serif;
   font-size: 14px;
@@ -51,8 +54,23 @@ body { margin: 0; }
   --accent: 25 35% 18%;
   --border: 217 20% 25%;
   --input: 217 20% 30%;
+  --disabled: 217 18% 22%;
+  --disabled-foreground: 215 12% 52%;
   color-scheme: dark;
 }
 html, body, #root { min-height: 100%; }
 .admin-shell input, .admin-shell textarea, .admin-shell select { color: inherit; }
-.admin-shell button:disabled { opacity: .5; }
+/* Disabled buttons take the theme's disabled colours instead of turning see-through (a floating button over the page
+   stays readable); it wins over a button's own colours and its tw-opacity on disabled. */
+.admin-shell button:disabled {
+  opacity: 1 !important;
+  background: hsl(var(--disabled)) !important;
+  color: hsl(var(--disabled-foreground)) !important;
+  border-color: hsl(var(--disabled)) !important;
+  box-shadow: none !important;
+}
+
+/* a button whose request is still running (src/core/api/busyButtons.ts) ignores clicks */
+.admin-shell [aria-busy='true'] {
+  cursor: progress !important;
+}

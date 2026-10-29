@@ -70,7 +70,7 @@ function FactoryName() {
       <p className="tw-m-0 tw-text-sm tw-text-brand-muted">شرکت حمل‌ونقل بارهای شما را با همین نام می‌بیند.</p>
       <div className="tw-flex tw-gap-2">
         <input value={name} onChange={(event) => setName(event.target.value)} maxLength={200} placeholder="مثلاً کارخانه سیمان تهران" aria-label="نام کارخانه" className={inputClass} />
-        <button type="submit" disabled={!name.trim() || saving} className="tw-h-11 tw-shrink-0 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-font-bold tw-text-white disabled:tw-opacity-50">
+        <button type="submit" disabled={!name.trim() || saving} className="tw-h-11 tw-shrink-0 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-font-bold tw-text-white">
           {saving ? 'در حال ذخیره…' : 'ذخیره'}
         </button>
       </div>

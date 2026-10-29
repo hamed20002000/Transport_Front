@@ -34,6 +34,7 @@ export interface MessengerInvites {
   code: string;
   telegram: string | null;
   bale: string | null;
+  eitaa: string | null;
   rubika: string | null;
   whatsapp: string | null;
 }
@@ -68,9 +69,17 @@ async function unwrap<T>(request: Promise<{ data: { success: boolean; data: T } 
 /** The invite link's address that the company shares. */
 export const inviteUrl = (token: string) => `${window.location.origin}/invite/${token}`;
 
-// before sign-in: no token header; the invited number comes back partly hidden (0912***4567)
+/** An invite before sign-in: who invites, the invited number partly hidden (0912***4567) and the invite's messenger links. */
+export interface InviteInfo {
+  valid: boolean;
+  companyName: string | null;
+  mobile: string | null;
+  messengers: MessengerInvites | null;
+}
+
+// before sign-in: no token header
 export const getInviteInfo = (token: string) =>
-  unwrap(axios.get<{ success: boolean; data: { valid: boolean; companyName: string | null; mobile: string | null } }>(`${endpoints.baseurl}factory-invites/${encodeURIComponent(token)}`, { timeout: 20000 }));
+  unwrap(axios.get<{ success: boolean; data: InviteInfo }>(`${endpoints.baseurl}factory-invites/${encodeURIComponent(token)}`, { timeout: 20000 }));
 
 /** Signed in: this account is the invited factory (the same number)? */
 export const getInviteMembership = (token: string) =>

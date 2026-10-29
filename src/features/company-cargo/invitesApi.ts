@@ -1,6 +1,6 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
-import type { InviteSms, MessengerInvites } from 'src/features/factory/api';
+import type { InviteInfo, InviteSms, MessengerInvites } from 'src/features/factory/api';
 
 // transport_backend CompanyInviteController (api/company/invites) and CompanyInviteInfoController (api/company-invites):
 // the parent company invites a transport company by its number (its account is made right away); the link
@@ -35,7 +35,7 @@ export const createCompanyInvite = (mobile: string, companyName?: string) =>
 
 // before sign-in: no token header; the invited number comes back partly hidden (0912***4567)
 export const getJoinInfo = (token: string) =>
-  unwrap(axios.get<{ success: boolean; data: { valid: boolean; parentName: string | null; mobile: string | null } }>(`${endpoints.baseurl}company-invites/${encodeURIComponent(token)}`, { timeout: 20000 }));
+  unwrap(axios.get<{ success: boolean; data: Omit<InviteInfo, 'companyName'> & { parentName: string | null } }>(`${endpoints.baseurl}company-invites/${encodeURIComponent(token)}`, { timeout: 20000 }));
 
 export const getJoinMembership = (token: string) =>
   unwrap(axios.get<{ success: boolean; data: { member: boolean } }>(`${endpoints.baseurl}company/invites/${encodeURIComponent(token)}/membership`, config()));

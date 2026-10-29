@@ -286,7 +286,7 @@ export function LoadsContent() {
           <input value={draft.destination} onChange={(e) => setDraft({ ...draft, destination: e.target.value })} placeholder="مقصد، مثلاً مشهد" maxLength={100} className={inputClass} />
         </label>
         <div className="tw-flex tw-gap-2">
-          <button type="submit" className="tw-inline-flex tw-h-11 tw-flex-1 tw-items-center tw-justify-center tw-gap-1.5 tw-rounded-xl tw-bg-brand-navy tw-px-5 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-navy/90">
+          <button type="submit" className="tw-inline-flex tw-h-11 tw-flex-1 tw-items-center tw-justify-center tw-gap-1.5 tw-rounded-xl tw-bg-brand-orange tw-px-5 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark">
             <Search size={17} aria-hidden /> جستجو
           </button>
           {searching && <IconButton icon={X} label="پاک کردن جستجو" onClick={() => setQuery({ origin: '', destination: '' })} />}

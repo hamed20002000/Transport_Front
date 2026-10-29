@@ -7,7 +7,6 @@ import {
   FileBadge,
   Globe2,
   Hash,
-  IdCard,
   Mailbox,
   MapPinned,
   Phone,
@@ -36,14 +35,20 @@ import CompanyShell from './CompanyShell';
 import VerificationCard from './VerificationCard';
 import { reloadCompanyFeatures } from './featuresApi';
 import { setCachedProfile } from './profileStore';
-import { CardSkeleton, LoadFailed, SectionTitle, Segmented } from './components';
+import { CardSkeleton, LoadFailed, SectionTitle } from './components';
 import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
 import EitaaLinkCard from 'src/shared/components/messenger/EitaaLinkCard';
+import FloatingActions from 'src/shared/components/FloatingActions';
 
 type Fields = Record<ProfileTextField, string> & { profileType: ProfileType | null };
 
-const textFields = Object.keys(profileRules) as ProfileTextField[];
-const companyFields: ProfileTextField[] = ['companyName', 'companyNationalId', 'economicCode', 'registrationNo'];
+// a company has no personal fields: it is known by its phone number, not by the person behind it
+const personalFields: ProfileTextField[] = ['firstName', 'lastName', 'nationalCode'];
+const textFields = (Object.keys(profileRules) as ProfileTextField[]).filter((key) => !personalFields.includes(key));
+
+const saveClass =
+  'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed';
+const cancelClass = 'tw-rounded-xl tw-bg-transparent tw-text-sm tw-font-medium tw-text-brand-muted hover:tw-text-brand-navy';
 
 const inputClass =
   'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange';
@@ -152,8 +157,7 @@ function ProfileContent() {
 
   const saved = toFields(profile);
   const changed = (key: ProfileTextField) => toLatinDigits(fields[key].trim()) !== saved[key];
-  const dirty = fields.profileType !== saved.profileType || textFields.some(changed);
-  const isCompany = fields.profileType !== 0;
+  const dirty = textFields.some(changed);
 
   const input = (key: ProfileTextField, extra?: { ltr?: boolean; numeric?: boolean; placeholder?: string }) => (
     <input
@@ -173,7 +177,8 @@ function ProfileContent() {
 
     // Only changed fields are sent; a cleared field goes as null so the server removes it.
     const body: UserProfileInput = {};
-    if (fields.profileType !== saved.profileType) body.profileType = fields.profileType;
+    // a transport company is always a legal entity; an old «حقیقی» profile is corrected on save
+    if (saved.profileType !== 1) body.profileType = 1;
     if (kinds.domestic && !fields.domesticCompanyName.trim()) return toast.error('نام شرکت داخلی را بنویسید، یا تیک «داخلی» را بردارید.');
     if (kinds.international && !fields.internationalCompanyName.trim())
       return toast.error('نام شرکت بین‌المللی را بنویسید، یا تیک «بین‌المللی» را بردارید.');
@@ -203,64 +208,28 @@ function ProfileContent() {
     }
   }
 
-  const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
-
   return (
     <form onSubmit={submit} noValidate className="tw-space-y-6">
-      <SectionTitle title="پروفایل" hint="اطلاعات شخصی و شرکتی خود را تکمیل یا اصلاح کنید" />
+      <SectionTitle title="پروفایل" hint="اطلاعات شرکت را تکمیل یا اصلاح کنید" />
       {/* a company that signed up on its own: the parent company checks it before anything else opens */}
       <VerificationCard dirty={dirty} version={saves} onChange={(state) => state.status === 'APPROVED' && void reloadCompanyFeatures()} />
       <div className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-[1fr_20rem]">
         <fieldset disabled={saving} className="tw-m-0 tw-min-w-0 tw-space-y-6 tw-border-0 tw-p-0">
-          <Card title="اطلاعات شخصی">
+          <Card title="اطلاعات شرکت">
             <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
-              <Field label="نام" icon={User}>
-                {input('firstName')}
+              <Field label="نام تجاری شرکت" icon={Building2} className="sm:tw-col-span-2" required>
+                {input('companyName')}
               </Field>
-              <Field label="نام خانوادگی" icon={User}>
-                {input('lastName')}
+              <Field label="شناسه ملی شرکت" icon={FileBadge}>
+                {input('companyNationalId', { ltr: true, numeric: true, placeholder: '10101234567' })}
               </Field>
-              <Field label="کد ملی" icon={IdCard}>
-                {input('nationalCode', { ltr: true, numeric: true, placeholder: '0012345678' })}
+              <Field label="شماره ثبت" icon={Hash}>
+                {input('registrationNo', { ltr: true })}
+              </Field>
+              <Field label="کد اقتصادی" icon={Hash} required>
+                {input('economicCode', { ltr: true })}
               </Field>
             </div>
-          </Card>
-
-          <Card
-            title="اطلاعات شرکت"
-            side={
-              <Segmented
-                label="نوع پروفایل"
-                value={fields.profileType === 0 ? 'person' : 'company'}
-                onChange={(value) => setFields((current) => current && { ...current, profileType: value === 'person' ? 0 : 1 })}
-                options={[
-                  { value: 'company', label: 'حقوقی', icon: Building2 },
-                  { value: 'person', label: 'حقیقی', icon: User },
-                ]}
-              />
-            }
-          >
-            {isCompany ? (
-              <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
-                <Field label="نام تجاری شرکت" icon={Building2} className="sm:tw-col-span-2" required>
-                  {input('companyName')}
-                </Field>
-                <Field label="شناسه ملی شرکت" icon={FileBadge}>
-                  {input('companyNationalId', { ltr: true, numeric: true, placeholder: '10101234567' })}
-                </Field>
-                <Field label="شماره ثبت" icon={Hash}>
-                  {input('registrationNo', { ltr: true })}
-                </Field>
-                <Field label="کد اقتصادی" icon={Hash} required>
-                  {input('economicCode', { ltr: true })}
-                </Field>
-              </div>
-            ) : (
-              <p className="tw-text-sm tw-text-brand-muted">
-                پروفایل روی «حقیقی» است.
-                {companyFields.some((key) => saved[key]) && ' اطلاعات شرکتی قبلی نگه داشته می‌شود.'}
-              </p>
-            )}
           </Card>
 
           <Card title="زمینه‌ی کاری شرکت">
@@ -323,31 +292,38 @@ function ProfileContent() {
 
         <aside className="tw-space-y-4 lg:tw-sticky lg:tw-top-48 lg:tw-self-start">
           <section className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-text-sm tw-shadow-sm">
-            <p className="tw-truncate tw-text-base tw-font-bold">{profile.companyName || fullName || profile.username}</p>
+            <p className="tw-truncate tw-text-base tw-font-bold">{profile.companyName || profile.username}</p>
             <ReadOnly icon={User} label="نام کاربری" value={profile.username} />
             <ReadOnly icon={Smartphone} label="موبایل" value={profile.mobile} />
             <ReadOnly icon={Hash} label="کد اختصاصی حساب" value={profile.accountCode} />
             <ReadOnly icon={AtSign} label="ایمیل" value={profile.email} />
           </section>
-          <button
-            type="submit"
-            disabled={saving || !dirty}
-            className="tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-opacity-50"
-          >
-            <Save size={18} aria-hidden className={saving ? 'tw-animate-pulse' : undefined} />
-            {saving ? 'در حال ذخیره…' : dirty ? 'ذخیره تغییرات' : 'تغییری ثبت نشده'}
-          </button>
-          {dirty && !saving && (
-            <button
-              type="button"
-              onClick={() => setFields(saved)}
-              className="tw-w-full tw-rounded-xl tw-bg-transparent tw-py-2 tw-text-sm tw-font-medium tw-text-brand-muted hover:tw-text-brand-navy"
-            >
-              لغو تغییرات
+          {/* wide screens: the aside is sticky, so the buttons stay in view next to the form */}
+          <div className="tw-hidden tw-space-y-4 lg:tw-block">
+            <button type="submit" disabled={saving || !dirty} className={cn(saveClass, 'tw-h-12 tw-w-full tw-text-base')}>
+              <Save size={18} aria-hidden className={saving ? 'tw-animate-pulse' : undefined} />
+              {saving ? 'در حال ذخیره…' : dirty ? 'ذخیره تغییرات' : 'تغییری ثبت نشده'}
             </button>
-          )}
+            {dirty && !saving && (
+              <button type="button" onClick={() => setFields(saved)} className={cn(cancelClass, 'tw-w-full tw-py-2')}>
+                لغو تغییرات
+              </button>
+            )}
+          </div>
         </aside>
       </div>
+      {/* phones: the aside comes after the whole form, so the buttons float instead */}
+      <FloatingActions className="lg:tw-hidden">
+        {dirty && !saving && (
+          <button type="button" onClick={() => setFields(saved)} className="tw-h-10 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-4 tw-text-sm tw-font-medium tw-text-brand-navy hover:tw-bg-brand-sky">
+            لغو
+          </button>
+        )}
+        <button type="submit" disabled={saving || !dirty} className={cn(saveClass, 'tw-h-10 tw-px-5 tw-text-sm')}>
+          <Save size={16} aria-hidden className={saving ? 'tw-animate-pulse' : undefined} />
+          {saving ? 'در حال ذخیره…' : dirty ? 'ذخیره تغییرات' : 'تغییری ثبت نشده'}
+        </button>
+      </FloatingActions>
     </form>
   );
 }

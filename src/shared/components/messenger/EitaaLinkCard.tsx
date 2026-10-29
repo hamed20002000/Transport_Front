@@ -139,7 +139,7 @@ export default function EitaaLinkCard() {
             type="button"
             onClick={() => void getCode()}
             disabled={busy}
-            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark disabled:tw-opacity-60"
+            className="tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white hover:tw-bg-brand-orange-dark"
           >
             {busy ? 'در حال گرفتن کد…' : code ? 'کد تازه' : 'گرفتن کد اتصال'}
           </button>

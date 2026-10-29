@@ -3,21 +3,21 @@ import { Check, Copy, ExternalLink, LoaderCircle, MessageCircle, RefreshCw, Shar
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import type { MessengerInvites } from 'src/features/factory/api';
+import { displayName, useProfile } from './profileStore';
 
 const outlineButton =
-  'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky disabled:tw-opacity-50';
+  'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
 
 /**
  * An invite link (web) and its code and links for the bots and WhatsApp, with copy, share and «لینک تازه». Used for
  * a company inviting factories (/invite/…, inv_…) and the parent company inviting transport companies (/join/…, cmp_…).
  * who: whom the link is for, as the texts name them («کارخانه»، «شرکت»). note / messengerNote replace the texts of a
- * shared link (a personal invite works for one number); without onRenew there is no «لینک تازه».
+ * shared link (a personal invite works for one number); «ارسال» sends the invite SMS's text; without onRenew there is no «لینک تازه».
  */
 export default function InviteLinks({
   link,
   messengers,
   who,
-  shareText,
   onRenew,
   note = 'این لینک را بفرستید؛ یک لینک برای همه کار می‌کند.',
   messengerNote,
@@ -25,20 +25,22 @@ export default function InviteLinks({
   link: string;
   messengers: MessengerInvites;
   who: string;
-  shareText: string;
   onRenew?: () => Promise<void>;
   note?: string;
   messengerNote?: string;
 }) {
   const toast = useToast();
+  // the inviting company is the one logged in (the server names it the same way in the SMS)
+  const inviter = displayName(useProfile()) || 'شرکت حمل‌ونقل';
   const messageBox = useMessageBox();
   const [copied, setCopied] = useState(false);
   const [renewing, setRenewing] = useState(false);
   const messengerLinks = [
     { name: 'تلگرام', url: messengers.telegram, hint: 'ربات با کد دعوت باز می‌شود' },
     { name: 'بله', url: messengers.bale, hint: 'ربات با کد دعوت باز می‌شود' },
-    { name: 'واتساپ', url: messengers.whatsapp, hint: 'کد دعوت آماده‌ی ارسال است' },
+    { name: 'ایتا', url: messengers.eitaa, hint: `${who} کد دعوت را در ایتا بفرستد` },
     { name: 'روبیکا', url: messengers.rubika, hint: `${who} کد دعوت را در ربات بفرستد` },
+    { name: 'واتساپ', url: messengers.whatsapp, hint: 'کد دعوت آماده‌ی ارسال است' },
   ].filter((item): item is { name: string; url: string; hint: string } => !!item.url);
 
   async function copyText(text: string, done: () => void) {
@@ -50,9 +52,13 @@ export default function InviteLinks({
     }
   }
 
+  // the same text as the invite SMS (transport_backend inviteText): only the web link; it opens sign-in, which shows
+  // this invite's messenger links
+  const fullText = `لینک دعوت «${inviter}»:\n${link}`;
+
   async function share() {
     try {
-      await navigator.share({ title: 'دعوت', text: shareText });
+      await navigator.share({ title: 'دعوت', text: fullText });
     } catch {
       // closed by the user, or sharing is not available: the copy button stays
     }
@@ -99,9 +105,14 @@ export default function InviteLinks({
           >
             {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />} {copied ? 'کپی شد' : 'کپی لینک'}
           </button>
-          {typeof navigator.share === 'function' && (
+          {typeof navigator.share === 'function' ? (
             <button type="button" onClick={share} className={outlineButton}>
               <Share2 size={16} aria-hidden /> ارسال
+            </button>
+          ) : (
+            // desktop browsers without a share sheet: the same full text to paste into any messenger
+            <button type="button" onClick={() => copyText(fullText, () => toast.success('متن دعوت کپی شد.'))} className={outlineButton}>
+              <Share2 size={16} aria-hidden /> کپی متن دعوت
             </button>
           )}
           {onRenew && (

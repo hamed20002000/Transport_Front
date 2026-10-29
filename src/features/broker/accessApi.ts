@@ -47,6 +47,8 @@ export interface BrokerAccess {
   companies: AccessCompany[];
   orders: AccessOrder[];
   payment: { cardNumber: string; cardOwner: string };
+  /** the assistant is open: approved by the parent company and, while brokers pay, companies bought */
+  agent: boolean;
   /** companies added at once (room left in the base price) */
   added?: number;
 }

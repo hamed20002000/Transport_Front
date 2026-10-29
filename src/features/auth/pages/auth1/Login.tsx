@@ -1,6 +1,7 @@
 import { Truck } from 'lucide-react';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import AuthOtp from '../../components/AuthOtp';
+import InviteMessengers from '../../components/InviteMessengers';
 import TransportVisual from '../../components/TransportVisual';
 import styles from '../../styles/login.module.css';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
@@ -26,6 +27,7 @@ export default function Login() {
               <h1 id="login-title">خوش آمدید</h1>
               <p className={styles.description}>ورود و ثبت‌نام فقط با شماره موبایل؛ رمز عبور لازم نیست.</p>
               <AuthOtp />
+              <InviteMessengers />
             </div>
           </section>
           <TransportVisual />
