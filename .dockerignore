@@ -1,0 +1,12 @@
+node_modules
+dist
+dev-dist
+.git
+.env
+.env.*
+tests
+playwright-report
+test-results
+*.md
+*.log
+vite.config.ts.timestamp-*
