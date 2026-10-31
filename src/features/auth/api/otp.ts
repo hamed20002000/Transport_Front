@@ -2,6 +2,7 @@ import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 import type { SessionTokens } from 'src/core/auth/session';
 import type { AccountType } from '../types/register';
+import { thisDeviceEndpoint } from 'src/shared/components/pwa/pushApi';
 
 const base = `${endpoints.baseurl}${endpoints.login}otp`;
 
@@ -25,7 +26,9 @@ export async function requestOtp(phoneNumber: string) {
 }
 
 export async function verifyOtp(phoneNumber: string, code: string) {
-  const { data } = await axios.post<Envelope<OtpVerified>>(`${base}/verify`, { phoneNumber, code }, { timeout: 20000 });
+  // the account's other phones get a «new sign-in» notification; this one is not told about itself
+  const pushEndpoint = (await thisDeviceEndpoint()) ?? undefined;
+  const { data } = await axios.post<Envelope<OtpVerified>>(`${base}/verify`, { phoneNumber, code, pushEndpoint }, { timeout: 20000 });
   if (!data.success || !data.data) throw new Error('تأیید کد انجام نشد. دوباره تلاش کنید.');
   return data.data;
 }

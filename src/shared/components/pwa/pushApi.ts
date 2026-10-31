@@ -63,6 +63,19 @@ export async function currentSubscription(): Promise<PushSubscription | null> {
   return (await serviceWorker()).pushManager.getSubscription();
 }
 
+/**
+ * This device's push address if it already has one, without waiting for the service worker (null otherwise): sent
+ * with a sign-in so the account's other devices hear of it, and not this one.
+ */
+export async function thisDeviceEndpoint(): Promise<string | null> {
+  try {
+    const registration = await navigator.serviceWorker?.getRegistration();
+    return (await registration?.pushManager?.getSubscription())?.endpoint ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export type DeviceOwner = 'mine' | 'other' | 'none';
 
 type OwnerResponse = { owner?: DeviceOwner; otherPhone?: string | null };
