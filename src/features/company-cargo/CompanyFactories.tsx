@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { ChevronDown, CircleCheck, Clock, Factory, LoaderCircle, Trash2, UserPlus } from 'lucide-react';
+import { CalendarDays, ChevronDown, CircleCheck, Clock, Factory, LoaderCircle, Package, Phone, Trash2, UserPlus } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import { cn } from 'src/shared/utils/utils';
@@ -23,64 +23,65 @@ function FactoryCard({ factory, open, onToggle, onRemove, removing }: { factory:
   const link = factory.token ? inviteUrl(factory.token) : null;
   const joined = !!factory.usedAt || !link;
   return (
-    <article className="tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
-      <div className="tw-flex tw-items-start tw-gap-3">
-        <span className="tw-flex tw-h-11 tw-w-11 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky tw-text-brand-navy" aria-hidden>
-          <Factory size={20} />
+    <article className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
+      <div className="tw-flex tw-items-center tw-gap-3">
+        <span className="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky tw-text-brand-navy" aria-hidden>
+          <Factory size={18} />
         </span>
-        <div className="tw-min-w-0 tw-flex-1 tw-space-y-1.5">
-          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-            <p className="tw-m-0 tw-min-w-0 tw-truncate tw-font-bold">{factory.name}</p>
+        <div className="tw-min-w-0 tw-flex-1">
+          <p className="tw-m-0 tw-truncate tw-font-bold">{factory.name}</p>
+          <div className="tw-mt-1 tw-flex tw-flex-wrap tw-items-center tw-gap-1.5">
             <AccountCode code={factory.accountCode} />
+            {joined ? (
+              <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2 tw-py-0.5 tw-text-xs tw-font-bold tw-text-emerald-700">
+                <CircleCheck size={12} aria-hidden /> وارد شده
+              </span>
+            ) : (
+              <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2 tw-py-0.5 tw-text-xs tw-font-bold tw-text-amber-700">
+                <Clock size={12} aria-hidden /> هنوز وارد نشده
+              </span>
+            )}
           </div>
-          {joined ? (
-            <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-bold tw-text-emerald-700">
-              <CircleCheck size={13} aria-hidden /> وارد شده
-            </span>
-          ) : (
-            <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-bold tw-text-amber-700">
-              <Clock size={13} aria-hidden /> هنوز وارد نشده
-            </span>
-          )}
         </div>
-      </div>
-
-      <dl className="tw-m-0 tw-mt-3 tw-grid tw-grid-cols-3 tw-gap-2 tw-text-center">
-        <div className="tw-rounded-xl tw-bg-brand-sky/60 tw-px-2 tw-py-2">
-          <dt className="tw-text-[11px] tw-text-brand-muted">موبایل</dt>
-          <dd className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-bold" dir="ltr">{factory.mobile ?? '—'}</dd>
-        </div>
-        <div className="tw-rounded-xl tw-bg-brand-sky/60 tw-px-2 tw-py-2">
-          <dt className="tw-text-[11px] tw-text-brand-muted">عضو از</dt>
-          <dd className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-bold">{faDate(factory.joinedAt)}</dd>
-        </div>
-        <div className="tw-rounded-xl tw-bg-brand-sky/60 tw-px-2 tw-py-2">
-          <dt className="tw-text-[11px] tw-text-brand-muted">بارها</dt>
-          <dd className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-bold">{fa(factory.loads)}</dd>
-        </div>
-      </dl>
-
-      <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-2 tw-border-t tw-border-brand-line tw-pt-3">
-        {link && (
-          <button type="button" onClick={onToggle} aria-expanded={open} className={cn(outlineButton, 'tw-me-auto')}>
-            لینک دعوت <ChevronDown size={16} aria-hidden className={cn('tw-transition-transform', open && 'tw-rotate-180')} />
-          </button>
-        )}
-        <button type="button" onClick={onRemove} disabled={removing} className={cn(outlineButton, 'tw-border-red-100 tw-text-red-700 hover:tw-bg-red-50')}>
-          {removing ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Trash2 size={16} aria-hidden />} حذف
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={removing}
+          title="حذف"
+          aria-label={`حذف ${factory.name}`}
+          className="tw-flex tw-h-9 tw-w-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-red-100 tw-bg-white tw-text-red-600 hover:tw-bg-red-50"
+        >
+          {removing ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Trash2 size={16} aria-hidden />}
         </button>
       </div>
 
-      {open && link && factory.messengers && (
-        <div className="tw-mt-3">
-          <InviteLinks
-            link={link}
-            messengers={factory.messengers}
-            who="شرکت / کارخانه"
-            note={`این لینک فقط برای شماره‌ی ${factory.mobile} کار می‌کند؛ کارخانه با همین شماره و کد پیامکی وارد می‌شود.`}
-            messengerNote={`اگر کارخانه با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${factory.mobile} را بدهد.`}
-          />
-        </div>
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-1 tw-text-xs tw-text-brand-muted">
+        {factory.mobile && (
+          <span className="tw-inline-flex tw-items-center tw-gap-1">
+            <Phone size={13} aria-hidden /> <bdi dir="ltr">{factory.mobile}</bdi>
+          </span>
+        )}
+        <span className="tw-inline-flex tw-items-center tw-gap-1">
+          <CalendarDays size={13} aria-hidden /> عضو از {faDate(factory.joinedAt)}
+        </span>
+        <span className="tw-inline-flex tw-items-center tw-gap-1">
+          <Package size={13} aria-hidden /> {fa(factory.loads)} بار
+        </span>
+      </div>
+
+      {link && !joined && (
+        <button type="button" onClick={onToggle} aria-expanded={open} className={cn(outlineButton, 'tw-w-full tw-justify-center')}>
+          لینک دعوت <ChevronDown size={16} aria-hidden className={cn('tw-transition-transform', open && 'tw-rotate-180')} />
+        </button>
+      )}
+      {open && link && !joined && factory.messengers && (
+        <InviteLinks
+          link={link}
+          messengers={factory.messengers}
+          who="شرکت / کارخانه"
+          note={`این لینک فقط برای شماره‌ی ${factory.mobile} کار می‌کند؛ کارخانه با همین شماره و کد پیامکی وارد می‌شود.`}
+          messengerNote={`اگر کارخانه با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${factory.mobile} را بدهد.`}
+        />
       )}
     </article>
   );
