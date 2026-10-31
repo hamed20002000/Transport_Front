@@ -1,7 +1,7 @@
 {
     "baseurl": "/api/",
     "tarabariurl": "/tarabari-api/",
-    "socketurl": "http://localhost:3001",
+    "socketurl": "",
     "urldpwonload": "",
     "admin": "Admin/",
     "login": "auth/",
