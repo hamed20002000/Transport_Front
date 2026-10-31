@@ -21,43 +21,66 @@ const digits = (value: string) =>
 /** One factory of the company: its state and loads, and (opened) the invite that works only for its number. */
 function FactoryCard({ factory, open, onToggle, onRemove, removing }: { factory: CompanyFactory; open: boolean; onToggle: () => void; onRemove: () => void; removing: boolean }) {
   const link = factory.token ? inviteUrl(factory.token) : null;
+  const joined = !!factory.usedAt || !link;
   return (
-    <article className="tw-space-y-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4">
-      <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
-        <button type="button" onClick={onToggle} disabled={!link} aria-expanded={open} className="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-justify-between tw-gap-3 tw-border-0 tw-bg-transparent tw-p-0 tw-text-start">
-          <span className="tw-min-w-0">
-            <span className="tw-flex tw-items-center tw-gap-2 tw-font-bold">
-              <Factory size={16} aria-hidden className="tw-text-brand-muted" /> {factory.name} <AccountCode code={factory.accountCode} />
+    <article className="tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
+      <div className="tw-flex tw-items-start tw-gap-3">
+        <span className="tw-flex tw-h-11 tw-w-11 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky tw-text-brand-navy" aria-hidden>
+          <Factory size={20} />
+        </span>
+        <div className="tw-min-w-0 tw-flex-1 tw-space-y-1.5">
+          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            <p className="tw-m-0 tw-min-w-0 tw-truncate tw-font-bold">{factory.name}</p>
+            <AccountCode code={factory.accountCode} />
+          </div>
+          {joined ? (
+            <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-bold tw-text-emerald-700">
+              <CircleCheck size={13} aria-hidden /> وارد شده
             </span>
-            <span className="tw-mt-1 tw-block tw-text-xs tw-text-brand-muted">
-              {factory.mobile && <span dir="ltr">{factory.mobile}</span>} · عضو از {faDate(factory.joinedAt)} · {fa(factory.loads)} بار
+          ) : (
+            <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-bold tw-text-amber-700">
+              <Clock size={13} aria-hidden /> هنوز وارد نشده
             </span>
-          </span>
-          <span className="tw-flex tw-items-center tw-gap-2">
-            {factory.usedAt || !link ? (
-              <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold tw-text-emerald-700">
-                <CircleCheck size={13} aria-hidden /> وارد شده
-              </span>
-            ) : (
-              <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-brand-sky tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold">
-                <Clock size={13} aria-hidden /> هنوز وارد نشده
-              </span>
-            )}
-            {link && <ChevronDown size={18} aria-hidden className={cn('tw-text-brand-muted tw-transition-transform', open && 'tw-rotate-180')} />}
-          </span>
-        </button>
-        <button type="button" onClick={onRemove} disabled={removing} className={cn(outlineButton, 'tw-text-red-700')}>
+          )}
+        </div>
+      </div>
+
+      <dl className="tw-m-0 tw-mt-3 tw-grid tw-grid-cols-3 tw-gap-2 tw-text-center">
+        <div className="tw-rounded-xl tw-bg-brand-sky/60 tw-px-2 tw-py-2">
+          <dt className="tw-text-[11px] tw-text-brand-muted">موبایل</dt>
+          <dd className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-bold" dir="ltr">{factory.mobile ?? '—'}</dd>
+        </div>
+        <div className="tw-rounded-xl tw-bg-brand-sky/60 tw-px-2 tw-py-2">
+          <dt className="tw-text-[11px] tw-text-brand-muted">عضو از</dt>
+          <dd className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-bold">{faDate(factory.joinedAt)}</dd>
+        </div>
+        <div className="tw-rounded-xl tw-bg-brand-sky/60 tw-px-2 tw-py-2">
+          <dt className="tw-text-[11px] tw-text-brand-muted">بارها</dt>
+          <dd className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-bold">{fa(factory.loads)}</dd>
+        </div>
+      </dl>
+
+      <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-2 tw-border-t tw-border-brand-line tw-pt-3">
+        {link && (
+          <button type="button" onClick={onToggle} aria-expanded={open} className={cn(outlineButton, 'tw-me-auto')}>
+            لینک دعوت <ChevronDown size={16} aria-hidden className={cn('tw-transition-transform', open && 'tw-rotate-180')} />
+          </button>
+        )}
+        <button type="button" onClick={onRemove} disabled={removing} className={cn(outlineButton, 'tw-border-red-100 tw-text-red-700 hover:tw-bg-red-50')}>
           {removing ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Trash2 size={16} aria-hidden />} حذف
         </button>
       </div>
+
       {open && link && factory.messengers && (
-        <InviteLinks
-          link={link}
-          messengers={factory.messengers}
-          who="شرکت / کارخانه"
-          note={`این لینک فقط برای شماره‌ی ${factory.mobile} کار می‌کند؛ کارخانه با همین شماره و کد پیامکی وارد می‌شود.`}
-          messengerNote={`اگر کارخانه با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${factory.mobile} را بدهد.`}
-        />
+        <div className="tw-mt-3">
+          <InviteLinks
+            link={link}
+            messengers={factory.messengers}
+            who="شرکت / کارخانه"
+            note={`این لینک فقط برای شماره‌ی ${factory.mobile} کار می‌کند؛ کارخانه با همین شماره و کد پیامکی وارد می‌شود.`}
+            messengerNote={`اگر کارخانه با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${factory.mobile} را بدهد.`}
+          />
+        </div>
       )}
     </article>
   );
