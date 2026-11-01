@@ -29,6 +29,8 @@ export function useNotificationEvent<T>(event: string, handler: (payload: T) => 
     const s = getSocket();
     const listener = (payload: T) => latest.current(payload);
     s.on(event, listener);
+    // A shared Manager may have been created with autoConnect: false by the main panel.
+    if (!s.connected) s.connect();
     return () => {
       s.off(event, listener);
     };
