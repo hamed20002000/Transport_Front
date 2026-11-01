@@ -27,10 +27,11 @@ function Status({ channel }: { channel: Channel }) {
     ? (['غیرفعال', Clock, 'tw-bg-stone-100 tw-text-brand-muted'] as const)
     : channel.isMember
       ? (['فعال · در حال دریافت بار', CircleCheck, 'tw-bg-emerald-50 tw-text-emerald-700'] as const)
-      : channel.lastError
-        ? (['خطا در عضویت', TriangleAlert, 'tw-bg-red-50 tw-text-red-700'] as const)
-        : channel.joinRequestPending
-          ? (['در انتظار تأیید ادمین', Hourglass, 'tw-bg-brand-orange-soft tw-text-brand-orange-ink'] as const)
+      // a sent join request keeps its note in lastError: waiting for the admin, not an error
+      : channel.joinRequestPending || channel.membershipStatus === 'pending'
+        ? (['در انتظار تأیید ادمین', Hourglass, 'tw-bg-brand-orange-soft tw-text-brand-orange-ink'] as const)
+        : channel.lastError
+          ? (['خطا در عضویت', TriangleAlert, 'tw-bg-red-50 tw-text-red-700'] as const)
           : (['در صف عضویت', Hourglass, 'tw-bg-brand-sky tw-text-brand-navy'] as const);
   return (
     <span title={channel.lastError ?? undefined} className={cn('tw-inline-flex tw-items-center tw-gap-1 tw-whitespace-nowrap tw-rounded-full tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium', tone)}>
