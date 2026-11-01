@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Eitaa: orange like the app, a speech bubble (not its trademark logo) -->
+  <circle cx="24" cy="24" r="24" fill="#F18F1F"/>
+  <path d="M14 15.5h20a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H22l-6.5 5v-5H14a3 3 0 0 1-3-3v-10a3 3 0 0 1 3-3z" fill="#fff"/>
+  <circle cx="18.5" cy="23.5" r="2" fill="#F18F1F"/>
+  <circle cx="24" cy="23.5" r="2" fill="#F18F1F"/>
+  <circle cx="29.5" cy="23.5" r="2" fill="#F18F1F"/>
+</svg>

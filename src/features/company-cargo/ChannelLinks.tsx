@@ -35,7 +35,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
     event.preventDefault();
     if (pending.current) return;
     if (!link.trim()) return toast.error('لینک گروه یا کانال را وارد کنید.');
-    if (!platform) return toast.error('این لینک واتساپ، تلگرام، بله یا روبیکا نیست. نمونه‌های پایین فرم را ببینید.');
+    if (!platform) return toast.error('این لینک واتساپ، تلگرام، بله، روبیکا یا ایتا نیست. نمونه‌های پایین فرم را ببینید.');
     pending.current = true;
     setSaving(true);
     try {
@@ -74,7 +74,7 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
               dir="ltr"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              placeholder="chat.whatsapp.com/…  t.me/…  ble.ir/…  rubika.ir/…"
+              placeholder="chat.whatsapp.com/…  t.me/…  ble.ir/…  rubika.ir/…  eitaa.com/…"
               maxLength={500}
               autoComplete="off"
             />
@@ -125,6 +125,8 @@ function AddForm({ onAdded }: { onAdded: (channel: Channel, message: string) => 
         <span>ble.ir/join/…</span>
         <span>rubika.ir/username</span>
         <span>rubika.ir/joing/…</span>
+        <span>eitaa.com/username</span>
+        <span>eitaa.com/joinchat/…</span>
       </div>
     </form>
   );
@@ -180,7 +182,7 @@ function ChannelsContent() {
 
   return (
     <div className="tw-space-y-6">
-      <SectionTitle title="گروه‌ها و کانال‌ها" hint="لینک گروه یا کانال واتساپ، تلگرام، بله و روبیکا را ثبت کنید تا بارهایش برای شما بیاید" />
+      <SectionTitle title="گروه‌ها و کانال‌ها" hint="لینک گروه یا کانال واتساپ، تلگرام، بله، روبیکا و ایتا را ثبت کنید تا بارهایش برای شما بیاید" />
 
       <AddForm
         onAdded={(channel, message) => {
@@ -201,6 +203,7 @@ function ChannelsContent() {
             { value: 'telegram', label: `تلگرام (${count('telegram').toLocaleString('fa-IR')})`, icon: platforms.telegram.logo },
             { value: 'bale', label: `بله (${count('bale').toLocaleString('fa-IR')})`, icon: platforms.bale.logo },
             { value: 'rubika', label: `روبیکا (${count('rubika').toLocaleString('fa-IR')})`, icon: platforms.rubika.logo },
+            { value: 'eitaa', label: `ایتا (${count('eitaa').toLocaleString('fa-IR')})`, icon: platforms.eitaa.logo },
           ]}
         />
         <IconButton icon={RotateCcw} label="به‌روزرسانی" onClick={() => setVersion((v) => v + 1)} />
@@ -232,7 +235,7 @@ export default function ChannelLinks() {
   if (!isAuth) return <Navigate to="/auth/login" replace />;
   if (!userRoles.some((role) => role.name === 'COMPANY')) return <Navigate to="/account/company" replace />;
   return (
-    <PageContainer title="گروه‌ها و کانال‌ها | Marand Trabar" description="ثبت لینک گروه و کانال واتساپ، تلگرام، بله و روبیکا">
+    <PageContainer title="گروه‌ها و کانال‌ها | Marand Trabar" description="ثبت لینک گروه و کانال واتساپ، تلگرام، بله، روبیکا و ایتا">
       <CompanyShell>
         <ChannelsContent />
       </CompanyShell>

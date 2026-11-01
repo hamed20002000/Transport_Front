@@ -1,7 +1,7 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 
-export type ChannelPlatform = 'whatsapp' | 'telegram' | 'bale' | 'rubika';
+export type ChannelPlatform = 'whatsapp' | 'telegram' | 'bale' | 'rubika' | 'eitaa';
 
 // MonitoredChannelRole in tarabari_backend: source = cargo is read from it, destination = processed cargo is posted to it.
 export type ChannelRole = 'source' | 'destination' | 'both';
@@ -36,6 +36,8 @@ export function detectPlatform(link: string): ChannelPlatform | null {
   if (/^(?:https?:\/\/)?(?:www\.)?ble\.ir\/(?:join\/[\w-]+|[A-Za-z][A-Za-z0-9_]{3,})/i.test(value)) return 'bale';
   // Rubika: rubika.ir/username, rubika.ir/joing/<hash> (group) or rubika.ir/joinc/<hash> (channel).
   if (/^(?:https?:\/\/)?(?:www\.)?rubika\.ir\/(?:join[gc]\/[\w-]+|[A-Za-z][A-Za-z0-9_]{3,})/i.test(value)) return 'rubika';
+  // Eitaa: eitaa.com/username or eitaa.com/joinchat/<token> (eitaa.ir too).
+  if (/^(?:https?:\/\/)?(?:www\.)?eitaa\.(?:com|ir)\/(?:joinchat\/[\w-]+|@?[A-Za-z][A-Za-z0-9_]{2,}\/?$)/i.test(value)) return 'eitaa';
   const telegramHost = /^(?:https?:\/\/)?(?:www\.)?(?:t\.me|telegram\.me|telegram\.dog)\//i;
   if (
     new RegExp(`${telegramHost.source}(?:\\+|joinchat\\/)[\\w-]+`, 'i').test(value) ||

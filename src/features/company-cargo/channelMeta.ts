@@ -7,6 +7,7 @@ export const platforms: Record<ChannelPlatform, { label: string; logo: string; t
   telegram: { label: 'تلگرام', logo: '/telegram.svg', tile: 'tw-bg-[#E6F4FB] tw-text-[#1C8AC4]', text: 'tw-text-[#1C8AC4]' },
   bale: { label: 'بله', logo: '/bale.svg', tile: 'tw-bg-[#E6F7F5] tw-text-[#0F8A7E]', text: 'tw-text-[#0F8A7E]' },
   rubika: { label: 'روبیکا', logo: '/rubika.svg', tile: 'tw-bg-[#F3ECFB] tw-text-[#7B3FC4]', text: 'tw-text-[#7B3FC4]' },
+  eitaa: { label: 'ایتا', logo: '/eitaa.svg', tile: 'tw-bg-[#FEF1E2] tw-text-[#C2650A]', text: 'tw-text-[#C2650A]' },
 };
 
 export const typeLabels = { group: 'گروه', channel: 'کانال' };
