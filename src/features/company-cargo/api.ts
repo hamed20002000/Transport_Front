@@ -409,8 +409,8 @@ export interface UserProfile {
   economicCode: string | null;
   registrationNo: string | null;
   phone: string | null;
-  /** the mobile announced loads show; null: the mobile the account signs in with */
-  contactMobile: string | null;
+  /** the mobiles announced loads show, comma-separated; null: the mobile the account signs in with */
+  contactMobiles: string | null;
   postalCode: string | null;
   address: string | null;
   /** how loads are shown, on the web and in the messengers (transport_backend User.cargoDisplay) */
@@ -423,7 +423,7 @@ export type ProfileTextField = Exclude<keyof UserProfile, 'id' | 'username' | 'e
 export type UserProfileInput = Partial<Record<ProfileTextField, string | null>> & { profileType?: ProfileType | null; cargoDisplay?: 'TEXT' | 'IMAGE' };
 
 // Same rules as UpdateUserProfileDto.
-export const profileRules: Record<ProfileTextField, { max: number; pattern?: RegExp; message?: string }> = {
+export const profileRules: Record<ProfileTextField, { max: number; pattern?: RegExp; check?: (value: string) => boolean; message?: string }> = {
   firstName: { max: 100 },
   lastName: { max: 100 },
   nationalCode: { max: 10, pattern: /^[0-9]{10}$/, message: 'کد ملی باید ۱۰ رقم باشد.' },
@@ -434,10 +434,35 @@ export const profileRules: Record<ProfileTextField, { max: number; pattern?: Reg
   economicCode: { max: 30 },
   registrationNo: { max: 30 },
   phone: { max: 20, pattern: /^[0-9+\-\s]{4,20}$/, message: 'شماره تلفن معتبر نیست.' },
-  contactMobile: { max: 11, pattern: /^09[0-9]{9}$/, message: 'موبایل اعلام بار باید ۱۱ رقم و با ۰۹ شروع شود؛ مثلاً 09121234567.' },
+  contactMobiles: {
+    max: 100,
+    check: (value) => (parseMobileList(value)?.length ?? 99) <= 4,
+    message: 'موبایل اعلام بار: حداکثر ۴ شماره‌ی موبایل، با کاما جدا؛ مثلاً 09121234567, 09351234567.',
+  },
+
   postalCode: { max: 10, pattern: /^[0-9]{10}$/, message: 'کد پستی باید ۱۰ رقم باشد.' },
   address: { max: 1000 },
 };
+
+/**
+ * «موبایل اعلام بار» as typed, read like the server does (transport_backend parseMobileList): mobiles separated by
+ * commas, semicolons or spaces, each as 09…, +98… or 0912-123-4567. null when a piece is not a mobile.
+ */
+export function parseMobileList(value: string): string[] | null {
+  const mobile = (text: string) => toLatinDigits(text).replace(/^(?:\+98|0098|98)(?=9)/, '0');
+  const mobiles: string[] = [];
+  for (const piece of value.split(/[,،;\n]+/).map((p) => p.trim()).filter(Boolean)) {
+    const whole = mobile(piece.replace(/[\s()-]/g, ''));
+    if (/^09[0-9]{9}$/.test(whole)) {
+      mobiles.push(whole);
+      continue;
+    }
+    const parts = piece.split(/[\s-]+/).map(mobile);
+    if (parts.length < 2 || !parts.every((part) => /^09[0-9]{9}$/.test(part))) return null;
+    mobiles.push(...parts);
+  }
+  return [...new Set(mobiles)];
+}
 
 // The server does the same conversion; doing it here lets the patterns above check Persian digits too.
 export const toLatinDigits = (value: string) =>

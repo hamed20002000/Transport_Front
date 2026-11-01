@@ -186,8 +186,8 @@ function ProfileContent() {
     for (const key of textFields) {
       if (!changed(key)) continue;
       const value = toLatinDigits(fields[key].trim());
-      const { pattern, message } = profileRules[key];
-      if (value && pattern && !pattern.test(value)) return toast.error(message ?? 'مقدار واردشده معتبر نیست.');
+      const { pattern, check, message } = profileRules[key];
+      if (value && ((pattern && !pattern.test(value)) || (check && !check(value)))) return toast.error(message ?? 'مقدار واردشده معتبر نیست.');
       body[key] = value || null;
     }
 
@@ -276,8 +276,12 @@ function ProfileContent() {
               <Field label="شماره شرکت" icon={Phone} required>
                 {input('phone', { ltr: true, placeholder: '021 1234 5678' })}
               </Field>
-              <Field label="موبایل اعلام بار" icon={Smartphone} hint={`روی بارهای شما نوشته می‌شود. خالی بماند: همان موبایل ورود (${profile.mobile ?? '—'}).`}>
-                {input('contactMobile', { ltr: true, numeric: true, placeholder: profile.mobile ?? '0912 123 4567' })}
+              <Field
+                label="موبایل اعلام بار"
+                icon={Smartphone}
+                hint={`روی بارهای شما نوشته می‌شود. چند شماره را با کاما جدا کنید (حداکثر ۴). خالی بماند: همان موبایل ورود (${profile.mobile ?? '—'}).`}
+              >
+                {input('contactMobiles', { ltr: true, placeholder: '09121234567, 09351234567' })}
               </Field>
               <Field label="کد پستی" icon={Mailbox}>
                 {input('postalCode', { ltr: true, numeric: true, placeholder: '1234567890' })}

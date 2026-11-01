@@ -14,7 +14,7 @@ type Field = { key: ProfileTextField; label: string; ltr?: boolean; wide?: boole
 const FACTORY_FIELDS: Field[] = [
   { key: 'companyName', label: 'نام کارخانه', required: true },
   { key: 'phone', label: 'شماره کارخانه', ltr: true, required: true },
-  { key: 'contactMobile', label: 'موبایل اعلام بار (خالی: موبایل ورود)', ltr: true },
+  { key: 'contactMobiles', label: 'موبایل اعلام بار (چند شماره با کاما؛ خالی: موبایل ورود)', ltr: true },
   { key: 'companyNationalId', label: 'شناسه ملی', ltr: true },
   { key: 'economicCode', label: 'کد اقتصادی', ltr: true },
   { key: 'registrationNo', label: 'شماره ثبت', ltr: true },
@@ -81,8 +81,8 @@ export default function FactoryProfile({
     for (const { key } of FIELDS) {
       const value = latin(values[key].trim());
       if (value === saved[key]) continue;
-      const { pattern, message } = profileRules[key];
-      if (value && pattern && !pattern.test(value)) return toast.error(message ?? 'مقدار واردشده معتبر نیست.');
+      const { pattern, check, message } = profileRules[key];
+      if (value && ((pattern && !pattern.test(value)) || (check && !check(value)))) return toast.error(message ?? 'مقدار واردشده معتبر نیست.');
       body[key] = value || null;
     }
     setSaving(true);
