@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   CircleCheck,
   Clock,
@@ -9,7 +10,7 @@ import {
 import { cn } from 'src/shared/utils/utils';
 import { platforms, roles, typeLabels } from './channelMeta';
 import type { Channel, ChannelPlatform } from './channelsApi';
-import { IconButton, timeAgo } from './components';
+import { formatDate, IconButton, timeAgo } from './components';
 
 // Channel cards, shared by the channels page and the agent chat (list_company_channels).
 
@@ -40,6 +41,21 @@ function Status({ channel }: { channel: Channel }) {
   );
 }
 
+function ChannelCreatedTime({ value }: { value: string }) {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const timestamp = new Date(value).getTime();
+  if (!Number.isFinite(timestamp)) return null;
+  // Registration is a past event; small differences between device and server clocks must not show a future time.
+  const age = Math.max(0, now - timestamp);
+  const label = age < 60_000 ? 'همین الان' : timeAgo(value);
+  return <span title={`زمان ثبت لینک: ${formatDate(value)}`}>ثبت لینک: {label}</span>;
+}
+
 export function ChannelRow({ channel, removing, onRemove }: { channel: Channel; removing: boolean; onRemove: () => void }) {
   const platform = platforms[channel.platform];
   const title = channel.label || channel.identifier || 'بدون نام';
@@ -64,7 +80,7 @@ export function ChannelRow({ channel, removing, onRemove }: { channel: Channel; 
               {channel.identifier}
             </span>
           )}
-          <span>{timeAgo(channel.createdAt)}</span>
+          <ChannelCreatedTime value={channel.createdAt} />
         </div>
       </div>
       <IconButton icon={removing ? RotateCcw : Trash2} spinning={removing} label="حذف لینک" disabled={removing} onClick={onRemove} />
