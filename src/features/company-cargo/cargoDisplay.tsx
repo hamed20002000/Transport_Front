@@ -11,9 +11,9 @@ import { setCachedProfile, useProfile } from './profileStore';
 
 export type CargoDisplay = 'TEXT' | 'IMAGE';
 
-// the small picture (size=thumb) that sits beside a load's details on its card
-export const listingImageUrl = (listingId: string) => `${endpoints.baseurl}cargo-images/listing/${listingId}?size=thumb`;
-export const suggestionImageUrl = (notificationId: string) => `${endpoints.baseurl}cargo-images/suggestion/${notificationId}?size=thumb`;
+// the picture across the top of a load's card: the messengers' size (640×400), sharp at a card's full width
+export const listingImageUrl = (listingId: string) => `${endpoints.baseurl}cargo-images/listing/${listingId}`;
+export const suggestionImageUrl = (notificationId: string) => `${endpoints.baseurl}cargo-images/suggestion/${notificationId}`;
 
 /** A photo of a load, before registering it; its name goes with the load (CargoListingInput.photo). */
 export async function uploadCargoPhoto(file: File): Promise<string> {
@@ -54,17 +54,7 @@ export function CargoDisplayToggle() {
   );
 }
 
-/** The picture at the top of a load's card (16:9, loaded only when scrolled to). */
-// a small thumbnail beside the load's details, so a card is hardly taller than in text mode
+/** The picture across the top of a load's card, its details below (16:10, loaded only when scrolled to). */
 export function CargoPicture({ src, alt }: { src: string; alt: string }) {
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      width={240}
-      height={180}
-      className="tw-h-[72px] tw-w-24 tw-shrink-0 tw-rounded-xl tw-bg-brand-sky tw-object-cover sm:tw-h-[84px] sm:tw-w-28"
-    />
-  );
+  return <img src={src} alt={alt} loading="lazy" width={640} height={400} className="tw-block tw-aspect-[16/10] tw-h-auto tw-w-full tw-bg-brand-sky tw-object-cover" />;
 }

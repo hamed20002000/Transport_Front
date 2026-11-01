@@ -120,7 +120,6 @@ function Suggestions({ onChanged }: { onChanged: () => void }) {
           hint="بارهایی که در کانال‌های شما دیده شده‌اند"
           side={
             <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-              <CargoDisplayToggle />
               <Segmented
                 label="فیلتر"
                 value={filter}
@@ -186,6 +185,9 @@ function CargoContent() {
               </Link>
             </div>
           </div>
+
+          {/* for every list on the page: the unannounced loads of the company and the suggestions */}
+          <CargoDisplayToggle />
 
           <div className="tw-grid tw-grid-cols-2 tw-gap-3 md:tw-grid-cols-4">
             <StatTile icon={Inbox} label="بار پیشنهادی" value={summary?.suggestions} tone="suggestion" />

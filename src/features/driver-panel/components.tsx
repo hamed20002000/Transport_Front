@@ -111,14 +111,8 @@ export function LoadFrame({
   return (
     <Tag className={cn('tw-flex tw-flex-col tw-overflow-hidden tw-rounded-2xl tw-border tw-bg-white tw-shadow-sm tw-transition-shadow hover:tw-shadow-md', tones[tone])}>
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3">{head}</div>
-      {image ? (
-        <div className="tw-flex tw-flex-1 tw-items-start tw-gap-4 tw-p-5">
-          <CargoPicture src={image.src} alt={image.alt} />
-          <div className="tw-min-w-0 tw-flex-1 tw-space-y-4">{children}</div>
-        </div>
-      ) : (
-        <div className="tw-flex-1 tw-space-y-4 tw-p-5">{children}</div>
-      )}
+      {image && <CargoPicture src={image.src} alt={image.alt} />}
+      <div className="tw-min-w-0 tw-flex-1 tw-space-y-4 tw-p-5">{children}</div>
       {footer && <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">{footer}</div>}
     </Tag>
   );

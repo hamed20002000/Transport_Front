@@ -63,14 +63,12 @@ function CargoCard({
       <div className={cn('tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-5 tw-py-3', cargoTones[tone].head)}>
         {head}
       </div>
-      <div className="tw-flex tw-flex-1 tw-items-start tw-gap-4 tw-p-5">
-        {image && <CargoPicture src={image.src} alt={image.alt} />}
-        <div className="tw-min-w-0 tw-flex-1 tw-space-y-4">
-          {route}
-          <div className="tw-flex tw-flex-wrap tw-gap-2">{specs}</div>
-          {notes && <p className="tw-text-sm tw-leading-7 tw-text-brand-muted">{notes}</p>}
-          {extra}
-        </div>
+      {image && <CargoPicture src={image.src} alt={image.alt} />}
+      <div className="tw-min-w-0 tw-flex-1 tw-space-y-4 tw-p-5">
+        {route}
+        <div className="tw-flex tw-flex-wrap tw-gap-2">{specs}</div>
+        {notes && <p className="tw-text-sm tw-leading-7 tw-text-brand-muted">{notes}</p>}
+        {extra}
       </div>
       <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">{footer}</div>
     </li>
