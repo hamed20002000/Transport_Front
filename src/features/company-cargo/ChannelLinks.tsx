@@ -195,6 +195,7 @@ function ChannelsContent() {
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
         <Segmented
           label="پلتفرم"
+          wrap
           value={filter}
           onChange={setFilter}
           options={[

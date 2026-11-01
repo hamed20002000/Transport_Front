@@ -1,3 +1,4 @@
+import type { ChannelPlatform } from './channelsApi';
 import { useEffect, useRef } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import endpoints from 'src/core/config/endpoints.json';
@@ -38,7 +39,7 @@ export type ChannelMembershipStatus = 'queued' | 'pending' | 'joined' | 'failed'
 
 /** payload رویداد channel-status (ChannelMembershipNotifier در transport_backend). */
 export interface ChannelStatusEvent {
-  platform: 'whatsapp' | 'telegram' | 'bale' | 'rubika';
+  platform: ChannelPlatform;
   channelId: string;
   label: string | null;
   identifier: string | null;

@@ -297,15 +297,25 @@ export function Segmented<T extends string>({
   onChange,
   options,
   label,
+  wrap = false,
 }: {
   value: T;
   onChange: (value: T) => void;
   // icon is a lucide icon, or an image URL (e.g. a platform logo).
   options: Array<{ value: T; label: string; icon: Icon | string }>;
   label: string;
+  // many options: they go on to a second row on a phone instead of running off the screen
+  wrap?: boolean;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="tw-inline-flex tw-gap-1 tw-rounded-full tw-border tw-border-brand-line tw-bg-white tw-p-1">
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={cn(
+        'tw-gap-1 tw-border tw-border-brand-line tw-bg-white tw-p-1',
+        wrap ? 'tw-flex tw-flex-wrap tw-rounded-2xl' : 'tw-inline-flex tw-rounded-full',
+      )}
+    >
       {options.map(({ value: optionValue, label: optionLabel, icon: IconComponent }) => {
         const active = optionValue === value;
         return (
