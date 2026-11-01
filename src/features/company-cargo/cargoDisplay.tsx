@@ -11,9 +11,13 @@ import { setCachedProfile, useProfile } from './profileStore';
 
 export type CargoDisplay = 'TEXT' | 'IMAGE';
 
+// A load's picture keeps its address, so browsers and the app keep it a day (Cache-Control, service worker): raise
+// this when the stock photos change (transport_backend src/assets/cargo-kinds) and every card asks for the new one.
+const PICTURES_VERSION = 2;
+
 // the picture across the top of a load's card: the messengers' size (640×400), sharp at a card's full width
-export const listingImageUrl = (listingId: string) => `${endpoints.baseurl}cargo-images/listing/${listingId}`;
-export const suggestionImageUrl = (notificationId: string) => `${endpoints.baseurl}cargo-images/suggestion/${notificationId}`;
+export const listingImageUrl = (listingId: string) => `${endpoints.baseurl}cargo-images/listing/${listingId}?v=${PICTURES_VERSION}`;
+export const suggestionImageUrl = (notificationId: string) => `${endpoints.baseurl}cargo-images/suggestion/${notificationId}?v=${PICTURES_VERSION}`;
 
 /** A photo of a load, before registering it; its name goes with the load (CargoListingInput.photo). */
 export async function uploadCargoPhoto(file: File): Promise<string> {
