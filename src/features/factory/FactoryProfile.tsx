@@ -14,6 +14,7 @@ type Field = { key: ProfileTextField; label: string; ltr?: boolean; wide?: boole
 const FACTORY_FIELDS: Field[] = [
   { key: 'companyName', label: 'نام کارخانه', required: true },
   { key: 'phone', label: 'شماره کارخانه', ltr: true, required: true },
+  { key: 'contactMobile', label: 'موبایل اعلام بار (خالی: موبایل ورود)', ltr: true },
   { key: 'companyNationalId', label: 'شناسه ملی', ltr: true },
   { key: 'economicCode', label: 'کد اقتصادی', ltr: true },
   { key: 'registrationNo', label: 'شماره ثبت', ltr: true },

@@ -409,6 +409,8 @@ export interface UserProfile {
   economicCode: string | null;
   registrationNo: string | null;
   phone: string | null;
+  /** the mobile announced loads show; null: the mobile the account signs in with */
+  contactMobile: string | null;
   postalCode: string | null;
   address: string | null;
   /** how loads are shown, on the web and in the messengers (transport_backend User.cargoDisplay) */
@@ -432,6 +434,7 @@ export const profileRules: Record<ProfileTextField, { max: number; pattern?: Reg
   economicCode: { max: 30 },
   registrationNo: { max: 30 },
   phone: { max: 20, pattern: /^[0-9+\-\s]{4,20}$/, message: 'شماره تلفن معتبر نیست.' },
+  contactMobile: { max: 11, pattern: /^09[0-9]{9}$/, message: 'موبایل اعلام بار باید ۱۱ رقم و با ۰۹ شروع شود؛ مثلاً 09121234567.' },
   postalCode: { max: 10, pattern: /^[0-9]{10}$/, message: 'کد پستی باید ۱۰ رقم باشد.' },
   address: { max: 1000 },
 };

@@ -72,7 +72,7 @@ function errorMessage(error: unknown) {
 }
 
 // required: what the parent company checks a company with before approving it (AccountVerificationService)
-function Field({ label, icon: Icon, className, required, children }: { label: string; icon: LucideIcon; className?: string; required?: boolean; children: ReactNode }) {
+function Field({ label, icon: Icon, className, required, hint, children }: { label: string; icon: LucideIcon; className?: string; required?: boolean; hint?: string; children: ReactNode }) {
   return (
     <label className={cn('tw-block tw-space-y-1.5', className)}>
       <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
@@ -81,6 +81,7 @@ function Field({ label, icon: Icon, className, required, children }: { label: st
         {required && <span className="tw-text-brand-orange" aria-hidden>*</span>}
       </span>
       {children}
+      {hint && <span className="tw-block tw-text-xs tw-leading-5 tw-text-brand-muted">{hint}</span>}
     </label>
   );
 }
@@ -274,6 +275,9 @@ function ProfileContent() {
             <div className="tw-grid tw-grid-cols-1 tw-gap-4 sm:tw-grid-cols-2">
               <Field label="شماره شرکت" icon={Phone} required>
                 {input('phone', { ltr: true, placeholder: '021 1234 5678' })}
+              </Field>
+              <Field label="موبایل اعلام بار" icon={Smartphone} hint={`روی بارهای شما نوشته می‌شود. خالی بماند: همان موبایل ورود (${profile.mobile ?? '—'}).`}>
+                {input('contactMobile', { ltr: true, numeric: true, placeholder: profile.mobile ?? '0912 123 4567' })}
               </Field>
               <Field label="کد پستی" icon={Mailbox}>
                 {input('postalCode', { ltr: true, numeric: true, placeholder: '1234567890' })}
