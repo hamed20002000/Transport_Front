@@ -26,6 +26,12 @@ const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { 
 const outlineButton =
   'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
 
+type ExcelSkipped = { row: number; mobile?: string; name?: string; reason: string };
+
+/** The file's rows that will not be invited, in file order: a bad number, or one the invite rules refuse. */
+const excelSkippedRows = (result: DriverExcelResult): ExcelSkipped[] =>
+  [...result.errors.map((error) => ({ row: error.row, reason: error.message })), ...result.refused].sort((a, b) => a.row - b.row);
+
 function InviteRow({ invite, onRemove, removing }: { invite: DriverInvite; onRemove: () => void; removing: boolean }) {
   const link = driverInviteUrl(invite.token);
   const joined = !!invite.usedAt;
@@ -128,7 +134,8 @@ export default function DriverInvites() {
   const [busy, setBusy] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [reading, setReading] = useState(false);
-  const [excelErrors, setExcelErrors] = useState<DriverExcelResult['errors']>([]);
+  // the file's rows that cannot be invited, with the reason; they stay out of the box
+  const [excelSkipped, setExcelSkipped] = useState<ExcelSkipped[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
 
   // drivers who came in are drivers of the list below, not invites any more
@@ -167,7 +174,7 @@ export default function DriverInvites() {
     try {
       const result = await inviteDrivers(lines);
       setOutcomes(result);
-      setExcelErrors([]);
+      setExcelSkipped([]);
       if (!result.outcomes.some((outcome) => outcome.status === 'refused')) setText('');
       load();
     } catch (error) {
@@ -177,7 +184,8 @@ export default function DriverInvites() {
     }
   }
 
-  // the file's drivers go into the box as lines, so the company sees and can fix them before inviting
+  // the file's drivers that can be invited go into the box as lines, so the company sees and can fix them before
+  // inviting; the rows that cannot be invited are listed under it with the reason
   async function readExcel(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -185,12 +193,11 @@ export default function DriverInvites() {
     setReading(true);
     try {
       const result = await readDriverExcel(file);
-      setExcelErrors(result.errors);
+      setExcelSkipped(excelSkippedRows(result));
       setOutcomes(null);
-      if (result.drivers.length) {
-        setText(result.drivers.map((driver) => (driver.name ? `${driver.mobile} ${driver.name}` : driver.mobile)).join('\n'));
-        toast.success(`${fa(result.drivers.length)} راننده از فایل خوانده شد؛ بررسی کنید و «دعوت» را بزنید.`);
-      }
+      setText(result.drivers.map((driver) => (driver.name ? `${driver.mobile} ${driver.name}` : driver.mobile)).join('\n'));
+      if (result.drivers.length) toast.success(`${fa(result.drivers.length)} راننده از فایل آماده‌ی دعوت است؛ بررسی کنید و «دعوت» را بزنید.`);
+      else toast.error('هیچ راننده‌ای از این فایل قابل دعوت نیست؛ دلیلش زیر کادر آمده است.');
     } catch (error) {
       toast.error(factoryError(error));
     } finally {
@@ -234,7 +241,7 @@ export default function DriverInvites() {
           <UserPlus size={18} aria-hidden /> دعوت راننده
         </h3>
         <p className="tw-m-0 tw-text-sm tw-text-brand-muted">
-          هر راننده در یک خط: شماره موبایل و اگر خواستید نامش (مثلاً «09121234567 علی رضایی»). می‌توانید یک راننده یا یک لیست را یک‌جا وارد کنید، یا لیست را از فایل اکسل بخوانید. حساب هر راننده همان لحظه ساخته می‌شود و بارهای شما برایش اعلام می‌شود. یک راننده پیامکی با لینک خودش می‌گیرد؛ یک لیست، یک پیامک گروهی با آدرس ورود.
+          هر راننده در یک خط: شماره موبایل و اگر خواستید نامش (مثلاً «09121234567 علی رضایی»). می‌توانید یک راننده یا یک لیست را یک‌جا وارد کنید، یا لیست را از فایل اکسل بخوانید. حساب هر راننده همان لحظه ساخته می‌شود و بارهای شما برایش اعلام می‌شود. هر راننده، چه یکی چه در یک لیست یا فایل اکسل، پیامکی جدا با لینک دعوت خودش می‌گیرد.
         </p>
         <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">
           دعوت یک روز اعتبار دارد؛ اگر راننده تا آن موقع وارد نشود، دعوت و حسابش پاک می‌شود. راننده‌ای که خودش در ترابوت است، یا شرکت
@@ -249,15 +256,24 @@ export default function DriverInvites() {
             <Download size={16} aria-hidden /> فایل نمونه
           </button>
           <input ref={fileInput} type="file" accept=".xlsx,.xls" hidden onChange={readExcel} />
-          <span className="tw-text-xs tw-text-brand-muted">ستون «شماره موبایل» و اگر خواستید «نام راننده»</span>
+          <span className="tw-text-xs tw-text-brand-muted">دو ستون «نام راننده» و «شماره موبایل»</span>
         </div>
-        {excelErrors.length > 0 && (
-          <div className="tw-space-y-1 tw-rounded-xl tw-bg-red-50 tw-p-3 tw-text-sm tw-text-red-700">
-            <p className="tw-m-0 tw-font-bold">{fa(excelErrors.length)} ردیف فایل خوانده نشد (بقیه در کادر آمدند):</p>
-            <ul className="tw-m-0 tw-max-h-32 tw-list-none tw-space-y-0.5 tw-overflow-y-auto tw-p-0">
-              {excelErrors.map((error) => (
-                <li key={error.row}>
-                  ردیف {fa(error.row)}: {error.message}
+        {excelSkipped.length > 0 && (
+          <div className="tw-space-y-1.5 tw-rounded-xl tw-bg-red-50 tw-p-3 tw-text-sm tw-text-red-700">
+            <p className="tw-m-0 tw-font-bold">{fa(excelSkipped.length)} ردیف فایل دعوت نمی‌شود و در کادر نیامد:</p>
+            <ul className="tw-m-0 tw-max-h-48 tw-list-none tw-space-y-1.5 tw-overflow-y-auto tw-p-0">
+              {excelSkipped.map((row) => (
+                <li key={row.row} className="tw-leading-6">
+                  <span className="tw-font-bold">ردیف {fa(row.row)}</span>
+                  {(row.name || row.mobile) && (
+                    <>
+                      {' '}
+                      ({row.name}
+                      {row.name && row.mobile && '، '}
+                      {row.mobile && <span dir="ltr">{row.mobile}</span>})
+                    </>
+                  )}
+                  : {row.reason}
                 </li>
               ))}
             </ul>

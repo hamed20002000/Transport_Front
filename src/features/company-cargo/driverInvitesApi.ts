@@ -26,7 +26,7 @@ export type DriverInviteOutcome =
   | { mobile: string; status: 'created' | 'added'; driverUserId: string; token: string; messengers: MessengerInvites }
   | { mobile: string; status: 'refused'; reason: string };
 
-export const MAX_DRIVER_INVITES = 200;
+export const MAX_DRIVER_INVITES = 20;
 
 const config = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }, timeout: 60000 });
 
@@ -48,12 +48,15 @@ export const removeDriverInvite = (driverUserId: string) =>
   unwrap(axios.delete<{ success: boolean; data: { driverUserId: string } }>(`${endpoints.baseurl}company/driver-invites/${driverUserId}`, config()));
 
 export interface DriverExcelResult {
+  /** only the drivers that can be invited now */
   drivers: Array<{ row: number; mobile: string; name?: string }>;
   /** rows without a valid number; the others still come back */
   errors: Array<{ row: number; message: string }>;
+  /** valid numbers the invite rules refuse (a company's number, already in Trabot, another company's invite waiting) */
+  refused: Array<{ row: number; mobile: string; name?: string; reason: string }>;
 }
 
-/** Only reads the file (titled columns or not): the drivers go into the form, to check before inviting. */
+/** Reads and checks the file (titled columns or not): the drivers that can be invited go into the form; nothing is saved. */
 export function readDriverExcel(file: File) {
   const form = new FormData();
   form.append('file', file);
