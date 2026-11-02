@@ -12,6 +12,7 @@ const loaders = {
   profile: () => import('./DriverProfile'),
   borders: () => import('./DriverBorders'),
   subscription: () => import('./DriverSubscription'),
+  payments: () => import('./DriverPayments'),
 };
 
 export const DriverHome = lazy(loaders.home);
@@ -23,6 +24,7 @@ export const DriverFilters = lazy(loaders.filters);
 export const DriverProfile = lazy(loaders.profile);
 export const DriverBorders = lazy(loaders.borders);
 export const DriverSubscription = lazy(loaders.subscription);
+export const DriverPayments = lazy(loaders.payments);
 
 // The other tabs, fetched in the background so switching to them doesn't wait on the network.
 export function preloadDriverPages() {

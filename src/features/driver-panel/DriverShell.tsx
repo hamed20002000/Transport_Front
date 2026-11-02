@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Bell, ClipboardList, CreditCard, History, House, Landmark, Navigation, PackageSearch, SlidersHorizontal, Sparkles, Truck, UserRound } from 'lucide-react';
+import { Bell, ClipboardList, CreditCard, History, House, Landmark, Navigation, PackageSearch, Receipt, SlidersHorizontal, Sparkles, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -28,6 +28,7 @@ const items = [
   { to: '/account/driver/borders', label: 'مرزها', icon: Landmark },
   { to: '/account/driver/profile', label: 'پروفایل', icon: UserRound },
   { to: '/account/driver/subscription', label: 'اشتراک', icon: CreditCard },
+  { to: '/account/driver/payments', label: 'پرداخت‌ها', icon: Receipt },
 ];
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
@@ -199,12 +200,15 @@ export function DriverLayout() {
   );
 }
 
-/** Without a subscription after the free month, every page of the panel is the purchase page. */
+/**
+ * Without a subscription after the free month, every page of the panel is the purchase page — but «پرداخت‌ها», where a
+ * driver whose receipt was rejected reads why.
+ */
 function SubscriptionGate({ children }: { children: ReactNode }) {
   const access = useSubscriptionAccess();
   const { pathname } = useLocation();
   if (!access) return <PageSkeleton />;
-  if (!access.allowed) {
+  if (!access.allowed && pathname !== '/account/driver/payments') {
     return (
       <PageContainer title="اشتراک | ترابوت" description="پنل راننده">
         <SubscriptionPurchase onActivated={recheckSubscription} />

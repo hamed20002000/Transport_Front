@@ -38,7 +38,7 @@ export default function AuthOtp() {
           شماره‌ی <bdi dir="ltr">{form.sentTo}</bdi> تأیید شد. این شماره هنوز حساب ندارد؛ نوع حساب را انتخاب کنید.
         </p>
         <div className="tw-grid tw-gap-3">
-          {SELF_SERVICE_ACCOUNT_TYPES.map((item) => {
+          {SELF_SERVICE_ACCOUNT_TYPES.filter((item) => !form.accountTypes || form.accountTypes.includes(item.type)).map((item) => {
             const Icon = TYPE_ICONS[item.type];
             return (
               <button

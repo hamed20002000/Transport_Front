@@ -1,6 +1,6 @@
 import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, House, Inbox, Link2, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
+import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
 import { countCompanyRequests, getOverdueTrips } from './api';
 import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
@@ -28,6 +28,7 @@ const items = [
   { to: '/account/company/factories', label: 'شرکت‌ها / کارخانه‌ها', icon: Factory, match: (path: string) => path === '/account/company/factories' },
   { to: '/account/company/profile', label: 'پروفایل', icon: Building2, match: (path: string) => path === '/account/company/profile' },
   { to: COMPANY_FEATURES_PATH, label: 'خرید امکانات', icon: Gem, match: (path: string) => path === COMPANY_FEATURES_PATH },
+  { to: '/account/company/payments', label: 'پرداخت‌ها', icon: Receipt, match: (path: string) => path === '/account/company/payments' },
 ];
 // only the parent company: inviting new transport companies, and checking those that signed up on their own
 const PARENT_ITEMS = [

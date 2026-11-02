@@ -17,7 +17,14 @@ export interface OtpSent {
 /** Existing account → tokens; a number without an account → a token to choose the account type with. */
 export type OtpVerified =
   | (SessionTokens & { registrationRequired?: false })
-  | { registrationRequired: true; registrationToken: string; phoneNumber: string; expiresIn: number };
+  | {
+      registrationRequired: true;
+      registrationToken: string;
+      phoneNumber: string;
+      expiresIn: number;
+      /** the types it may choose: only what its invite made it, for an invited number (absent from an older server) */
+      accountTypes?: AccountType[];
+    };
 
 export async function requestOtp(phoneNumber: string) {
   const { data } = await axios.post<Envelope<OtpSent>>(`${base}/request`, { phoneNumber }, { timeout: 20000 });

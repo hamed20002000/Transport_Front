@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Building2, Clock, Factory, FileSpreadsheet, History, Inbox, SquarePlus } from 'lucide-react';
+import { Building2, Clock, Factory, FileSpreadsheet, History, Inbox, Receipt, SquarePlus } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -13,6 +13,7 @@ import ListingForm from 'src/features/company-cargo/ListingForm';
 import ExcelImport from 'src/features/company-cargo/ExcelImport';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 import FactoryProfile from './FactoryProfile';
+import PaymentHistory from 'src/features/subscription/PaymentHistory';
 import { getVerification, type VerificationState } from 'src/features/company-cargo/verificationApi';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import {
@@ -28,12 +29,13 @@ import {
 } from './api';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 
-type Tab = 'single' | 'excel' | 'history' | 'profile';
+type Tab = 'single' | 'excel' | 'history' | 'payments' | 'profile';
 
 const tabs = [
   { value: 'single' as const, label: 'ثبت بار', icon: SquarePlus },
   { value: 'excel' as const, label: 'ثبت با اکسل', icon: FileSpreadsheet },
   { value: 'history' as const, label: 'بارهای من', icon: History },
+  { value: 'payments' as const, label: 'پرداخت‌ها', icon: Receipt },
   { value: 'profile' as const, label: 'پروفایل', icon: Building2 },
 ];
 const PAGE_SIZE = 20;
@@ -166,7 +168,7 @@ function PanelContent() {
   return (
     <div className="tw-space-y-5">
       <FactoryName />
-      <Segmented value={tab} onChange={setTab} options={tabs} label="بخش" />
+      <Segmented value={tab} onChange={setTab} options={tabs} label="بخش" wrap />
       {(tab === 'single' || tab === 'excel') && <CompanyPicker companies={companies} value={companyId} onChange={setCompanyId} />}
       {(tab === 'single' || tab === 'excel') && !company && <p className="tw-m-0 tw-text-sm tw-text-brand-orange-ink">اول شرکت حمل‌ونقل را انتخاب کنید.</p>}
 
@@ -199,6 +201,7 @@ function PanelContent() {
         />
       )}
       {tab === 'history' && <LoadsHistory />}
+      {tab === 'payments' && <PaymentHistory />}
       {tab === 'profile' && <FactoryProfile />}
     </div>
   );

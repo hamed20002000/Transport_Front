@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Building2, CircleCheck, CircleX, Clock, Crown, Gem, ImageOff, Inbox, LoaderCircle, Lock, Receipt } from 'lucide-react';
+import { Building2, CircleCheck, CircleX, Clock, Crown, Gem, ImageOff, Inbox, LoaderCircle, Lock, Medal, Receipt } from 'lucide-react';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
@@ -19,23 +19,29 @@ import {
   grantCompanyFeature,
   listCompanies,
   listFeatureOrders,
+  listCompanyTiers,
   listFeaturePlans,
   rejectFeatureOrder,
   setParentCompany,
+  updateCompanyTier,
   type AdminCompany,
   type CompanyFeature,
   type CompanyFeatureOrder,
   type CompanyFeaturePlan,
+  type CompanyTier,
+  type CompanyTierPlan,
+  type TierMonths,
   type ReceiptUnlock,
 } from './adminApi';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 
-type Section = 'companies' | 'plans' | 'orders';
+type Section = 'companies' | 'tiers' | 'plans' | 'orders';
 type OrderTab = 'review' | 'APPROVED' | 'REJECTED';
 
 const sections = [
   { value: 'companies' as const, label: 'شرکت‌های حمل‌ونقل', icon: Building2 },
-  { value: 'plans' as const, label: 'قیمت بخش‌ها', icon: Gem },
+  { value: 'tiers' as const, label: 'طرح‌ها', icon: Medal },
+  { value: 'plans' as const, label: 'قیمت بخش‌ها (غیرفعال)', icon: Gem },
   { value: 'orders' as const, label: 'رسیدها', icon: Receipt },
 ];
 const orderTabs = [
@@ -176,6 +182,145 @@ function Companies() {
 }
 
 /** Prices: a menu with no active plan is free for every company; its first plan locks it for non-parent ones. */
+const TIER_PERIODS: Array<[TierMonths, string]> = [[1, '۱ ماهه'], [3, '۳ ماهه'], [6, '۶ ماهه'], [12, '۱ ساله']];
+
+const TIER_BADGE: Record<CompanyTier, string> = {
+  BRONZE: 'tw-bg-[#f6e6d8] tw-text-[#8a4b1c]',
+  SILVER: 'tw-bg-slate-100 tw-text-slate-700',
+  GOLD: 'tw-bg-amber-50 tw-text-amber-800',
+};
+
+/** One tier's form: its menus, days, price and whether it is on sale. */
+function TierForm({ tier, onSaved }: { tier: CompanyTierPlan; onSaved: (tier: CompanyTierPlan) => void }) {
+  const toast = useToast();
+  const [form, setForm] = useState({
+    features: new Set(tier.features.map((item) => item.feature)),
+    // a period left empty is not sold
+    prices: Object.fromEntries(TIER_PERIODS.map(([months]) => [months, tier.options.find((item) => item.months === months)?.price ?? ''])) as Record<TierMonths, string>,
+    currency: (tier.currency in currencies ? tier.currency : 'IRR') as Currency,
+    active: tier.active,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const toggle = (feature: CompanyFeature) =>
+    setForm((current) => {
+      const features = new Set(current.features);
+      if (features.has(feature)) features.delete(feature);
+      else features.add(feature);
+      return { ...current, features };
+    });
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const options = TIER_PERIODS.map(([months]) => ({ months, price: digits(form.prices[months]).replace(/\D/g, '').replace(/^0+(?=\d)/, '') }))
+      .filter((option) => option.price && option.price !== '0');
+    if (options.some((option) => option.price.length > 18)) return toast.error('مبلغ بیش از حد بزرگ است.');
+    if (form.active && (!form.features.size || !options.length)) return toast.error('طرح فعال باید دست‌کم یک بخش و قیمت دست‌کم یک مدت را داشته باشد.');
+    setSaving(true);
+    try {
+      const saved = await updateCompanyTier(tier.tier, {
+        features: featureOptions.map(([feature]) => feature).filter((feature) => form.features.has(feature)),
+        options,
+        currency: form.currency,
+        active: form.active,
+      });
+      onSaved(saved);
+      toast.success(`طرح ${tier.title} ذخیره شد.`);
+    } catch (error) {
+      toast.error(adminError(error));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="tw-flex tw-flex-col tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4" aria-busy={saving}>
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
+        <span className={cn('tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-px-3 tw-py-1 tw-text-sm tw-font-bold', TIER_BADGE[tier.tier])}>
+          <Medal size={16} aria-hidden /> طرح {tier.title}
+        </span>
+        <label className="tw-inline-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-text-xs tw-font-bold">
+          <input type="checkbox" checked={form.active} onChange={(event) => setForm({ ...form, active: event.target.checked })} className="tw-h-4 tw-w-4 tw-accent-brand-orange" />
+          {form.active ? 'در حال فروش' : 'غیرفعال'}
+        </label>
+      </div>
+      <fieldset className="tw-m-0 tw-border-0 tw-p-0">
+        <legend className="tw-mb-2 tw-text-xs tw-font-bold">بخش‌های این طرح</legend>
+        <div className="tw-grid tw-grid-cols-2 tw-gap-1.5">
+          {featureOptions.map(([feature, label]) => (
+            <label key={feature} className={cn('tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-lg tw-border tw-px-2.5 tw-py-2 tw-text-sm', form.features.has(feature) ? 'tw-border-brand-orange/50 tw-bg-brand-orange-soft/40' : 'tw-border-brand-line')}>
+              <input type="checkbox" checked={form.features.has(feature)} onChange={() => toggle(feature)} className="tw-h-4 tw-w-4 tw-accent-brand-orange" />
+              {label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset className="tw-m-0 tw-space-y-2 tw-border-0 tw-p-0">
+        <legend className="tw-mb-2 tw-text-xs tw-font-bold">قیمت هر مدت (خالی یعنی این مدت فروخته نمی‌شود)</legend>
+        {TIER_PERIODS.map(([months, label]) => {
+          const value = form.prices[months];
+          const amount = digits(value).replace(/\D/g, '');
+          return (
+            <label key={months} className="tw-grid tw-grid-cols-[4.5rem_1fr] tw-items-center tw-gap-2 tw-text-xs tw-font-bold">
+              {label}
+              <span>
+                <input
+                  value={value}
+                  inputMode="numeric"
+                  dir="ltr"
+                  placeholder="فروخته نمی‌شود"
+                  onChange={(event) => setForm({ ...form, prices: { ...form.prices, [months]: event.target.value } })}
+                  className={inputClass}
+                />
+                {amount && <span className="tw-mt-0.5 tw-block tw-font-normal tw-text-brand-muted">{price(amount, form.currency)}</span>}
+              </span>
+            </label>
+          );
+        })}
+        <label className="tw-grid tw-grid-cols-[4.5rem_1fr] tw-items-center tw-gap-2 tw-text-xs tw-font-bold">
+          واحد پول
+          <select value={form.currency} onChange={(event) => setForm({ ...form, currency: event.target.value as Currency })} className={inputClass}>
+            {Object.entries(currencies).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
+          </select>
+        </label>
+      </fieldset>
+      <button type="submit" disabled={saving} className={cn(primaryButton, 'tw-mt-auto')}>
+        {saving && <LoaderCircle size={16} className="tw-animate-spin" aria-hidden />} ذخیره‌ی طرح {tier.title}
+      </button>
+    </form>
+  );
+}
+
+/**
+ * The tiers: the menus each opens and its price. A menu in an active tier is locked for the companies that did not
+ * buy one with it; a menu in no active tier is free (an invited company's menus stay locked until bought).
+ */
+function Tiers() {
+  const [tiers, setTiers] = useState<CompanyTierPlan[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const load = useCallback(() => {
+    setFailed(false);
+    listCompanyTiers().then(setTiers, () => setFailed(true));
+  }, []);
+  useEffect(load, [load]);
+
+  if (failed) return <LoadFailed onRetry={load} />;
+  if (!tiers) return <CardSkeleton />;
+  return (
+    <div className="tw-space-y-3">
+      <p className="tw-m-0 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-text-sm tw-leading-7 tw-text-brand-muted">
+        شرکت‌های حمل‌ونقل یکی از این طرح‌ها را می‌خرند و همه‌ی بخش‌های آن برای مدت طرح باز می‌شود. بخشی که در هیچ طرح فعالی نباشد برای
+        شرکت‌های عادی رایگان است؛ شرکتی که با دعوت شرکت مادر آمده همه‌ی بخش‌ها را باید بخرد.
+      </p>
+      <div className="tw-grid tw-gap-3 lg:tw-grid-cols-3">
+        {tiers.map((tier) => (
+          <TierForm key={tier.tier} tier={tier} onSaved={(saved) => setTiers((current) => current?.map((item) => (item.tier === saved.tier ? saved : item)) ?? null)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Plans() {
   const toast = useToast();
   const messageBox = useMessageBox();
@@ -237,6 +382,10 @@ function Plans() {
 
   return (
     <div className="tw-space-y-4">
+      <p className="tw-m-0 tw-rounded-2xl tw-border tw-border-amber-200 tw-bg-amber-50 tw-p-4 tw-text-sm tw-leading-7 tw-text-amber-900">
+        خرید بخش‌به‌بخش فعلاً غیرفعال است و شرکت‌ها از «طرح‌ها» می‌خرند. پلن‌های اینجا پاک نشده‌اند ولی تا روشن شدن دوباره‌ی آن
+        (COMPANY_MENU_PURCHASE=on در سرور) فروخته نمی‌شوند و چیزی را قفل نمی‌کنند.
+      </p>
       <form onSubmit={submit} className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 sm:tw-grid-cols-2 lg:tw-grid-cols-5" aria-busy={saving}>
         <label className="tw-space-y-1 tw-text-xs tw-font-bold">
           بخش
@@ -388,6 +537,9 @@ function OrderCard({ order, unlock, onLocked, onDone }: { order: CompanyFeatureO
         <div className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-2">
           <div>
             <h3 className="tw-m-0 tw-text-base tw-font-bold">{order.title} · {faNumber(order.durationDays)} روز</h3>
+            {order.tier && order.features?.length ? (
+              <p className="tw-m-0 tw-mt-1 tw-text-xs tw-text-brand-muted">بخش‌ها: {order.features.map((feature) => companyFeatureTitles[feature]).join('، ')}</p>
+            ) : null}
             <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">
               {order.company ?? 'شرکت حمل‌ونقل'} {order.mobile && <span dir="ltr">({order.mobile})</span>} <AccountCode code={order.accountCode} /> · {faDateTime(order.createdAt)}
             </p>
@@ -498,11 +650,11 @@ function CompanyFeaturesContent() {
         <div>
           <h1 className="tw-m-0 tw-text-2xl tw-font-bold">امکانات شرکت‌های حمل‌ونقل</h1>
           <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">
-            شرکت مادر همه‌ی بخش‌ها را بدون خرید دارد. بقیه‌ی شرکت‌های حمل‌ونقل هر بخشی را که پلن دارد جدا می‌خرند؛ بخش بدون پلن برای همه رایگان است.
+            شرکت مادر همه‌ی بخش‌ها را بدون خرید دارد. بقیه‌ی شرکت‌های حمل‌ونقل یکی از طرح‌های برنزی، نقره‌ای یا طلایی را می‌خرند؛ بخشی که در هیچ طرح فعالی نیست برای شرکت‌های عادی رایگان است.
           </p>
         </div>
         <Segmented value={section} onChange={setSection} options={sections} label="بخش" />
-        {section === 'companies' ? <Companies /> : section === 'plans' ? <Plans /> : <Orders />}
+        {section === 'companies' ? <Companies /> : section === 'tiers' ? <Tiers /> : section === 'plans' ? <Plans /> : <Orders />}
       </main>
     </PageContainer>
   );

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { ClipboardList, Handshake, PackageSearch, Unlock, UserRound } from 'lucide-react';
+import { ClipboardList, Handshake, PackageSearch, Receipt, Unlock, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PushPrompt from 'src/shared/components/pwa/PushPrompt';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
@@ -14,16 +14,18 @@ import { BrokerView } from 'src/features/driver-panel/components';
 import { LoadsContent } from 'src/features/driver-panel/DriverLoads';
 import { RequestsContent } from 'src/features/driver-panel/DriverRequests';
 import FactoryProfile from 'src/features/factory/FactoryProfile';
+import PaymentHistory from 'src/features/subscription/PaymentHistory';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { BrokerAccessBanner, BrokerAccessContent } from './BrokerAccess';
 
-type Tab = 'loads' | 'requests' | 'access' | 'profile';
+type Tab = 'loads' | 'requests' | 'access' | 'payments' | 'profile';
 
 const tabs = [
   { value: 'loads' as const, label: 'بارها', icon: PackageSearch },
   { value: 'requests' as const, label: 'درخواست‌های من', icon: ClipboardList },
   { value: 'access' as const, label: 'خرید شرکت‌ها', icon: Unlock },
+  { value: 'payments' as const, label: 'پرداخت‌ها', icon: Receipt },
   { value: 'profile' as const, label: 'پروفایل', icon: UserRound },
 ];
 
@@ -33,7 +35,7 @@ function PanelContent() {
   const tab = (tabs.find((item) => item.value === params.get('tab'))?.value ?? 'loads') as Tab;
   return (
     <div className="tw-space-y-5">
-      <Segmented label="بخش پنل واسط" value={tab} onChange={(value) => setParams(value === 'loads' ? {} : { tab: value })} options={tabs} />
+      <Segmented label="بخش پنل واسط" value={tab} onChange={(value) => setParams(value === 'loads' ? {} : { tab: value })} options={tabs} wrap />
       {tab === 'loads' && (
         <>
           <BrokerAccessBanner onBuy={() => setParams({ tab: 'access' })} />
@@ -42,6 +44,7 @@ function PanelContent() {
       )}
       {tab === 'access' && <BrokerAccessContent />}
       {tab === 'requests' && <RequestsContent />}
+      {tab === 'payments' && <PaymentHistory />}
       {tab === 'profile' && <FactoryProfile kind="BROKER" />}
     </div>
   );

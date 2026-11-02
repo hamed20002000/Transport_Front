@@ -47,6 +47,8 @@ export function useOtpLogin() {
   const [remaining, setRemaining] = useState(0);
   const [retryRemaining, setRetryRemaining] = useState(0);
   const [registrationToken, setRegistrationToken] = useState('');
+  // the account types the server leaves this number (an invited one: what it was invited as)
+  const [accountTypes, setAccountTypes] = useState<AccountType[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(hasStoredSession);
   const { error, setError, clearError } = useFormError();
@@ -157,6 +159,7 @@ export function useOtpLogin() {
       remember(rememberedPhoneKey, sentTo);
       if (result.registrationRequired) {
         setRegistrationToken(result.registrationToken);
+        setAccountTypes(result.accountTypes ?? null);
         setStep('accountType');
         return;
       }
@@ -183,6 +186,7 @@ export function useOtpLogin() {
   }
 
   return {
+    accountTypes,
     step,
     phone,
     setPhone,

@@ -5,6 +5,20 @@ import endpoints from 'src/core/config/endpoints.json';
 // transport_backend CompanyFeatureController (api/company/features) and CompanyFeatureGuard.
 export type CompanyFeature = 'SUGGESTIONS' | 'CREATE_LOAD' | 'PUBLISHED_LOADS' | 'DRIVER_REQUESTS' | 'TRIPS' | 'DRIVERS' | 'CHANNELS' | 'AGENT' | 'FACTORIES';
 export type FeatureOrderStatus = 'RECEIPT_SUBMITTED' | 'APPROVED' | 'REJECTED';
+export type CompanyTier = 'BRONZE' | 'SILVER' | 'GOLD';
+export type TierMonths = 1 | 3 | 6 | 12;
+export const TIER_MONTHS: TierMonths[] = [1, 3, 6, 12];
+export const tierMonthsTitle = (months: TierMonths) => (months === 12 ? '۱ ساله' : `${months.toLocaleString('fa-IR')} ماهه`);
+
+/** برنزی، نقره‌ای، طلایی: several menus together, for 1, 3, 6 or 12 months, each period its price */
+export interface TierPlan {
+  tier: CompanyTier;
+  title: string;
+  features: Array<{ feature: CompanyFeature; title: string }>;
+  /** the periods sold, shortest first */
+  options: Array<{ months: TierMonths; durationDays: number; title: string; price: string }>;
+  currency: string;
+}
 
 export interface FeaturePlan {
   id: string;
@@ -22,12 +36,19 @@ export interface FeatureState {
   /** closed now: must be bought */
   locked: boolean;
   expireAt: string | null;
+  /** the menu's own plans; empty while menus are not sold one by one */
   plans: FeaturePlan[];
+  /** the tiers on sale that open it */
+  tiers: CompanyTier[];
 }
 
 export interface FeatureOrder {
   id: string;
-  feature: CompanyFeature;
+  /** the menu bought; null for a tier */
+  feature: CompanyFeature | null;
+  tier: CompanyTier | null;
+  features: CompanyFeature[] | null;
+  /** «بخش «…»» or «طرح …» */
   title: string;
   durationDays: number;
   amount: string;
@@ -45,6 +66,11 @@ export interface CompanyFeatures {
   invited: boolean;
   /** a company that signed up on its own and is not checked by a parent company yet: only its profile works */
   verified: boolean;
+  /** menus sold one by one (off for now: the tiers sell them) */
+  menuPurchase: boolean;
+  tiers: TierPlan[];
+  /** the tier bought whose time runs longest, while it lasts */
+  currentTier: { tier: CompanyTier; title: string; expireAt: string } | null;
   features: FeatureState[];
   orders: FeatureOrder[];
   payment: { cardNumber: string; cardOwner: string };
@@ -81,6 +107,15 @@ export function submitFeatureReceipt(planId: string, file: File) {
   form.append('planId', planId);
   form.append('file', file);
   return unwrap(axios.post<{ success: boolean; data: CompanyFeatures }>(`${url}/orders`, form, config()));
+}
+
+/** Buys a tier for one of its periods: the receipt photo goes to the admin's review, like a menu's. */
+export function submitTierReceipt(tier: CompanyTier, months: TierMonths, file: File) {
+  const form = new FormData();
+  form.append('tier', tier);
+  form.append('months', String(months));
+  form.append('file', file);
+  return unwrap(axios.post<{ success: boolean; data: CompanyFeatures }>(`${url}/tier-orders`, form, config()));
 }
 
 /** The 402 of a menu the company has not bought (CompanyFeatureGuard), apart from the subscription's 402. */

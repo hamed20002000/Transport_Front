@@ -171,13 +171,31 @@ export interface CompanyFeaturePlan {
   sortOrder: number;
 }
 
+export type CompanyTier = 'BRONZE' | 'SILVER' | 'GOLD';
+
+export type TierMonths = 1 | 3 | 6 | 12;
+
+/** برنزی، نقره‌ای، طلایی: the menus each opens and the price of each period (1, 3, 6, 12 months); sold only while active */
+export interface CompanyTierPlan {
+  tier: CompanyTier;
+  title: string;
+  features: Array<{ feature: CompanyFeature; title: string }>;
+  options: Array<{ months: TierMonths; durationDays: number; title: string; price: string }>;
+  currency: string;
+  active: boolean;
+}
+
 export interface CompanyFeatureOrder {
   id: string;
   userId: string;
   company: string | null;
   mobile: string | null;
   accountCode: string | null;
-  feature: CompanyFeature;
+  /** the menu bought; null for a tier */
+  feature: CompanyFeature | null;
+  tier: CompanyTier | null;
+  /** a tier's menus as they were when bought */
+  features: CompanyFeature[] | null;
   title: string;
   durationDays: number;
   amount: string;
@@ -198,6 +216,14 @@ export const setParentCompany = (userId: string, isParent: boolean) =>
 /** Opens a menu for a company without a purchase (a gift or a make-good), after any time it already has. */
 export const grantCompanyFeature = (userId: string, feature: CompanyFeature, days: number) =>
   unwrap(axios.post<{ success: boolean; data: { expireAt: string } }>(`${features}/companies/${userId}/grants`, { feature, days }, config()));
+
+export const listCompanyTiers = () => unwrap(axios.get<{ success: boolean; data: CompanyTierPlan[] }>(`${features}/tiers`, config()));
+
+export const updateCompanyTier = (
+  tier: CompanyTier,
+  plan: { features: CompanyFeature[]; options: Array<{ months: TierMonths; price: string }>; currency: string; active: boolean },
+) =>
+  unwrap(axios.put<{ success: boolean; data: CompanyTierPlan }>(`${features}/tiers/${tier}`, plan, config()));
 
 export const listFeaturePlans = () => unwrap(axios.get<{ success: boolean; data: CompanyFeaturePlan[] }>(`${features}/plans`, config()));
 
