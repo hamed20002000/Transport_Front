@@ -99,6 +99,8 @@ export interface DriverCard {
   photos: { face: boolean; vehicle: boolean };
   /** a broker (واسط) asked, not a driver: no vehicle; it brings the driver */
   broker?: boolean;
+  /** how the driver came (drivers page): with this company's invite link, another company's, or by themselves */
+  joinedBy?: 'yourInvite' | 'invite' | 'self';
   // When this driver asked for the load; absent for drivers found by search.
   requestedAt?: string | null;
 }

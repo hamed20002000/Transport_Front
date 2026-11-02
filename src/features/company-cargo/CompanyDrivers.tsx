@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Globe2, MapPinned, Search, Truck, Users } from 'lucide-react';
+import { Globe2, Link2, MapPinned, Search, Truck, UserRound, Users } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -11,6 +11,7 @@ import { CardSkeleton, EmptyState, LoadFailed, Pager, PhoneLinks, SectionTitle, 
 import { useNotificationEvent } from './notificationSocket';
 import DriverInvites from './DriverInvites';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import { cn } from 'src/shared/utils/utils';
 
 const PAGE_SIZE = 20;
 const fa = (value: number) => value.toLocaleString('fa-IR');
@@ -21,6 +22,22 @@ const tabs: Array<{ value: DriverKind; icon: typeof Truck }> = [
   { value: 'INTERNATIONAL', icon: Globe2 },
 ];
 
+// how the driver came to Trabot: by this company's invite link, another company's, or by signing up alone
+const joinedLabels = {
+  yourInvite: { label: 'با لینک دعوت شما', icon: Link2, tone: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink' },
+  invite: { label: 'با لینک دعوت شرکت دیگر', icon: Link2, tone: 'tw-bg-brand-sky tw-text-brand-navy' },
+  self: { label: 'خودش ثبت‌نام کرد', icon: UserRound, tone: 'tw-bg-stone-100 tw-text-brand-muted' },
+} as const;
+
+function JoinedBy({ how }: { how: NonNullable<DriverCard['joinedBy']> }) {
+  const { label, icon: Icon, tone } = joinedLabels[how];
+  return (
+    <span className={cn('tw-inline-flex tw-w-fit tw-items-center tw-gap-1 tw-rounded-full tw-px-2 tw-py-0.5 tw-text-xs tw-font-medium', tone)}>
+      <Icon size={12} aria-hidden /> {label}
+    </span>
+  );
+}
+
 function DriverItem({ driver }: { driver: DriverCard }) {
   const vehicle = [driver.vehicleType, driver.vehicleModel, driver.capacityTons ? `${fa(driver.capacityTons)} تن` : null].filter(Boolean).join(' · ');
   return (
@@ -28,6 +45,7 @@ function DriverItem({ driver }: { driver: DriverCard }) {
       <DriverPhoto driver={driver} />
       <div className="tw-min-w-0 tw-flex-1 tw-space-y-1.5">
         <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-font-bold">{driver.name}<AccountCode code={driver.accountCode} /></p>
+        {driver.joinedBy && <JoinedBy how={driver.joinedBy} />}
         {(vehicle || driver.plate) && (
           <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-x-2 tw-gap-y-1 tw-text-sm">
             {vehicle && (
@@ -70,6 +88,8 @@ function Drivers() {
 
   // راننده‌ای پروفایلش را (در پنل یا ربات) عوض کرد؛ لیست بی‌صدا دوباره گرفته می‌شود (اسکلت فقط وقتی داده‌ای نیست).
   useNotificationEvent('drivers-changed', () => setVersion((value) => value + 1));
+  // an invited driver came in: the list shows them, with «با لینک دعوت شما»
+  useNotificationEvent<{ kind: string }>('invite-used', ({ kind }) => kind === 'driver' && setVersion((value) => value + 1));
 
   function submit(event: FormEvent) {
     event.preventDefault();

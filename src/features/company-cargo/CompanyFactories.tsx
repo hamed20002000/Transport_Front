@@ -8,6 +8,7 @@ import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, SectionTitle } from './components';
 import InviteLinks from './InviteLinks';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import { useNotificationEvent } from './notificationSocket';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -108,6 +109,8 @@ function FactoriesContent() {
     getCompanyFactories().then(setFactories, () => setFailed(true));
   }, []);
   useEffect(load, [load]);
+  // an invited factory came in (any way): its row says so without a refresh
+  useNotificationEvent<{ kind: string }>('invite-used', (event) => event.kind === 'factory' && load());
 
   async function submit(event: FormEvent) {
     event.preventDefault();

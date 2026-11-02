@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { CalendarDays, ChevronDown, CircleCheck, CircleX, Clock, Download, FileSpreadsheet, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
+import { CalendarDays, CircleCheck, CircleX, Clock, Download, FileSpreadsheet, Link2, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import { cn } from 'src/shared/utils/utils';
 import { factoryError, inviteSmsText, type InviteSms } from 'src/features/factory/api';
 import { CardSkeleton, LoadFailed } from './components';
-import InviteLinks from './InviteLinks';
+import { useNotificationEvent } from './notificationSocket';
 import {
   downloadDriverTemplate,
   driverInviteUrl,
@@ -25,11 +25,16 @@ const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { 
 const outlineButton =
   'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
 
-function InviteRow({ invite, open, onToggle, onRemove, removing }: { invite: DriverInvite; open: boolean; onToggle: () => void; onRemove: () => void; removing: boolean }) {
+function InviteRow({ invite, onRemove, removing }: { invite: DriverInvite; onRemove: () => void; removing: boolean }) {
   const link = driverInviteUrl(invite.token);
   const joined = !!invite.usedAt;
   return (
-    <article className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
+    <article
+      className={cn(
+        'tw-space-y-3 tw-rounded-2xl tw-border tw-bg-white tw-p-4 tw-shadow-sm tw-transition-colors',
+        joined ? 'tw-border-emerald-300 tw-bg-emerald-50/40' : 'tw-border-brand-line',
+      )}
+    >
       <div className="tw-flex tw-items-center tw-gap-3">
         <span className="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky tw-text-brand-navy" aria-hidden>
           <Truck size={18} />
@@ -50,7 +55,7 @@ function InviteRow({ invite, open, onToggle, onRemove, removing }: { invite: Dri
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-1.5 tw-text-xs tw-text-brand-muted">
         {joined ? (
           <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2 tw-py-0.5 tw-font-bold tw-text-emerald-700">
-            <CircleCheck size={12} aria-hidden /> وارد شده
+            <CircleCheck size={12} aria-hidden /> وارد شد
           </span>
         ) : (
           <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2 tw-py-0.5 tw-font-bold tw-text-amber-700">
@@ -66,18 +71,17 @@ function InviteRow({ invite, open, onToggle, onRemove, removing }: { invite: Dri
       </div>
 
       {!joined && (
-        <button type="button" onClick={onToggle} aria-expanded={open} className={cn(outlineButton, 'tw-w-full tw-justify-center')}>
-          لینک دعوت <ChevronDown size={16} aria-hidden className={cn('tw-transition-transform', open && 'tw-rotate-180')} />
-        </button>
-      )}
-      {open && !joined && (
-        <InviteLinks
-          link={link}
-          messengers={invite.messengers}
-          who="راننده"
-          note={`این لینک فقط برای شماره‌ی ${invite.mobile} کار می‌کند؛ راننده با همین شماره و کد پیامکی وارد می‌شود.`}
-          messengerNote={`اگر راننده با پیام‌رسان کار می‌کند، لینک همان پیام‌رسان را باز کند یا این کد را بفرستد و بعد شماره‌ی ${invite.mobile} را بدهد.`}
-        />
+        // to see, not to pass on: the invite SMS carries it to the driver's own number
+        <p
+          dir="ltr"
+          onCopy={(event) => event.preventDefault()}
+          onContextMenu={(event) => event.preventDefault()}
+          className="tw-m-0 tw-flex tw-select-none tw-items-center tw-gap-1.5 tw-truncate tw-rounded-xl tw-bg-brand-bg tw-px-3 tw-py-2 tw-text-xs tw-text-brand-muted"
+          title="لینک دعوت (فقط برای دیدن)"
+        >
+          <Link2 size={13} aria-hidden className="tw-shrink-0" />
+          <span className="tw-truncate">{link}</span>
+        </p>
       )}
     </article>
   );
@@ -119,18 +123,28 @@ export default function DriverInvites() {
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
   const [outcomes, setOutcomes] = useState<{ outcomes: DriverInviteOutcome[]; sms: InviteSms } | null>(null);
-  const [opened, setOpened] = useState('');
   const [busy, setBusy] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [reading, setReading] = useState(false);
   const [excelErrors, setExcelErrors] = useState<DriverExcelResult['errors']>([]);
   const fileInput = useRef<HTMLInputElement>(null);
 
+  // drivers who came in are drivers of the list below, not invites any more
   const load = useCallback(() => {
     setFailed(false);
-    getDriverInvites().then(setInvites, () => setFailed(true));
+    getDriverInvites().then((rows) => setInvites(rows.filter((row) => !row.usedAt)), () => setFailed(true));
   }, []);
   useEffect(load, [load]);
+
+  // an invited driver came in (any way: the link, the panel, a messenger): «وارد شد» at once, gone 5 seconds later
+  useNotificationEvent<{ kind: string; userId: string }>('invite-used', ({ kind, userId }) => {
+    if (kind !== 'driver') return;
+    const invite = invites?.find((item) => item.driverUserId === userId);
+    if (!invite) return;
+    toast.success(`«${invite.name}» وارد شد.`);
+    setInvites((current) => current?.map((item) => (item.driverUserId === userId ? { ...item, usedAt: new Date().toISOString() } : item)) ?? null);
+    setTimeout(() => setInvites((current) => current?.filter((item) => item.driverUserId !== userId) ?? null), 5000);
+  });
 
   const lines = parseDriverLines(text);
 
@@ -268,8 +282,6 @@ export default function DriverInvites() {
               <InviteRow
                 key={invite.driverUserId}
                 invite={invite}
-                open={opened === invite.driverUserId}
-                onToggle={() => setOpened((current) => (current === invite.driverUserId ? '' : invite.driverUserId))}
                 onRemove={() => remove(invite)}
                 removing={busy === invite.driverUserId}
               />

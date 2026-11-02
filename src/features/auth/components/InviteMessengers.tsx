@@ -75,7 +75,7 @@ export default function InviteMessengers() {
             ))}
           </div>
           <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">
-            در ایتا و روبیکا این کد را در ربات بفرستید: <code dir="ltr" className="tw-select-all">{messengers.code}</code>
+            در ایتا و روبیکا این کد را در ربات بفرستید: <code dir="ltr" className="tw-inline-block tw-max-w-full tw-select-all tw-whitespace-nowrap tw-break-all tw-rounded tw-bg-white tw-px-1.5">{messengers.code}</code>
           </p>
         </>
       )}

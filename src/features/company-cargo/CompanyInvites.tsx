@@ -9,6 +9,7 @@ import { CardSkeleton, EmptyState, LoadFailed, SectionTitle } from './components
 import InviteLinks from './InviteLinks';
 import { useCompanyFeatures } from './featuresApi';
 import { createCompanyInvite, getCompanyInvites, joinUrl, type CompanyInvite } from './invitesApi';
+import { useNotificationEvent } from './notificationSocket';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -77,6 +78,8 @@ function InvitesContent() {
     getCompanyInvites().then(setInvites, () => setFailed(true));
   }, []);
   useEffect(load, [load]);
+  // an invited company came in (any way): its row says so without a refresh
+  useNotificationEvent<{ kind: string }>('invite-used', (event) => event.kind === 'company' && load());
 
   async function submit(event: FormEvent) {
     event.preventDefault();
