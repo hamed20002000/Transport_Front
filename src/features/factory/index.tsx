@@ -13,5 +13,9 @@ export const factoryRoutes: RouteObject[] = [
   { path: '/invite/:token', element: <InvitePage /> },
   { path: '/join/:token', element: <JoinPage /> },
   { path: '/driver-invite/:token', element: <DriverInvitePage /> },
+  // the same pages by the short paths of the invite SMS (sms.ir: 25 characters a template variable)
+  { path: '/f/:token', element: <InvitePage /> },
+  { path: '/j/:token', element: <JoinPage /> },
+  { path: '/d/:token', element: <DriverInvitePage /> },
   { path: '/account/factory', element: <FactoryPanel /> },
 ];
