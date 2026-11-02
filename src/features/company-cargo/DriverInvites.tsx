@@ -142,7 +142,8 @@ export default function DriverInvites() {
   useNotificationEvent<{ kind: string; userId: string }>('invite-used', ({ kind, userId }) => {
     if (kind !== 'driver') return;
     const invite = invites?.find((item) => item.driverUserId === userId);
-    if (!invite) return;
+    // the second notice (it came by the link, told after signing in) says nothing new here
+    if (!invite || invite.usedAt) return;
     toast.success(`«${invite.name}» وارد شد.`);
     setInvites((current) => current?.map((item) => (item.driverUserId === userId ? { ...item, usedAt: new Date().toISOString() } : item)) ?? null);
     setTimeout(() => setInvites((current) => current?.filter((item) => item.driverUserId !== userId) ?? null), 5000);

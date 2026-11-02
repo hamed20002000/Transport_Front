@@ -17,6 +17,11 @@ export const driverKindHints: Record<DriverKind, string> = {
 };
 export const driverKindTripTypes: Record<DriverKind, TripType[]> = { DOMESTIC: ['DOMESTIC'], INTERNATIONAL: ['EXPORT', 'IMPORT'] };
 export const driverKindOf = (types: readonly TripType[]): DriverKind => (types.some((type) => type !== 'DOMESTIC') ? 'INTERNATIONAL' : 'DOMESTIC');
+/** a driver's kinds from the load types it takes: domestic, international, or both (domestic when none) */
+export const driverKindsOf = (types: readonly (TripType | null | undefined)[]): DriverKind[] => {
+  const kinds = (['DOMESTIC', 'INTERNATIONAL'] as const).filter((kind) => types.some((type) => type && driverKindOf([type]) === kind));
+  return kinds.length ? [...kinds] : ['DOMESTIC'];
+};
 /** «داخلی» / «بین‌المللی»: the drivers a load of this type goes to */
 export const driversOfLoad = (type: TripType) => driverKindLabels[driverKindOf([type])];
 

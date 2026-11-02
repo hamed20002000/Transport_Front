@@ -1,8 +1,9 @@
-import { driverKindHints, driverKindLabels, driverKindOf, driverKindTripTypes, type DriverKind } from 'src/features/company-cargo/api';
+import { driverKindHints, driverKindLabels, driverKindsOf, driverKindTripTypes, type DriverKind } from 'src/features/company-cargo/api';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   Camera,
+  Check,
   CreditCard,
   IdCard,
   ImagePlus,
@@ -537,14 +538,15 @@ const driverKinds: DriverKind[] = ['DOMESTIC', 'INTERNATIONAL'];
 const companyNameFor = (company: DriverCompany, kind: DriverKind) => (kind === 'DOMESTIC' ? company.domesticName : company.internationalName);
 
 // Saved on its own click: it decides which announced loads reach the driver, apart from the profile form.
+// A driver can be domestic, international, or both: each kind its own tick, with its companies under it.
 function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile; onSaved: (profile: DriverProfile) => void }) {
   const toast = useToast();
-  const [kind, setKind] = useState<DriverKind>(driverKindOf(profile.tripTypes ?? [profile.tripType]));
+  const [kinds, setKinds] = useState<DriverKind[]>(driverKindsOf(profile.tripTypes ?? [profile.tripType]));
   const [memberships, setMemberships] = useState<string[]>(profile.companyUserIds ?? []);
   const [companies, setCompanies] = useState<DriverCompany[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState<Record<DriverKind, string>>({ DOMESTIC: '', INTERNATIONAL: '' });
   // opened at #announcements (right after signing in): bring this section into view
   const section = useRef<HTMLElement>(null);
   const { hash } = useLocation();
@@ -553,7 +555,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
   }, [hash]);
   const [version, setVersion] = useState(0);
   useEffect(() => {
-    setKind(driverKindOf(profile.tripTypes ?? [profile.tripType]));
+    setKinds(driverKindsOf(profile.tripTypes ?? [profile.tripType]));
     setMemberships(profile.companyUserIds ?? []);
   }, [profile.tripTypes, profile.tripType, profile.companyUserIds]);
   useEffect(() => {
@@ -563,23 +565,29 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
     return () => { active = false; };
   }, [version]);
   const toggleCompany = (id: string) => setMemberships((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  function toggleKind(kind: DriverKind) {
+    if (kinds.includes(kind) && kinds.length === 1) {
+      toast.info('دست‌کم یکی از «داخلی» یا «بین‌المللی» باید انتخاب بماند.');
+      return;
+    }
+    // domestic first, always
+    setKinds((current) => driverKinds.filter((item) => (item === kind ? !current.includes(item) : current.includes(item))));
+  }
+  const companiesOf = (kind: DriverKind) => companies?.filter((company) => companyNameFor(company, kind)) ?? [];
+  const unavailable = memberships.filter((id) => companies && !companies.some((company) => company.userId === id));
   async function savePreferences() {
     setSaving(true);
     try {
-      // only the companies of the chosen kind (and an inactive one, kept until it is unticked)
-      const companyUserIds = memberships.filter((id) => kindCompanies.some((company) => company.userId === id) || unavailable.includes(id));
-      onSaved(await updateDriverProfile({ tripTypes: driverKindTripTypes[kind], companyUserIds }));
-      toast.success(`شرکت‌های حمل‌ونقل و نوع راننده («${driverKindLabels[kind]}») ذخیره شدند.`);
+      // only the companies of the chosen kinds (and an inactive one, kept until it is unticked)
+      const companyUserIds = memberships.filter((id) => kinds.some((kind) => companiesOf(kind).some((company) => company.userId === id)) || unavailable.includes(id));
+      onSaved(await updateDriverProfile({ tripTypes: kinds.flatMap((kind) => driverKindTripTypes[kind]), companyUserIds }));
+      toast.success(`شرکت‌های حمل‌ونقل و نوع راننده («${kinds.map((kind) => driverKindLabels[kind]).join(' و ')}») ذخیره شدند.`);
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
       setSaving(false);
     }
   }
-  const kindCompanies = companies?.filter((company) => companyNameFor(company, kind)) ?? [];
-  const visible = kindCompanies.filter((company) => companyNameFor(company, kind)!.includes(search.trim()));
-  const unavailable = memberships.filter((id) => companies && !companies.some((company) => company.userId === id));
-  const joined = kindCompanies.filter((company) => company.isParent || memberships.includes(company.userId)).length;
   return (
     // scroll-mt: clear of the sticky header when opened at #announcements (right after signing in)
     <section
@@ -590,57 +598,63 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
     >
       <div>
         <h3 className="tw-m-0 tw-text-base tw-font-bold">دریافت اعلام بار</h3>
-        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌های حمل‌ونقلی که عضو آن‌ها هستید و فقط بارهای نوع خودتان (داخلی یا بین‌المللی) اعلام می‌شود.</p>
+        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-text-brand-muted">فقط از شرکت‌های حمل‌ونقلی که عضو آن‌ها هستید و فقط بارهای نوع خودتان (داخلی، بین‌المللی یا هر دو) اعلام می‌شود.</p>
       </div>
       {/* each kind with its own companies right under it: domestic companies under «داخلی», international under «بین‌المللی» */}
       <fieldset disabled={saving} className="tw-m-0 tw-min-w-0 tw-space-y-3 tw-border-0 tw-p-0">
-        <legend className="tw-mb-3 tw-text-sm tw-font-bold">نوع راننده؛ یکی را انتخاب کنید، بعد شرکت‌های حمل‌ونقل همان نوع را</legend>
-        <div role="radiogroup" aria-label="نوع راننده" className="tw-space-y-3">
-          {driverKinds.map((value) => (
-            <div key={value} className={cn('tw-rounded-xl tw-border', kind === value ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line')}>
-              <button type="button" role="radio" aria-checked={kind === value} onClick={() => { setKind(value); setSearch(''); }}
-                className="tw-flex tw-w-full tw-items-start tw-gap-3 tw-rounded-xl tw-border-0 tw-bg-transparent tw-p-3 tw-text-start">
-                <span aria-hidden className={cn('tw-mt-0.5 tw-flex tw-h-5 tw-w-5 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-border-2', kind === value ? 'tw-border-brand-orange' : 'tw-border-brand-line')}>
-                  {kind === value && <span className="tw-h-2.5 tw-w-2.5 tw-rounded-full tw-bg-brand-orange" />}
-                </span>
-                <span>
-                  <strong className="tw-block tw-text-sm">{driverKindLabels[value]}</strong>
-                  <span className="tw-block tw-text-xs tw-text-brand-muted">{driverKindHints[value]}</span>
-                </span>
-              </button>
-              {kind === value && (
-                <div className="tw-space-y-3 tw-border-t tw-border-brand-line tw-p-3">
-                  <h4 className="tw-m-0 tw-text-sm tw-font-bold">شرکت‌های حمل‌ونقل {driverKindLabels[value]} ({joined.toLocaleString('fa-IR')} انتخاب)</h4>
-                  <input aria-label={`جستجوی شرکت حمل‌ونقل ${driverKindLabels[value]}`} placeholder="جستجوی نام شرکت حمل‌ونقل…" value={search} onChange={(event) => setSearch(event.target.value)} className={inputClass} />
-                  {failed ? <div role="alert">دریافت شرکت‌های حمل‌ونقل انجام نشد. <button type="button" onClick={() => setVersion((v) => v + 1)}>تلاش دوباره</button></div>
-                    : companies === null ? <p role="status">در حال دریافت شرکت‌های حمل‌ونقل…</p>
-                    : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
-                      {visible.map((company) => company.isParent ? (
-                        // always on: the parent company's loads reach every driver; the load filter can leave them out
-                        <label key={company.userId} className="tw-flex tw-items-start tw-gap-2 tw-rounded-xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-3">
-                          <input type="checkbox" checked disabled className="tw-mt-1" />
-                          <span>
-                            <span className="tw-block">{companyNameFor(company, value)} <span className="tw-text-xs tw-font-bold tw-text-emerald-700">(شرکت مادر)</span></span>
-                            <span className="tw-block tw-text-xs tw-text-brand-muted">بارهایش همیشه برای شما اعلام می‌شود؛ برای کنار گذاشتنش، در «فیلتر بار» شرکت‌های دلخواه را بدون آن انتخاب کنید.</span>
-                          </span>
-                        </label>
-                      ) : (
-                        <label key={company.userId} className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
-                          <input type="checkbox" disabled={saving} checked={memberships.includes(company.userId)} onChange={() => toggleCompany(company.userId)} />
-                          <span>{companyNameFor(company, value)}</span>
-                        </label>
-                      ))}
-                      {!visible.length && <p className="tw-text-sm tw-text-brand-muted">{kindCompanies.length ? 'شرکت حمل‌ونقلی با این نام پیدا نشد.' : `هنوز شرکت حمل‌ونقل ${driverKindLabels[value]}ی ثبت نشده است.`}</p>}
-                      {unavailable.map((id) => <label key={id} className="tw-flex tw-items-center tw-gap-2 tw-p-3">
-                        <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت حمل‌ونقل غیرفعال؛ برای حذف عضویت، تیک را بردارید
-                      </label>)}
-                    </div>}
-                  {!joined && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">هنوز عضو شرکت حمل‌ونقل {driverKindLabels[value]}ی نیستید و اعلام باری دریافت نمی‌کنید.</p>}
-                </div>
-              )}
-            </div>
-          ))}
+        <legend className="tw-mb-3 tw-text-sm tw-font-bold">نوع راننده؛ یکی یا هر دو را انتخاب کنید، بعد شرکت‌های حمل‌ونقل هر کدام را</legend>
+        <div role="group" aria-label="نوع راننده" className="tw-space-y-3">
+          {driverKinds.map((value) => {
+            const on = kinds.includes(value);
+            const kindCompanies = companiesOf(value);
+            const visible = kindCompanies.filter((company) => companyNameFor(company, value)!.includes(search[value].trim()));
+            const joined = kindCompanies.filter((company) => company.isParent || memberships.includes(company.userId)).length;
+            return (
+              <div key={value} className={cn('tw-rounded-xl tw-border', on ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line')}>
+                <button type="button" role="checkbox" aria-checked={on} onClick={() => toggleKind(value)}
+                  className="tw-flex tw-w-full tw-items-start tw-gap-3 tw-rounded-xl tw-border-0 tw-bg-transparent tw-p-3 tw-text-start">
+                  <span aria-hidden className={cn('tw-mt-0.5 tw-flex tw-h-5 tw-w-5 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-md tw-border-2', on ? 'tw-border-brand-orange tw-bg-brand-orange' : 'tw-border-brand-line')}>
+                    {on && <Check size={14} className="tw-text-white" />}
+                  </span>
+                  <span>
+                    <strong className="tw-block tw-text-sm">{driverKindLabels[value]}</strong>
+                    <span className="tw-block tw-text-xs tw-text-brand-muted">{driverKindHints[value]}</span>
+                  </span>
+                </button>
+                {on && (
+                  <div className="tw-space-y-3 tw-border-t tw-border-brand-line tw-p-3">
+                    <h4 className="tw-m-0 tw-text-sm tw-font-bold">شرکت‌های حمل‌ونقل {driverKindLabels[value]} ({joined.toLocaleString('fa-IR')} انتخاب)</h4>
+                    <input aria-label={`جستجوی شرکت حمل‌ونقل ${driverKindLabels[value]}`} placeholder="جستجوی نام شرکت حمل‌ونقل…" value={search[value]} onChange={(event) => setSearch((current) => ({ ...current, [value]: event.target.value }))} className={inputClass} />
+                    {failed ? <div role="alert">دریافت شرکت‌های حمل‌ونقل انجام نشد. <button type="button" onClick={() => setVersion((v) => v + 1)}>تلاش دوباره</button></div>
+                      : companies === null ? <p role="status">در حال دریافت شرکت‌های حمل‌ونقل…</p>
+                      : <div className="tw-max-h-64 tw-space-y-2 tw-overflow-y-auto">
+                        {visible.map((company) => company.isParent ? (
+                          // always on: the parent company's loads reach every driver; the load filter can leave them out
+                          <label key={company.userId} className="tw-flex tw-items-start tw-gap-2 tw-rounded-xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-3">
+                            <input type="checkbox" checked disabled className="tw-mt-1" />
+                            <span>
+                              <span className="tw-block">{companyNameFor(company, value)} <span className="tw-text-xs tw-font-bold tw-text-emerald-700">(شرکت مادر)</span></span>
+                              <span className="tw-block tw-text-xs tw-text-brand-muted">بارهایش همیشه برای شما اعلام می‌شود؛ برای کنار گذاشتنش، در «فیلتر بار» شرکت‌های دلخواه را بدون آن انتخاب کنید.</span>
+                            </span>
+                          </label>
+                        ) : (
+                          <label key={company.userId} className="tw-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
+                            <input type="checkbox" disabled={saving} checked={memberships.includes(company.userId)} onChange={() => toggleCompany(company.userId)} />
+                            <span>{companyNameFor(company, value)}</span>
+                          </label>
+                        ))}
+                        {!visible.length && <p className="tw-text-sm tw-text-brand-muted">{kindCompanies.length ? 'شرکت حمل‌ونقلی با این نام پیدا نشد.' : `هنوز شرکت حمل‌ونقل ${driverKindLabels[value]}ی ثبت نشده است.`}</p>}
+                      </div>}
+                    {!joined && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">هنوز عضو شرکت حمل‌ونقل {driverKindLabels[value]}ی نیستید و بار {driverKindLabels[value]} دریافت نمی‌کنید.</p>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
+        {unavailable.map((id) => <label key={id} className="tw-flex tw-items-center tw-gap-2 tw-p-3">
+          <input type="checkbox" disabled={saving} checked onChange={() => toggleCompany(id)} /> شرکت حمل‌ونقل غیرفعال؛ برای حذف عضویت، تیک را بردارید
+        </label>)}
       </fieldset>
       <button type="button" disabled={saving || companies === null || failed} onClick={savePreferences}
         className="tw-rounded-xl tw-bg-brand-orange tw-px-4 tw-py-3 tw-font-bold tw-text-white">
