@@ -10,6 +10,7 @@ import InviteLinks from './InviteLinks';
 import { useCompanyFeatures } from './featuresApi';
 import { createCompanyInvite, getCompanyInvites, joinUrl, type CompanyInvite } from './invitesApi';
 import { useNotificationEvent } from './notificationSocket';
+import { InviteTimeLeft } from './inviteExpiry';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -30,6 +31,7 @@ function InviteCard({ invite, open, onToggle, featureCount }: { invite: CompanyI
           </span>
           <span className="tw-mt-1 tw-block tw-text-xs tw-text-brand-muted">
             <span dir="ltr">{invite.mobile}</span> · دعوت {faDate(invite.createdAt)}
+            {!invite.usedAt && invite.expiresAt && <> · <InviteTimeLeft expiresAt={invite.expiresAt} /></>}
           </span>
         </span>
         <span className="tw-flex tw-items-center tw-gap-2">
@@ -80,6 +82,8 @@ function InvitesContent() {
   useEffect(load, [load]);
   // an invited company came in (any way): its row says so without a refresh
   useNotificationEvent<{ kind: string }>('invite-used', (event) => event.kind === 'company' && load());
+  // an invite nobody used within its day: the company it made leaves the list
+  useNotificationEvent<{ kind: string }>('invite-expired', (event) => event.kind === 'company' && load());
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -123,7 +127,7 @@ function InvitesContent() {
             <input value={name} onChange={(event) => setName(event.target.value)} maxLength={200} placeholder="مثلاً باربری آسا" className={inputClass} />
           </label>
         </div>
-        <p className="tw-m-0 tw-text-xs tw-text-brand-muted">شماره‌ای که از قبل در سامانه حساب دارد را نمی‌شود دعوت کرد.</p>
+        <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">دعوت یک روز اعتبار دارد؛ اگر شرکت تا آن موقع وارد نشود، دعوت و حسابش پاک می‌شود. شماره‌ای که از قبل در سامانه حساب دارد را نمی‌شود دعوت کرد.</p>
         <button
           type="submit"
           disabled={saving || !mobile.trim()}

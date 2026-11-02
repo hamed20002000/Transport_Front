@@ -11,6 +11,8 @@ export interface CompanyInvite {
   mobile: string;
   /** the company first came in with the link */
   usedAt: string | null;
+  /** an invite not used yet is over at this time (a day after it was made) */
+  expiresAt?: string | null;
   createdAt: string;
   companyUserId: string;
   name: string;

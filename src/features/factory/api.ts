@@ -51,6 +51,8 @@ export interface CompanyFactory {
   token: string | null;
   /** the factory first came in with its invite */
   usedAt: string | null;
+  /** an invite not used yet is over at this time (a day after it was made) */
+  expiresAt?: string | null;
   messengers: MessengerInvites | null;
 }
 

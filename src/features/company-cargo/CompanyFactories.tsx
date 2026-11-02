@@ -9,6 +9,7 @@ import { CardSkeleton, EmptyState, LoadFailed, SectionTitle } from './components
 import InviteLinks from './InviteLinks';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { useNotificationEvent } from './notificationSocket';
+import { InviteTimeLeft } from './inviteExpiry';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -68,6 +69,7 @@ function FactoryCard({ factory, open, onToggle, onRemove, removing }: { factory:
         <span className="tw-inline-flex tw-items-center tw-gap-1">
           <Package size={13} aria-hidden /> {fa(factory.loads)} بار
         </span>
+        {!joined && <InviteTimeLeft expiresAt={factory.expiresAt} />}
       </div>
 
       {link && !joined && (
@@ -111,6 +113,8 @@ function FactoriesContent() {
   useEffect(load, [load]);
   // an invited factory came in (any way): its row says so without a refresh
   useNotificationEvent<{ kind: string }>('invite-used', (event) => event.kind === 'factory' && load());
+  // an invite nobody used within its day: the factory it made leaves the list
+  useNotificationEvent<{ kind: string }>('invite-expired', (event) => event.kind === 'factory' && load());
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -170,7 +174,7 @@ function FactoriesContent() {
             <input value={name} onChange={(event) => setName(event.target.value)} maxLength={200} placeholder="مثلاً کارخانه سیمان تهران" className={inputClass} />
           </label>
         </div>
-        <p className="tw-m-0 tw-text-xs tw-text-brand-muted">کارخانه‌ای که شرکت حمل‌ونقل دیگری قبلاً دعوتش کرده، فقط به لیست شما هم اضافه می‌شود. شماره‌ی راننده یا شرکت را نمی‌شود دعوت کرد.</p>
+        <p className="tw-m-0 tw-text-xs tw-text-brand-muted">دعوت یک روز اعتبار دارد؛ اگر کارخانه تا آن موقع وارد نشود، دعوت و حسابش پاک می‌شود. کارخانه‌ای که خودش در ترابوت است، یا شرکت دیگری دعوتش کرده و هنوز وقت دارد، دعوت نمی‌شود؛ شماره‌ی راننده یا شرکت هم همین‌طور.</p>
         <button
           type="submit"
           disabled={saving || !mobile.trim()}

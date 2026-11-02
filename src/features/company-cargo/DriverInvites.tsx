@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { CalendarDays, CircleCheck, Hourglass, CircleX, Clock, Download, FileSpreadsheet, Link2, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
+import { CalendarDays, CircleCheck, CircleX, Clock, Download, FileSpreadsheet, Link2, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import { cn } from 'src/shared/utils/utils';
 import { factoryError, inviteSmsText, type InviteSms } from 'src/features/factory/api';
 import { CardSkeleton, LoadFailed } from './components';
 import { useNotificationEvent } from './notificationSocket';
+import { InviteTimeLeft } from './inviteExpiry';
 import {
   downloadDriverTemplate,
   driverInviteUrl,
@@ -24,13 +25,6 @@ const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
 const outlineButton =
   'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
-
-/** «۵ ساعت تا انقضا», «۲۰ دقیقه تا انقضا» */
-function timeLeft(expiresAt: string): string {
-  const minutes = Math.max(0, Math.round((new Date(expiresAt).getTime() - Date.now()) / 60_000));
-  if (minutes < 60) return `${fa(minutes)} دقیقه تا انقضا`;
-  return `${fa(Math.floor(minutes / 60))} ساعت تا انقضا`;
-}
 
 function InviteRow({ invite, onRemove, removing }: { invite: DriverInvite; onRemove: () => void; removing: boolean }) {
   const link = driverInviteUrl(invite.token);
@@ -75,11 +69,7 @@ function InviteRow({ invite, onRemove, removing }: { invite: DriverInvite; onRem
         <span className="tw-inline-flex tw-items-center tw-gap-1">
           <CalendarDays size={13} aria-hidden /> دعوت {faDate(invite.createdAt)}
         </span>
-        {!joined && invite.expiresAt && (
-          <span className="tw-inline-flex tw-items-center tw-gap-1" title="اگر تا این زمان وارد نشود، دعوت و حسابش پاک می‌شود">
-            <Hourglass size={13} aria-hidden /> {timeLeft(invite.expiresAt)}
-          </span>
-        )}
+        {!joined && <InviteTimeLeft expiresAt={invite.expiresAt} />}
       </div>
 
       {!joined && (
