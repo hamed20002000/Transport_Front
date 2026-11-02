@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Globe2, Link2, MapPinned, Search, Truck, UserRound, Users } from 'lucide-react';
+import { Globe2, Link2, LoaderCircle, MapPinned, Search, Trash2, Truck, UserRound, Users } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -9,6 +9,9 @@ import { DriverPhoto } from './AssignDriverDialog';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, Pager, PhoneLinks, SectionTitle, Segmented } from './components';
 import { useNotificationEvent } from './notificationSocket';
+import { removeDriverInvite } from './driverInvitesApi';
+import { useToast } from 'src/shared/components/toast/ToastProvider';
+import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import DriverInvites from './DriverInvites';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { cn } from 'src/shared/utils/utils';
@@ -38,7 +41,47 @@ function JoinedBy({ how }: { how: NonNullable<DriverCard['joinedBy']> }) {
   );
 }
 
-function DriverItem({ driver }: { driver: DriverCard }) {
+/**
+ * A driver this company invited (with the link, or who came in alone) can be taken off its drivers: the invite is revoked and the
+ * company leaves the driver's list (DriverInviteService.remove); the driver keeps their account.
+ */
+function RemoveDriver({ driver, onRemoved }: { driver: DriverCard; onRemoved: () => void }) {
+  const toast = useToast();
+  const messageBox = useMessageBox();
+  const [removing, setRemoving] = useState(false);
+  async function remove() {
+    const confirmed = await messageBox.confirm({
+      message: `«${driver.name}» از رانندگان شما حذف شود؟ دعوتش باطل می‌شود و دیگر بارهای اعلام‌شده‌ی شما برایش نمی‌آید. حساب خود راننده می‌ماند.`,
+      confirmText: 'حذف',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+    setRemoving(true);
+    try {
+      await removeDriverInvite(driver.userId);
+      toast.success('راننده از رانندگان شما حذف شد.');
+      onRemoved();
+    } catch {
+      toast.error('حذف راننده انجام نشد. دوباره تلاش کنید.');
+    } finally {
+      setRemoving(false);
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={remove}
+      disabled={removing}
+      title="حذف از رانندگان شما"
+      aria-label={`حذف ${driver.name} از رانندگان شما`}
+      className="tw-flex tw-h-9 tw-w-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-red-100 tw-bg-white tw-text-red-600 hover:tw-bg-red-50"
+    >
+      {removing ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Trash2 size={16} aria-hidden />}
+    </button>
+  );
+}
+
+function DriverItem({ driver, onRemoved }: { driver: DriverCard; onRemoved: () => void }) {
   const vehicle = [driver.vehicleType, driver.vehicleModel, driver.capacityTons ? `${fa(driver.capacityTons)} تن` : null].filter(Boolean).join(' · ');
   return (
     <li className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
@@ -59,6 +102,7 @@ function DriverItem({ driver }: { driver: DriverCard }) {
         {driver.homeCity && <p className="tw-m-0 tw-text-xs tw-text-brand-muted">شهر: {driver.homeCity}</p>}
         {driver.mobile && <PhoneLinks phones={[driver.mobile]} />}
       </div>
+      {driver.removable && <RemoveDriver driver={driver} onRemoved={onRemoved} />}
     </li>
   );
 }
@@ -155,7 +199,7 @@ function Drivers() {
         <>
           <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
             {data.items.map((driver) => (
-              <DriverItem key={driver.userId} driver={driver} />
+              <DriverItem key={driver.userId} driver={driver} onRemoved={() => setVersion((value) => value + 1)} />
             ))}
           </ul>
           <Pager page={page} total={data.total} pageSize={PAGE_SIZE} onChange={setPage} />
