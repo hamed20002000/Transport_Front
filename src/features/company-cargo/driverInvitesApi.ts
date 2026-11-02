@@ -15,6 +15,8 @@ export interface DriverInvite {
   token: string;
   /** the driver first came in with the link */
   usedAt: string | null;
+  /** an invite not used yet is over at this time (transport_backend DRIVER_INVITE_EXPIRY_HOURS, a day) */
+  expiresAt?: string | null;
   createdAt: string;
   messengers: MessengerInvites;
 }

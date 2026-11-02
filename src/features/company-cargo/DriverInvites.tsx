@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { CalendarDays, CircleCheck, CircleX, Clock, Download, FileSpreadsheet, Link2, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
+import { CalendarDays, CircleCheck, Hourglass, CircleX, Clock, Download, FileSpreadsheet, Link2, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import { cn } from 'src/shared/utils/utils';
@@ -24,6 +24,13 @@ const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
 const outlineButton =
   'tw-inline-flex tw-h-10 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-sm tw-font-bold hover:tw-bg-brand-sky';
+
+/** «۵ ساعت تا انقضا», «۲۰ دقیقه تا انقضا» */
+function timeLeft(expiresAt: string): string {
+  const minutes = Math.max(0, Math.round((new Date(expiresAt).getTime() - Date.now()) / 60_000));
+  if (minutes < 60) return `${fa(minutes)} دقیقه تا انقضا`;
+  return `${fa(Math.floor(minutes / 60))} ساعت تا انقضا`;
+}
 
 function InviteRow({ invite, onRemove, removing }: { invite: DriverInvite; onRemove: () => void; removing: boolean }) {
   const link = driverInviteUrl(invite.token);
@@ -68,6 +75,11 @@ function InviteRow({ invite, onRemove, removing }: { invite: DriverInvite; onRem
         <span className="tw-inline-flex tw-items-center tw-gap-1">
           <CalendarDays size={13} aria-hidden /> دعوت {faDate(invite.createdAt)}
         </span>
+        {!joined && invite.expiresAt && (
+          <span className="tw-inline-flex tw-items-center tw-gap-1" title="اگر تا این زمان وارد نشود، دعوت و حسابش پاک می‌شود">
+            <Hourglass size={13} aria-hidden /> {timeLeft(invite.expiresAt)}
+          </span>
+        )}
       </div>
 
       {!joined && (
@@ -144,6 +156,14 @@ export default function DriverInvites() {
     toast.success(`«${invite.name}» وارد شد.`);
     setInvites((current) => current?.map((item) => (item.driverUserId === userId ? { ...item, usedAt: new Date().toISOString() } : item)) ?? null);
     setTimeout(() => setInvites((current) => current?.filter((item) => item.driverUserId !== userId) ?? null), 5000);
+  });
+  // an invite nobody used within its day: gone, its account too when only the invite made it
+  useNotificationEvent<{ kind: string; userId: string }>('invite-expired', ({ kind, userId }) => {
+    if (kind !== 'driver') return;
+    const invite = invites?.find((item) => item.driverUserId === userId);
+    if (!invite) return;
+    toast.info(`دعوت «${invite.name}» منقضی شد؛ در مهلتش وارد نشد.`);
+    setInvites((current) => current?.filter((item) => item.driverUserId !== userId) ?? null);
   });
 
   const lines = parseDriverLines(text);
@@ -224,6 +244,10 @@ export default function DriverInvites() {
         </h3>
         <p className="tw-m-0 tw-text-sm tw-text-brand-muted">
           هر راننده در یک خط: شماره موبایل و اگر خواستید نامش (مثلاً «09121234567 علی رضایی»). می‌توانید یک راننده یا یک لیست را یک‌جا وارد کنید، یا لیست را از فایل اکسل بخوانید. حساب هر راننده همان لحظه ساخته می‌شود و بارهای شما برایش اعلام می‌شود. یک راننده پیامکی با لینک خودش می‌گیرد؛ یک لیست، یک پیامک گروهی با آدرس ورود.
+        </p>
+        <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">
+          دعوت یک روز اعتبار دارد؛ اگر راننده تا آن موقع وارد نشود، دعوت و حسابش پاک می‌شود. راننده‌ای که خودش در ترابوت است، یا شرکت
+          دیگری دعوتش کرده و هنوز وقت دارد، دعوت نمی‌شود.
         </p>
         <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
           <button type="button" onClick={() => fileInput.current?.click()} disabled={reading} className={outlineButton}>
