@@ -164,15 +164,22 @@ export default function ListingForm<T = PublishedListing>({
 
   const set = (name: keyof Fields) => (event: { target: { value: string } }) => setFields((current) => ({ ...current, [name]: event.target.value }));
 
+  // what the load still needs before it can be sent: the button stays off and this line says why
+  const contactPhones = phones.map((p) => p.trim()).filter(Boolean);
+  const missing = !fields.origin.trim() || !fields.destination.trim()
+    ? 'مبدأ و مقصد را وارد کنید.'
+    : !contactPhones.length
+      ? 'حداقل یک شماره تماس وارد کنید.'
+      : contactPhones.some((p) => !phonePattern.test(p))
+        ? 'شماره تماس معتبر نیست؛ فقط رقم و + - ( ) بین ۵ تا ۲۰ کاراکتر.'
+        : null;
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (pending.current) return;
     const origin = fields.origin.trim();
     const destination = fields.destination.trim();
-    const contactPhones = phones.map((p) => p.trim()).filter(Boolean);
-    if (!origin || !destination) return toast.error('مبدأ و مقصد را وارد کنید.');
-    if (!contactPhones.length) return toast.error('حداقل یک شماره تماس وارد کنید.');
-    if (contactPhones.some((p) => !phonePattern.test(p))) return toast.error('شماره تماس معتبر نیست؛ فقط رقم و + - ( ) بین ۵ تا ۲۰ کاراکتر.');
+    if (missing) return toast.error(missing);
 
     const optional = (value: string) => value.trim() || undefined;
     pending.current = true;
@@ -333,12 +340,17 @@ export default function ListingForm<T = PublishedListing>({
 
   const preview = <p className="tw-m-0 tw-whitespace-pre-wrap tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{previewText(fields, phones, code)}</p>;
 
+  // why the button is off (phones show no title on a press)
+  const missingHint = (className?: string) =>
+    missing && !saving ? <p className={cn('tw-m-0 tw-text-xs tw-text-brand-muted', className)}>{missing}</p> : null;
+
   const submitButton = (floating = false) => (
     <button
       type="submit"
-      disabled={saving || disabled}
+      disabled={saving || disabled || uploading || !!missing}
+      title={missing ?? undefined}
       className={cn(
-        'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed',
+        'tw-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-font-bold tw-text-white tw-shadow-sm tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-opacity-50 disabled:hover:tw-bg-brand-orange',
         dialog || floating ? 'tw-h-11 tw-flex-1 tw-px-5 tw-text-sm sm:tw-flex-none' : 'tw-h-12 tw-w-full tw-text-base',
       )}
     >
@@ -358,6 +370,7 @@ export default function ListingForm<T = PublishedListing>({
           </details>
         </div>
         <div className="tw-space-y-3 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">
+          {missingHint('tw-text-end')}
           <div className="tw-flex tw-items-center tw-justify-end tw-gap-2">
             {onCancel && (
               <button
@@ -384,9 +397,13 @@ export default function ListingForm<T = PublishedListing>({
           {preview}
         </section>
         {/* wide screens: the aside is sticky, so the button stays in view next to the form */}
-        <div className="tw-hidden lg:tw-block">{submitButton()}</div>
+        <div className="tw-hidden tw-space-y-2 lg:tw-block">
+          {submitButton()}
+          {missingHint('tw-text-center')}
+        </div>
       </aside>
       {/* phones: the aside comes after the whole form, so the button floats instead */}
+      {missingHint('tw-text-center lg:tw-hidden')}
       <FloatingActions className="lg:tw-hidden">{submitButton(true)}</FloatingActions>
     </form>
   );
