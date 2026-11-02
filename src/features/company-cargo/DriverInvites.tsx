@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { ChevronDown, CircleCheck, CircleX, Clock, Download, FileSpreadsheet, LoaderCircle, Trash2, UserPlus } from 'lucide-react';
+import { CalendarDays, ChevronDown, CircleCheck, CircleX, Clock, Download, FileSpreadsheet, LoaderCircle, Phone, Trash2, Truck, UserPlus } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import { cn } from 'src/shared/utils/utils';
@@ -27,34 +27,50 @@ const outlineButton =
 
 function InviteRow({ invite, open, onToggle, onRemove, removing }: { invite: DriverInvite; open: boolean; onToggle: () => void; onRemove: () => void; removing: boolean }) {
   const link = driverInviteUrl(invite.token);
+  const joined = !!invite.usedAt;
   return (
-    <article className="tw-space-y-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4">
-      <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
-        <button type="button" onClick={onToggle} aria-expanded={open} className="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-justify-between tw-gap-3 tw-border-0 tw-bg-transparent tw-p-0 tw-text-start">
-          <span className="tw-min-w-0">
-            <span className="tw-block tw-font-bold">{invite.name}</span>
-            <span className="tw-mt-1 tw-block tw-text-xs tw-text-brand-muted">
-              <span dir="ltr">{invite.mobile}</span> · دعوت {faDate(invite.createdAt)}
-            </span>
-          </span>
-          <span className="tw-flex tw-items-center tw-gap-2">
-            {invite.usedAt ? (
-              <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold tw-text-emerald-700">
-                <CircleCheck size={13} aria-hidden /> وارد شده
-              </span>
-            ) : (
-              <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-brand-sky tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold">
-                <Clock size={13} aria-hidden /> هنوز وارد نشده
-              </span>
-            )}
-            <ChevronDown size={18} aria-hidden className={cn('tw-text-brand-muted tw-transition-transform', open && 'tw-rotate-180')} />
-          </span>
-        </button>
-        <button type="button" onClick={onRemove} disabled={removing} className={cn(outlineButton, 'tw-text-red-700')}>
-          {removing ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Trash2 size={16} aria-hidden />} حذف
+    <article className="tw-space-y-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-shadow-sm">
+      <div className="tw-flex tw-items-center tw-gap-3">
+        <span className="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-brand-sky tw-text-brand-navy" aria-hidden>
+          <Truck size={18} />
+        </span>
+        <p className="tw-m-0 tw-min-w-0 tw-flex-1 tw-truncate tw-font-bold">{invite.name}</p>
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={removing}
+          title="حذف"
+          aria-label={`حذف دعوت ${invite.name}`}
+          className="tw-flex tw-h-9 tw-w-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-red-100 tw-bg-white tw-text-red-600 hover:tw-bg-red-50"
+        >
+          {removing ? <LoaderCircle size={16} className="tw-animate-spin" aria-hidden /> : <Trash2 size={16} aria-hidden />}
         </button>
       </div>
-      {open && (
+
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-1.5 tw-text-xs tw-text-brand-muted">
+        {joined ? (
+          <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-emerald-50 tw-px-2 tw-py-0.5 tw-font-bold tw-text-emerald-700">
+            <CircleCheck size={12} aria-hidden /> وارد شده
+          </span>
+        ) : (
+          <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2 tw-py-0.5 tw-font-bold tw-text-amber-700">
+            <Clock size={12} aria-hidden /> هنوز وارد نشده
+          </span>
+        )}
+        <span className="tw-inline-flex tw-items-center tw-gap-1">
+          <Phone size={13} aria-hidden /> <bdi dir="ltr">{invite.mobile}</bdi>
+        </span>
+        <span className="tw-inline-flex tw-items-center tw-gap-1">
+          <CalendarDays size={13} aria-hidden /> دعوت {faDate(invite.createdAt)}
+        </span>
+      </div>
+
+      {!joined && (
+        <button type="button" onClick={onToggle} aria-expanded={open} className={cn(outlineButton, 'tw-w-full tw-justify-center')}>
+          لینک دعوت <ChevronDown size={16} aria-hidden className={cn('tw-transition-transform', open && 'tw-rotate-180')} />
+        </button>
+      )}
+      {open && !joined && (
         <InviteLinks
           link={link}
           messengers={invite.messengers}
