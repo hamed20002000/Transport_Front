@@ -4,6 +4,7 @@ import { AlertTriangle, Download, FileSpreadsheet, Send, Upload, X } from 'lucid
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { downloadExcelTemplate, excelUploadLimit, importExcelListings, tripTypeLabels, type ExcelImportResult, type TripType } from './api';
 import { PrimaryButton, SecondaryButton } from './components';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 const faNumber = (value: number) => value.toLocaleString('fa-IR');
 // Preview order: domestic, then export, then import (rows keep their file order within each group).
@@ -177,9 +178,9 @@ export default function ExcelImport<C = ExcelImportResult['created'][number]>({
                         <td className="tw-px-3 tw-py-2">{row.destination}</td>
                         {!forCompany && <td className="tw-whitespace-nowrap tw-px-3 tw-py-2 tw-font-medium">{row.tripType ? tripTypeLabels[row.tripType] : '—'}</td>}
                         <td className="tw-px-3 tw-py-2">{row.cargoType ?? '—'}</td>
-                        <td className="tw-px-3 tw-py-2">{row.weight ?? '—'}</td>
+                        <td className="tw-px-3 tw-py-2">{groupDigits(row.weight) ?? '—'}</td>
                         <td className="tw-px-3 tw-py-2">{row.vehicleType ?? '—'}</td>
-                        <td className="tw-px-3 tw-py-2">{row.price ?? '—'}</td>
+                        <td className="tw-px-3 tw-py-2">{groupDigits(row.price) ?? '—'}</td>
                       </tr>
                     ))}
                   </tbody>

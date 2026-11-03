@@ -4,6 +4,8 @@ import { Banknote, Building2, Camera, Flag, LoaderCircle, MapPin, NotebookPen, P
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import FloatingActions from 'src/shared/components/FloatingActions';
+import DigitGroupInput from 'src/shared/components/form-controls/DigitGroupInput';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 import { listingLimits, phonePattern, type CargoListing, type CargoListingInput } from './api';
 import { uploadCargoPhoto } from './cargoDisplay';
 
@@ -59,9 +61,9 @@ function previewText(fields: Fields, phones: string[], code: string) {
     ['مبدا', fields.origin],
     ['مقصد', fields.destination],
     ['نوع بار', fields.cargoType],
-    ['وزن', fields.weight],
+    ['وزن', groupDigits(fields.weight)],
     ['نوع ماشین', fields.vehicleType],
-    ['کرایه', fields.price],
+    ['کرایه', groupDigits(fields.price)],
     ['توضیحات', fields.extraNotes],
     ['تماس', phones.map((p) => p.trim()).filter(Boolean).join(' - ')],
   ];
@@ -240,13 +242,13 @@ export default function ListingForm<T = PublishedListing>({
             <input className={inputClass} value={fields.cargoType} onChange={set('cargoType')} maxLength={listingLimits.cargoType} placeholder="مثلاً کاشی و سرامیک" />
           </Field>
           <Field label="وزن" icon={Weight}>
-            <input className={inputClass} value={fields.weight} onChange={set('weight')} maxLength={listingLimits.weight} placeholder="مثلاً ۲۲ تن" />
+            <DigitGroupInput className={inputClass} value={fields.weight} onValueChange={(weight) => setFields((current) => ({ ...current, weight }))} maxLength={listingLimits.weight} placeholder="مثلاً ۲۲ تن یا ۲۲٬۰۰۰ کیلو" />
           </Field>
           <Field label="نوع خودرو" icon={Truck}>
             <input className={inputClass} value={fields.vehicleType} onChange={set('vehicleType')} maxLength={listingLimits.vehicleType} placeholder="مثلاً تریلی کفی" />
           </Field>
           <Field label="کرایه" icon={Banknote}>
-            <input className={inputClass} value={fields.price} onChange={set('price')} maxLength={listingLimits.price} placeholder="مثلاً ۴۵ میلیون تومان" />
+            <DigitGroupInput className={inputClass} value={fields.price} onValueChange={(price) => setFields((current) => ({ ...current, price }))} maxLength={listingLimits.price} placeholder="مثلاً ۴۵٬۰۰۰٬۰۰۰ تومان" />
           </Field>
         </div>
         <div className="tw-mt-4">
@@ -412,5 +414,6 @@ export default function ListingForm<T = PublishedListing>({
 function merge(current: Fields, defaults?: ListingDefaults): Fields {
   const next = { ...current };
   for (const key of Object.keys(empty) as Array<keyof Fields>) next[key] = current[key] || defaults?.[key] || '';
-  return next;
+  // a load read from a channel or copied from an old one: its figures grouped as if typed here
+  return { ...next, weight: groupDigits(next.weight), price: groupDigits(next.price) };
 }

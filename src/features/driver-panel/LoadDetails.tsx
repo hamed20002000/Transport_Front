@@ -55,6 +55,7 @@ import {
   useAsync,
   type SketchMarker,
 } from './components';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 const traffic: Record<TrafficLevel, { label: string; tone: string }> = {
   smooth: { label: 'روان', tone: 'tw-text-emerald-700' },
@@ -347,7 +348,7 @@ function ReturnLoads({ listing, counts }: { listing: CargoListing; counts: LoadI
                 </div>
                 <div className="tw-flex tw-flex-wrap tw-gap-1.5">
                   <Spec icon={Truck} label="نوع خودرو" value={item.vehicleType} />
-                  <Spec icon={Banknote} label="کرایه" value={item.price} highlight />
+                  <Spec icon={Banknote} label="کرایه" value={groupDigits(item.price)} highlight />
                 </div>
               </li>
             ))}
@@ -430,9 +431,9 @@ export default function LoadDetails({
           <RouteLine origin={load.origin} destination={load.destination} />
           <div className="tw-flex tw-flex-wrap tw-gap-2">
             <Spec icon={Package} label="نوع بار" value={load.cargoType} />
-            <Spec icon={Weight} label="وزن" value={load.weight} />
+            <Spec icon={Weight} label="وزن" value={groupDigits(load.weight)} />
             <Spec icon={Truck} label="نوع خودرو" value={load.vehicleType} />
-            <Spec icon={Banknote} label="کرایه" value={load.price} highlight />
+            <Spec icon={Banknote} label="کرایه" value={groupDigits(load.price)} highlight />
           </div>
           {load.extraNotes && <p className="tw-m-0 tw-rounded-xl tw-bg-brand-bg tw-p-3 tw-text-sm tw-leading-7">{load.extraNotes}</p>}
 

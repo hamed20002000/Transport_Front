@@ -28,6 +28,7 @@ import {
   type FactoryLoad,
 } from './api';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 type Tab = 'single' | 'excel' | 'history' | 'payments' | 'profile';
 
@@ -131,7 +132,7 @@ function LoadsHistory() {
           </div>
           <RouteLine origin={item.origin} destination={item.destination} />
           <p className="tw-m-0 tw-text-sm tw-text-brand-muted">
-            {[item.cargoType, item.weight, item.vehicleType, item.price].filter(Boolean).join(' · ') || '—'}
+            {[item.cargoType, groupDigits(item.weight), item.vehicleType, groupDigits(item.price)].filter(Boolean).join(' · ') || '—'}
           </p>
         </article>
       ))}

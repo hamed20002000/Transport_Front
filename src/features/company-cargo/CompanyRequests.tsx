@@ -13,6 +13,7 @@ import { CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, Pri
 import { useNotificationEvent } from './notificationSocket';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 const PAGE_SIZE = 20;
 
@@ -31,7 +32,7 @@ function RequestCard({ request, busy, onDecide }: { request: CompanyRequest; bus
       <RouteLine origin={cargo?.origin} destination={cargo?.destination} />
       <div className="tw-flex tw-flex-wrap tw-gap-2">
         <Spec icon={Package} label="نوع بار" value={cargo?.cargoType} />
-        <Spec icon={Scale} label="وزن" value={cargo?.weight} />
+        <Spec icon={Scale} label="وزن" value={groupDigits(cargo?.weight)} />
         <Spec icon={Truck} label="نوع خودرو" value={cargo?.vehicleType} />
       </div>
 

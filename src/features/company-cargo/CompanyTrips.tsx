@@ -12,6 +12,7 @@ import CompanyShell from './CompanyShell';
 import { Badge, CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLinks, PrimaryButton, RouteLine, SecondaryButton, SectionTitle, Spec, timeAgo } from './components';
 import { useNotificationEvent } from './notificationSocket';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 const PAGE_SIZE = 20;
 // Same default as TRIP_DELIVERY_REMINDER_DAYS on the server: after this the trip is flagged as waiting for delivery.
@@ -47,7 +48,7 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
       <RouteLine origin={cargo?.origin} destination={cargo?.destination} />
       <div className="tw-flex tw-flex-wrap tw-gap-2">
         <Spec icon={Package} label="نوع بار" value={cargo?.cargoType} />
-        <Spec icon={Scale} label="وزن" value={cargo?.weight} />
+        <Spec icon={Scale} label="وزن" value={groupDigits(cargo?.weight)} />
         <Spec icon={Truck} label="نوع خودرو" value={cargo?.vehicleType} />
       </div>
 

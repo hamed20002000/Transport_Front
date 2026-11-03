@@ -22,6 +22,7 @@ import {
   formatDate,
   timeAgo,
 } from './components';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 /*
  * Cargo cards with their actions, shared by the company cargo tabs and the agent chat (a list the
@@ -79,9 +80,9 @@ function Specs({ cargoType, weight, vehicleType, price, priceHighlight = true }:
   return (
     <>
       <Spec icon={Package} label="نوع بار" value={cargoType} />
-      <Spec icon={Weight} label="وزن" value={weight} />
+      <Spec icon={Weight} label="وزن" value={groupDigits(weight)} />
       <Spec icon={Truck} label="نوع خودرو" value={vehicleType} />
-      <Spec icon={Banknote} label="کرایه" value={price} highlight={priceHighlight} />
+      <Spec icon={Banknote} label="کرایه" value={groupDigits(price)} highlight={priceHighlight} />
     </>
   );
 }

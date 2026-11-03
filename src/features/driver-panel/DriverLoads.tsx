@@ -44,14 +44,15 @@ import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, u
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
 import { useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 export function LoadSpecs({ load, muted }: { load: Pick<OpenLoad, 'cargoType' | 'weight' | 'vehicleType' | 'price'>; muted?: boolean }) {
   return (
     <div className="tw-flex tw-flex-wrap tw-gap-2">
       <Spec icon={Package} label="نوع بار" value={load.cargoType} />
-      <Spec icon={Weight} label="وزن" value={load.weight} />
+      <Spec icon={Weight} label="وزن" value={groupDigits(load.weight)} />
       <Spec icon={Truck} label="نوع خودرو" value={load.vehicleType} />
-      <Spec icon={Banknote} label="کرایه" value={load.price} highlight={!muted} />
+      <Spec icon={Banknote} label="کرایه" value={groupDigits(load.price)} highlight={!muted} />
     </div>
   );
 }

@@ -34,6 +34,8 @@ import {
   type ReceiptUnlock,
 } from './adminApi';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import DigitGroupInput from 'src/shared/components/form-controls/DigitGroupInput';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 type Section = 'companies' | 'tiers' | 'plans' | 'orders';
 type OrderTab = 'review' | 'APPROVED' | 'REJECTED';
@@ -196,7 +198,7 @@ function TierForm({ tier, onSaved }: { tier: CompanyTierPlan; onSaved: (tier: Co
   const [form, setForm] = useState({
     features: new Set(tier.features.map((item) => item.feature)),
     // a period left empty is not sold
-    prices: Object.fromEntries(TIER_PERIODS.map(([months]) => [months, tier.options.find((item) => item.months === months)?.price ?? ''])) as Record<TierMonths, string>,
+    prices: Object.fromEntries(TIER_PERIODS.map(([months]) => [months, groupDigits(tier.options.find((item) => item.months === months)?.price ?? '')])) as Record<TierMonths, string>,
     currency: (tier.currency in currencies ? tier.currency : 'IRR') as Currency,
     active: tier.active,
   });
@@ -264,12 +266,12 @@ function TierForm({ tier, onSaved }: { tier: CompanyTierPlan; onSaved: (tier: Co
             <label key={months} className="tw-grid tw-grid-cols-[4.5rem_1fr] tw-items-center tw-gap-2 tw-text-xs tw-font-bold">
               {label}
               <span>
-                <input
+                <DigitGroupInput
                   value={value}
                   inputMode="numeric"
                   dir="ltr"
                   placeholder="فروخته نمی‌شود"
-                  onChange={(event) => setForm({ ...form, prices: { ...form.prices, [months]: event.target.value } })}
+                  onValueChange={(next) => setForm({ ...form, prices: { ...form.prices, [months]: next } })}
                   className={inputClass}
                 />
                 {amount && <span className="tw-mt-0.5 tw-block tw-font-normal tw-text-brand-muted">{price(amount, form.currency)}</span>}
@@ -403,7 +405,7 @@ function Plans() {
         </label>
         <label className="tw-space-y-1 tw-text-xs tw-font-bold">
           مبلغ
-          <input value={form.price} inputMode="numeric" dir="ltr" onChange={(event) => setForm({ ...form, price: event.target.value })} className={inputClass} />
+          <DigitGroupInput value={form.price} inputMode="numeric" dir="ltr" onValueChange={(price) => setForm({ ...form, price })} className={inputClass} />
         </label>
         <label className="tw-space-y-1 tw-text-xs tw-font-bold">
           واحد پول
