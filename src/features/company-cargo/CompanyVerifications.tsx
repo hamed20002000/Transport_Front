@@ -19,8 +19,9 @@ const tabs = [
   { value: 'APPROVED' as const, label: 'تأییدشده', icon: CircleCheck },
   { value: 'REJECTED' as const, label: 'ردشده', icon: CircleX },
 ];
-type FieldRow = { key: keyof VerificationRequest; title: string; ltr?: boolean; check?: boolean };
-// check: what the account is verified by (required at its request): first and marked
+type FieldRow = { key: keyof VerificationRequest; title: string; ltr?: boolean; check?: boolean; checkIfGiven?: boolean };
+// check: what the account is verified by (required at its request): first and marked; checkIfGiven: not required,
+// but marked too when the account gave it
 const fieldsFor = (kind: VerificationRequest['kind']): FieldRow[] =>
   kind === 'BROKER'
     ? [
@@ -43,10 +44,11 @@ const fieldsFor = (kind: VerificationRequest['kind']): FieldRow[] =>
       ]
     : [
         { key: 'companyName', title: 'نام تجاری', check: true },
-        { key: 'economicCode', title: 'کد اقتصادی', ltr: true, check: true },
+        { key: 'licenseNo', title: 'شماره پروانه', ltr: true, check: true },
         { key: 'phone', title: 'شماره شرکت', ltr: true, check: true },
+        { key: 'companyNationalId', title: 'شناسه ملی', ltr: true, checkIfGiven: true },
         { key: 'mobile', title: 'موبایل', ltr: true },
-        { key: 'companyNationalId', title: 'شناسه ملی', ltr: true },
+        { key: 'economicCode', title: 'کد اقتصادی', ltr: true },
         { key: 'registrationNo', title: 'شماره ثبت', ltr: true },
         { key: 'postalCode', title: 'کد پستی', ltr: true },
         { key: 'address', title: 'آدرس' },
@@ -117,14 +119,17 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
         </div>
       </div>
       <dl className="tw-m-0 tw-grid tw-grid-cols-1 tw-gap-x-6 tw-gap-y-2 tw-text-sm sm:tw-grid-cols-2">
-        {fieldsFor(request.kind).map(({ key, title, ltr, check }) => (
-          <div key={key} className={cn('tw-flex tw-gap-2', check && 'tw-rounded-lg tw-bg-brand-orange-soft/40 tw-px-2 tw-py-1')}>
-            <dt className={cn('tw-shrink-0', check ? 'tw-font-bold' : 'tw-text-brand-muted')}>{title}:</dt>
-            <dd className={cn('tw-m-0 tw-min-w-0 tw-break-words', check ? 'tw-font-bold' : 'tw-font-medium')} dir={ltr ? 'ltr' : undefined}>
-              {(request[key] as string | null) || '—'}
-            </dd>
-          </div>
-        ))}
+        {fieldsFor(request.kind).map(({ key, title, ltr, check: required, checkIfGiven }) => {
+          const check = required || (checkIfGiven && !!request[key]);
+          return (
+            <div key={key} className={cn('tw-flex tw-gap-2', check && 'tw-rounded-lg tw-bg-brand-orange-soft/40 tw-px-2 tw-py-1')}>
+              <dt className={cn('tw-shrink-0', check ? 'tw-font-bold' : 'tw-text-brand-muted')}>{title}:</dt>
+              <dd className={cn('tw-m-0 tw-min-w-0 tw-break-words', check ? 'tw-font-bold' : 'tw-font-medium')} dir={ltr ? 'ltr' : undefined}>
+                {(request[key] as string | null) || '—'}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
       {request.status === 'REJECTED' && request.note && (
         <p className="tw-m-0 tw-rounded-lg tw-bg-red-50 tw-px-3 tw-py-2 tw-text-sm tw-text-red-700">

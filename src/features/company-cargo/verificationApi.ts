@@ -37,6 +37,7 @@ export interface VerificationRequest {
   companyNationalId: string | null;
   economicCode: string | null;
   registrationNo: string | null;
+  licenseNo: string | null;
   phone: string | null;
   postalCode: string | null;
   address: string | null;

@@ -27,6 +27,7 @@ const companyTiles = [
   { to: '/account/company/published', title: 'بارهای منتشرشده', icon: Archive },
   { to: '/account/company/channels', title: 'گروه‌ها و کانال‌ها', icon: Link2 },
   { to: '/account/company/factories', title: 'شرکت‌ها / کارخانه‌ها', icon: Factory },
+  { to: '/account/company/brokers', title: 'واسط‌ها', icon: Handshake },
   { to: '/account/company/filters', title: 'تنظیمات نمایش بار', icon: SlidersHorizontal },
   { to: '/account/company/profile', title: 'پروفایل', icon: UserRound },
 ];

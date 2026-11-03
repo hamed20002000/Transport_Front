@@ -6,6 +6,7 @@ const InvitePage = Loadable(lazy(() => import('./InvitePage')));
 const FactoryPanel = Loadable(lazy(() => import('./FactoryPanel')));
 const JoinPage = Loadable(lazy(() => import('./JoinPage')));
 const DriverInvitePage = Loadable(lazy(() => import('./DriverInvitePage')));
+const BrokerInvitePage = Loadable(lazy(() => import('./BrokerInvitePage')));
 
 // The invite links (open before sign-in): a transport company's for factories, the parent company's for new
 // transport companies; and the factory's own panel.
@@ -13,9 +14,11 @@ export const factoryRoutes: RouteObject[] = [
   { path: '/invite/:token', element: <InvitePage /> },
   { path: '/join/:token', element: <JoinPage /> },
   { path: '/driver-invite/:token', element: <DriverInvitePage /> },
+  { path: '/broker-invite/:token', element: <BrokerInvitePage /> },
   // the same pages by the short paths of the invite SMS (sms.ir: 25 characters a template variable)
   { path: '/f/:token', element: <InvitePage /> },
   { path: '/j/:token', element: <JoinPage /> },
   { path: '/d/:token', element: <DriverInvitePage /> },
+  { path: '/b/:token', element: <BrokerInvitePage /> },
   { path: '/account/factory', element: <FactoryPanel /> },
 ];

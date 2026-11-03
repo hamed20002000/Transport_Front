@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 export { default as CompanyShell, CompanyLayout } from './CompanyShell';
 export { displayName, useProfile } from './profileStore';
-import { CargoFilters, ChannelLinks, CompanyCargo, CompanyDrivers, CompanyFactories, CompanyFeatures, CompanyInvites, CompanyPayments, CompanyVerifications, CompanyPublished, CompanyProfile, CompanyRequests, CompanyTrips, CreateCargo } from './pages';
+import { CargoFilters, ChannelLinks, CompanyBrokers, CompanyCargo, CompanyDrivers, CompanyFactories, CompanyFeatures, CompanyInvites, CompanyPayments, CompanyVerifications, CompanyPublished, CompanyProfile, CompanyRequests, CompanyTrips, CreateCargo } from './pages';
 // These render under CompanyLayout (see the app router, which also puts the account home there).
 export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/cargo', element: <CompanyCargo /> },
@@ -15,6 +15,7 @@ export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/requests', element: <CompanyRequests /> },
   { path: '/account/company/features', element: <CompanyFeatures /> },
   { path: '/account/company/factories', element: <CompanyFactories /> },
+  { path: '/account/company/brokers', element: <CompanyBrokers /> },
   { path: '/account/company/companies', element: <CompanyInvites /> },
   { path: '/account/company/verifications', element: <CompanyVerifications /> },
   { path: '/account/company/payments', element: <CompanyPayments /> },

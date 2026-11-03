@@ -43,6 +43,12 @@ import FloatingActions from 'src/shared/components/FloatingActions';
 type Fields = Record<ProfileTextField, string> & { profileType: ProfileType | null };
 
 // a company has no personal fields: it is known by its phone number, not by the person behind it
+
+// each line of work and the field of its own company name
+const KIND_FIELDS = [
+  ['domestic', 'domesticCompanyName'],
+  ['international', 'internationalCompanyName'],
+] as const;
 const personalFields: ProfileTextField[] = ['firstName', 'lastName', 'nationalCode'];
 const textFields = (Object.keys(profileRules) as ProfileTextField[]).filter((key) => !personalFields.includes(key));
 
@@ -158,7 +164,8 @@ function ProfileContent() {
 
   const saved = toFields(profile);
   const changed = (key: ProfileTextField) => toLatinDigits(fields[key].trim()) !== saved[key];
-  const dirty = textFields.some(changed);
+  // a line of work ticked with no name yet is a change too: saving gives it the trade name
+  const dirty = textFields.some(changed) || KIND_FIELDS.some(([kind, field]) => kinds[kind] && !saved[field]);
 
   const input = (key: ProfileTextField, extra?: { ltr?: boolean; numeric?: boolean; placeholder?: string }) => (
     <input
@@ -180,12 +187,16 @@ function ProfileContent() {
     const body: UserProfileInput = {};
     // a transport company is always a legal entity; an old «حقیقی» profile is corrected on save
     if (saved.profileType !== 1) body.profileType = 1;
-    if (kinds.domestic && !fields.domesticCompanyName.trim()) return toast.error('نام شرکت داخلی را بنویسید، یا تیک «داخلی» را بردارید.');
-    if (kinds.international && !fields.internationalCompanyName.trim())
-      return toast.error('نام شرکت بین‌المللی را بنویسید، یا تیک «بین‌المللی» را بردارید.');
+    // a kind ticked with no name of its own goes under the trade name
+    const values = { ...fields };
+    for (const [kind, field] of KIND_FIELDS) {
+      if (!kinds[kind] || values[field].trim()) continue;
+      if (!values.companyName.trim()) return toast.error('نام تجاری شرکت را بنویسید؛ برای زمینه‌ای که نامش خالی است همان نام به کار می‌رود.');
+      values[field] = values.companyName;
+    }
     for (const key of textFields) {
-      if (!changed(key)) continue;
-      const value = toLatinDigits(fields[key].trim());
+      const value = toLatinDigits(values[key].trim());
+      if (value === saved[key]) continue;
       const { pattern, check, message } = profileRules[key];
       if (value && ((pattern && !pattern.test(value)) || (check && !check(value)))) return toast.error(message ?? 'مقدار واردشده معتبر نیست.');
       body[key] = value || null;
@@ -224,10 +235,13 @@ function ProfileContent() {
               <Field label="شناسه ملی شرکت" icon={FileBadge}>
                 {input('companyNationalId', { ltr: true, numeric: true, placeholder: '10101234567' })}
               </Field>
+              <Field label="شماره پروانه" icon={FileBadge} required>
+                {input('licenseNo', { ltr: true })}
+              </Field>
               <Field label="شماره ثبت" icon={Hash}>
                 {input('registrationNo', { ltr: true })}
               </Field>
-              <Field label="کد اقتصادی" icon={Hash} required>
+              <Field label="کد اقتصادی" icon={Hash}>
                 {input('economicCode', { ltr: true })}
               </Field>
             </div>
@@ -235,7 +249,7 @@ function ProfileContent() {
 
           <Card title="زمینه‌ی کاری شرکت">
             <p className="tw-m-0 tw-mb-4 tw-text-sm tw-text-brand-muted">
-              هر کدام را که کار می‌کنید انتخاب کنید و نام شرکت را برای آن بنویسید. راننده‌های داخلی شرکت را زیر «داخلی» و راننده‌های
+              هر کدام را که کار می‌کنید انتخاب کنید و اگر نام جدایی دارد بنویسید؛ وگرنه همان نام تجاری شرکت به کار می‌رود. راننده‌های داخلی شرکت را زیر «داخلی» و راننده‌های
               بین‌المللی زیر «بین‌المللی» با همین نام می‌بینند و عضو می‌شوند.
             </p>
             <div className="tw-grid tw-grid-cols-1 tw-gap-3 sm:tw-grid-cols-2">
@@ -262,8 +276,8 @@ function ProfileContent() {
                     <span className="tw-text-xs tw-text-brand-muted">({hint})</span>
                   </label>
                   {kinds[kind] && (
-                    <Field label={`نام شرکت ${label}`} icon={Building2}>
-                      {input(field, { placeholder })}
+                    <Field label={`نام شرکت ${label}`} icon={Building2} hint="خالی بماند: همان نام تجاری شرکت.">
+                      {input(field, { placeholder: fields.companyName.trim() || placeholder })}
                     </Field>
                   )}
                 </div>

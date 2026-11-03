@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ExternalLink, MessageCircle } from 'lucide-react';
+import { getBrokerInviteInfo } from 'src/features/company-cargo/brokerInvitesApi';
 import { getDriverInviteInfo } from 'src/features/company-cargo/driverInvitesApi';
 import { getJoinInfo } from 'src/features/company-cargo/invitesApi';
 import { getInviteInfo, type MessengerInvites } from 'src/features/factory/api';
@@ -8,16 +9,16 @@ import { returnPath } from '../hooks/useEnterSession';
 
 type Invite = { inviter: string | null; mobile: string | null; messengers: MessengerInvites | null };
 
-// the invite pages send a signed-out user here with ?url=/invite/…, /join/… or /driver-invite/…
+// the invite pages send a signed-out user here with ?url=/invite/…, /join/…, /driver-invite/… or /broker-invite/…
 async function inviteOf(path: string): Promise<Invite | null> {
-  const match = path.match(/^\/(invite|join|driver-invite)\/([^/?#]+)/);
+  const match = path.match(/^\/(invite|join|driver-invite|broker-invite)\/([^/?#]+)/);
   if (!match) return null;
   const token = decodeURIComponent(match[2]);
   if (match[1] === 'join') {
     const info = await getJoinInfo(token);
     return info.valid ? { inviter: info.parentName, mobile: info.mobile, messengers: info.messengers } : null;
   }
-  const info = await (match[1] === 'invite' ? getInviteInfo(token) : getDriverInviteInfo(token));
+  const info = await (match[1] === 'invite' ? getInviteInfo(token) : match[1] === 'broker-invite' ? getBrokerInviteInfo(token) : getDriverInviteInfo(token));
   return info.valid ? { inviter: info.companyName, mobile: info.mobile, messengers: info.messengers } : null;
 }
 

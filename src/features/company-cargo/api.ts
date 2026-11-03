@@ -1,5 +1,6 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
+import { isCompanyNationalId } from 'src/shared/utils/nationalId';
 
 export type ListingStatus = 'OPEN' | 'TAKEN';
 
@@ -417,6 +418,8 @@ export interface UserProfile {
   companyNationalId: string | null;
   economicCode: string | null;
   registrationNo: string | null;
+  /** the operating licence (پروانه فعالیت): what a company's verification goes by */
+  licenseNo: string | null;
   phone: string | null;
   /** the mobiles announced loads show, comma-separated; null: the mobile the account signs in with */
   contactMobiles: string | null;
@@ -439,9 +442,10 @@ export const profileRules: Record<ProfileTextField, { max: number; pattern?: Reg
   companyName: { max: 200 },
   domesticCompanyName: { max: 200 },
   internationalCompanyName: { max: 200 },
-  companyNationalId: { max: 11, pattern: /^[0-9]{11}$/, message: 'شناسه ملی شرکت باید ۱۱ رقم باشد.' },
+  companyNationalId: { max: 11, pattern: /^[0-9]{11}$/, check: isCompanyNationalId, message: 'شناسه ملی شرکت معتبر نیست؛ باید ۱۱ رقم باشد و رقم‌هایش را دوباره بررسی کنید.' },
   economicCode: { max: 30 },
   registrationNo: { max: 30 },
+  licenseNo: { max: 30 },
   phone: { max: 20, pattern: /^[0-9+\-\s]{4,20}$/, message: 'شماره تلفن معتبر نیست.' },
   contactMobiles: {
     max: 100,

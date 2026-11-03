@@ -21,7 +21,7 @@ export default function AiLauncher() {
 
   // a factory only sends loads to its transport companies: no assistant there (nor on an invite link)
   const factoryOnly = userRoles.length > 0 && userRoles.every((role) => role.name === 'FACTORY');
-  if (!isAuth || pathname.startsWith('/auth') || pathname.startsWith('/invite/') || pathname.startsWith('/join/') || pathname.startsWith('/driver-invite/') || factoryOnly) return null;
+  if (!isAuth || pathname.startsWith('/auth') || pathname.startsWith('/invite/') || pathname.startsWith('/join/') || pathname.startsWith('/driver-invite/') || pathname.startsWith('/broker-invite/') || factoryOnly) return null;
 
   const company = userRoles.some((role) => role.name === 'COMPANY' || role.name === 'COMPANY_ADMIN');
   if (company) return <CompanyLauncher open={open} setOpen={setOpen} />;

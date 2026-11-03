@@ -1,6 +1,6 @@
 import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
+import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, Handshake, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
 import { countCompanyRequests, getOverdueTrips } from './api';
 import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
@@ -26,6 +26,7 @@ const items = [
   { to: '/account/company/drivers', label: 'رانندگان', icon: Users, match: (path: string) => path === '/account/company/drivers' },
   { to: '/account/company/channels', label: 'کانال‌ها', icon: Link2, match: (path: string) => path === '/account/company/channels' },
   { to: '/account/company/factories', label: 'شرکت‌ها / کارخانه‌ها', icon: Factory, match: (path: string) => path === '/account/company/factories' },
+  { to: '/account/company/brokers', label: 'واسط‌ها', icon: Handshake, match: (path: string) => path === '/account/company/brokers' },
   { to: '/account/company/profile', label: 'پروفایل', icon: Building2, match: (path: string) => path === '/account/company/profile' },
   { to: COMPANY_FEATURES_PATH, label: 'خرید امکانات', icon: Gem, match: (path: string) => path === COMPANY_FEATURES_PATH },
   { to: '/account/company/payments', label: 'پرداخت‌ها', icon: Receipt, match: (path: string) => path === '/account/company/payments' },
