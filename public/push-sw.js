@@ -35,7 +35,10 @@ self.addEventListener('push', (event) => {
 // tapping it opens the page the notification is about, in the app's window when it is already open
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin).href;
+  const target = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin);
+  // the app counts it as opened from a phone notification (src/shared/usage/usage.ts), then drops the mark
+  target.searchParams.set('src', 'push');
+  const url = target.href;
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
       const open = windows.find((client) => client.url.startsWith(self.location.origin));

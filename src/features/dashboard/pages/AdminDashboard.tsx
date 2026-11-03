@@ -34,6 +34,7 @@ import {
 import styles from '../styles/workspace.module.css';
 import { useWorkspaceOverview } from '../hooks/useWorkspaceOverview';
 import AdminStats from '../components/AdminStats';
+import UsageStats from '../components/UsageStats';
 import { number } from '../model/workspace';
 
 function DashboardContent() {
@@ -108,6 +109,8 @@ function DashboardContent() {
         </div>
         {/* Trabot's own numbers (drivers, companies, payments) for administrators */}
         {userRoles.some((role) => role.name === 'ADMIN') && <AdminStats />}
+        {/* how drivers use the app, phone notifications and the messengers */}
+        {userRoles.some((role) => role.name === 'ADMIN') && <UsageStats />}
         <section className={styles.hero} aria-label="خوش‌آمدگویی">
           <div className={styles.heroText}>
             <span className={styles.heroTag}>

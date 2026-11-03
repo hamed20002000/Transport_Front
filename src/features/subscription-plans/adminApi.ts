@@ -125,6 +125,22 @@ export interface LoadTotals {
 
 export const getAdminStats = () => unwrap(axios.get<{ success: boolean; data: AdminStats }>(`${base}stats`, config()));
 
+// transport_backend AdminStatsController.usage: how drivers use the app and the messengers over the last `days`
+export interface UsageStats {
+  days: number;
+  drivers: number;
+  pwa: { installed: number; rate: number };
+  push: { subscribed: number; rate: number };
+  weeklyActive: { drivers: number; rate: number; byChannel: Record<string, number> };
+  messengerToApp: { messengerDrivers: number; alsoApp: number; rate: number; linkOpens: Array<{ channel: string; opens: number; users: number }> };
+  /** load requests by where they were made; unknown: before it was recorded */
+  requestSource: Record<string, number>;
+  engagement: Array<{ channel: string; delivered: number; interacted: number; rate: number }>;
+}
+
+export const getUsageStats = (days: number) =>
+  unwrap(axios.get<{ success: boolean; data: UsageStats }>(`${base}stats/usage`, { ...config(), params: { days } }));
+
 export function adminError(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
