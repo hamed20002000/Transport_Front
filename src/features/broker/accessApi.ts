@@ -1,15 +1,16 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 
-// transport_backend BrokerAccessController (api/broker/access): the companies whose loads a broker sees, bought for a
-// time with a card-to-card receipt the admin reviews.
+// transport_backend BrokerAccessController (api/broker/access): the companies a broker picks (when the admin limits
+// them) and the packages of load requests it buys with a card-to-card receipt the admin reviews.
 export interface BrokerAccessPolicy {
-  /** off: every company's loads are free to see */
-  enabled: boolean;
-  includedCompanies: number;
-  basePrice: string;
-  extraCompanyPrice: string;
-  durationDays: number;
+  /** the companies a broker may pick; null: it sees every company's loads */
+  maxCompanies: number | null;
+  /** off: load requests are free */
+  packagesEnabled: boolean;
+  /** load requests in one package */
+  packageSize: number;
+  packagePrice: string;
   currency: string;
 }
 
@@ -18,18 +19,14 @@ export interface AccessCompany {
   name: string;
 }
 
-export interface AccessPeriod {
-  id: string;
-  startAt: string;
-  expireAt: string;
-  companies: AccessCompany[];
-}
-
 export interface AccessOrder {
   id: string;
-  kind: 'NEW' | 'ADD';
+  /** PACKAGE: load requests; NEW and ADD: older purchases of companies */
+  kind: 'NEW' | 'ADD' | 'PACKAGE';
+  /** «بسته‌ی ۱۰۰ درخواست بار» */
+  title: string;
   companies: AccessCompany[];
-  durationDays: number;
+  requests: number | null;
   amount: string;
   currency: string;
   status: 'RECEIPT_SUBMITTED' | 'APPROVED' | 'REJECTED';
@@ -40,17 +37,17 @@ export interface AccessOrder {
 
 export interface BrokerAccess {
   policy: BrokerAccessPolicy;
-  /** open now */
-  period: AccessPeriod | null;
-  /** a renewal waiting for the open one to end */
-  next: AccessPeriod | null;
+  /** the companies picked */
+  selected: AccessCompany[];
+  /** load requests left */
+  remaining: number;
+  /** what keeps the broker from the loads now */
+  blocked: 'noCompanies' | null;
   companies: AccessCompany[];
   orders: AccessOrder[];
   payment: { cardNumber: string; cardOwner: string };
-  /** the assistant is open: approved by the parent company and, while brokers pay, companies bought */
+  /** the assistant is open: approved by the parent company and, while companies are limited, some picked */
   agent: boolean;
-  /** companies added at once (room left in the base price) */
-  added?: number;
 }
 
 const url = `${endpoints.baseurl}broker/access`;
@@ -58,24 +55,20 @@ const config = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem
 
 async function unwrap<T>(request: Promise<{ data: { success: boolean; data: T } }>) {
   const { data } = await request;
-  if (!data.success || !data.data) throw new Error('دریافت اطلاعات خرید انجام نشد.');
+  if (!data.success || !data.data) throw new Error('دریافت اطلاعات انجام نشد.');
   return data.data;
 }
 
 export const getBrokerAccess = () => unwrap(axios.get<{ success: boolean; data: BrokerAccess }>(url, config()));
 
-/** A new period (NEW) or companies added to the open one (ADD); file is needed unless the add is free. */
-export function submitBrokerOrder(kind: 'NEW' | 'ADD', companyUserIds: string[], file: File | null) {
+/** The companies whose loads the broker sees; a new pick replaces the old one. */
+export const selectBrokerCompanies = (companyUserIds: string[]) =>
+  unwrap(axios.put<{ success: boolean; data: BrokerAccess }>(`${url}/companies`, { companyUserIds }, config()));
+
+/** Some packages of load requests, with the receipt photo. */
+export function submitBrokerPackageOrder(packages: number, file: File) {
   const form = new FormData();
-  form.append('kind', kind);
-  form.append('companyUserIds', companyUserIds.join(','));
-  if (file) form.append('file', file);
-  return unwrap(axios.post<{ success: boolean; data: BrokerAccess }>(`${url}/orders`, form, config()));
+  form.append('packages', String(packages));
+  form.append('file', file);
+  return unwrap(axios.post<{ success: boolean; data: BrokerAccess }>(`${url}/package-orders`, form, config()));
 }
-
-// the same sums as BrokerAccessService
-export const newPeriodPrice = (policy: BrokerAccessPolicy, count: number) =>
-  (BigInt(policy.basePrice) + BigInt(Math.max(0, count - policy.includedCompanies)) * BigInt(policy.extraCompanyPrice)).toString();
-
-export const addCompaniesPrice = (policy: BrokerAccessPolicy, existing: number, adding: number) =>
-  (BigInt(Math.max(0, existing + adding - policy.includedCompanies) - Math.max(0, existing - policy.includedCompanies)) * BigInt(policy.extraCompanyPrice)).toString();

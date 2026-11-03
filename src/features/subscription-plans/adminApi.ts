@@ -252,16 +252,16 @@ export const approveFeatureOrder = (orderId: string) =>
 export const rejectFeatureOrder = (orderId: string, reason: string) =>
   unwrap(axios.post<{ success: boolean; data: { orderId: string } }>(`${features}/orders/${orderId}/reject`, { reason }, config()));
 
-// transport_backend admin/broker-access: whether a broker (واسط) buys the companies whose loads it sees, the prices,
-// and the receipts brokers send.
+// transport_backend admin/broker-access: the broker's (واسط) rules — how many companies it may pick, and the packages
+// of load requests it buys — and the receipts brokers send.
 export interface BrokerAccessPolicy {
-  enabled: boolean;
-  /** companies the base price covers */
-  includedCompanies: number;
-  basePrice: string;
-  /** each company past includedCompanies */
-  extraCompanyPrice: string;
-  durationDays: number;
+  /** the companies a broker may pick; null: every company's loads */
+  maxCompanies: number | null;
+  /** off: load requests are free */
+  packagesEnabled: boolean;
+  /** load requests in one package */
+  packageSize: number;
+  packagePrice: string;
   currency: string;
 }
 
@@ -271,10 +271,12 @@ export interface BrokerAccessOrder {
   broker: string | null;
   mobile: string | null;
   accountCode: string | null;
-  /** NEW: a new period; ADD: companies added to the open period */
-  kind: 'NEW' | 'ADD';
+  /** PACKAGE: load requests; NEW and ADD: older purchases of companies */
+  kind: 'NEW' | 'ADD' | 'PACKAGE';
+  /** «بسته‌ی ۱۰۰ درخواست بار» */
+  title: string;
   companies: { userId: string; name: string }[];
-  durationDays: number;
+  requests: number | null;
   amount: string;
   currency: string;
   status: 'RECEIPT_SUBMITTED' | 'APPROVED' | 'REJECTED';
@@ -305,7 +307,7 @@ export async function brokerReceiptImage(orderId: string, token: string): Promis
 }
 
 export const approveBrokerOrder = (orderId: string) =>
-  unwrap(axios.post<{ success: boolean; data: { expireAt: string } }>(`${brokerAccess}/orders/${orderId}/approve`, {}, config()));
+  unwrap(axios.post<{ success: boolean; data: { remaining: number } }>(`${brokerAccess}/orders/${orderId}/approve`, {}, config()));
 
 export const rejectBrokerOrder = (orderId: string, reason: string) =>
   unwrap(axios.post<{ success: boolean; data: { orderId: string } }>(`${brokerAccess}/orders/${orderId}/reject`, { reason }, config()));
@@ -315,22 +317,14 @@ export interface AdminBroker {
   name: string | null;
   mobile: string | null;
   accountCode: string | null;
-  /** end of the open period; null without one */
-  expireAt: string | null;
+  /** companies picked */
   companies: number;
-}
-
-export interface AdminBrokerStatus {
-  period: { id: string; startAt: string; expireAt: string; companies: { userId: string; name: string }[] } | null;
-  next: { id: string; startAt: string; expireAt: string; companies: { userId: string; name: string }[] } | null;
-  companies: { userId: string; name: string }[];
+  /** load requests left */
+  remaining: number;
 }
 
 export const listBrokers = () => unwrap(axios.get<{ success: boolean; data: AdminBroker[] }>(`${brokerAccess}/brokers`, config()));
 
-export const getBrokerStatus = (userId: string) =>
-  unwrap(axios.get<{ success: boolean; data: AdminBrokerStatus }>(`${brokerAccess}/brokers/${userId}`, config()));
-
-/** Access without a purchase (a gift or a make-good): a new period of days, or companies added to the open one. */
-export const grantBrokerAccess = (userId: string, kind: 'NEW' | 'ADD', companyUserIds: string[], days: number) =>
-  unwrap(axios.post<{ success: boolean; data: { expireAt: string } }>(`${brokerAccess}/brokers/${userId}/grants`, { kind, companyUserIds, days }, config()));
+/** Load requests given to a broker without a purchase (a gift or a make-good). */
+export const grantBrokerRequests = (userId: string, requests: number) =>
+  unwrap(axios.post<{ success: boolean; data: { remaining: number } }>(`${brokerAccess}/brokers/${userId}/requests`, { requests }, config()));

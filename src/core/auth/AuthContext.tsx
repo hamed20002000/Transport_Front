@@ -86,7 +86,7 @@ const ADMIN_SUBSCRIPTION_MENU = [
   { id: 'subscription-orders', title: 'رسیدهای پرداخت', href: '/admin/subscription-orders', icon: IconReceipt },
   { id: 'subscription-policy', title: 'تنظیمات اشتراک', href: '/admin/subscription-policy', icon: IconSettings },
   { id: 'company-features', title: 'امکانات شرکت‌های حمل‌ونقل', href: '/admin/company-features', icon: IconBuildingWarehouse },
-  { id: 'broker-access', title: 'خرید واسط', href: '/admin/broker-access', icon: IconHeartHandshake },
+  { id: 'broker-access', title: 'واسط', href: '/admin/broker-access', icon: IconHeartHandshake },
 ];
 
 export interface MenuitemsType {

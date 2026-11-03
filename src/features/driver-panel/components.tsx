@@ -86,6 +86,13 @@ export function RequestBadge({ status, short }: { status: RequestStatus; short?:
 export const BrokerView = createContext(false);
 export const useBrokerView = () => useContext(BrokerView);
 
+/**
+ * A broker whose packages of load requests are used up: its request buttons show off rather than fail on a tap.
+ * refresh is called after each request. The broker panel provides it; drivers never run out.
+ */
+export const RequestsUsedUp = createContext<{ usedUp: boolean; refresh: () => void }>({ usedUp: false, refresh: () => undefined });
+export const useRequestsUsedUp = () => useContext(RequestsUsedUp);
+
 // Card frame shared by loads, requests and trips: tinted head, body, action footer.
 export function LoadFrame({
   tone = 'sky',
@@ -167,6 +174,7 @@ export function ActionButton({
         'tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-transition-colors disabled:tw-cursor-not-allowed',
         variants[variant],
         busy && 'tw-animate-pulse',
+        disabled && !busy && 'tw-opacity-50 tw-shadow-none',
       )}
     >
       {children}

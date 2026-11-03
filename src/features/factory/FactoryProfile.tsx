@@ -6,6 +6,7 @@ import { getUserProfile, profileRules, updateUserProfile, type ProfileTextField,
 import { CardSkeleton, LoadFailed } from 'src/features/company-cargo/components';
 import { setCachedProfile } from 'src/features/company-cargo/profileStore';
 import VerificationCard from 'src/features/company-cargo/VerificationCard';
+import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
 import type { VerificationState } from 'src/features/company-cargo/verificationApi';
 import { factoryError } from './api';
 
@@ -140,6 +141,8 @@ export default function FactoryProfile({
           </button>
         </FloatingActions>
       </form>
+      {/* before approval too: the parent company's answer then reaches the phone */}
+      <PushDeviceCard />
     </div>
   );
 }

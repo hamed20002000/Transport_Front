@@ -40,7 +40,7 @@ import {
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type CargoRequest, type OpenLoad, type Page } from './api';
 import OfferAnswer from './OfferAnswer';
-import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView } from './components';
+import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView, useRequestsUsedUp } from './components';
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
 import { useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
@@ -77,6 +77,7 @@ export function LoadCard({
   const taken = load.status === 'TAKEN';
   const status = load.myRequest?.status;
   const canRequest = !taken && !load.reserved && (!status || status === 'CANCELLED' || status === 'DECLINED' || status === 'EXPIRED');
+  const { usedUp } = useRequestsUsedUp();
   const [display] = useCargoDisplay();
   return (
     <LoadFrame
@@ -109,9 +110,11 @@ export function LoadCard({
             <RequestBadge status={status} />
           ) : (
             canRequest && (
-              <ActionButton onClick={onRequest} busy={requesting}>
-                <Hand size={16} aria-hidden /> درخواست بار
-              </ActionButton>
+              <span title={usedUp ? 'درخواست بار شما تمام شده است؛ بسته‌ی درخواست بخرید.' : undefined}>
+                <ActionButton onClick={onRequest} busy={requesting} disabled={usedUp}>
+                  <Hand size={16} aria-hidden /> {usedUp ? 'درخواست تمام شده' : 'درخواست بار'}
+                </ActionButton>
+              </span>
             )
           )}
         </>
@@ -134,6 +137,7 @@ export function useLoadActions(
   options: { notify?: { success: (message: string) => void; error: (message: string) => void }; dialogLayer?: number; onChanged?: () => void } = {},
 ) {
   const toast = useToast();
+  const credit = useRequestsUsedUp();
   const say = options.notify ?? { success: (message: string) => toast.success(message), error: (message: string) => toast.error(message) };
   const [requestingId, setRequestingId] = useState('');
   const [details, setDetails] = useState<OpenLoad | null>(null);
@@ -152,6 +156,8 @@ export function useLoadActions(
       say.error(errorMessage(error));
     } finally {
       setRequestingId('');
+      // a broker's requests left changed (or ran out): its buttons follow
+      credit.refresh();
     }
   }
 

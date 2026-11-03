@@ -1,19 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
-import { BadgeCheck, Check, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Search, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
+import { BadgeCheck, Check, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Minus, Plus, Search, Ticket, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import FloatingActions from 'src/shared/components/FloatingActions';
 import { subscriptionError } from 'src/features/subscription/api';
 import { CardSkeleton, LoadFailed, SectionTitle } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
-import { addCompaniesPrice, getBrokerAccess, newPeriodPrice, submitBrokerOrder, type BrokerAccess } from './accessApi';
+import { RequestsUsedUp, useRequestsUsedUp } from 'src/features/driver-panel/components';
+import { getBrokerAccess, selectBrokerCompanies, submitBrokerPackageOrder, type AccessOrder, type BrokerAccess } from './accessApi';
 
 // a receipt under review is checked again this often, so approval shows without a refresh
 const REVIEW_POLL_MS = 20_000;
+// the same cap as the server's MAX_PACKAGES
+const MAX_PACKAGES = 100;
 const currencyNames: Record<string, string> = { IRR: 'ریال', IRT: 'تومان', GBP: 'پوند', EUR: 'یورو', SAR: 'ریال سعودی', CNY: 'یوان' };
 
 const faNumber = (value: number | string) => Number(value).toLocaleString('fa-IR');
-const faDate = (value: string) => new Date(value).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
 const price = (amount: string, currency: string) => `${faNumber(amount)} ${currencyNames[currency] ?? currency}`;
 const cardGroups = (card: string) => card.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
 
@@ -40,81 +42,61 @@ function CopyCard({ card }: { card: string }) {
   );
 }
 
-/**
- * A broker buys the companies whose loads it sees: up to n companies for the base price, each one more for the extra
- * price, for the admin's days. With an open period it can add companies until the end of it (free while the base has
- * room). Card-to-card payment and a receipt photo; the admin reviews it.
- */
-export function BrokerAccessContent() {
+function FloatingButton({ onClick, disabled, busy, label }: { onClick: () => void; disabled: boolean; busy: boolean; label: string }) {
+  return (
+    <FloatingActions>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled || busy}
+        className="tw-flex tw-h-11 tw-items-center tw-px-5 tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-[0_10px_24px_rgba(245,118,26,0.3)] tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-shadow-none"
+      >
+        {busy && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
+        {busy ? 'در حال ارسال…' : label}
+      </button>
+    </FloatingActions>
+  );
+}
+
+/** Under review, or the last one rejected with its reason. */
+function OrderNotice({ orders }: { orders: AccessOrder[] }) {
+  const reviewing = orders.find((order) => order.status === 'RECEIPT_SUBMITTED');
+  if (reviewing) {
+    return (
+      <div className="tw-flex tw-items-center tw-gap-2 tw-rounded-2xl tw-border tw-border-brand-orange/30 tw-bg-brand-orange-soft/40 tw-p-4 tw-text-sm tw-font-bold tw-text-brand-orange-ink">
+        <Hourglass size={16} aria-hidden /> رسید {reviewing.title} ({price(reviewing.amount, reviewing.currency)}) در حال بررسی است؛ نتیجه همین‌جا اعلام می‌شود.
+      </div>
+    );
+  }
+  const latest = orders[0];
+  if (latest?.status !== 'REJECTED') return null;
+  return (
+    <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4">
+      <X size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-red-600" aria-hidden />
+      <div>
+        <p className="tw-m-0 tw-font-bold">رسید {latest.title} تأیید نشد</p>
+        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-leading-7 tw-text-brand-muted">{latest.rejectionReason || 'دلیلی ثبت نشده است.'} لطفاً دوباره پرداخت کنید یا رسید درست را بفرستید.</p>
+      </div>
+    </div>
+  );
+}
+
+/** The requests left, and packages to buy: the count, the card and the receipt photo. */
+function PackagesSection({ state, onChange }: { state: BrokerAccess; onChange: (next: BrokerAccess) => void }) {
   const toast = useToast();
-  const [state, setState] = useState<BrokerAccess | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [kind, setKind] = useState<'NEW' | 'ADD'>('NEW');
-  const [selected, setSelected] = useState<string[]>([]);
-  const [query, setQuery] = useState('');
+  const { policy } = state;
+  const [count, setCount] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState('');
   const [sending, setSending] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-
-  const load = () => {
-    setFailed(false);
-    return getBrokerAccess().then(setState, () => setFailed(true));
-  };
-  useEffect(() => {
-    void load();
-  }, []);
-
-  // the admin approved or rejected a receipt while the page is open
-  useNotificationEvent<{ approved?: boolean }>('broker-access-changed', (event) => {
-    if (event.approved) toast.success('شرکت‌های خریداری‌شده باز شد.');
-    else toast.error('رسید پرداخت تأیید نشد؛ دلیلش را در همین صفحه ببینید.');
-    void load();
-  });
-
-  const reviewing = state?.orders.find((order) => order.status === 'RECEIPT_SUBMITTED');
-  useEffect(() => {
-    if (!reviewing) return;
-    const timer = setInterval(() => void getBrokerAccess().then(setState, () => undefined), REVIEW_POLL_MS);
-    return () => clearInterval(timer);
-  }, [reviewing]);
+  const orders = state.orders.filter((order) => order.kind === 'PACKAGE');
+  const reviewing = orders.some((order) => order.status === 'RECEIPT_SUBMITTED');
+  const amount = (BigInt(policy.packagePrice) * BigInt(count)).toString();
 
   useEffect(() => () => {
     if (preview) URL.revokeObjectURL(preview);
   }, [preview]);
-
-  const owned = useMemo(() => new Set(kind === 'ADD' ? state?.period?.companies.map((company) => company.userId) ?? [] : []), [kind, state]);
-  const choices = useMemo(() => {
-    const words = query.trim();
-    return (state?.companies ?? []).filter((company) => !owned.has(company.userId) && (!words || company.name.includes(words)));
-  }, [state, owned, query]);
-
-  if (failed && !state) return <LoadFailed onRetry={() => void load()} />;
-  if (!state) return <CardSkeleton />;
-
-  const { policy } = state;
-  if (!policy.enabled) {
-    return (
-      <div className="tw-space-y-5">
-        <SectionTitle title="خرید بار شرکت‌ها" />
-        <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4">
-          <BadgeCheck size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" aria-hidden />
-          <p className="tw-m-0 tw-text-sm tw-leading-7">دیدن بار همه‌ی شرکت‌ها الان رایگان است و خرید لازم نیست.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const amount = kind === 'NEW' ? newPeriodPrice(policy, selected.length) : addCompaniesPrice(policy, owned.size, selected.length);
-  const free = kind === 'ADD' && selected.length > 0 && amount === '0';
-  const rejected = !reviewing ? state.orders.find((order) => order.status === 'REJECTED') : undefined;
-  const latestRejected = rejected && rejected === state.orders[0] ? rejected : undefined;
-
-  const switchKind = (next: 'NEW' | 'ADD') => {
-    setKind(next);
-    setSelected([]);
-  };
-  const toggle = (userId: string) => setSelected((current) => (current.includes(userId) ? current.filter((id) => id !== userId) : [...current, userId]));
 
   const choose = (event: ChangeEvent<HTMLInputElement>) => {
     const picked = event.target.files?.[0] ?? null;
@@ -126,15 +108,14 @@ export function BrokerAccessContent() {
   };
 
   const send = async () => {
-    if (!selected.length || (!free && !file) || sending) return;
+    if (!file || sending) return;
     setSending(true);
     try {
-      const next = await submitBrokerOrder(kind, selected, free ? null : file);
-      setState(next);
-      setSelected([]);
+      onChange(await submitBrokerPackageOrder(count, file));
       setFile(null);
       setPreview('');
-      toast.success(next.added ? `${faNumber(next.added)} شرکت به دوره‌ی شما اضافه شد.` : 'رسید شما ثبت شد و بررسی می‌شود.');
+      setCount(1);
+      toast.success('رسید شما ثبت شد و بررسی می‌شود.');
     } catch (error) {
       toast.error(subscriptionError(error));
     } finally {
@@ -142,194 +123,254 @@ export function BrokerAccessContent() {
     }
   };
 
-  const periodCard = (title: string, period: NonNullable<BrokerAccess['period']>, date: string) => (
-    <div className="tw-rounded-2xl tw-border tw-border-emerald-100 tw-bg-white tw-p-4">
-      <p className="tw-m-0 tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-bold tw-text-emerald-700">
-        <BadgeCheck size={16} aria-hidden /> {title} {date}
-      </p>
-      <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
-        {period.companies.map((company) => (
-          <span key={company.userId} className="tw-rounded-full tw-bg-brand-sky tw-px-3 tw-py-1 tw-text-xs tw-font-bold">{company.name}</span>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
-    <div className="tw-space-y-5">
+    <section className="tw-space-y-4">
       <SectionTitle
-        title="خرید بار شرکت‌ها"
-        hint={`تا ${faNumber(policy.includedCompanies)} شرکت ${price(policy.basePrice, policy.currency)} و هر شرکت بیشتر ${price(policy.extraCompanyPrice, policy.currency)}، برای ${faNumber(policy.durationDays)} روز. فقط بار شرکت‌هایی را که خریده‌اید می‌بینید و روی آن‌ها درخواست می‌دهید.`}
+        title="بسته‌ی درخواست بار"
+        hint={`هر بسته ${faNumber(policy.packageSize)} درخواست بار به ${price(policy.packagePrice, policy.currency)}؛ زمان ندارد و هر درخواست بار یکی از آن کم می‌کند.`}
       />
-
-      {state.period ? periodCard('دوره‌ی شما باز است تا', state.period, faDate(state.period.expireAt)) : (
-        <div className="tw-flex tw-items-center tw-gap-2 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-text-sm tw-font-bold tw-text-red-700">
-          <Lock size={16} aria-hidden /> هنوز شرکتی نخریده‌اید؛ تا خرید، باری نمی‌بینید.
-        </div>
-      )}
-      {state.next && periodCard('دوره‌ی بعدی شروع می‌شود از', state.next, faDate(state.next.startAt))}
-
-      {reviewing && (
-        <div className="tw-flex tw-items-center tw-gap-2 tw-rounded-2xl tw-border tw-border-brand-orange/30 tw-bg-brand-orange-soft/40 tw-p-4 tw-text-sm tw-font-bold tw-text-brand-orange-ink">
-          <Hourglass size={16} aria-hidden /> رسید {price(reviewing.amount, reviewing.currency)} در حال بررسی است؛ نتیجه همین‌جا اعلام می‌شود.
-        </div>
-      )}
-
-      {latestRejected && (
-        <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4">
-          <X size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-red-600" aria-hidden />
-          <div>
-            <p className="tw-m-0 tw-font-bold">رسید آخر تأیید نشد</p>
-            <p className="tw-m-0 tw-mt-1 tw-text-sm tw-leading-7 tw-text-brand-muted">{latestRejected.rejectionReason || 'دلیلی ثبت نشده است.'} لطفاً دوباره پرداخت کنید یا رسید درست را بفرستید.</p>
-          </div>
-        </div>
-      )}
+      <div className={cn('tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-bg-white tw-p-4', state.remaining ? 'tw-border-emerald-100' : 'tw-border-red-200')}>
+        <Ticket size={22} className={state.remaining ? 'tw-text-emerald-600' : 'tw-text-red-600'} aria-hidden />
+        <p className={cn('tw-m-0 tw-text-sm tw-font-bold', !state.remaining && 'tw-text-red-700')}>
+          {state.remaining ? `${faNumber(state.remaining)} درخواست بار باقی مانده` : 'درخواست باری ندارید؛ برای درخواست بار بسته بخرید.'}
+        </p>
+      </div>
+      <OrderNotice orders={orders} />
 
       {!reviewing && (
         <>
-          {state.period && (
-            <div className="tw-grid tw-grid-cols-2 tw-gap-2">
-              {(
-                [
-                  ['ADD', 'افزودن به دوره‌ی فعلی'],
-                  ['NEW', 'تمدید (دوره‌ی بعد)'],
-                ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => switchKind(value)}
-                  className={cn('tw-h-10 tw-rounded-xl tw-border-2 tw-text-sm tw-font-bold', kind === value ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line tw-bg-white')}
-                >
-                  {label}
+          <div>
+            <p className="tw-mb-2 tw-text-sm tw-font-bold">۱. تعداد بسته</p>
+            <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
+              <div className="tw-flex tw-items-center tw-gap-2">
+                <button type="button" aria-label="یک بسته کمتر" disabled={count <= 1} onClick={() => setCount(count - 1)} className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-brand-line tw-bg-white disabled:tw-opacity-40">
+                  <Minus size={16} aria-hidden />
                 </button>
-              ))}
+                <span className="tw-w-10 tw-text-center tw-text-lg tw-font-bold">{faNumber(count)}</span>
+                <button type="button" aria-label="یک بسته بیشتر" disabled={count >= MAX_PACKAGES} onClick={() => setCount(count + 1)} className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-brand-line tw-bg-white disabled:tw-opacity-40">
+                  <Plus size={16} aria-hidden />
+                </button>
+              </div>
+              <span className="tw-text-sm tw-font-bold">
+                {faNumber(count * policy.packageSize)} درخواست بار · {price(amount, policy.currency)}
+              </span>
             </div>
-          )}
+          </div>
 
-          <fieldset className="tw-m-0 tw-space-y-3 tw-border-0 tw-p-0">
-            <legend className="tw-mb-2 tw-text-sm tw-font-bold">
-              ۱. شرکت‌ها را انتخاب کنید
-              {kind === 'ADD' && ` (الان ${faNumber(owned.size)} شرکت دارید؛ تا ${faNumber(policy.includedCompanies)} شرکت بدون هزینه‌ی اضافه)`}
-            </legend>
-            <label className="tw-flex tw-h-10 tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3">
-              <Search size={16} className="tw-text-brand-muted" aria-hidden />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="جستجوی نام شرکت" className="tw-h-full tw-min-w-0 tw-flex-1 tw-border-0 tw-bg-transparent tw-text-sm tw-outline-none" />
-            </label>
-            <div className="tw-grid tw-max-h-80 tw-grid-cols-1 tw-gap-2 tw-overflow-y-auto sm:tw-grid-cols-2">
-              {choices.map((company) => {
-                const on = selected.includes(company.userId);
-                return (
-                  <button
-                    key={company.userId}
-                    type="button"
-                    onClick={() => toggle(company.userId)}
-                    aria-pressed={on}
-                    className={cn(
-                      'tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-border-2 tw-bg-white tw-p-3 tw-text-start tw-transition-colors',
-                      on ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line hover:tw-border-brand-orange/40',
-                    )}
-                  >
-                    <span className={cn('tw-flex tw-h-5 tw-w-5 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-md tw-border-2', on ? 'tw-border-brand-orange tw-bg-brand-orange tw-text-white' : 'tw-border-brand-line')} aria-hidden>
-                      {on && <Check size={12} strokeWidth={3} />}
-                    </span>
-                    <span className="tw-min-w-0 tw-flex-1 tw-truncate tw-text-sm tw-font-bold">{company.name}</span>
-                  </button>
-                );
-              })}
-              {!choices.length && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">شرکتی پیدا نشد.</p>}
-            </div>
-            {selected.length > 0 && (
-              <p className="tw-m-0 tw-rounded-xl tw-bg-brand-sky tw-px-4 tw-py-3 tw-text-sm tw-font-bold">
-                {faNumber(selected.length)} شرکت · {free ? 'بدون هزینه' : price(amount, policy.currency)}
-                {kind === 'NEW' && ` · ${faNumber(policy.durationDays)} روز${state.period ? ' بعد از پایان دوره‌ی فعلی' : ''}`}
-                {kind === 'ADD' && state.period && ` · تا ${faDate(state.period.expireAt)}`}
+          <div>
+            <p className="tw-mb-2 tw-text-sm tw-font-bold">۲. مبلغ را به این کارت واریز کنید</p>
+            <div className="tw-relative tw-overflow-hidden tw-rounded-2xl tw-bg-gradient-to-br tw-from-brand-navy tw-to-[#1c2f63] tw-p-5 tw-text-white tw-shadow-lg">
+              <div className="tw-relative tw-flex tw-items-center tw-justify-between tw-gap-3">
+                <CreditCard size={26} className="tw-text-brand-orange" aria-hidden />
+                {state.payment.cardNumber && <CopyCard card={state.payment.cardNumber} />}
+              </div>
+              <p dir="ltr" className="tw-relative tw-m-0 tw-mt-5 tw-select-all tw-text-center tw-font-mono tw-text-xl tw-font-bold tw-tracking-[0.12em] sm:tw-text-2xl">
+                {cardGroups(state.payment.cardNumber) || '—'}
               </p>
-            )}
-          </fieldset>
+              <div className="tw-relative tw-mt-4 tw-flex tw-flex-wrap tw-items-end tw-justify-between tw-gap-2 tw-text-sm">
+                <span className="tw-text-white/70">
+                  به نام <strong className="tw-text-white">{state.payment.cardOwner || '—'}</strong>
+                </span>
+                <span className="tw-rounded-lg tw-bg-white/10 tw-px-3 tw-py-1 tw-font-bold">{price(amount, policy.currency)}</span>
+              </div>
+            </div>
+          </div>
 
-          {selected.length > 0 && !free && (
-            <>
-              <div>
-                <p className="tw-mb-2 tw-text-sm tw-font-bold">۲. مبلغ را به این کارت واریز کنید</p>
-                <div className="tw-relative tw-overflow-hidden tw-rounded-2xl tw-bg-gradient-to-br tw-from-brand-navy tw-to-[#1c2f63] tw-p-5 tw-text-white tw-shadow-lg">
-                  <div className="tw-relative tw-flex tw-items-center tw-justify-between tw-gap-3">
-                    <CreditCard size={26} className="tw-text-brand-orange" aria-hidden />
-                    {state.payment.cardNumber && <CopyCard card={state.payment.cardNumber} />}
-                  </div>
-                  <p dir="ltr" className="tw-relative tw-m-0 tw-mt-5 tw-select-all tw-text-center tw-font-mono tw-text-xl tw-font-bold tw-tracking-[0.12em] sm:tw-text-2xl">
-                    {cardGroups(state.payment.cardNumber) || '—'}
-                  </p>
-                  <div className="tw-relative tw-mt-4 tw-flex tw-flex-wrap tw-items-end tw-justify-between tw-gap-2 tw-text-sm">
-                    <span className="tw-text-white/70">
-                      به نام <strong className="tw-text-white">{state.payment.cardOwner || '—'}</strong>
-                    </span>
-                    <span className="tw-rounded-lg tw-bg-white/10 tw-px-3 tw-py-1 tw-font-bold">{price(amount, policy.currency)}</span>
-                  </div>
+          <div>
+            <p className="tw-mb-2 tw-text-sm tw-font-bold">۳. عکس رسید پرداخت را بفرستید</p>
+            <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="tw-hidden" onChange={choose} />
+            {preview ? (
+              <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
+                <img src={preview} alt="پیش‌نمایش رسید" className="tw-h-20 tw-w-20 tw-rounded-xl tw-object-cover" />
+                <div className="tw-min-w-0 tw-flex-1 tw-text-sm">
+                  <p className="tw-m-0 tw-truncate tw-font-bold" dir="ltr">{file?.name}</p>
+                  <button type="button" onClick={() => input.current?.click()} className="tw-mt-1 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-brand-orange-ink tw-underline">
+                    عکس دیگری انتخاب کنید
+                  </button>
                 </div>
               </div>
-
-              <div>
-                <p className="tw-mb-2 tw-text-sm tw-font-bold">۳. عکس رسید پرداخت را بفرستید</p>
-                <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="tw-hidden" onChange={choose} />
-                {preview ? (
-                  <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
-                    <img src={preview} alt="پیش‌نمایش رسید" className="tw-h-20 tw-w-20 tw-rounded-xl tw-object-cover" />
-                    <div className="tw-min-w-0 tw-flex-1 tw-text-sm">
-                      <p className="tw-m-0 tw-truncate tw-font-bold" dir="ltr">{file?.name}</p>
-                      <button type="button" onClick={() => input.current?.click()} className="tw-mt-1 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-brand-orange-ink tw-underline">
-                        عکس دیگری انتخاب کنید
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => input.current?.click()}
-                    className="tw-flex tw-w-full tw-flex-col tw-items-center tw-gap-2 tw-rounded-2xl tw-border-2 tw-border-dashed tw-border-brand-line tw-bg-white tw-px-4 tw-py-8 tw-text-brand-muted tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange-ink"
-                  >
-                    <ImagePlus size={30} aria-hidden />
-                    <span className="tw-text-sm tw-font-bold">انتخاب عکس رسید</span>
-                    <span className="tw-text-xs">عکس صفحه یا اسکرین‌شات رسید بانکی</span>
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-
-          {selected.length > 0 && (
-            <FloatingActions>
+            ) : (
               <button
                 type="button"
-                onClick={send}
-                disabled={(!free && !file) || sending}
-                className="tw-flex tw-h-11 tw-items-center tw-px-5 tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-text-base tw-font-bold tw-text-white tw-shadow-[0_10px_24px_rgba(245,118,26,0.3)] tw-transition-colors hover:tw-bg-brand-orange-dark disabled:tw-cursor-not-allowed disabled:tw-shadow-none"
+                onClick={() => input.current?.click()}
+                className="tw-flex tw-w-full tw-flex-col tw-items-center tw-gap-2 tw-rounded-2xl tw-border-2 tw-border-dashed tw-border-brand-line tw-bg-white tw-px-4 tw-py-8 tw-text-brand-muted tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange-ink"
               >
-                {sending && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
-                {sending ? 'در حال ارسال…' : free ? `افزودن ${faNumber(selected.length)} شرکت` : 'ارسال رسید و خرید'}
+                <ImagePlus size={30} aria-hidden />
+                <span className="tw-text-sm tw-font-bold">انتخاب عکس رسید</span>
+                <span className="tw-text-xs">عکس صفحه یا اسکرین‌شات رسید بانکی</span>
               </button>
-            </FloatingActions>
-          )}
+            )}
+          </div>
+          {file && <FloatingButton onClick={send} disabled={false} busy={sending} label={`خرید ${faNumber(count * policy.packageSize)} درخواست بار`} />}
         </>
+      )}
+    </section>
+  );
+}
+
+/** The companies whose loads the broker sees, picked by itself up to the admin's limit; changed any time. */
+function CompaniesSection({ state, onChange }: { state: BrokerAccess; onChange: (next: BrokerAccess) => void }) {
+  const toast = useToast();
+  const max = state.policy.maxCompanies!;
+  const saved = useMemo(() => state.selected.map((company) => company.userId), [state.selected]);
+  const [selected, setSelected] = useState<string[]>(saved);
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
+  useEffect(() => setSelected(saved), [saved]);
+
+  const choices = useMemo(() => {
+    const words = query.trim();
+    return state.companies.filter((company) => !words || company.name.includes(words));
+  }, [state.companies, query]);
+  const changed = selected.length !== saved.length || selected.some((id) => !saved.includes(id));
+
+  const toggle = (userId: string) => {
+    if (selected.includes(userId)) return setSelected(selected.filter((id) => id !== userId));
+    if (selected.length >= max) return toast.error(`بیشتر از ${faNumber(max)} شرکت نمی‌شود؛ اول یکی را بردارید.`);
+    setSelected([...selected, userId]);
+  };
+
+  const save = async () => {
+    if (!selected.length || saving) return;
+    setSaving(true);
+    try {
+      onChange(await selectBrokerCompanies(selected));
+      toast.success('شرکت‌ها ذخیره شد؛ از این به بعد بار همین‌ها را می‌بینید.');
+    } catch (error) {
+      toast.error(subscriptionError(error));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="tw-space-y-4">
+      <SectionTitle title="شرکت‌ها" hint={`تا ${faNumber(max)} شرکت انتخاب کنید؛ فقط بار همین‌ها را می‌بینید و هر وقت خواستید عوضشان می‌کنید.`} />
+      {!saved.length && (
+        <div className="tw-flex tw-items-center tw-gap-2 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4 tw-text-sm tw-font-bold tw-text-red-700">
+          <Lock size={16} aria-hidden /> هنوز شرکتی انتخاب نکرده‌اید؛ تا انتخاب، باری نمی‌بینید.
+        </div>
+      )}
+      <p className="tw-m-0 tw-text-sm tw-font-bold">
+        انتخاب‌شده: {faNumber(selected.length)} از {faNumber(max)}
+      </p>
+      <label className="tw-flex tw-h-10 tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3">
+        <Search size={16} className="tw-text-brand-muted" aria-hidden />
+        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="جستجوی نام شرکت" className="tw-h-full tw-min-w-0 tw-flex-1 tw-border-0 tw-bg-transparent tw-text-sm tw-outline-none" />
+      </label>
+      <div className="tw-grid tw-max-h-80 tw-grid-cols-1 tw-gap-2 tw-overflow-y-auto sm:tw-grid-cols-2">
+        {choices.map((company) => {
+          const on = selected.includes(company.userId);
+          return (
+            <button
+              key={company.userId}
+              type="button"
+              onClick={() => toggle(company.userId)}
+              aria-pressed={on}
+              className={cn(
+                'tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-border-2 tw-bg-white tw-p-3 tw-text-start tw-transition-colors',
+                on ? 'tw-border-brand-orange tw-bg-brand-orange-soft/40' : 'tw-border-brand-line hover:tw-border-brand-orange/40',
+              )}
+            >
+              <span className={cn('tw-flex tw-h-5 tw-w-5 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-md tw-border-2', on ? 'tw-border-brand-orange tw-bg-brand-orange tw-text-white' : 'tw-border-brand-line')} aria-hidden>
+                {on && <Check size={12} strokeWidth={3} />}
+              </span>
+              <span className="tw-min-w-0 tw-flex-1 tw-truncate tw-text-sm tw-font-bold">{company.name}</span>
+            </button>
+          );
+        })}
+        {!choices.length && <p className="tw-m-0 tw-text-sm tw-text-brand-muted">شرکتی پیدا نشد.</p>}
+      </div>
+      {changed && selected.length > 0 && <FloatingButton onClick={save} disabled={false} busy={saving} label="ذخیره‌ی شرکت‌ها" />}
+    </section>
+  );
+}
+
+/**
+ * A broker's page: the packages of load requests it buys (card-to-card and a receipt the admin reviews) and, when the
+ * admin limits the companies, the ones whose loads it sees.
+ */
+export function BrokerAccessContent() {
+  const toast = useToast();
+  const [state, setState] = useState<BrokerAccess | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  const load = () => {
+    setFailed(false);
+    return getBrokerAccess().then(setState, () => setFailed(true));
+  };
+  useEffect(() => {
+    void load();
+  }, []);
+
+  // the admin approved or rejected a receipt while the page is open
+  useNotificationEvent<{ approved?: boolean }>('broker-access-changed', (event) => {
+    if (event.approved) toast.success('خرید شما تأیید شد و درخواست‌ها اضافه شد.');
+    else toast.error('رسید پرداخت تأیید نشد؛ دلیلش را در همین صفحه ببینید.');
+    void load();
+  });
+
+  const reviewing = state?.orders.some((order) => order.status === 'RECEIPT_SUBMITTED');
+  useEffect(() => {
+    if (!reviewing) return;
+    const timer = setInterval(() => void getBrokerAccess().then(setState, () => undefined), REVIEW_POLL_MS);
+    return () => clearInterval(timer);
+  }, [reviewing]);
+
+  if (failed && !state) return <LoadFailed onRetry={() => void load()} />;
+  if (!state) return <CardSkeleton />;
+
+  return (
+    <div className="tw-space-y-8">
+      {state.policy.packagesEnabled ? <PackagesSection state={state} onChange={setState} /> : (
+        <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4">
+          <BadgeCheck size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" aria-hidden />
+          <p className="tw-m-0 tw-text-sm tw-leading-7">درخواست بار الان رایگان است و خرید بسته لازم نیست.</p>
+        </div>
+      )}
+      {state.policy.maxCompanies !== null ? <CompaniesSection state={state} onChange={setState} /> : (
+        <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4">
+          <BadgeCheck size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" aria-hidden />
+          <p className="tw-m-0 tw-text-sm tw-leading-7">بار همه‌ی شرکت‌ها را می‌بینید.</p>
+        </div>
       )}
     </div>
   );
 }
 
-/** Above the loads: a broker that bought nothing yet sees why the list is empty and where to buy. */
+/**
+ * Whether the broker's packages of load requests are used up, for the request buttons of every list of loads: read
+ * when the panel opens, after each request, and when the admin decides on a receipt.
+ */
+export function BrokerRequestsProvider({ children }: { children: ReactNode }) {
+  const [usedUp, setUsedUp] = useState(false);
+  const refresh = useCallback(() => {
+    getBrokerAccess().then((state) => setUsedUp(state.policy.packagesEnabled && state.remaining <= 0), () => undefined);
+  }, []);
+  useEffect(refresh, [refresh]);
+  useNotificationEvent('broker-access-changed', refresh);
+  const value = useMemo(() => ({ usedUp, refresh }), [usedUp, refresh]);
+  return <RequestsUsedUp.Provider value={value}>{children}</RequestsUsedUp.Provider>;
+}
+
+/** Above the loads: a broker without companies picked, or without requests left, sees why and where to go. */
 export function BrokerAccessBanner({ onBuy }: { onBuy: () => void }) {
   const [state, setState] = useState<BrokerAccess | null>(null);
+  const { usedUp } = useRequestsUsedUp();
   useEffect(() => {
     getBrokerAccess().then(setState, () => undefined);
   }, []);
-  if (!state?.policy.enabled || state.period) return null;
+  if (!state) return null;
+  const noCredit = usedUp;
+  if (!state.blocked && !noCredit) return null;
   return (
     <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-orange/30 tw-bg-brand-orange-soft/40 tw-p-4">
       <p className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-bold">
-        <Lock size={16} aria-hidden /> برای دیدن بارها، شرکت‌هایی را که بارشان را می‌خواهید بخرید.
+        <Lock size={16} aria-hidden />
+        {state.blocked ? 'برای دیدن بارها، شرکت‌هایی را که بارشان را می‌خواهید انتخاب کنید.' : 'درخواست بار شما تمام شده است؛ برای درخواست بار بسته بخرید.'}
       </p>
       <button type="button" onClick={onBuy} className="tw-h-9 tw-rounded-xl tw-border-0 tw-bg-brand-orange tw-px-4 tw-text-sm tw-font-bold tw-text-white">
-        خرید شرکت‌ها
+        {state.blocked ? 'انتخاب شرکت‌ها' : 'خرید بسته'}
       </button>
     </div>
   );

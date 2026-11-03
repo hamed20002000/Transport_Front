@@ -17,14 +17,14 @@ import FactoryProfile from 'src/features/factory/FactoryProfile';
 import PaymentHistory from 'src/features/subscription/PaymentHistory';
 import trabotIcon from 'src/shared/assets/images/logos/trabot-icon.png';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
-import { BrokerAccessBanner, BrokerAccessContent } from './BrokerAccess';
+import { BrokerAccessBanner, BrokerAccessContent, BrokerRequestsProvider } from './BrokerAccess';
 
 type Tab = 'loads' | 'requests' | 'access' | 'payments' | 'profile';
 
 const tabs = [
   { value: 'loads' as const, label: 'بارها', icon: PackageSearch },
   { value: 'requests' as const, label: 'درخواست‌های من', icon: ClipboardList },
-  { value: 'access' as const, label: 'خرید شرکت‌ها', icon: Unlock },
+  { value: 'access' as const, label: 'شرکت‌ها و بسته‌ها', icon: Unlock },
   { value: 'payments' as const, label: 'پرداخت‌ها', icon: Receipt },
   { value: 'profile' as const, label: 'پروفایل', icon: UserRound },
 ];
@@ -103,7 +103,9 @@ export default function BrokerPanel() {
         <main className="tw-mx-auto tw-max-w-5xl tw-space-y-5 tw-px-4 tw-pb-16 tw-pt-6 sm:tw-px-6">
           <PushPrompt hint="جواب شرکت‌های حمل‌ونقل به درخواست‌ها، تأیید تحویل و نتیجه‌ی بررسی اعتبار را حتی وقتی برنامه بسته است به‌صورت اعلان روی گوشی ببینید." />
           <BrokerView.Provider value>
-            <VerifiedPanel />
+            <BrokerRequestsProvider>
+              <VerifiedPanel />
+            </BrokerRequestsProvider>
           </BrokerView.Provider>
         </main>
       </div>

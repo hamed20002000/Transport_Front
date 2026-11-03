@@ -53,6 +53,7 @@ import {
   formatLiters,
   mapLink,
   useAsync,
+  useRequestsUsedUp,
   type SketchMarker,
 } from './components';
 import { groupDigits } from 'src/shared/utils/digitGroups';
@@ -401,6 +402,7 @@ export default function LoadDetails({
   const directions = insight && mapLink(insight.originPoint, insight.destinationPoint);
   const status = load.myRequest?.status;
   const canRequest = load.status === 'OPEN' && (!status || status === 'CANCELLED');
+  const { usedUp } = useRequestsUsedUp();
 
   return createPortal(
     <div
@@ -536,9 +538,12 @@ export default function LoadDetails({
         <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-bg-brand-bg/60 tw-px-5 tw-py-3">
           {status && status !== 'CANCELLED' ? <RequestBadge status={status} /> : <span className="tw-text-xs tw-text-brand-muted">{load.status === 'OPEN' ? 'این بار هنوز باز است' : 'این بار برداشته شده'}</span>}
           {onRequest && canRequest && (
-            <ActionButton onClick={onRequest} busy={requesting}>
-              <Hand size={16} aria-hidden /> درخواست این بار
-            </ActionButton>
+            <span className="tw-flex tw-flex-col tw-items-end tw-gap-1">
+              <ActionButton onClick={onRequest} busy={requesting} disabled={usedUp}>
+                <Hand size={16} aria-hidden /> {usedUp ? 'درخواست تمام شده' : 'درخواست این بار'}
+              </ActionButton>
+              {usedUp && <span className="tw-text-xs tw-text-red-700">درخواست بار شما تمام شده است؛ بسته‌ی درخواست بخرید.</span>}
+            </span>
           )}
         </div>
       </div>
