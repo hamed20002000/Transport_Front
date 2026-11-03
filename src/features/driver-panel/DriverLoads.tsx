@@ -38,11 +38,13 @@ import {
   Spec,
 } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
-import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type CargoRequest, type OpenLoad, type Page } from './api';
+import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type BrokerDriver, type CargoRequest, type OpenLoad, type Page } from './api';
 import OfferAnswer from './OfferAnswer';
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView, useRequestsUsedUp } from './components';
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
+import BrokerDriverDialog from './BrokerDriverDialog';
+import { useAuth } from 'src/core/auth/AuthContext';
 import { useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 import { groupDigits } from 'src/shared/utils/digitGroups';
 
@@ -142,11 +144,18 @@ export function useLoadActions(
   const [requestingId, setRequestingId] = useState('');
   const [details, setDetails] = useState<OpenLoad | null>(null);
   const close = useCallback(() => setDetails(null), []);
+  // a broker's request names the driver it is for: the load waits here while the broker gives it
+  const { userRoles } = useAuth();
+  const broker = userRoles.some((role) => role.name === 'BROKER') && !userRoles.some((role) => role.name === 'DRIVER');
+  const [forLoad, setForLoad] = useState<OpenLoad | null>(null);
+  const closeDriver = useCallback(() => setForLoad(null), []);
 
-  async function request(load: OpenLoad) {
+  async function request(load: OpenLoad, forDriver?: BrokerDriver) {
+    if (broker && !forDriver) return setForLoad(load);
     setRequestingId(load.id);
     try {
-      const created = await requestLoad(load.id);
+      const created = await requestLoad(load.id, forDriver);
+      setForLoad(null);
       const patch = { myRequest: { id: created.id, status: created.status } };
       update(load.id, patch);
       setDetails((current) => (current?.id === load.id ? { ...current, ...patch } : current));
@@ -161,8 +170,20 @@ export function useLoadActions(
     }
   }
 
-  const dialog = details && (
-    <LoadDetails load={details} layer={options.dialogLayer} onClose={close} onRequest={() => request(details)} requesting={requestingId === details.id} />
+  const dialog = (
+    <>
+      {details && <LoadDetails load={details} layer={options.dialogLayer} onClose={close} onRequest={() => request(details)} requesting={requestingId === details.id} />}
+      {forLoad && (
+        <BrokerDriverDialog
+          listingId={forLoad.id}
+          cargo={`${forLoad.origin} ← ${forLoad.destination}${forLoad.cargoType ? ` · ${forLoad.cargoType}` : ''}`}
+          layer={options.dialogLayer}
+          sending={requestingId === forLoad.id}
+          onSend={(driver) => void request(forLoad, driver)}
+          onClose={closeDriver}
+        />
+      )}
+    </>
   );
   return { requestingId, request, openDetails: setDetails, dialog };
 }

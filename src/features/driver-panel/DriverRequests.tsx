@@ -46,6 +46,11 @@ function RequestCard({
       head={
         <>
           <LoadHead code={listing.code} at={listing.createdAt} company={listing.companyName} />
+          {request.forDriver && (
+            <p className="tw-m-0 tw-mt-1 tw-text-xs tw-text-brand-muted">
+              برای راننده: <span className="tw-font-bold tw-text-brand-navy">{request.forDriver.name}</span> · {request.forDriver.plate}
+            </p>
+          )}
           <RequestBadge status={request.status} short />
         </>
       }

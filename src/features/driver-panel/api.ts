@@ -24,7 +24,18 @@ export interface CargoRequest {
   // the driver reported delivery; the trip stays ACCEPTED until the company confirms it
   deliveryReportedAt?: string | null;
   offerExpiresAt?: string | null;
+  /** a broker's request: the driver it is for */
+  forDriver?: BrokerDriver | null;
   listing: CargoListing | null;
+}
+
+/** The driver a broker requests a load for (transport_backend BrokerDriver): kept with the request, no account made. */
+export interface BrokerDriver {
+  name: string;
+  nationalCode: string;
+  mobile: string;
+  plate: string;
+  transitPlate: string | null;
 }
 
 export interface GeoPoint {
@@ -161,8 +172,36 @@ export function tripHistory(page: number, filters: TripHistoryFilters, pageSize 
   return unwrap<TripHistory>(axios.get(url('trips/history'), config({ page, pageSize, ...filters, q: filters.q?.trim() || undefined })));
 }
 
-export function requestLoad(listingId: string) {
-  return unwrap<CargoRequest>(axios.post(url('requests'), { listingId }, config()));
+/** forDriver: a broker's request, for this driver */
+export function requestLoad(listingId: string, forDriver?: BrokerDriver) {
+  return unwrap<CargoRequest>(axios.post(url('requests'), { listingId, forDriver }, config()));
+}
+
+/** «معرفی راننده» (a broker, paid): drivers of this load's route are told; asked 0 = none found (nothing charged). */
+export function suggestDrivers(listingId: string) {
+  return unwrap<{ asked: number; reasons: string[] }>(axios.post(url('suggestions'), { listingId }, config()));
+}
+
+/** A broker's offer to this driver (DriverSuggestionService): the broker's name and the load, never a number. */
+export interface BrokerOffer {
+  id: string;
+  broker: string;
+  listing: { id: string; code: string | null; origin: string; destination: string; cargoType: string | null; weight: string | null; price: string | null };
+  expiresAt: string;
+}
+
+export function getBrokerOffers() {
+  return unwrap<BrokerOffer[]>(axios.get(url('broker-offers'), config()));
+}
+
+/** accepted: the broker's request goes in this driver's name; profile: its name, national code or plate is missing */
+export function answerBrokerOffer(id: string, accept: boolean) {
+  return unwrap<{ result: 'accepted' | 'declined' | 'closed' | 'profile' }>(axios.patch(url(`broker-offers/${id}`), { accept }, config()));
+}
+
+/** A broker's drivers from its earlier requests, newest first. */
+export function getBrokerDrivers() {
+  return unwrap<BrokerDriver[]>(axios.get(url('requests/drivers'), config()));
 }
 
 // Answer to a load the company handed to this driver: accept starts the trip, otherwise the company picks someone else.
@@ -219,6 +258,7 @@ const conflicts: Record<string, string> = {
   offerExpired: 'مهلت تأیید این بار تمام شده است.',
   notPurchased: 'بار این شرکت در شرکت‌های انتخاب‌شده‌ی شما نیست؛ از بخش «شرکت‌ها و بسته‌ها» انتخابش کنید.',
   noCredit: 'درخواست بار شما تمام شده است؛ از بخش «شرکت‌ها و بسته‌ها» بسته‌ی درخواست بخرید.',
+  noSuggestions: 'معرفی راننده‌ی شما تمام شده است؛ از بخش «شرکت‌ها و بسته‌ها» بسته‌ی معرفی راننده بخرید.',
 };
 
 export function errorMessage(error: unknown) {
@@ -228,7 +268,8 @@ export function errorMessage(error: unknown) {
     const key = typeof data?.message === 'string' ? data.message : '';
     if (status === 409 && conflicts[key]) return conflicts[key];
     if (status === 404 && key === 'placeNotFound') return 'این شهر یا آدرس پیدا نشد. نام شهر را دقیق‌تر بنویسید.';
-    if (status === 400) return 'اطلاعات واردشده معتبر نیست. فیلدها را بررسی کنید.';
+    // the server's own Persian reason (a broker's driver details), else a general one
+    if (status === 400) return /[؀-ۿ]/.test(key) ? key : 'اطلاعات واردشده معتبر نیست. فیلدها را بررسی کنید.';
     if (status === 413) return 'حجم عکس زیاد است (حداکثر ۳ مگابایت).';
     if (status === 401) return 'نشست شما منقضی شده است. دوباره وارد شوید.';
     if (status === 403) return 'این بخش فقط برای حساب راننده است.';

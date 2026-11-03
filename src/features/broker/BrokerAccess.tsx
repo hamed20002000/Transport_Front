@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
-import { BadgeCheck, Check, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Minus, Plus, Search, Ticket, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { BadgeCheck, Check, Compass, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Minus, Plus, Search, Ticket, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import FloatingActions from 'src/shared/components/FloatingActions';
@@ -7,7 +8,7 @@ import { subscriptionError } from 'src/features/subscription/api';
 import { CardSkeleton, LoadFailed, SectionTitle } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
 import { RequestsUsedUp, useRequestsUsedUp } from 'src/features/driver-panel/components';
-import { getBrokerAccess, selectBrokerCompanies, submitBrokerPackageOrder, type AccessOrder, type BrokerAccess } from './accessApi';
+import { getBrokerAccess, selectBrokerCompanies, submitBrokerPackageOrder, type AccessOrder, type BrokerAccess, type BrokerPack } from './accessApi';
 
 // a receipt under review is checked again this often, so approval shows without a refresh
 const REVIEW_POLL_MS = 20_000;
@@ -58,31 +59,176 @@ function FloatingButton({ onClick, disabled, busy, label }: { onClick: () => voi
   );
 }
 
-/** Under review, or the last one rejected with its reason. */
-function OrderNotice({ orders }: { orders: AccessOrder[] }) {
-  const reviewing = orders.find((order) => order.status === 'RECEIPT_SUBMITTED');
-  if (reviewing) {
-    return (
-      <div className="tw-flex tw-items-center tw-gap-2 tw-rounded-2xl tw-border tw-border-brand-orange/30 tw-bg-brand-orange-soft/40 tw-p-4 tw-text-sm tw-font-bold tw-text-brand-orange-ink">
-        <Hourglass size={16} aria-hidden /> رسید {reviewing.title} ({price(reviewing.amount, reviewing.currency)}) در حال بررسی است؛ نتیجه همین‌جا اعلام می‌شود.
-      </div>
-    );
-  }
-  const latest = orders[0];
-  if (latest?.status !== 'REJECTED') return null;
+// each kind of package keeps its own colour: load requests orange, «معرفی راننده» navy
+const TONES = {
+  orange: {
+    badge: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink',
+    button: 'tw-bg-brand-orange hover:tw-bg-brand-orange-dark',
+  },
+  navy: {
+    badge: 'tw-bg-brand-sky tw-text-brand-navy',
+    button: 'tw-bg-brand-navy hover:tw-bg-[#1c2f63]',
+  },
+} as const;
+
+/** One kind of package in its own words: load requests, or «معرفی راننده». */
+function packTerms(state: BrokerAccess, pack: BrokerPack) {
+  const { policy } = state;
+  return pack === 'SUGGESTION'
+    ? {
+        kind: 'SUGGESTION' as const,
+        enabled: policy.suggestionsEnabled,
+        title: 'معرفی راننده',
+        about: `به ${faNumber(policy.suggestionDrivers)} راننده‌ای که مسیر بار را رفته‌اند خبر می‌دهیم؛ اولین کسی که بخواهد، درخواست به نام او می‌رود. معرفی بی‌نتیجه حساب نمی‌شود.`,
+        size: policy.suggestionPackageSize,
+        unitPrice: policy.suggestionPackagePrice,
+        left: state.suggestions,
+        unit: 'معرفی',
+        icon: Compass,
+        tone: TONES.navy,
+      }
+    : {
+        kind: 'PACKAGE' as const,
+        enabled: policy.packagesEnabled,
+        title: 'درخواست بار',
+        about: 'هر درخواست بار یکی از آن کم می‌کند؛ زمان ندارد.',
+        size: policy.packageSize,
+        unitPrice: policy.packagePrice,
+        left: state.remaining,
+        unit: 'درخواست',
+        icon: Ticket,
+        tone: TONES.orange,
+      };
+}
+
+/**
+ * What the broker has left of each kind, one row each with «خرید»; the purchase form opens under the kind chosen.
+ * Load requests with packages off are free (no button); «معرفی راننده» off is not shown.
+ */
+function Credits({
+  state,
+  onChange,
+}: {
+  state: BrokerAccess;
+  onChange: (next: BrokerAccess) => void;
+}) {
+  const [buying, setBuying] = useState<BrokerPack | null>(null);
+  const packs = (['REQUEST', 'SUGGESTION'] as const).filter(
+    (pack) => pack === 'REQUEST' || state.policy.suggestionsEnabled,
+  );
   return (
-    <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-red-200 tw-bg-red-50 tw-p-4">
-      <X size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-red-600" aria-hidden />
-      <div>
-        <p className="tw-m-0 tw-font-bold">رسید {latest.title} تأیید نشد</p>
-        <p className="tw-m-0 tw-mt-1 tw-text-sm tw-leading-7 tw-text-brand-muted">{latest.rejectionReason || 'دلیلی ثبت نشده است.'} لطفاً دوباره پرداخت کنید یا رسید درست را بفرستید.</p>
-      </div>
+    <div className="tw-overflow-hidden tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-shadow-sm">
+      {packs.map((pack, index) => {
+        const terms = packTerms(state, pack);
+        const Icon = terms.icon;
+        const free = !terms.enabled;
+        const reviewing = state.orders.some(
+          (order) => order.kind === terms.kind && order.status === 'RECEIPT_SUBMITTED',
+        );
+        return (
+          <div key={pack} className={cn(index > 0 && 'tw-border-t tw-border-brand-line')}>
+            <div className="tw-flex tw-items-center tw-gap-3 tw-p-4">
+              <span
+                className={cn(
+                  'tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl',
+                  terms.tone.badge,
+                )}
+              >
+                <Icon size={20} aria-hidden />
+              </span>
+              <div className="tw-min-w-0 tw-flex-1">
+                <p className="tw-m-0 tw-text-sm tw-text-brand-muted">{terms.title}</p>
+                <p className="tw-m-0 tw-font-bold">
+                  {free ? (
+                    'رایگان'
+                  ) : terms.left ? (
+                    `${faNumber(terms.left)} ${terms.unit} مانده`
+                  ) : (
+                    <span className="tw-text-amber-700">تمام شده</span>
+                  )}
+                </p>
+              </div>
+              {!free &&
+                (reviewing ? (
+                  <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-brand-orange-soft tw-px-3 tw-py-1 tw-text-xs tw-font-bold tw-text-brand-orange-ink">
+                    <Hourglass size={13} aria-hidden /> رسید در حال بررسی
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setBuying(pack)}
+                    aria-haspopup="dialog"
+                    className={cn(
+                      'tw-inline-flex tw-h-9 tw-items-center tw-gap-1.5 tw-rounded-xl tw-border-0 tw-px-4 tw-text-sm tw-font-bold tw-text-white tw-transition-colors',
+                      terms.tone.button,
+                    )}
+                  >
+                    <Plus size={16} aria-hidden /> خرید
+                  </button>
+                ))}
+            </div>
+            {!free && !reviewing && (
+              <RejectedNotice orders={state.orders.filter((order) => order.kind === terms.kind)} />
+            )}
+          </div>
+        );
+      })}
+      {buying && (
+        <BuyForm
+          state={state}
+          pack={buying}
+          onClose={() => setBuying(null)}
+          onChange={(next) => {
+            onChange(next);
+            setBuying(null);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-/** The requests left, and packages to buy: the count, the card and the receipt photo. */
-function PackagesSection({ state, onChange }: { state: BrokerAccess; onChange: (next: BrokerAccess) => void }) {
+/** The last receipt of this kind was turned down: why, under its row. */
+function RejectedNotice({ orders }: { orders: AccessOrder[] }) {
+  const latest = orders[0];
+  if (latest?.status !== 'REJECTED') return null;
+  return (
+    <p className="tw-m-0 tw-mx-4 tw-mb-4 tw-rounded-xl tw-bg-red-50 tw-px-3 tw-py-2 tw-text-xs tw-leading-6 tw-text-red-700">
+      رسید {latest.title} تأیید نشد: {latest.rejectionReason || 'دلیلی ثبت نشده است.'} دوباره پرداخت
+      کنید یا رسید درست را بفرستید.
+    </p>
+  );
+}
+
+function Step({ index, title, children }: { index: number; title: string; children: ReactNode }) {
+  return (
+    <div className="tw-space-y-2">
+      <p className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-bold">
+        <span className="tw-flex tw-h-6 tw-w-6 tw-items-center tw-justify-center tw-rounded-full tw-bg-brand-orange tw-text-xs tw-text-white">
+          {faNumber(index)}
+        </span>
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Buying packages of one kind, in a modal (a sheet from the bottom on a phone): how many, the card to pay to and the
+ * receipt photo, sent to the admin's review.
+ */
+function BuyForm({
+  state,
+  pack,
+  onChange,
+  onClose,
+}: {
+  state: BrokerAccess;
+  pack: BrokerPack;
+  onChange: (next: BrokerAccess) => void;
+  onClose: () => void;
+}) {
   const toast = useToast();
   const { policy } = state;
   const [count, setCount] = useState(1);
@@ -90,19 +236,36 @@ function PackagesSection({ state, onChange }: { state: BrokerAccess; onChange: (
   const [preview, setPreview] = useState('');
   const [sending, setSending] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-  const orders = state.orders.filter((order) => order.kind === 'PACKAGE');
-  const reviewing = orders.some((order) => order.status === 'RECEIPT_SUBMITTED');
-  const amount = (BigInt(policy.packagePrice) * BigInt(count)).toString();
+  const terms = packTerms(state, pack);
+  const amount = (BigInt(terms.unitPrice) * BigInt(count)).toString();
 
-  useEffect(() => () => {
-    if (preview) URL.revokeObjectURL(preview);
-  }, [preview]);
+  useEffect(
+    () => () => {
+      if (preview) URL.revokeObjectURL(preview);
+    },
+    [preview],
+  );
+
+  // the page behind stays still; Escape closes (not while sending)
+  useEffect(() => {
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && !sending && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, sending]);
+
+  const Icon = terms.icon;
 
   const choose = (event: ChangeEvent<HTMLInputElement>) => {
     const picked = event.target.files?.[0] ?? null;
     event.target.value = '';
     if (!picked) return;
-    if (!picked.type.startsWith('image/')) return toast.error('فقط عکس رسید (JPG، PNG یا WebP) را انتخاب کنید.');
+    if (!picked.type.startsWith('image/'))
+      return toast.error('فقط عکس رسید (JPG، PNG یا WebP) را انتخاب کنید.');
     setFile(picked);
     setPreview(URL.createObjectURL(picked));
   };
@@ -111,10 +274,7 @@ function PackagesSection({ state, onChange }: { state: BrokerAccess; onChange: (
     if (!file || sending) return;
     setSending(true);
     try {
-      onChange(await submitBrokerPackageOrder(count, file));
-      setFile(null);
-      setPreview('');
-      setCount(1);
+      onChange(await submitBrokerPackageOrder(count, file, pack));
       toast.success('رسید شما ثبت شد و بررسی می‌شود.');
     } catch (error) {
       toast.error(subscriptionError(error));
@@ -123,68 +283,132 @@ function PackagesSection({ state, onChange }: { state: BrokerAccess; onChange: (
     }
   };
 
-  return (
-    <section className="tw-space-y-4">
-      <SectionTitle
-        title="بسته‌ی درخواست بار"
-        hint={`هر بسته ${faNumber(policy.packageSize)} درخواست بار به ${price(policy.packagePrice, policy.currency)}؛ زمان ندارد و هر درخواست بار یکی از آن کم می‌کند.`}
-      />
-      <div className={cn('tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-bg-white tw-p-4', state.remaining ? 'tw-border-emerald-100' : 'tw-border-red-200')}>
-        <Ticket size={22} className={state.remaining ? 'tw-text-emerald-600' : 'tw-text-red-600'} aria-hidden />
-        <p className={cn('tw-m-0 tw-text-sm tw-font-bold', !state.remaining && 'tw-text-red-700')}>
-          {state.remaining ? `${faNumber(state.remaining)} درخواست بار باقی مانده` : 'درخواست باری ندارید؛ برای درخواست بار بسته بخرید.'}
-        </p>
-      </div>
-      <OrderNotice orders={orders} />
+  return createPortal(
+    <div
+      className="tw-fixed tw-inset-0 tw-z-[1400] tw-flex tw-items-end tw-justify-center tw-bg-brand-navy/50 tw-backdrop-blur-[2px] sm:tw-items-center sm:tw-p-6"
+      onMouseDown={(event) => event.target === event.currentTarget && !sending && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="buy-title"
+        dir="rtl"
+        className="tw-flex tw-max-h-[92dvh] tw-w-full tw-flex-col tw-overflow-hidden tw-rounded-t-3xl tw-bg-white tw-text-brand-navy tw-shadow-2xl sm:tw-max-w-lg sm:tw-rounded-3xl"
+      >
+        {/* the grab bar of a sheet, on a phone */}
+        <span
+          className="tw-mx-auto tw-mt-2.5 tw-h-1.5 tw-w-10 tw-rounded-full tw-bg-brand-line sm:tw-hidden"
+          aria-hidden
+        />
+        <div className="tw-flex tw-items-center tw-gap-3 tw-border-b tw-border-brand-line tw-px-5 tw-py-4">
+          <span
+            className={cn(
+              'tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl',
+              terms.tone.badge,
+            )}
+          >
+            <Icon size={20} aria-hidden />
+          </span>
+          <div className="tw-min-w-0 tw-flex-1">
+            <h2 id="buy-title" className="tw-m-0 tw-text-base tw-font-bold">
+              خرید بسته‌ی {terms.title}
+            </h2>
+            <p className="tw-m-0 tw-text-xs tw-text-brand-muted">
+              هر بسته {faNumber(terms.size)} {terms.unit} ·{' '}
+              {price(terms.unitPrice, policy.currency)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={sending}
+            aria-label="بستن"
+            className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-full tw-border-0 tw-bg-brand-bg tw-text-brand-muted hover:tw-bg-brand-sky"
+          >
+            <X size={18} aria-hidden />
+          </button>
+        </div>
 
-      {!reviewing && (
-        <>
-          <div>
-            <p className="tw-mb-2 tw-text-sm tw-font-bold">۱. تعداد بسته</p>
-            <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
+        <div className="tw-flex-1 tw-space-y-5 tw-overflow-y-auto tw-px-5 tw-py-4">
+          <p className="tw-m-0 tw-text-xs tw-leading-6 tw-text-brand-muted">{terms.about}</p>
+
+          <Step index={1} title="تعداد بسته">
+            <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-2.5">
               <div className="tw-flex tw-items-center tw-gap-2">
-                <button type="button" aria-label="یک بسته کمتر" disabled={count <= 1} onClick={() => setCount(count - 1)} className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-brand-line tw-bg-white disabled:tw-opacity-40">
+                <button
+                  type="button"
+                  aria-label="یک بسته کمتر"
+                  disabled={count <= 1}
+                  onClick={() => setCount(count - 1)}
+                  className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-lg tw-border tw-border-brand-line tw-bg-white disabled:tw-opacity-40"
+                >
                   <Minus size={16} aria-hidden />
                 </button>
-                <span className="tw-w-10 tw-text-center tw-text-lg tw-font-bold">{faNumber(count)}</span>
-                <button type="button" aria-label="یک بسته بیشتر" disabled={count >= MAX_PACKAGES} onClick={() => setCount(count + 1)} className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-brand-line tw-bg-white disabled:tw-opacity-40">
+                <span className="tw-w-8 tw-text-center tw-text-lg tw-font-bold">
+                  {faNumber(count)}
+                </span>
+                <button
+                  type="button"
+                  aria-label="یک بسته بیشتر"
+                  disabled={count >= MAX_PACKAGES}
+                  onClick={() => setCount(count + 1)}
+                  className="tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-lg tw-border tw-border-brand-line tw-bg-white disabled:tw-opacity-40"
+                >
                   <Plus size={16} aria-hidden />
                 </button>
               </div>
-              <span className="tw-text-sm tw-font-bold">
-                {faNumber(count * policy.packageSize)} درخواست بار · {price(amount, policy.currency)}
+              <span className="tw-text-sm">
+                {faNumber(count * terms.size)} {terms.unit} ·{' '}
+                <strong className="tw-whitespace-nowrap">{price(amount, policy.currency)}</strong>
               </span>
             </div>
-          </div>
+          </Step>
 
-          <div>
-            <p className="tw-mb-2 tw-text-sm tw-font-bold">۲. مبلغ را به این کارت واریز کنید</p>
-            <div className="tw-relative tw-overflow-hidden tw-rounded-2xl tw-bg-gradient-to-br tw-from-brand-navy tw-to-[#1c2f63] tw-p-5 tw-text-white tw-shadow-lg">
-              <div className="tw-relative tw-flex tw-items-center tw-justify-between tw-gap-3">
-                <CreditCard size={26} className="tw-text-brand-orange" aria-hidden />
+          <Step index={2} title="مبلغ را به این کارت واریز کنید">
+            <div className="tw-rounded-2xl tw-bg-gradient-to-br tw-from-brand-navy tw-to-[#1c2f63] tw-p-4 tw-text-white">
+              <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
+                <CreditCard size={22} className="tw-text-brand-orange" aria-hidden />
                 {state.payment.cardNumber && <CopyCard card={state.payment.cardNumber} />}
               </div>
-              <p dir="ltr" className="tw-relative tw-m-0 tw-mt-5 tw-select-all tw-text-center tw-font-mono tw-text-xl tw-font-bold tw-tracking-[0.12em] sm:tw-text-2xl">
+              <p
+                dir="ltr"
+                className="tw-m-0 tw-mt-4 tw-select-all tw-whitespace-nowrap tw-text-center tw-font-mono tw-text-lg tw-font-bold tw-tracking-[0.06em] min-[400px]:tw-text-xl"
+              >
                 {cardGroups(state.payment.cardNumber) || '—'}
               </p>
-              <div className="tw-relative tw-mt-4 tw-flex tw-flex-wrap tw-items-end tw-justify-between tw-gap-2 tw-text-sm">
+              <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-end tw-justify-between tw-gap-2 tw-text-sm">
                 <span className="tw-text-white/70">
                   به نام <strong className="tw-text-white">{state.payment.cardOwner || '—'}</strong>
                 </span>
-                <span className="tw-rounded-lg tw-bg-white/10 tw-px-3 tw-py-1 tw-font-bold">{price(amount, policy.currency)}</span>
+                <span className="tw-font-bold">{price(amount, policy.currency)}</span>
               </div>
             </div>
-          </div>
+          </Step>
 
-          <div>
-            <p className="tw-mb-2 tw-text-sm tw-font-bold">۳. عکس رسید پرداخت را بفرستید</p>
-            <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="tw-hidden" onChange={choose} />
+          <Step index={3} title="عکس رسید را بفرستید">
+            <input
+              ref={input}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="tw-hidden"
+              onChange={choose}
+            />
             {preview ? (
-              <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-3">
-                <img src={preview} alt="پیش‌نمایش رسید" className="tw-h-20 tw-w-20 tw-rounded-xl tw-object-cover" />
+              <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-p-2.5">
+                <img
+                  src={preview}
+                  alt="پیش‌نمایش رسید"
+                  className="tw-h-14 tw-w-14 tw-rounded-lg tw-object-cover"
+                />
                 <div className="tw-min-w-0 tw-flex-1 tw-text-sm">
-                  <p className="tw-m-0 tw-truncate tw-font-bold" dir="ltr">{file?.name}</p>
-                  <button type="button" onClick={() => input.current?.click()} className="tw-mt-1 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-brand-orange-ink tw-underline">
+                  <p className="tw-m-0 tw-truncate tw-font-bold" dir="ltr">
+                    {file?.name}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => input.current?.click()}
+                    className="tw-mt-1 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-brand-orange-ink tw-underline"
+                  >
                     عکس دیگری انتخاب کنید
                   </button>
                 </div>
@@ -193,18 +417,35 @@ function PackagesSection({ state, onChange }: { state: BrokerAccess; onChange: (
               <button
                 type="button"
                 onClick={() => input.current?.click()}
-                className="tw-flex tw-w-full tw-flex-col tw-items-center tw-gap-2 tw-rounded-2xl tw-border-2 tw-border-dashed tw-border-brand-line tw-bg-white tw-px-4 tw-py-8 tw-text-brand-muted tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange-ink"
+                className="tw-flex tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-2 tw-border-dashed tw-border-brand-line tw-bg-white tw-px-4 tw-py-4 tw-text-sm tw-font-bold tw-text-brand-muted tw-transition-colors hover:tw-border-brand-orange hover:tw-text-brand-orange-ink"
               >
-                <ImagePlus size={30} aria-hidden />
-                <span className="tw-text-sm tw-font-bold">انتخاب عکس رسید</span>
-                <span className="tw-text-xs">عکس صفحه یا اسکرین‌شات رسید بانکی</span>
+                <ImagePlus size={20} aria-hidden /> انتخاب عکس رسید
               </button>
             )}
-          </div>
-          {file && <FloatingButton onClick={send} disabled={false} busy={sending} label={`خرید ${faNumber(count * policy.packageSize)} درخواست بار`} />}
-        </>
-      )}
-    </section>
+          </Step>
+        </div>
+
+        <div className="tw-border-t tw-border-brand-line tw-bg-white tw-px-5 tw-py-3 tw-pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={() => void send()}
+            disabled={!file || sending}
+            className={cn(
+              'tw-flex tw-h-12 tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-font-bold tw-text-white tw-transition-colors disabled:tw-cursor-not-allowed disabled:tw-opacity-50',
+              terms.tone.button,
+            )}
+          >
+            {sending && <LoaderCircle size={18} className="tw-animate-spin" aria-hidden />}
+            {sending
+              ? 'در حال ارسال…'
+              : file
+                ? `فرستادن رسید · ${price(amount, policy.currency)}`
+                : 'اول عکس رسید را انتخاب کنید'}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -322,12 +563,10 @@ export function BrokerAccessContent() {
 
   return (
     <div className="tw-space-y-8">
-      {state.policy.packagesEnabled ? <PackagesSection state={state} onChange={setState} /> : (
-        <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4">
-          <BadgeCheck size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" aria-hidden />
-          <p className="tw-m-0 tw-text-sm tw-leading-7">درخواست بار الان رایگان است و خرید بسته لازم نیست.</p>
-        </div>
-      )}
+      <section className="tw-space-y-4">
+        <SectionTitle title="اعتبار شما" />
+        <Credits state={state} onChange={setState} />
+      </section>
       {state.policy.maxCompanies !== null ? <CompaniesSection state={state} onChange={setState} /> : (
         <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4">
           <BadgeCheck size={22} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" aria-hidden />

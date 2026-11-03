@@ -1,6 +1,7 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 import { isCompanyNationalId } from 'src/shared/utils/nationalId';
+import type { RequestDriver } from './BrokerDriverBox';
 
 export type ListingStatus = 'OPEN' | 'TAKEN';
 
@@ -343,6 +344,8 @@ export interface CompanyTrip {
   deliveryReportedAt: string | null;
   cargo: Pick<CargoDetails, 'code' | 'origin' | 'destination' | 'cargoType' | 'weight' | 'vehicleType' | 'price'> & { id: string } | null;
   driver: DriverCard | null;
+  /** a broker's request: the driver it is for (no account), and whether it is one of the company's drivers */
+  forDriver?: RequestDriver | null;
   location: { latitude: number; longitude: number; receivedAt: string; liveUntil: string | null } | null;
 }
 
@@ -352,6 +355,7 @@ export interface CompanyRequest {
   requestedAt: string;
   cargo: CompanyTrip['cargo'];
   driver: DriverCard | null;
+  forDriver?: RequestDriver | null;
 }
 
 export function listCompanyRequests(page: number) {

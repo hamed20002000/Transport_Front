@@ -13,6 +13,7 @@ import { Badge, CardSkeleton, CargoCode, EmptyState, LoadFailed, Pager, PhoneLin
 import { useNotificationEvent } from './notificationSocket';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import { groupDigits } from 'src/shared/utils/digitGroups';
+import BrokerDriverBox from './BrokerDriverBox';
 
 const PAGE_SIZE = 20;
 // Same default as TRIP_DELIVERY_REMINDER_DAYS on the server: after this the trip is flagged as waiting for delivery.
@@ -65,6 +66,8 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
           </div>
         </div>
       )}
+
+      {trip.forDriver && <BrokerDriverBox driver={trip.forDriver} />}
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-pt-3">
         {/* a broker answers for the load: no vehicle to follow, it reports the delivery itself */}

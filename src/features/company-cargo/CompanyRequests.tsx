@@ -14,6 +14,7 @@ import { useNotificationEvent } from './notificationSocket';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { groupDigits } from 'src/shared/utils/digitGroups';
+import BrokerDriverBox from './BrokerDriverBox';
 
 const PAGE_SIZE = 20;
 
@@ -55,6 +56,8 @@ function RequestCard({ request, busy, onDecide }: { request: CompanyRequest; bus
           </div>
         </div>
       )}
+
+      {request.forDriver && <BrokerDriverBox driver={request.forDriver} />}
 
       <div className="tw-flex tw-flex-wrap tw-justify-end tw-gap-2 tw-border-t tw-border-brand-line tw-pt-3">
         <SecondaryButton onClick={() => onDecide(false)} disabled={busy}>
