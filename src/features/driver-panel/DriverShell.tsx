@@ -20,6 +20,9 @@ import { getSubscription, SUBSCRIPTION_REQUIRED_EVENT, watchSubscriptionRequired
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { getVerification, type VerificationStatus } from 'src/features/company-cargo/verificationApi';
 
+/** Buying a subscription from the driver's menu: off for now (true brings back the menu item and the trial reminder). */
+const DRIVER_SUBSCRIPTION_MENU = false;
+
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
   { to: '/account/driver/loads', label: 'بارها', icon: PackageSearch },
@@ -28,7 +31,8 @@ const items = [
   { to: '/account/driver/history', label: 'سفرهای رفته', icon: History },
   { to: '/account/driver/borders', label: 'مرزها', icon: Landmark },
   { to: '/account/driver/profile', label: 'پروفایل', icon: UserRound },
-  { to: '/account/driver/subscription', label: 'اشتراک', icon: CreditCard },
+  // buying a subscription is off for now (DRIVER_SUBSCRIPTION_MENU): neither the item nor the trial reminder shows
+  ...(DRIVER_SUBSCRIPTION_MENU ? [{ to: '/account/driver/subscription', label: 'اشتراک', icon: CreditCard }] : []),
   { to: '/account/driver/payments', label: 'پرداخت‌ها', icon: Receipt },
 ];
 
@@ -241,7 +245,7 @@ function SubscriptionGate({ children }: { children: ReactNode }) {
   }
   return (
     <>
-      {access.reason === 'trial' && access.trialEndsAt && pathname !== '/account/driver/subscription' && <TrialReminder endsAt={access.trialEndsAt} />}
+      {DRIVER_SUBSCRIPTION_MENU && access.reason === 'trial' && access.trialEndsAt && pathname !== '/account/driver/subscription' && <TrialReminder endsAt={access.trialEndsAt} />}
       {children}
     </>
   );
