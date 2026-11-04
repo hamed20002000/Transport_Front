@@ -279,6 +279,8 @@ export interface BrokerAccessPolicy {
   packageSize: number;
   packagePrice: string;
   currency: string;
+  /** a broker's commission: this percent of the fare of each of its delivered trips */
+  commissionPercent: number;
 }
 
 export interface BrokerAccessOrder {

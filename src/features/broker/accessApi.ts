@@ -12,6 +12,8 @@ export interface BrokerAccessPolicy {
   packageSize: number;
   packagePrice: string;
   currency: string;
+  /** a broker's commission on its delivered trips, percent of the fare */
+  commissionPercent?: number;
 }
 
 /** What a package buys: load requests (the «معرفی راننده» packages are gone). */

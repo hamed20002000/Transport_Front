@@ -1,6 +1,6 @@
 import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, Handshake, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, UserCheck, Users } from 'lucide-react';
+import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, Handshake, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, UserCheck, UserPlus, Users, Wallet } from 'lucide-react';
 import { countCompanyRequests, getOverdueTrips } from './api';
 import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
@@ -24,9 +24,11 @@ const items = [
   { to: '/account/company/requests', label: 'درخواست‌ها', icon: ClipboardList, match: (path: string) => path === '/account/company/requests' },
   { to: '/account/company/trips', label: 'سفرها', icon: Truck, match: (path: string) => path === '/account/company/trips' },
   { to: '/account/company/drivers', label: 'رانندگان', icon: Users, match: (path: string) => path === '/account/company/drivers' },
+  { to: '/account/company/drivers/add', label: 'افزودن راننده', icon: UserPlus, match: (path: string) => path === '/account/company/drivers/add' },
   { to: '/account/company/channels', label: 'کانال‌ها', icon: Link2, match: (path: string) => path === '/account/company/channels' },
   { to: '/account/company/factories', label: 'شرکت‌ها / کارخانه‌ها', icon: Factory, match: (path: string) => path === '/account/company/factories' },
   { to: '/account/company/brokers', label: 'واسط‌ها', icon: Handshake, match: (path: string) => path === '/account/company/brokers' },
+  { to: '/account/company/broker-ledger', label: 'حساب واسط‌ها', icon: Wallet, match: (path: string) => path === '/account/company/broker-ledger' },
   { to: '/account/company/profile', label: 'پروفایل', icon: Building2, match: (path: string) => path === '/account/company/profile' },
   { to: COMPANY_FEATURES_PATH, label: 'خرید امکانات', icon: Gem, match: (path: string) => path === COMPANY_FEATURES_PATH },
   { to: '/account/company/payments', label: 'پرداخت‌ها', icon: Receipt, match: (path: string) => path === '/account/company/payments' },

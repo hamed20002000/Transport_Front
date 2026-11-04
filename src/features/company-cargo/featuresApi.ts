@@ -84,10 +84,12 @@ export const featureByPath: Record<string, CompanyFeature> = {
   '/account/company/requests': 'DRIVER_REQUESTS',
   '/account/company/trips': 'TRIPS',
   '/account/company/drivers': 'DRIVERS',
+  '/account/company/drivers/add': 'DRIVERS',
   '/account/company/channels': 'CHANNELS',
   '/account/company/factories': 'FACTORIES',
   // brokers request loads like drivers: part of the «رانندگان» menu (transport_backend CompanyBrokerInviteController)
   '/account/company/brokers': 'DRIVERS',
+  '/account/company/broker-ledger': 'DRIVERS',
 };
 
 export const COMPANY_FEATURES_PATH = '/account/company/features';

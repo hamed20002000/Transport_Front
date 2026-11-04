@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 export { default as CompanyShell, CompanyLayout } from './CompanyShell';
 export { displayName, useProfile } from './profileStore';
-import { CargoFilters, ChannelLinks, CompanyBrokerDrivers, CompanyBrokers, CompanyCargo, CompanyDrivers, CompanyFactories, CompanyFeatures, CompanyInvites, CompanyPayments, CompanyVerifications, CompanyPublished, CompanyProfile, CompanyRequests, CompanyTrips, CreateCargo } from './pages';
+import { CargoFilters, ChannelLinks, CompanyBrokerDrivers, CompanyBrokerLedger, CompanyBrokers, CompanyCargo, CompanyDrivers, CompanyDriversAdd, CompanyFactories, CompanyFeatures, CompanyInvites, CompanyPayments, CompanyVerifications, CompanyPublished, CompanyProfile, CompanyRequests, CompanyTrips, CreateCargo } from './pages';
 // These render under CompanyLayout (see the app router, which also puts the account home there).
 export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/cargo', element: <CompanyCargo /> },
@@ -11,6 +11,7 @@ export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/profile', element: <CompanyProfile /> },
   { path: '/account/company/filters', element: <CargoFilters /> },
   { path: '/account/company/drivers', element: <CompanyDrivers /> },
+  { path: '/account/company/drivers/add', element: <CompanyDriversAdd /> },
   { path: '/account/company/trips', element: <CompanyTrips /> },
   { path: '/account/company/requests', element: <CompanyRequests /> },
   { path: '/account/company/features', element: <CompanyFeatures /> },
@@ -19,5 +20,6 @@ export const companyCargoRoutes: RouteObject[] = [
   { path: '/account/company/companies', element: <CompanyInvites /> },
   { path: '/account/company/verifications', element: <CompanyVerifications /> },
   { path: '/account/company/broker-drivers', element: <CompanyBrokerDrivers /> },
+  { path: '/account/company/broker-ledger', element: <CompanyBrokerLedger /> },
   { path: '/account/company/payments', element: <CompanyPayments /> },
 ];

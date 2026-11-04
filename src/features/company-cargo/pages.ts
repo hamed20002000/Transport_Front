@@ -10,6 +10,7 @@ const loaders = {
   profile: () => import('./CompanyProfile'),
   filters: () => import('./CargoFilters'),
   drivers: () => import('./CompanyDrivers'),
+  driversAdd: () => import('./CompanyDriversAdd'),
   trips: () => import('./CompanyTrips'),
   requests: () => import('./CompanyRequests'),
   features: () => import('./CompanyFeatures'),
@@ -18,6 +19,7 @@ const loaders = {
   invites: () => import('./CompanyInvites'),
   verifications: () => import('./CompanyVerifications'),
   brokerDrivers: () => import('./CompanyBrokerDrivers'),
+  brokerLedger: () => import('./CompanyBrokerLedger'),
   payments: () => import('./CompanyPayments'),
 };
 
@@ -28,6 +30,7 @@ export const ChannelLinks = lazy(loaders.channels);
 export const CompanyProfile = lazy(loaders.profile);
 export const CargoFilters = lazy(loaders.filters);
 export const CompanyDrivers = lazy(loaders.drivers);
+export const CompanyDriversAdd = lazy(loaders.driversAdd);
 export const CompanyTrips = lazy(loaders.trips);
 export const CompanyRequests = lazy(loaders.requests);
 export const CompanyFeatures = lazy(loaders.features);
@@ -36,6 +39,7 @@ export const CompanyBrokers = lazy(loaders.brokers);
 export const CompanyInvites = lazy(loaders.invites);
 export const CompanyVerifications = lazy(loaders.verifications);
 export const CompanyBrokerDrivers = lazy(loaders.brokerDrivers);
+export const CompanyBrokerLedger = lazy(loaders.brokerLedger);
 export const CompanyPayments = lazy(loaders.payments);
 
 // The other tabs, fetched in the background so switching to them doesn't wait on the network.

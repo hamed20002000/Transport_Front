@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Globe2, Link2, LoaderCircle, MapPinned, Search, Trash2, Truck, UserRound, Users } from 'lucide-react';
+import { Link, Navigate } from 'react-router-dom';
+import { Globe2, Link2, LoaderCircle, MapPinned, Search, Trash2, Truck, UserPlus, UserRound, Users } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -12,9 +12,7 @@ import { useNotificationEvent } from './notificationSocket';
 import { removeDriverInvite } from './driverInvitesApi';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
-import DriverInvites from './DriverInvites';
-import DirectDriverForm from './DirectDriverForm';
-import { useCompanyFeatures } from './featuresApi';
+const DRIVERS_ADD_PATH = '/account/company/drivers/add';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { cn } from 'src/shared/utils/utils';
 
@@ -151,13 +149,17 @@ function Drivers() {
     setSearch(query.trim());
   }
 
-  // the parent company may also register a driver itself, by name and number (no link)
-  const isParent = !!useCompanyFeatures()?.isParent;
-
   return (
     <div className="tw-space-y-5">
-      {isParent && <DirectDriverForm onRegistered={() => setVersion((value) => value + 1)} />}
-      <DriverInvites />
+      {/* registering and inviting drivers is a page of its own (CompanyDriversAdd) */}
+      <div className="tw-flex tw-justify-end">
+        <Link
+          to={DRIVERS_ADD_PATH}
+          className="tw-inline-flex tw-h-11 tw-items-center tw-gap-2 tw-rounded-xl tw-bg-brand-orange tw-px-5 tw-font-bold tw-text-white tw-no-underline hover:tw-bg-brand-orange-dark"
+        >
+          <UserPlus size={18} aria-hidden /> افزودن راننده
+        </Link>
+      </div>
       <SectionTitle
         title="رانندگان"
         hint="بار هر نوع فقط به راننده‌های همان نوع اعلام می‌شود"

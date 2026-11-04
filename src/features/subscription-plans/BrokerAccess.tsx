@@ -63,6 +63,7 @@ interface Form {
   packageSize: string;
   packagePrice: string;
   currency: string;
+  commissionPercent: string;
 }
 
 const toForm = (policy: BrokerAccessPolicy): Form => ({
@@ -71,6 +72,7 @@ const toForm = (policy: BrokerAccessPolicy): Form => ({
   packageSize: String(policy.packageSize),
   packagePrice: policy.packagePrice,
   currency: policy.currency,
+  commissionPercent: String(policy.commissionPercent ?? 0),
 });
 
 function Switch({ checked, onChange, label }: { checked: boolean; onChange: (value: boolean) => void; label: string }) {
@@ -106,10 +108,12 @@ function PolicyForm() {
 
   const maxCompanies = form.maxCompanies ? Number(form.maxCompanies) : null;
   const size = Number(form.packageSize);
+  const commission = Number(form.commissionPercent || '0');
   const valid =
     (maxCompanies === null || (maxCompanies >= 1 && maxCompanies <= 1000)) &&
     Number.isInteger(size) && size >= 1 && size <= 100_000 &&
-    (!form.packagesEnabled || (!!form.packagePrice && form.packagePrice !== '0'));
+    (!form.packagesEnabled || (!!form.packagePrice && form.packagePrice !== '0')) &&
+    Number.isFinite(commission) && commission >= 0 && commission <= 100;
   const set = (patch: Partial<Form>) => setForm({ ...form, ...patch });
 
   async function save(event: FormEvent) {
@@ -123,6 +127,7 @@ function PolicyForm() {
         packageSize: size,
         packagePrice: form.packagePrice || '0',
         currency: form.currency,
+        commissionPercent: commission,
       });
       setForm(toForm(saved));
       toast.success('تنظیمات واسط ذخیره شد.');
@@ -180,6 +185,26 @@ function PolicyForm() {
             {price((BigInt(form.packagePrice) * 3n).toString(), form.currency)}. بسته زمان ندارد.
           </p>
         )}
+      </section>
+
+      <section className="tw-space-y-3 tw-border-t tw-border-brand-line tw-pt-5">
+        <div>
+          <span className="tw-block tw-text-base tw-font-bold">کمیسیون واسط</span>
+          <span className="tw-mt-1 tw-block tw-text-sm tw-leading-6 tw-text-brand-muted">
+            طلب واسط از شرکت: این درصد از «مبلغ کرایه»‌ای که واسط برای هر سفر داده، وقتی شرکت تحویل آن سفر را ثبت کند. درصد هر سفر همان روز
+            تحویل ثابت می‌شود و تغییر بعدی آن را عوض نمی‌کند. شرکت‌ها حساب هر واسط و تسویه‌هایشان را در «حساب واسط‌ها» می‌بینند.
+          </span>
+        </div>
+        <label className="tw-block tw-max-w-xs tw-space-y-1.5 tw-text-sm tw-font-bold">
+          <span>درصد کمیسیون</span>
+          <input
+            className={inputClass}
+            inputMode="decimal"
+            dir="ltr"
+            value={form.commissionPercent}
+            onChange={(event) => set({ commissionPercent: event.target.value.replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[^0-9.]/g, '').slice(0, 6) })}
+          />
+        </label>
       </section>
 
       <button type="submit" disabled={!valid || saving} className={primaryButton}>
