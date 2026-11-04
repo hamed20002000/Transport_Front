@@ -1,6 +1,6 @@
 import { createContext, Suspense, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, Handshake, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, Users } from 'lucide-react';
+import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, Handshake, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, UserCheck, Users } from 'lucide-react';
 import { countCompanyRequests, getOverdueTrips } from './api';
 import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
@@ -35,6 +35,7 @@ const items = [
 const PARENT_ITEMS = [
   { to: '/account/company/companies', label: 'دعوت شرکت‌های حمل‌ونقل', icon: Crown, match: (path: string) => path === '/account/company/companies' },
   { to: '/account/company/verifications', label: 'بررسی اعتبار', icon: BadgeCheck, match: (path: string) => path === '/account/company/verifications' },
+  { to: '/account/company/broker-drivers', label: 'رانندگان واسط‌ها', icon: UserCheck, match: (path: string) => path === '/account/company/broker-drivers' },
 ];
 
 const fa = (value: number) => value.toLocaleString('fa-IR');

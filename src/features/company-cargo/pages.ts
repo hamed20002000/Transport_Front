@@ -17,6 +17,7 @@ const loaders = {
   brokers: () => import('./CompanyBrokers'),
   invites: () => import('./CompanyInvites'),
   verifications: () => import('./CompanyVerifications'),
+  brokerDrivers: () => import('./CompanyBrokerDrivers'),
   payments: () => import('./CompanyPayments'),
 };
 
@@ -34,6 +35,7 @@ export const CompanyFactories = lazy(loaders.factories);
 export const CompanyBrokers = lazy(loaders.brokers);
 export const CompanyInvites = lazy(loaders.invites);
 export const CompanyVerifications = lazy(loaders.verifications);
+export const CompanyBrokerDrivers = lazy(loaders.brokerDrivers);
 export const CompanyPayments = lazy(loaders.payments);
 
 // The other tabs, fetched in the background so switching to them doesn't wait on the network.

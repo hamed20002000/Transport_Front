@@ -44,6 +44,10 @@ export const getDriverInvites = () => unwrap(axios.get<{ success: boolean; data:
 export const inviteDrivers = (drivers: Array<{ mobile: string; name?: string }>) =>
   unwrap(axios.post<{ success: boolean; data: { outcomes: DriverInviteOutcome[]; sms: InviteSms } }>(`${endpoints.baseurl}company/driver-invites`, { drivers }, config()));
 
+/** The parent company registers a driver itself, by name and number: in its drivers at once, no link or SMS. */
+export const registerDriver = (driver: { mobile: string; name: string }) =>
+  unwrap(axios.post<{ success: boolean; data: { outcomes: DriverInviteOutcome[] } }>(`${endpoints.baseurl}company/driver-invites/direct`, { drivers: [driver] }, config()));
+
 export const removeDriverInvite = (driverUserId: string) =>
   unwrap(axios.delete<{ success: boolean; data: { driverUserId: string } }>(`${endpoints.baseurl}company/driver-invites/${driverUserId}`, config()));
 

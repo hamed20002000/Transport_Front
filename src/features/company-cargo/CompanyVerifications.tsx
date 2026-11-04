@@ -30,6 +30,11 @@ const fieldsFor = (kind: VerificationRequest['kind']): FieldRow[] =>
         { key: 'mobile', title: 'موبایل', ltr: true, check: true },
         { key: 'smartCardNumber', title: 'شماره کارت هوشمند', ltr: true, check: true },
         { key: 'licenseNumber', title: 'شماره گواهینامه', ltr: true, check: true },
+        { key: 'driverKind', title: 'نوع راننده' },
+        // by its kind: domestic, its insurance policy; international, its company (only the ones its kind needs are filled)
+        { key: 'insuranceNumber', title: 'شماره بیمه‌نامه', ltr: true, checkIfGiven: true },
+        { key: 'insuranceExpiry', title: 'تاریخ اعتبار بیمه‌نامه', ltr: true, checkIfGiven: true },
+        { key: 'driverCompanyName', title: 'نام شرکت', checkIfGiven: true },
         { key: 'nationalCode', title: 'کد ملی', ltr: true },
       ]
     : kind === 'BROKER'

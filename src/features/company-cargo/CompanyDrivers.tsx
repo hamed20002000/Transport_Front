@@ -13,6 +13,8 @@ import { removeDriverInvite } from './driverInvitesApi';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
 import DriverInvites from './DriverInvites';
+import DirectDriverForm from './DirectDriverForm';
+import { useCompanyFeatures } from './featuresApi';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import { cn } from 'src/shared/utils/utils';
 
@@ -27,6 +29,7 @@ const tabs: Array<{ value: DriverKind; icon: typeof Truck }> = [
 
 // how the driver came to Trabot: by this company's invite link, another company's, or by signing up alone
 const joinedLabels = {
+  yourRegister: { label: 'ثبت مستقیم شما', icon: UserRound, tone: 'tw-bg-emerald-50 tw-text-emerald-700' },
   yourInvite: { label: 'با لینک دعوت شما', icon: Link2, tone: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink' },
   invite: { label: 'با لینک دعوت شرکت دیگر', icon: Link2, tone: 'tw-bg-brand-sky tw-text-brand-navy' },
   self: { label: 'خودش ثبت‌نام کرد', icon: UserRound, tone: 'tw-bg-stone-100 tw-text-brand-muted' },
@@ -88,7 +91,14 @@ function DriverItem({ driver, onRemoved }: { driver: DriverCard; onRemoved: () =
       <DriverPhoto driver={driver} />
       <div className="tw-min-w-0 tw-flex-1 tw-space-y-1.5">
         <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-font-bold">{driver.name}<AccountCode code={driver.accountCode} /></p>
-        {driver.joinedBy && <JoinedBy how={driver.joinedBy} />}
+        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-1.5">
+          {driver.joinedBy && <JoinedBy how={driver.joinedBy} />}
+          {driver.verified === false && (
+            <span className="tw-inline-flex tw-w-fit tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2 tw-py-0.5 tw-text-xs tw-font-medium tw-text-amber-800">
+              منتظر تأیید شرکت مادر
+            </span>
+          )}
+        </div>
         {(vehicle || driver.plate) && (
           <p className="tw-m-0 tw-flex tw-flex-wrap tw-items-center tw-gap-x-2 tw-gap-y-1 tw-text-sm">
             {vehicle && (
@@ -141,8 +151,12 @@ function Drivers() {
     setSearch(query.trim());
   }
 
+  // the parent company may also register a driver itself, by name and number (no link)
+  const isParent = !!useCompanyFeatures()?.isParent;
+
   return (
     <div className="tw-space-y-5">
+      {isParent && <DirectDriverForm onRegistered={() => setVersion((value) => value + 1)} />}
       <DriverInvites />
       <SectionTitle
         title="رانندگان"

@@ -39,6 +39,11 @@ export interface VerificationRequest {
   lastName: string | null;
   smartCardNumber: string | null;
   licenseNumber: string | null;
+  /** a driver's kind (داخلی / بین‌المللی / both) and what it needs: insurance for domestic, company for international */
+  driverKind?: string | null;
+  driverCompanyName?: string | null;
+  insuranceNumber?: string | null;
+  insuranceExpiry?: string | null;
   /** the person's national code: what a broker is checked by */
   nationalCode: string | null;
   companyNationalId: string | null;
