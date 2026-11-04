@@ -26,8 +26,10 @@ const FACTORY_FIELDS: Field[] = [
 // a broker (واسط): the required ones are what the parent company checks it with (AccountVerificationService)
 const BROKER_FIELDS: Field[] = [
   { key: 'companyName', label: 'نام واسط یا دفتر', required: true },
+  { key: 'nationalCode', label: 'کد ملی', ltr: true, required: true },
+  { key: 'contactMobiles', label: 'شماره موبایل', ltr: true, required: true },
   { key: 'phone', label: 'شماره تماس', ltr: true, required: true },
-  { key: 'companyNationalId', label: 'کد ملی یا شناسه ملی', ltr: true },
+  { key: 'companyNationalId', label: 'شناسه ملی شرکت (اختیاری)', ltr: true },
   { key: 'address', label: 'آدرس', wide: true },
 ];
 

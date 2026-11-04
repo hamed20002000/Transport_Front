@@ -1,6 +1,6 @@
 import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
-import { isCompanyNationalId } from 'src/shared/utils/nationalId';
+import { isCompanyNationalId, isNationalCode } from 'src/shared/utils/nationalId';
 import type { RequestDriver } from './BrokerDriverBox';
 
 export type ListingStatus = 'OPEN' | 'TAKEN';
@@ -346,6 +346,8 @@ export interface CompanyTrip {
   driver: DriverCard | null;
   /** a broker's request: the driver it is for (no account), and whether it is one of the company's drivers */
   forDriver?: RequestDriver | null;
+  /** the border picked for an export or import load */
+  exitBorder?: string | null;
   location: { latitude: number; longitude: number; receivedAt: string; liveUntil: string | null } | null;
 }
 
@@ -356,6 +358,8 @@ export interface CompanyRequest {
   cargo: CompanyTrip['cargo'];
   driver: DriverCard | null;
   forDriver?: RequestDriver | null;
+  /** the border picked for an export or import load */
+  exitBorder?: string | null;
 }
 
 export function listCompanyRequests(page: number) {
@@ -442,7 +446,7 @@ export type UserProfileInput = Partial<Record<ProfileTextField, string | null>> 
 export const profileRules: Record<ProfileTextField, { max: number; pattern?: RegExp; check?: (value: string) => boolean; message?: string }> = {
   firstName: { max: 100 },
   lastName: { max: 100 },
-  nationalCode: { max: 10, pattern: /^[0-9]{10}$/, message: 'کد ملی باید ۱۰ رقم باشد.' },
+  nationalCode: { max: 10, pattern: /^[0-9]{10}$/, check: isNationalCode, message: 'کد ملی معتبر نیست؛ باید ۱۰ رقم باشد و رقم‌هایش را دوباره بررسی کنید.' },
   companyName: { max: 200 },
   domesticCompanyName: { max: 200 },
   internationalCompanyName: { max: 200 },

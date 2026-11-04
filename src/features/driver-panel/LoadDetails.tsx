@@ -526,7 +526,7 @@ export default function LoadDetails({
                 )}
               </div>
 
-              {!!insight.routes.length && load.tripType !== 'DOMESTIC' && <RouteBorders listingId={load.id} route={route} />}
+              {!!insight.routes.length && (insight.tripType ?? load.tripType) !== 'DOMESTIC' && <RouteBorders listingId={load.id} route={route} />}
               {!!insight.routes.length && <FuelStations listingId={load.id} route={route} onStations={setFuel} />}
               <ReturnLoads listing={insight.listing} counts={insight.returnLoads} />
             </>

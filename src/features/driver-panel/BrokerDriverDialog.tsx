@@ -1,71 +1,57 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { Compass, LoaderCircle, Send, Truck, X } from 'lucide-react';
-import { getBrokerAccess } from 'src/features/broker/accessApi';
-import { useToast } from 'src/shared/components/toast/ToastProvider';
+import { LoaderCircle, Send, Truck, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
-import { errorMessage, getBrokerDrivers, suggestDrivers, type BrokerDriver } from './api';
+import { getBrokerDrivers, type BrokerDriver } from './api';
+import { BorderChips, useLoadBorders } from './BorderPicker';
 
-const FIELDS: Array<{ key: keyof BrokerDriver; label: string; placeholder: string; ltr?: boolean; optional?: boolean }> = [
+const FIELDS: Array<{ key: Exclude<keyof BrokerDriver, 'exitBorder'>; label: string; placeholder: string; ltr?: boolean; optional?: boolean }> = [
   { key: 'name', label: 'نام و نام خانوادگی راننده', placeholder: 'مثلاً علی رضایی' },
   { key: 'nationalCode', label: 'کد ملی', placeholder: '۱۰ رقم', ltr: true },
   { key: 'mobile', label: 'موبایل', placeholder: '0912 123 4567', ltr: true },
   { key: 'plate', label: 'پلاک شهربانی', placeholder: 'مثلاً ۴۲ ع ۸۴۲ ایران ۳۵' },
   { key: 'transitPlate', label: 'پلاک ترانزیت', placeholder: 'مثلاً 81AA217/218', ltr: true, optional: true },
+  // this request's own details: asked again for a recent driver too
+  { key: 'companyName', label: 'نام شرکت', placeholder: 'شرکتی که راننده با آن می‌رود' },
+  { key: 'fare', label: 'مبلغ کرایه', placeholder: 'مثلاً ۴۵٬۰۰۰٬۰۰۰ تومان' },
+  { key: 'referrer', label: 'معرف', placeholder: 'نام یا شماره‌ی معرف' },
 ];
-const EMPTY: Record<keyof BrokerDriver, string> = { name: '', nationalCode: '', mobile: '', plate: '', transitPlate: '' };
+// the border is not typed: it is picked from the load's borders (BorderChips)
+type TypedKey = Exclude<keyof BrokerDriver, 'exitBorder'>;
+const EMPTY: Record<TypedKey, string> = {
+  name: '', nationalCode: '', mobile: '', plate: '', transitPlate: '', companyName: '', fare: '', referrer: '',
+};
 const inputClass =
   'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange';
 
 /**
  * A broker's load request names the driver it is for (transport_backend BrokerDriver): one it gave before, picked
  * from its recent ones, or a new one. The server checks the fields and keeps them with the request; no account is
- * made for the driver. Or, paid, «به من راننده معرفی کن»: drivers of the load's route are told of it, and the first
- * who wants it becomes the request's driver.
+ * made for the driver. This request's own details (company, fare, referrer) are asked every time, and for an export
+ * or import load the border, picked from the borders toward where it goes abroad.
  */
 export default function BrokerDriverDialog({
-  listingId,
   cargo,
   layer,
   sending,
+  listingId,
   onSend,
   onClose,
 }: {
-  listingId: string;
   cargo: string;
   layer?: number;
   sending: boolean;
-  onSend: (driver: BrokerDriver) => void;
+  listingId: string;
+  onSend: (driver: BrokerDriver, border?: string) => void;
   onClose: () => void;
 }) {
   const panel = useRef<HTMLFormElement>(null);
   const [fields, setFields] = useState(EMPTY);
   const [recent, setRecent] = useState<BrokerDriver[]>([]);
-  const [suggestions, setSuggestions] = useState<{ enabled: boolean; left: number } | null>(null);
-  const [suggesting, setSuggesting] = useState(false);
-  const toast = useToast();
 
   useEffect(() => {
     getBrokerDrivers().then(setRecent, () => setRecent([]));
-    getBrokerAccess().then((state) => setSuggestions({ enabled: state.policy.suggestionsEnabled, left: state.suggestions }), () => setSuggestions(null));
   }, []);
-
-  async function suggest() {
-    setSuggesting(true);
-    try {
-      const { asked } = await suggestDrivers(listingId);
-      if (asked) {
-        toast.success(`به ${asked.toLocaleString('fa-IR')} راننده‌ی همین مسیر خبر دادیم؛ اولین کسی که بخواهد، درخواست به نام او فرستاده می‌شود و خبرتان می‌کنیم.`);
-        onClose();
-      } else {
-        toast.info('راننده‌ای که این مسیر یا نزدیکش را رفته باشد و الان آزاد باشد پیدا نشد؛ از معرفی‌های شما چیزی کم نشد.');
-      }
-    } catch (error) {
-      toast.error(errorMessage(error));
-    } finally {
-      setSuggesting(false);
-    }
-  }
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -78,12 +64,16 @@ export default function BrokerDriverDialog({
     };
   }, [onClose]);
 
-  const missing = FIELDS.some(({ key, optional }) => !optional && !fields[key].trim());
+  // an export or import load: the border, from the borders toward where it goes abroad
+  const { choice, failed } = useLoadBorders(listingId);
+  const [border, setBorder] = useState('');
+  const needsBorder = !!choice?.needed;
+  const missing = FIELDS.some(({ key, optional }) => !optional && !fields[key]?.trim()) || (!choice && !failed) || (needsBorder && !border);
 
   function submit(event: FormEvent) {
     event.preventDefault();
     if (missing || sending) return;
-    onSend({ ...fields, transitPlate: fields.transitPlate.trim() || null });
+    onSend({ ...fields, transitPlate: fields.transitPlate.trim() || null }, needsBorder ? border : undefined);
   }
 
   return createPortal(
@@ -113,25 +103,6 @@ export default function BrokerDriverDialog({
           </button>
         </div>
 
-        {suggestions?.enabled && (
-          <button
-            type="button"
-            onClick={() => void suggest()}
-            disabled={suggesting || !suggestions.left}
-            className="tw-mt-4 tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-brand-sky/40 tw-p-3 tw-text-right hover:tw-bg-brand-sky disabled:tw-opacity-60"
-          >
-            {suggesting ? <LoaderCircle size={22} className="tw-shrink-0 tw-animate-spin" aria-hidden /> : <Compass size={22} className="tw-shrink-0 tw-text-brand-orange" aria-hidden />}
-            <span className="tw-min-w-0">
-              <span className="tw-block tw-font-bold">راننده ندارید؟ به من راننده معرفی کن</span>
-              <span className="tw-block tw-text-xs tw-text-brand-muted">
-                {suggestions.left
-                  ? `به راننده‌هایی که این مسیر را رفته‌اند خبر می‌دهیم · ${suggestions.left.toLocaleString('fa-IR')} معرفی مانده`
-                  : 'معرفی راننده‌ی شما تمام شده؛ از «شرکت‌ها و بسته‌ها» بخرید'}
-              </span>
-            </span>
-          </button>
-        )}
-
         {recent.length > 0 && (
           <div className="tw-mt-4 tw-space-y-2">
             <p className="tw-m-0 tw-text-sm tw-font-bold">راننده‌های قبلی</p>
@@ -140,7 +111,10 @@ export default function BrokerDriverDialog({
                 <button
                   key={driver.mobile}
                   type="button"
-                  onClick={() => setFields({ ...driver, transitPlate: driver.transitPlate ?? '' })}
+                  onClick={() =>
+                    // who the driver is; this request's details stay as typed
+                    setFields((current) => ({ ...current, name: driver.name, nationalCode: driver.nationalCode, mobile: driver.mobile, plate: driver.plate, transitPlate: driver.transitPlate ?? '' }))
+                  }
                   className={cn(
                     'tw-rounded-xl tw-border tw-px-3 tw-py-1.5 tw-text-sm',
                     fields.mobile === driver.mobile ? 'tw-border-brand-orange tw-bg-brand-orange-soft' : 'tw-border-brand-line tw-bg-white hover:tw-bg-brand-sky',
@@ -165,12 +139,17 @@ export default function BrokerDriverDialog({
                 placeholder={placeholder}
                 dir={ltr ? 'ltr' : undefined}
                 inputMode={key === 'nationalCode' || key === 'mobile' ? 'numeric' : undefined}
-                maxLength={key === 'name' ? 100 : 30}
+                maxLength={key === 'name' || key === 'companyName' || key === 'referrer' ? 100 : key === 'fare' ? 60 : 30}
                 className={cn(inputClass, ltr && 'tw-text-left')}
               />
             </label>
           ))}
         </div>
+        {choice?.needed && (
+          <div className="tw-mt-4">
+            <BorderChips choice={choice} value={border} onChange={setBorder} />
+          </div>
+        )}
         <p className="tw-m-0 tw-mt-3 tw-text-xs tw-leading-6 tw-text-brand-muted">
           مشخصات راننده همراه درخواست برای شرکت حمل‌ونقل فرستاده می‌شود. یک درخواست از بسته‌ی شما کم می‌شود.
         </p>

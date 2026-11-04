@@ -279,12 +279,6 @@ export interface BrokerAccessPolicy {
   packageSize: number;
   packagePrice: string;
   currency: string;
-  /** «معرفی راننده»: off means a broker cannot ask for it */
-  suggestionsEnabled: boolean;
-  suggestionPackageSize: number;
-  suggestionPackagePrice: string;
-  /** drivers one suggestion asks */
-  suggestionDrivers: number;
 }
 
 export interface BrokerAccessOrder {
@@ -343,12 +337,10 @@ export interface AdminBroker {
   companies: number;
   /** load requests left */
   remaining: number;
-  /** «معرفی راننده» left */
-  suggestions: number;
 }
 
 export const listBrokers = () => unwrap(axios.get<{ success: boolean; data: AdminBroker[] }>(`${brokerAccess}/brokers`, config()));
 
 /** Load requests given to a broker without a purchase (a gift or a make-good). */
-export const grantBrokerRequests = (userId: string, requests: number, pack: 'REQUEST' | 'SUGGESTION' = 'REQUEST') =>
-  unwrap(axios.post<{ success: boolean; data: { remaining: number; suggestions: number } }>(`${brokerAccess}/brokers/${userId}/requests`, { requests, pack }, config()));
+export const grantBrokerRequests = (userId: string, requests: number) =>
+  unwrap(axios.post<{ success: boolean; data: { remaining: number } }>(`${brokerAccess}/brokers/${userId}/requests`, { requests }, config()));

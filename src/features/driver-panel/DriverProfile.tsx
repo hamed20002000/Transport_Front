@@ -2,6 +2,8 @@ import { driverKindHints, driverKindLabels, driverKindsOf, driverKindTripTypes, 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
+  Building2,
+  CalendarClock,
   Camera,
   Check,
   CreditCard,
@@ -10,6 +12,7 @@ import {
   Info,
   MapPin,
   RefreshCw,
+  ShieldCheck,
   Save,
   Smartphone,
   Trash2,
@@ -43,13 +46,37 @@ import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvi
 import PushDeviceCard from 'src/shared/components/pwa/PushDeviceCard';
 import EitaaLinkCard from 'src/shared/components/messenger/EitaaLinkCard';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import VerificationCard from 'src/features/company-cargo/VerificationCard';
 import FloatingActions from 'src/shared/components/FloatingActions';
 
-type TextKey = 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber';
+type TextKey =
+  | 'firstName' | 'lastName' | 'nationalCode' | 'smartCardNumber' | 'licenseNumber' | 'homeCity' | 'vehicleType' | 'vehicleModel' | 'fleetCardNumber'
+  | 'insuranceNumber' | 'insuranceExpiry'
+  | 'companyName';
 type Plate = { left: string; letter: string; middle: string; region: string };
 type Fields = Record<TextKey, string> & { capacityTons: string; plate: Plate };
 
-const textKeys: TextKey[] = ['firstName', 'lastName', 'nationalCode', 'smartCardNumber', 'licenseNumber', 'homeCity', 'vehicleType', 'vehicleModel', 'fleetCardNumber'];
+const textKeys: TextKey[] = [
+  'firstName', 'lastName', 'nationalCode', 'smartCardNumber', 'licenseNumber', 'homeCity', 'vehicleType', 'vehicleModel', 'fleetCardNumber',
+  'insuranceNumber', 'insuranceExpiry',
+  'companyName',
+];
+
+// required (transport_backend DRIVER_REQUEST_FIELDS): a driver cannot request a load without them
+// what every driver is checked with before it can work (transport_backend AccountVerificationService), besides its
+// mobile, which is its account's
+const requiredAlways: Partial<Record<TextKey, string>> = {
+  firstName: 'نام',
+  lastName: 'نام خانوادگی',
+  smartCardNumber: 'شماره کارت هوشمند',
+  licenseNumber: 'شماره گواهینامه',
+};
+
+// by the driver's kind (transport_backend DRIVER_KIND_REQUIRED): shown, and required, only for that kind
+const requiredByKind: Record<DriverKind, Partial<Record<TextKey, string>>> = {
+  INTERNATIONAL: { companyName: 'نام شرکت' },
+  DOMESTIC: { insuranceNumber: 'شماره بیمه‌نامه', insuranceExpiry: 'تاریخ اعتبار بیمه‌نامه' },
+};
 
 // Same rules as UpdateDriverProfileDto.
 const rules: Partial<Record<TextKey, { pattern: RegExp; message: string }>> = {
@@ -57,6 +84,7 @@ const rules: Partial<Record<TextKey, { pattern: RegExp; message: string }>> = {
   smartCardNumber: { pattern: /^[0-9]{5,20}$/, message: 'شماره کارت هوشمند فقط رقم است.' },
   licenseNumber: { pattern: /^[0-9]{5,20}$/, message: 'شماره گواهینامه فقط رقم است.' },
   fleetCardNumber: { pattern: /^[0-9]{5,20}$/, message: 'شماره کارت ناوگان فقط رقم است.' },
+  insuranceExpiry: { pattern: /^1[34][0-9]{2}\/[0-9]{1,2}\/[0-9]{1,2}$/, message: 'تاریخ را شمسی و به این شکل بنویسید: ۱۴۰۴/۶/۱۵' },
 };
 
 // Persian letters used on Iranian plates; «الف» is stored as «ا».
@@ -85,12 +113,13 @@ const same = (a: Fields, b: Fields) => JSON.stringify(a) === JSON.stringify(b);
 const inputClass =
   'tw-h-11 tw-w-full tw-rounded-xl tw-border tw-border-brand-line tw-bg-white tw-px-3 tw-text-brand-navy tw-outline-none tw-transition-colors placeholder:tw-text-brand-muted/70 focus:tw-border-brand-orange aria-[invalid=true]:tw-border-red-400';
 
-function Field({ label, icon: Icon, error, hint, className, children }: { label: string; icon: LucideIcon; error?: string; hint?: string; className?: string; children: ReactNode }) {
+function Field({ label, icon: Icon, error, hint, className, required, children }: { label: string; icon: LucideIcon; error?: string; hint?: string; className?: string; required?: boolean; children: ReactNode }) {
   return (
     <label className={cn('tw-block tw-space-y-1.5', className)}>
       <span className="tw-flex tw-items-center tw-gap-1.5 tw-text-sm tw-font-medium">
         <Icon size={15} aria-hidden className="tw-text-brand-muted" />
         {label}
+        {required && <span className="tw-text-brand-orange" aria-hidden>*</span>}
       </span>
       {children}
       {error ? <span className="tw-block tw-text-xs tw-text-red-600">{error}</span> : hint && <span className="tw-block tw-text-xs tw-text-brand-muted">{hint}</span>}
@@ -300,6 +329,10 @@ function ProfileContent() {
   // پروفایلی که با agent ویرایش شد همین‌جا دیده شود
   useDomainRefresh('driver_profile', () => setVersion((v) => v + 1), 'account');
   const [touched, setTouched] = useState(false);
+  // each save: the verification card reads again what is still missing
+  const [saves, setSaves] = useState(0);
+  // the kinds ticked in «دریافت اعلام بار», saved or not yet: which kind-only fields the form shows and requires
+  const [pickedKinds, setPickedKinds] = useState<DriverKind[] | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -333,7 +366,17 @@ function ProfileContent() {
   const dirty = !same(fields, saved);
   const errors: Partial<Record<TextKey | 'plate' | 'capacityTons', string>> = {};
   for (const [key, rule] of Object.entries(rules) as Array<[TextKey, { pattern: RegExp; message: string }]>) {
-    if (fields[key] && !rule.pattern.test(fields[key])) errors[key] = rule.message;
+    if (fields[key] && !rule.pattern.test(toLatinDigits(fields[key]))) errors[key] = rule.message;
+  }
+  const kinds = pickedKinds ?? driverKindsOf(profile.tripTypes ?? [profile.tripType]);
+  const international = kinds.includes('INTERNATIONAL');
+  const domestic = kinds.includes('DOMESTIC');
+  for (const [key, title] of Object.entries(requiredAlways) as Array<[TextKey, string]>) {
+    if (!fields[key].trim()) errors[key] = `${title} لازم است.`;
+  }
+  const requiredKeys = Object.assign({}, ...kinds.map((kind) => requiredByKind[kind])) as Partial<Record<TextKey, string>>;
+  for (const [key, title] of Object.entries(requiredKeys) as Array<[TextKey, string]>) {
+    if (!fields[key].trim()) errors[key] = `${title} لازم است؛ بدون آن درخواست بار فرستاده نمی‌شود.`;
   }
   if (plateFilled(fields.plate) && !plateValid(fields.plate)) errors.plate = 'پلاک را کامل وارد کنید: دو رقم، حرف، سه رقم و کد استان.';
   const tons = Number(fields.capacityTons);
@@ -351,6 +394,7 @@ function ProfileContent() {
     if (Object.keys(errors).length) return toast.error('چند فیلد نیاز به اصلاح دارد.');
     const input: DriverProfileInput = {};
     for (const key of textKeys) if (fields![key] !== saved[key]) input[key] = fields![key].trim() || null;
+    if (input.insuranceExpiry) input.insuranceExpiry = toLatinDigits(input.insuranceExpiry);
     if (fields!.capacityTons !== saved.capacityTons) input.capacityTons = fields!.capacityTons ? tons : null;
     if (JSON.stringify(fields!.plate) !== JSON.stringify(saved.plate)) input.plate = plateValue(fields!.plate);
     setSaving(true);
@@ -359,6 +403,7 @@ function ProfileContent() {
       setProfile(updated);
       setFields(toFields(updated));
       setTouched(false);
+      setSaves((value) => value + 1);
       toast.success('پروفایل ذخیره شد.');
       // نام در سربرگ پنل
       getUserProfile()
@@ -388,6 +433,8 @@ function ProfileContent() {
   return (
     <form onSubmit={save} className="tw-space-y-6" noValidate>
       <SectionTitle title="پروفایل راننده" hint="این اطلاعات به شرکت‌های حمل‌ونقل کمک می‌کند درخواست شما را سریع‌تر قبول کنند" />
+      {/* a driver that signed up on its own: fill in and ask the parent company; nothing once approved */}
+      <VerificationCard dirty={dirty} version={saves} />
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-5 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">
         <div
@@ -428,24 +475,30 @@ function ProfileContent() {
         </div>
       </div>
 
-      <AnnouncementPreferences profile={profile} onSaved={setProfile} />
+      <AnnouncementPreferences profile={profile} onSaved={setProfile} onKindsChange={setPickedKinds} />
 
       <div className="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-2">
         <Card title="اطلاعات شخصی" hint="نام شما در درخواست بار به شرکت حمل‌ونقل نمایش داده می‌شود" icon={User}>
-          <Field label="نام" icon={User}>{text('firstName', 'مثلاً رضا')}</Field>
-          <Field label="نام خانوادگی" icon={User}>{text('lastName', 'مثلاً کریمی')}</Field>
+          <Field label="نام" icon={User} error={shownErrors.firstName} required>{text('firstName', 'مثلاً رضا')}</Field>
+          <Field label="نام خانوادگی" icon={User} error={shownErrors.lastName} required>{text('lastName', 'مثلاً کریمی')}</Field>
           <Field label="کد ملی" icon={IdCard} error={shownErrors.nationalCode}>{text('nationalCode', '۱۰ رقم', { digits: true, max: 10, ltr: true })}</Field>
-          <Field label="موبایل" icon={Smartphone} hint="شماره حساب کاربری؛ قابل تغییر نیست">
+          <Field label="موبایل" icon={Smartphone} required hint="شماره حساب کاربری؛ قابل تغییر نیست">
             <input value={profile.mobile ?? ''} readOnly dir="ltr" className={cn(inputClass, 'tw-bg-brand-bg tw-text-left tw-text-brand-muted')} />
           </Field>
         </Card>
 
         <Card title="مدارک راننده" hint="برای اعتماد بیشتر شرکت‌های حمل‌ونقل" icon={CreditCard}>
-          <Field label="شماره کارت هوشمند راننده" icon={CreditCard} error={shownErrors.smartCardNumber}>{text('smartCardNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
-          <Field label="شماره گواهینامه" icon={IdCard} error={shownErrors.licenseNumber}>{text('licenseNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
+          <Field label="شماره کارت هوشمند راننده" icon={CreditCard} error={shownErrors.smartCardNumber} required>{text('smartCardNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
+          <Field label="شماره گواهینامه" icon={IdCard} error={shownErrors.licenseNumber} required>{text('licenseNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
           <Field label="شهر محل فعالیت" icon={MapPin} hint="برای پیشنهاد بار برگشتی" className="sm:tw-col-span-2">{text('homeCity', 'مثلاً تبریز')}</Field>
         </Card>
       </div>
+
+      {international && (
+        <Card title="شرکت" hint="برای راننده‌ی بین‌المللی لازم است؛ تا پر نشود درخواست بار فرستاده نمی‌شود (مرز را هنگام درخواست هر بار انتخاب می‌کنید)" icon={Building2}>
+          <Field label="نام شرکت" icon={Building2} error={shownErrors.companyName} required className="sm:tw-col-span-2">{text('companyName', 'شرکتی که با آن کار می‌کنید')}</Field>
+        </Card>
+      )}
 
       <Card title="ناوگان" hint="ماشینی که با آن بار می‌برید" icon={Truck}>
         <div className="tw-space-y-2 sm:tw-col-span-2">
@@ -492,6 +545,12 @@ function ProfileContent() {
           )}
         </div>
         <Field label="شماره کارت هوشمند ناوگان" icon={CreditCard} error={shownErrors.fleetCardNumber}>{text('fleetCardNumber', 'فقط رقم', { digits: true, max: 20, ltr: true })}</Field>
+        {domestic && (
+          <>
+            <Field label="شماره بیمه‌نامه" icon={ShieldCheck} error={shownErrors.insuranceNumber} required hint="برای راننده‌ی داخلی لازم است">{text('insuranceNumber', 'شماره‌ی بیمه‌نامه', { max: 30, ltr: true })}</Field>
+            <Field label="تاریخ اعتبار بیمه‌نامه" icon={CalendarClock} error={shownErrors.insuranceExpiry} required hint="شمسی، تا چه تاریخی اعتبار دارد">{text('insuranceExpiry', 'مثلاً ۱۴۰۴/۶/۱۵', { max: 10, ltr: true })}</Field>
+          </>
+        )}
       </Card>
 
       <section className="tw-space-y-4 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-5 tw-shadow-sm">
@@ -539,7 +598,16 @@ const companyNameFor = (company: DriverCompany, kind: DriverKind) => (kind === '
 
 // Saved on its own click: it decides which announced loads reach the driver, apart from the profile form.
 // A driver can be domestic, international, or both: each kind its own tick, with its companies under it.
-function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile; onSaved: (profile: DriverProfile) => void }) {
+function AnnouncementPreferences({
+  profile,
+  onSaved,
+  onKindsChange,
+}: {
+  profile: DriverProfile;
+  onSaved: (profile: DriverProfile) => void;
+  /** each tick, before it is saved: the profile form shows the fields of these kinds */
+  onKindsChange?: (kinds: DriverKind[]) => void;
+}) {
   const toast = useToast();
   const [kinds, setKinds] = useState<DriverKind[]>(driverKindsOf(profile.tripTypes ?? [profile.tripType]));
   const [memberships, setMemberships] = useState<string[]>(profile.companyUserIds ?? []);
@@ -564,6 +632,7 @@ function AnnouncementPreferences({ profile, onSaved }: { profile: DriverProfile;
     getDriverCompanies().then((rows) => { if (active) setCompanies(rows); }).catch(() => { if (active) setFailed(true); });
     return () => { active = false; };
   }, [version]);
+  useEffect(() => onKindsChange?.(kinds), [kinds, onKindsChange]);
   const toggleCompany = (id: string) => setMemberships((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   function toggleKind(kind: DriverKind) {
     if (kinds.includes(kind) && kinds.length === 1) {

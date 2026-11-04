@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { BadgeCheck, Check, Compass, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Minus, Plus, Search, Ticket, X } from 'lucide-react';
+import { BadgeCheck, Check, Copy, CreditCard, Hourglass, ImagePlus, LoaderCircle, Lock, Minus, Plus, Search, Ticket, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import FloatingActions from 'src/shared/components/FloatingActions';
@@ -59,51 +59,31 @@ function FloatingButton({ onClick, disabled, busy, label }: { onClick: () => voi
   );
 }
 
-// each kind of package keeps its own colour: load requests orange, «معرفی راننده» navy
-const TONES = {
-  orange: {
-    badge: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink',
-    button: 'tw-bg-brand-orange hover:tw-bg-brand-orange-dark',
-  },
-  navy: {
-    badge: 'tw-bg-brand-sky tw-text-brand-navy',
-    button: 'tw-bg-brand-navy hover:tw-bg-[#1c2f63]',
-  },
-} as const;
+const TONE = {
+  badge: 'tw-bg-brand-orange-soft tw-text-brand-orange-ink',
+  button: 'tw-bg-brand-orange hover:tw-bg-brand-orange-dark',
+};
 
-/** One kind of package in its own words: load requests, or «معرفی راننده». */
-function packTerms(state: BrokerAccess, pack: BrokerPack) {
+/** The packages of load requests in their own words. */
+function packTerms(state: BrokerAccess) {
   const { policy } = state;
-  return pack === 'SUGGESTION'
-    ? {
-        kind: 'SUGGESTION' as const,
-        enabled: policy.suggestionsEnabled,
-        title: 'معرفی راننده',
-        about: `به ${faNumber(policy.suggestionDrivers)} راننده‌ای که مسیر بار را رفته‌اند خبر می‌دهیم؛ اولین کسی که بخواهد، درخواست به نام او می‌رود. معرفی بی‌نتیجه حساب نمی‌شود.`,
-        size: policy.suggestionPackageSize,
-        unitPrice: policy.suggestionPackagePrice,
-        left: state.suggestions,
-        unit: 'معرفی',
-        icon: Compass,
-        tone: TONES.navy,
-      }
-    : {
-        kind: 'PACKAGE' as const,
-        enabled: policy.packagesEnabled,
-        title: 'درخواست بار',
-        about: 'هر درخواست بار یکی از آن کم می‌کند؛ زمان ندارد.',
-        size: policy.packageSize,
-        unitPrice: policy.packagePrice,
-        left: state.remaining,
-        unit: 'درخواست',
-        icon: Ticket,
-        tone: TONES.orange,
-      };
+  return {
+    kind: 'PACKAGE' as const,
+    enabled: policy.packagesEnabled,
+    title: 'درخواست بار',
+    about: 'هر درخواست بار یکی از آن کم می‌کند؛ زمان ندارد.',
+    size: policy.packageSize,
+    unitPrice: policy.packagePrice,
+    left: state.remaining,
+    unit: 'درخواست',
+    icon: Ticket,
+    tone: TONE,
+  };
 }
 
 /**
  * What the broker has left of each kind, one row each with «خرید»; the purchase form opens under the kind chosen.
- * Load requests with packages off are free (no button); «معرفی راننده» off is not shown.
+ * Load requests with packages off are free (no button).
  */
 function Credits({
   state,
@@ -113,13 +93,11 @@ function Credits({
   onChange: (next: BrokerAccess) => void;
 }) {
   const [buying, setBuying] = useState<BrokerPack | null>(null);
-  const packs = (['REQUEST', 'SUGGESTION'] as const).filter(
-    (pack) => pack === 'REQUEST' || state.policy.suggestionsEnabled,
-  );
+  const packs = ['REQUEST'] as const;
   return (
     <div className="tw-overflow-hidden tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-shadow-sm">
       {packs.map((pack, index) => {
-        const terms = packTerms(state, pack);
+        const terms = packTerms(state);
         const Icon = terms.icon;
         const free = !terms.enabled;
         const reviewing = state.orders.some(
@@ -176,7 +154,6 @@ function Credits({
       {buying && (
         <BuyForm
           state={state}
-          pack={buying}
           onClose={() => setBuying(null)}
           onChange={(next) => {
             onChange(next);
@@ -220,12 +197,10 @@ function Step({ index, title, children }: { index: number; title: string; childr
  */
 function BuyForm({
   state,
-  pack,
   onChange,
   onClose,
 }: {
   state: BrokerAccess;
-  pack: BrokerPack;
   onChange: (next: BrokerAccess) => void;
   onClose: () => void;
 }) {
@@ -236,7 +211,7 @@ function BuyForm({
   const [preview, setPreview] = useState('');
   const [sending, setSending] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-  const terms = packTerms(state, pack);
+  const terms = packTerms(state);
   const amount = (BigInt(terms.unitPrice) * BigInt(count)).toString();
 
   useEffect(
@@ -274,7 +249,7 @@ function BuyForm({
     if (!file || sending) return;
     setSending(true);
     try {
-      onChange(await submitBrokerPackageOrder(count, file, pack));
+      onChange(await submitBrokerPackageOrder(count, file));
       toast.success('رسید شما ثبت شد و بررسی می‌شود.');
     } catch (error) {
       toast.error(subscriptionError(error));
@@ -584,7 +559,7 @@ export function BrokerAccessContent() {
 export function BrokerRequestsProvider({ children }: { children: ReactNode }) {
   const [usedUp, setUsedUp] = useState(false);
   const refresh = useCallback(() => {
-    getBrokerAccess().then((state) => setUsedUp(state.policy.packagesEnabled && state.remaining <= 0), () => undefined);
+    getBrokerAccess().then((state) => setUsedUp(!state.open && state.policy.packagesEnabled && state.remaining <= 0), () => undefined);
   }, []);
   useEffect(refresh, [refresh]);
   useNotificationEvent('broker-access-changed', refresh);
@@ -599,7 +574,7 @@ export function BrokerAccessBanner({ onBuy }: { onBuy: () => void }) {
   useEffect(() => {
     getBrokerAccess().then(setState, () => undefined);
   }, []);
-  if (!state) return null;
+  if (!state || state.open) return null;
   const noCredit = usedUp;
   if (!state.blocked && !noCredit) return null;
   return (

@@ -68,6 +68,7 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
       )}
 
       {trip.forDriver && <BrokerDriverBox driver={trip.forDriver} />}
+      {trip.exitBorder && <p className="tw-m-0 tw-text-sm">🛂 مرز: <span className="tw-font-bold">{trip.exitBorder}</span></p>}
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-pt-3">
         {/* a broker answers for the load: no vehicle to follow, it reports the delivery itself */}

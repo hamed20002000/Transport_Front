@@ -63,10 +63,6 @@ interface Form {
   packageSize: string;
   packagePrice: string;
   currency: string;
-  suggestionsEnabled: boolean;
-  suggestionPackageSize: string;
-  suggestionPackagePrice: string;
-  suggestionDrivers: string;
 }
 
 const toForm = (policy: BrokerAccessPolicy): Form => ({
@@ -75,10 +71,6 @@ const toForm = (policy: BrokerAccessPolicy): Form => ({
   packageSize: String(policy.packageSize),
   packagePrice: policy.packagePrice,
   currency: policy.currency,
-  suggestionsEnabled: policy.suggestionsEnabled,
-  suggestionPackageSize: String(policy.suggestionPackageSize),
-  suggestionPackagePrice: policy.suggestionPackagePrice,
-  suggestionDrivers: String(policy.suggestionDrivers),
 });
 
 function Switch({ checked, onChange, label }: { checked: boolean; onChange: (value: boolean) => void; label: string }) {
@@ -114,14 +106,10 @@ function PolicyForm() {
 
   const maxCompanies = form.maxCompanies ? Number(form.maxCompanies) : null;
   const size = Number(form.packageSize);
-  const suggestionSize = Number(form.suggestionPackageSize);
-  const suggestionDrivers = Number(form.suggestionDrivers);
   const valid =
     (maxCompanies === null || (maxCompanies >= 1 && maxCompanies <= 1000)) &&
     Number.isInteger(size) && size >= 1 && size <= 100_000 &&
-    (!form.packagesEnabled || (!!form.packagePrice && form.packagePrice !== '0')) &&
-    suggestionSize >= 1 && suggestionSize <= 100_000 && suggestionDrivers >= 1 && suggestionDrivers <= 50 &&
-    (!form.suggestionsEnabled || (!!form.suggestionPackagePrice && form.suggestionPackagePrice !== '0'));
+    (!form.packagesEnabled || (!!form.packagePrice && form.packagePrice !== '0'));
   const set = (patch: Partial<Form>) => setForm({ ...form, ...patch });
 
   async function save(event: FormEvent) {
@@ -135,10 +123,6 @@ function PolicyForm() {
         packageSize: size,
         packagePrice: form.packagePrice || '0',
         currency: form.currency,
-        suggestionsEnabled: form.suggestionsEnabled,
-        suggestionPackageSize: suggestionSize,
-        suggestionPackagePrice: form.suggestionPackagePrice || '0',
-        suggestionDrivers,
       });
       setForm(toForm(saved));
       toast.success('تنظیمات واسط ذخیره شد.');
@@ -198,37 +182,6 @@ function PolicyForm() {
         )}
       </section>
 
-      <section className="tw-space-y-3 tw-border-t tw-border-brand-line tw-pt-5">
-        <label className="tw-flex tw-cursor-pointer tw-items-start tw-justify-between tw-gap-4">
-          <span>
-            <span className="tw-block tw-text-base tw-font-bold">معرفی راننده</span>
-            <span className="tw-mt-1 tw-block tw-text-sm tw-leading-6 tw-text-brand-muted">
-              واسط برای یک بار «به من راننده معرفی کن» می‌زند: به راننده‌هایی که مسیر آن بار (یا نزدیکش) را رفته‌اند، با نام واسط خبر می‌دهیم و شماره‌ی کسی داده نمی‌شود. اولین راننده‌ای که بخواهد، درخواست بار به نام او فرستاده می‌شود. معرفی بسته‌ای خریده می‌شود و معرفی‌ای که راننده‌ای پیدا نکند حساب نمی‌شود.
-            </span>
-          </span>
-          <Switch checked={form.suggestionsEnabled} onChange={(value) => set({ suggestionsEnabled: value })} label="معرفی راننده" />
-        </label>
-        <div className="tw-grid tw-gap-4 sm:tw-grid-cols-3">
-          <label className="tw-space-y-1.5 tw-text-sm tw-font-bold">
-            <span>معرفی در هر بسته</span>
-            <input className={inputClass} inputMode="numeric" dir="ltr" value={form.suggestionPackageSize} onChange={(event) => set({ suggestionPackageSize: onlyDigits(event.target.value).slice(0, 6) })} />
-          </label>
-          <label className="tw-space-y-1.5 tw-text-sm tw-font-bold">
-            <span>قیمت هر بسته</span>
-            <input className={inputClass} inputMode="numeric" dir="ltr" value={grouped(form.suggestionPackagePrice)} onChange={(event) => set({ suggestionPackagePrice: onlyDigits(event.target.value).slice(0, 18) })} />
-          </label>
-          <label className="tw-space-y-1.5 tw-text-sm tw-font-bold">
-            <span>هر معرفی به چند راننده خبر بدهد</span>
-            <input className={inputClass} inputMode="numeric" dir="ltr" value={form.suggestionDrivers} onChange={(event) => set({ suggestionDrivers: onlyDigits(event.target.value).slice(0, 2) })} />
-          </label>
-        </div>
-        {form.suggestionsEnabled && valid && (
-          <p className="tw-m-0 tw-rounded-xl tw-bg-brand-sky tw-px-4 tw-py-3 tw-text-sm tw-leading-7">
-            هر بسته {faNumber(suggestionSize)} معرفی به {price(form.suggestionPackagePrice, form.currency)}؛ هر معرفی به {faNumber(suggestionDrivers)} راننده خبر می‌دهد.
-          </p>
-        )}
-      </section>
-
       <button type="submit" disabled={!valid || saving} className={primaryButton}>
         {saving && <LoaderCircle size={16} className="tw-animate-spin" aria-hidden />} ذخیره
       </button>
@@ -240,7 +193,6 @@ function PolicyForm() {
 function GrantForm({ broker, onDone, onCancel }: { broker: AdminBroker; onDone: () => void; onCancel: () => void }) {
   const toast = useToast();
   const [requests, setRequests] = useState('50');
-  const [pack, setPack] = useState<'REQUEST' | 'SUGGESTION'>('REQUEST');
   const [busy, setBusy] = useState(false);
   const count = Number(requests);
   const valid = Number.isInteger(count) && count >= 1 && count <= 100_000;
@@ -249,10 +201,8 @@ function GrantForm({ broker, onDone, onCancel }: { broker: AdminBroker; onDone: 
     if (!valid || busy) return;
     setBusy(true);
     try {
-      const result = await grantBrokerRequests(broker.userId, count, pack);
-      const unit = pack === 'SUGGESTION' ? 'معرفی راننده' : 'درخواست';
-      const now = pack === 'SUGGESTION' ? result.suggestions : result.remaining;
-      toast.success(`${faNumber(count)} ${unit} به ${broker.name ?? broker.mobile ?? 'واسط'} داده شد؛ الان ${faNumber(now)} ${unit} دارد.`);
+      const result = await grantBrokerRequests(broker.userId, count);
+      toast.success(`${faNumber(count)} درخواست به ${broker.name ?? broker.mobile ?? 'واسط'} داده شد؛ الان ${faNumber(result.remaining)} درخواست دارد.`);
       onDone();
     } catch (error) {
       toast.error(adminError(error));
@@ -263,13 +213,6 @@ function GrantForm({ broker, onDone, onCancel }: { broker: AdminBroker; onDone: 
 
   return (
     <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-end tw-gap-2 tw-rounded-xl tw-bg-brand-sky/50 tw-p-3">
-      <label className="tw-w-40 tw-space-y-1 tw-text-xs tw-font-bold">
-        <span>چه چیزی</span>
-        <select className={inputClass} value={pack} onChange={(event) => setPack(event.target.value as 'REQUEST' | 'SUGGESTION')}>
-          <option value="REQUEST">درخواست بار</option>
-          <option value="SUGGESTION">معرفی راننده</option>
-        </select>
-      </label>
       <label className="tw-w-32 tw-space-y-1 tw-text-xs tw-font-bold">
         <span>تعداد</span>
         <input className={inputClass} inputMode="numeric" dir="ltr" value={requests} onChange={(event) => setRequests(onlyDigits(event.target.value).slice(0, 6))} />
@@ -318,7 +261,6 @@ function Brokers() {
                 </p>
                 <p className="tw-m-0 tw-mt-1 tw-text-xs tw-font-bold tw-text-brand-muted">
                   <span className={broker.remaining ? 'tw-text-emerald-700' : undefined}>{faNumber(broker.remaining)} درخواست مانده</span>
-                  <span>{faNumber(broker.suggestions)} معرفی راننده مانده</span>
                   {' · '}
                   {broker.companies ? `${faNumber(broker.companies)} شرکت انتخاب‌شده` : 'شرکتی انتخاب نکرده'}
                 </p>

@@ -51,6 +51,7 @@ function RequestCard({
               برای راننده: <span className="tw-font-bold tw-text-brand-navy">{request.forDriver.name}</span> · {request.forDriver.plate}
             </p>
           )}
+          {request.exitBorder && <p className="tw-m-0 tw-mt-1 tw-text-xs tw-text-brand-muted">🛂 مرز: <span className="tw-font-bold tw-text-brand-navy">{request.exitBorder}</span></p>}
           <RequestBadge status={request.status} short />
         </>
       }

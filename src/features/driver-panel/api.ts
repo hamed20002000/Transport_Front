@@ -26,6 +26,8 @@ export interface CargoRequest {
   offerExpiresAt?: string | null;
   /** a broker's request: the driver it is for */
   forDriver?: BrokerDriver | null;
+  /** the border picked for an export or import load */
+  exitBorder?: string | null;
   listing: CargoListing | null;
 }
 
@@ -36,6 +38,13 @@ export interface BrokerDriver {
   mobile: string;
   plate: string;
   transitPlate: string | null;
+  // this request's details (required of a broker; absent from older requests)
+  companyName?: string;
+  /** as written: digits only for a bare number */
+  fare?: string;
+  /** older requests only; now CargoRequest.exitBorder, picked from a list */
+  exitBorder?: string;
+  referrer?: string;
 }
 
 export interface GeoPoint {
@@ -58,6 +67,8 @@ export interface RouteOption {
 
 export interface LoadInsight {
   listing: CargoListing;
+  /** the load's type as it really is: one saved domestic but going abroad is EXPORT here (its borders are shown) */
+  tripType?: TripType;
   originPoint: GeoPoint | null;
   destinationPoint: GeoPoint | null;
   routes: RouteOption[];
@@ -172,31 +183,22 @@ export function tripHistory(page: number, filters: TripHistoryFilters, pageSize 
   return unwrap<TripHistory>(axios.get(url('trips/history'), config({ page, pageSize, ...filters, q: filters.q?.trim() || undefined })));
 }
 
-/** forDriver: a broker's request, for this driver */
-export function requestLoad(listingId: string, forDriver?: BrokerDriver) {
-  return unwrap<CargoRequest>(axios.post(url('requests'), { listingId, forDriver }, config()));
+/** forDriver: a broker's request, for this driver; exitBorder: picked for an export or import load (getExitBorders) */
+export function requestLoad(listingId: string, forDriver?: BrokerDriver, exitBorder?: string) {
+  return unwrap<CargoRequest>(axios.post(url('requests'), { listingId, forDriver, exitBorder }, config()));
 }
 
-/** «معرفی راننده» (a broker, paid): drivers of this load's route are told; asked 0 = none found (nothing charged). */
-export function suggestDrivers(listingId: string) {
-  return unwrap<{ asked: number; reasons: string[] }>(axios.post(url('suggestions'), { listingId }, config()));
+/** The borders a request of this load picks from (transport_backend LoadBorderChoice). */
+export interface BorderChoice {
+  /** false for a domestic load: nothing to pick */
+  needed: boolean;
+  /** «مرز خروج» (export) or «مرز ورود» (import) */
+  label: string;
+  options: string[];
 }
 
-/** A broker's offer to this driver (DriverSuggestionService): the broker's name and the load, never a number. */
-export interface BrokerOffer {
-  id: string;
-  broker: string;
-  listing: { id: string; code: string | null; origin: string; destination: string; cargoType: string | null; weight: string | null; price: string | null };
-  expiresAt: string;
-}
-
-export function getBrokerOffers() {
-  return unwrap<BrokerOffer[]>(axios.get(url('broker-offers'), config()));
-}
-
-/** accepted: the broker's request goes in this driver's name; profile: its name, national code or plate is missing */
-export function answerBrokerOffer(id: string, accept: boolean) {
-  return unwrap<{ result: 'accepted' | 'declined' | 'closed' | 'profile' }>(axios.patch(url(`broker-offers/${id}`), { accept }, config()));
+export function getExitBorders(listingId: string) {
+  return unwrap<BorderChoice>(axios.get(url(`loads/${listingId}/exit-borders`), config()));
 }
 
 /** A broker's drivers from its earlier requests, newest first. */
@@ -258,7 +260,6 @@ const conflicts: Record<string, string> = {
   offerExpired: 'مهلت تأیید این بار تمام شده است.',
   notPurchased: 'بار این شرکت در شرکت‌های انتخاب‌شده‌ی شما نیست؛ از بخش «شرکت‌ها و بسته‌ها» انتخابش کنید.',
   noCredit: 'درخواست بار شما تمام شده است؛ از بخش «شرکت‌ها و بسته‌ها» بسته‌ی درخواست بخرید.',
-  noSuggestions: 'معرفی راننده‌ی شما تمام شده است؛ از بخش «شرکت‌ها و بسته‌ها» بسته‌ی معرفی راننده بخرید.',
 };
 
 export function errorMessage(error: unknown) {
@@ -297,6 +298,11 @@ export interface DriverProfile {
   plate: string | null;
   capacityTons: number | null;
   fleetCardNumber: string | null;
+  // the insurance policy's number, and the Shamsi date it is valid until («1404/6/15»): required of a domestic driver
+  insuranceNumber: string | null;
+  insuranceExpiry: string | null;
+  // an international driver's company, required of one (transport_backend DRIVER_KIND_REQUIRED)
+  companyName: string | null;
   // Domestic, export or import: announced loads reach only drivers of the same type.
   tripType: TripType;
   tripTypes: TripType[];

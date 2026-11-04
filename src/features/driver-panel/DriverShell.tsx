@@ -13,12 +13,12 @@ import { PageSkeleton, SignOutButton } from 'src/features/company-cargo/componen
 import { preloadDriverPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
 import PushPrompt from 'src/shared/components/pwa/PushPrompt';
-import BrokerOffers from './BrokerOffers';
 import FloatingPanelNav from 'src/shared/components/FloatingPanelNav';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import SubscriptionPurchase from 'src/features/subscription/SubscriptionPurchase';
 import { getSubscription, SUBSCRIPTION_REQUIRED_EVENT, watchSubscriptionRequired, type SubscriptionState } from 'src/features/subscription/api';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
+import { getVerification, type VerificationStatus } from 'src/features/company-cargo/verificationApi';
 
 const items = [
   { to: '/account/driver', label: 'خانه', icon: House },
@@ -169,7 +169,6 @@ function Frame({ children }: { children: ReactNode }) {
       </header>
       <main className="tw-mx-auto tw-max-w-5xl tw-px-4 tw-pb-[calc(4rem+env(safe-area-inset-bottom))] tw-pt-6 sm:tw-px-6">
         <PushPrompt />
-        <BrokerOffers />
         {children}
       </main>
     </div>
@@ -193,11 +192,13 @@ export function DriverLayout() {
   return (
     <Frame>
       <SmoothScroll />
-      <SubscriptionGate>
-        <Suspense fallback={<PageSkeleton />}>
-          <Outlet />
-        </Suspense>
-      </SubscriptionGate>
+      <VerificationGate>
+        <SubscriptionGate>
+          <Suspense fallback={<PageSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </SubscriptionGate>
+      </VerificationGate>
     </Frame>
   );
 }
@@ -206,6 +207,27 @@ export function DriverLayout() {
  * Without a subscription after the free month, every page of the panel is the purchase page — but «پرداخت‌ها», where a
  * driver whose receipt was rejected reads why.
  */
+const PROFILE_PATH = '/account/driver/profile';
+
+/**
+ * A driver that signed up on its own works only after a parent company checks it (transport_backend
+ * AccountVerificationService), like a broker or a transport company: until then only its profile, where it fills in
+ * what is checked and asks («درخواست بررسی اعتبار»). Unknown (request failed): the pages stay; the server still refuses.
+ */
+function VerificationGate({ children }: { children: ReactNode }) {
+  const [status, setStatus] = useState<VerificationStatus | null>(null);
+  const { pathname } = useLocation();
+  const load = useCallback(() => {
+    getVerification().then((state) => setStatus(state.status), () => setStatus((current) => current ?? 'APPROVED'));
+  }, []);
+  useEffect(load, [load]);
+  // the parent company decided, or the request was sent, while the panel was open
+  useNotificationEvent('verification-changed', () => load());
+  if (!status) return <PageSkeleton />;
+  if (status !== 'APPROVED' && pathname !== PROFILE_PATH) return <Navigate to={PROFILE_PATH} replace />;
+  return <>{children}</>;
+}
+
 function SubscriptionGate({ children }: { children: ReactNode }) {
   const access = useSubscriptionAccess();
   const { pathname } = useLocation();

@@ -38,12 +38,13 @@ import {
   Spec,
 } from 'src/features/company-cargo/components';
 import { useNotificationEvent } from 'src/features/company-cargo/notificationSocket';
-import { errorMessage, listLoads, markAllLoadsRead, requestLoad, type BrokerDriver, type CargoRequest, type OpenLoad, type Page } from './api';
+import { errorMessage, getExitBorders, listLoads, markAllLoadsRead, requestLoad, type BorderChoice, type BrokerDriver, type CargoRequest, type OpenLoad, type Page } from './api';
 import OfferAnswer from './OfferAnswer';
 import { ActionButton, LoadFrame, LoadHead, RequestBadge, RouteLine, useAsync, useBrokerView, useRequestsUsedUp } from './components';
 import DriverShell, { reloadUnread } from './DriverShell';
 import LoadDetails from './LoadDetails';
 import BrokerDriverDialog from './BrokerDriverDialog';
+import BorderDialog from './BorderPicker';
 import { useAuth } from 'src/core/auth/AuthContext';
 import { useListingContactEvent, useLoadsChangedEvent } from './loadEvents';
 import { groupDigits } from 'src/shared/utils/digitGroups';
@@ -149,13 +150,23 @@ export function useLoadActions(
   const broker = userRoles.some((role) => role.name === 'BROKER') && !userRoles.some((role) => role.name === 'DRIVER');
   const [forLoad, setForLoad] = useState<OpenLoad | null>(null);
   const closeDriver = useCallback(() => setForLoad(null), []);
+  // a driver's request of an export or import load: the border is picked first, in a modal
+  const [borderFor, setBorderFor] = useState<{ load: OpenLoad; choice: BorderChoice } | null>(null);
+  const closeBorder = useCallback(() => setBorderFor(null), []);
 
-  async function request(load: OpenLoad, forDriver?: BrokerDriver) {
+  async function request(load: OpenLoad, forDriver?: BrokerDriver, border?: string) {
     if (broker && !forDriver) return setForLoad(load);
+    if (!broker && !border) {
+      setRequestingId(load.id);
+      const choice = await getExitBorders(load.id).catch(() => null);
+      setRequestingId('');
+      if (choice?.needed) return setBorderFor({ load, choice });
+    }
     setRequestingId(load.id);
     try {
-      const created = await requestLoad(load.id, forDriver);
+      const created = await requestLoad(load.id, forDriver, border);
       setForLoad(null);
+      setBorderFor(null);
       const patch = { myRequest: { id: created.id, status: created.status } };
       update(load.id, patch);
       setDetails((current) => (current?.id === load.id ? { ...current, ...patch } : current));
@@ -179,8 +190,18 @@ export function useLoadActions(
           cargo={`${forLoad.origin} ← ${forLoad.destination}${forLoad.cargoType ? ` · ${forLoad.cargoType}` : ''}`}
           layer={options.dialogLayer}
           sending={requestingId === forLoad.id}
-          onSend={(driver) => void request(forLoad, driver)}
+          onSend={(driver, border) => void request(forLoad, driver, border)}
           onClose={closeDriver}
+        />
+      )}
+      {borderFor && (
+        <BorderDialog
+          cargo={`${borderFor.load.origin} ← ${borderFor.load.destination}${borderFor.load.cargoType ? ` · ${borderFor.load.cargoType}` : ''}`}
+          choice={borderFor.choice}
+          layer={options.dialogLayer}
+          sending={requestingId === borderFor.load.id}
+          onPick={(border) => void request(borderFor.load, undefined, border)}
+          onClose={closeBorder}
         />
       )}
     </>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Building2, CircleCheck, CircleX, Clock, Factory, Handshake, Inbox, LoaderCircle } from 'lucide-react';
+import { Building2, CircleCheck, CircleX, Clock, Factory, Handshake, Inbox, LoaderCircle, Truck } from 'lucide-react';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { cn } from 'src/shared/utils/utils';
 import { useMessageBox } from 'src/shared/components/message-box/MessageBoxProvider';
@@ -23,12 +23,23 @@ type FieldRow = { key: keyof VerificationRequest; title: string; ltr?: boolean; 
 // check: what the account is verified by (required at its request): first and marked; checkIfGiven: not required,
 // but marked too when the account gave it
 const fieldsFor = (kind: VerificationRequest['kind']): FieldRow[] =>
-  kind === 'BROKER'
+  kind === 'DRIVER'
+    ? [
+        { key: 'firstName', title: 'نام', check: true },
+        { key: 'lastName', title: 'نام خانوادگی', check: true },
+        { key: 'mobile', title: 'موبایل', ltr: true, check: true },
+        { key: 'smartCardNumber', title: 'شماره کارت هوشمند', ltr: true, check: true },
+        { key: 'licenseNumber', title: 'شماره گواهینامه', ltr: true, check: true },
+        { key: 'nationalCode', title: 'کد ملی', ltr: true },
+      ]
+    : kind === 'BROKER'
     ? [
         { key: 'companyName', title: 'نام واسط یا دفتر', check: true },
+        { key: 'nationalCode', title: 'کد ملی', ltr: true, check: true },
+        { key: 'contactMobiles', title: 'شماره موبایل', ltr: true, check: true },
         { key: 'phone', title: 'شماره تماس', ltr: true, check: true },
-        { key: 'mobile', title: 'موبایل', ltr: true },
-        { key: 'companyNationalId', title: 'کد ملی یا شناسه ملی', ltr: true },
+        { key: 'mobile', title: 'موبایل ورود', ltr: true },
+        { key: 'companyNationalId', title: 'شناسه ملی شرکت', ltr: true, checkIfGiven: true },
         { key: 'address', title: 'آدرس' },
       ]
     : kind === 'FACTORY'
@@ -53,7 +64,7 @@ const fieldsFor = (kind: VerificationRequest['kind']): FieldRow[] =>
         { key: 'postalCode', title: 'کد پستی', ltr: true },
         { key: 'address', title: 'آدرس' },
       ];
-const KIND_TITLES: Record<VerificationRequest['kind'], string> = { COMPANY: 'شرکت حمل‌ونقل', FACTORY: 'شرکت / کارخانه', BROKER: 'واسط' };
+const KIND_TITLES: Record<VerificationRequest['kind'], string> = { COMPANY: 'شرکت حمل‌ونقل', FACTORY: 'شرکت / کارخانه', BROKER: 'واسط', DRIVER: 'راننده' };
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const faDateTime = (value: string) => new Date(value).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -65,7 +76,8 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const kind = KIND_TITLES[request.kind];
-  const name = request.companyName || request.mobile || '';
+  const person = [request.firstName, request.lastName].filter(Boolean).join(' ');
+  const name = (request.kind === 'DRIVER' ? person : request.companyName) || request.mobile || '';
 
   async function approve() {
     const confirmed = await messageBox.confirm({
@@ -75,6 +87,8 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
           ? `شرکت / کارخانهی «${name}» تأیید شود؟ به شرکت‌ها / کارخانه‌های شما اضافه می‌شود و بارش را برای شما می‌فرستد.`
           : request.kind === 'BROKER'
             ? `واسط «${name}» تأیید شود؟ حسابش فعال می‌شود و می‌تواند روی بارها درخواست بدهد.`
+            : request.kind === 'DRIVER'
+            ? `راننده «${name}» تأیید شود؟ حسابش فعال می‌شود، اعلام بار می‌گیرد و می‌تواند درخواست بدهد.`
             : `شرکت حمل‌ونقل «${name}» تأیید شود؟ حسابش فعال می‌شود و هر بخش پنل را باید بخرد.`,
       confirmText: 'تأیید',
     });
@@ -110,7 +124,7 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
       <div className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-2">
         <div className="tw-min-w-0">
           <h3 className="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-base tw-font-bold">
-            {request.kind === 'FACTORY' ? <Factory size={17} aria-hidden /> : request.kind === 'BROKER' ? <Handshake size={17} aria-hidden /> : <Building2 size={17} aria-hidden />} {name} <AccountCode code={request.accountCode} />
+            {request.kind === 'FACTORY' ? <Factory size={17} aria-hidden /> : request.kind === 'BROKER' ? <Handshake size={17} aria-hidden /> : request.kind === 'DRIVER' ? <Truck size={17} aria-hidden /> : <Building2 size={17} aria-hidden />} {name} <AccountCode code={request.accountCode} />
           </h3>
           <p className="tw-m-0 tw-mt-1 tw-text-xs tw-text-brand-muted">
             {kind} · درخواست {fa(request.requests)}

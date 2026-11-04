@@ -58,6 +58,7 @@ function RequestCard({ request, busy, onDecide }: { request: CompanyRequest; bus
       )}
 
       {request.forDriver && <BrokerDriverBox driver={request.forDriver} />}
+      {request.exitBorder && <p className="tw-m-0 tw-text-sm">🛂 مرز: <span className="tw-font-bold">{request.exitBorder}</span></p>}
 
       <div className="tw-flex tw-flex-wrap tw-justify-end tw-gap-2 tw-border-t tw-border-brand-line tw-pt-3">
         <SecondaryButton onClick={() => onDecide(false)} disabled={busy}>

@@ -5,6 +5,7 @@ import { useToast } from 'src/shared/components/toast/ToastProvider';
 import { factoryError, inviteSmsText } from 'src/features/factory/api';
 import { inviteDrivers } from './driverInvitesApi';
 import { PhoneLinks } from './components';
+import { groupDigits } from 'src/shared/utils/digitGroups';
 
 export type RequestDriver = BrokerDriver & { companyDriver: boolean };
 
@@ -49,6 +50,13 @@ export default function BrokerDriverBox({ driver }: { driver: RequestDriver }) {
           </span>
         )}
       </p>
+      {(driver.companyName || driver.fare || driver.referrer) && (
+        <p className="tw-m-0 tw-flex tw-flex-wrap tw-gap-x-3 tw-gap-y-1 tw-text-xs">
+          {driver.companyName && <span>شرکت {driver.companyName}</span>}
+          {driver.fare && <span>کرایه {groupDigits(driver.fare)}</span>}
+          {driver.referrer && <span>معرف {driver.referrer}</span>}
+        </p>
+      )}
       <PhoneLinks phones={[driver.mobile]} />
       {state === 'sent' ? (
         <p className="tw-m-0 tw-text-xs tw-text-emerald-700">{driver.companyDriver ? 'از رانندگان شماست.' : 'دعوت شد.'}</p>

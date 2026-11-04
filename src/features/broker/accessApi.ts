@@ -12,16 +12,10 @@ export interface BrokerAccessPolicy {
   packageSize: number;
   packagePrice: string;
   currency: string;
-  /** «معرفی راننده»: drivers of a load's route are told of it; bought in its own packages */
-  suggestionsEnabled: boolean;
-  suggestionPackageSize: number;
-  suggestionPackagePrice: string;
-  /** drivers one suggestion asks */
-  suggestionDrivers: number;
 }
 
-/** What a package buys: load requests, or «معرفی راننده». */
-export type BrokerPack = 'REQUEST' | 'SUGGESTION';
+/** What a package buys: load requests (the «معرفی راننده» packages are gone). */
+export type BrokerPack = 'REQUEST';
 
 export interface AccessCompany {
   userId: string;
@@ -30,7 +24,7 @@ export interface AccessCompany {
 
 export interface AccessOrder {
   id: string;
-  /** PACKAGE: load requests; NEW and ADD: older purchases of companies */
+  /** PACKAGE: load requests; NEW and ADD: older purchases of companies; SUGGESTION: an older «معرفی راننده» package */
   kind: 'NEW' | 'ADD' | 'PACKAGE' | 'SUGGESTION';
   /** «بسته‌ی ۱۰۰ درخواست بار» */
   title: string;
@@ -46,12 +40,12 @@ export interface AccessOrder {
 
 export interface BrokerAccess {
   policy: BrokerAccessPolicy;
+  /** everything is open to brokers for now (transport_backend brokersOpen): no companies to pick, nothing to buy */
+  open?: boolean;
   /** the companies picked */
   selected: AccessCompany[];
   /** load requests left */
   remaining: number;
-  /** «معرفی راننده» left */
-  suggestions: number;
   /** what keeps the broker from the loads now */
   blocked: 'noCompanies' | null;
   companies: AccessCompany[];
@@ -76,11 +70,10 @@ export const getBrokerAccess = () => unwrap(axios.get<{ success: boolean; data: 
 export const selectBrokerCompanies = (companyUserIds: string[]) =>
   unwrap(axios.put<{ success: boolean; data: BrokerAccess }>(`${url}/companies`, { companyUserIds }, config()));
 
-/** Some packages (of load requests, or of «معرفی راننده»), with the receipt photo. */
-export function submitBrokerPackageOrder(packages: number, file: File, pack: BrokerPack = 'REQUEST') {
+/** Some packages of load requests, with the receipt photo. */
+export function submitBrokerPackageOrder(packages: number, file: File) {
   const form = new FormData();
   form.append('packages', String(packages));
-  form.append('pack', pack);
   form.append('file', file);
   return unwrap(axios.post<{ success: boolean; data: BrokerAccess }>(`${url}/package-orders`, form, config()));
 }

@@ -22,7 +22,7 @@ export interface VerificationState {
 
 export interface VerificationRequest {
   userId: string;
-  kind: 'COMPANY' | 'FACTORY' | 'BROKER';
+  kind: 'COMPANY' | 'FACTORY' | 'BROKER' | 'DRIVER';
   mobile: string | null;
   /** the account's own code (transport_backend User.accountCode), e.g. 10023; null for accounts with no kind */
   accountCode: string | null;
@@ -34,11 +34,20 @@ export interface VerificationRequest {
   decidedAt: string | null;
   createdAt: string;
   companyName: string | null;
+  // a driver: its name, and its papers from its driver profile
+  firstName: string | null;
+  lastName: string | null;
+  smartCardNumber: string | null;
+  licenseNumber: string | null;
+  /** the person's national code: what a broker is checked by */
+  nationalCode: string | null;
   companyNationalId: string | null;
   economicCode: string | null;
   registrationNo: string | null;
   licenseNo: string | null;
   phone: string | null;
+  /** the mobile(s) it gave in its profile, comma-separated: required of a broker */
+  contactMobiles: string | null;
   postalCode: string | null;
   address: string | null;
 }
