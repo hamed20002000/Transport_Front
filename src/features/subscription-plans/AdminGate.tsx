@@ -6,7 +6,8 @@ import { useAuth } from 'src/core/auth/AuthContext';
 export default function AdminGate({ children }: { children: ReactNode }) {
   const { isAuth, isAuthDataLoading, userRoles } = useAuth();
   if (isAuthDataLoading) return <p role="status">در حال دریافت اطلاعات حساب…</p>;
-  if (!isAuth) return <Navigate to="/auth/login" replace />;
+  // the admin panel signs in at its own address, by username and password
+  if (!isAuth) return <Navigate to="/auth/admin" replace />;
   if (!userRoles.some((role) => role.name === 'ADMIN'))
     return (
       <p role="alert" dir="rtl">
