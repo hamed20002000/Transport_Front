@@ -17,7 +17,7 @@ import {
   IconInbox, IconClockHour3, IconTag, IconUserX, IconBarcode, IconTruck, IconParking, IconHandGrab,
   IconSchool, IconNotebook, IconBooks, IconFileCertificate, IconFileImport, IconCrown, IconFileReport,
   IconFileText, IconListDetails, IconCarOff, IconFileSpreadsheet, IconClipboardData, IconCurrencyTaka,
-  IconLayoutDashboard, IconChartInfographic,IconNotification,IconBellRinging, IconSettings
+  IconLayoutDashboard, IconChartInfographic,IconNotification,IconBellRinging, IconSettings, IconSpeakerphone
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 interface UserRole {
@@ -87,6 +87,7 @@ const ADMIN_SUBSCRIPTION_MENU = [
   { id: 'subscription-policy', title: 'تنظیمات اشتراک', href: '/admin/subscription-policy', icon: IconSettings },
   { id: 'company-features', title: 'امکانات شرکت‌های حمل‌ونقل', href: '/admin/company-features', icon: IconBuildingWarehouse },
   { id: 'broker-access', title: 'واسط', href: '/admin/broker-access', icon: IconHeartHandshake },
+  { id: 'circulars', title: 'بخشنامه‌ها', href: '/admin/circulars', icon: IconSpeakerphone },
 ];
 
 export interface MenuitemsType {

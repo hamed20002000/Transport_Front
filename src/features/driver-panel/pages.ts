@@ -11,6 +11,7 @@ const loaders = {
   filters: () => import('./DriverSettings'),
   profile: () => import('./DriverProfile'),
   borders: () => import('./DriverBorders'),
+  circulars: () => import('./DriverCirculars'),
   subscription: () => import('./DriverSubscription'),
   payments: () => import('./DriverPayments'),
 };
@@ -23,6 +24,7 @@ export const DriverHistory = lazy(loaders.history);
 export const DriverFilters = lazy(loaders.filters);
 export const DriverProfile = lazy(loaders.profile);
 export const DriverBorders = lazy(loaders.borders);
+export const DriverCirculars = lazy(loaders.circulars);
 export const DriverSubscription = lazy(loaders.subscription);
 export const DriverPayments = lazy(loaders.payments);
 

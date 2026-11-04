@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Bell, ClipboardList, CreditCard, History, House, Landmark, Navigation, PackageSearch, Receipt, SlidersHorizontal, Sparkles, Truck, UserRound } from 'lucide-react';
+import { Bell, ClipboardList, CreditCard, History, House, Landmark, Megaphone, Navigation, PackageSearch, Receipt, SlidersHorizontal, Sparkles, Truck, UserRound } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
@@ -30,6 +30,7 @@ const items = [
   { to: '/account/driver/trip', label: 'سفر فعال', icon: Navigation },
   { to: '/account/driver/history', label: 'سفرهای رفته', icon: History },
   { to: '/account/driver/borders', label: 'مرزها', icon: Landmark },
+  { to: '/account/driver/circulars', label: 'بخشنامه‌ها', icon: Megaphone },
   { to: '/account/driver/profile', label: 'پروفایل', icon: UserRound },
   // buying a subscription is off for now (DRIVER_SUBSCRIPTION_MENU): neither the item nor the trial reminder shows
   ...(DRIVER_SUBSCRIPTION_MENU ? [{ to: '/account/driver/subscription', label: 'اشتراک', icon: CreditCard }] : []),
