@@ -2,6 +2,7 @@ import type { ChannelPlatform } from './channelsApi';
 import { useEffect, useRef } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import endpoints from 'src/core/config/endpoints.json';
+import { sessionClaims, signedOutElsewhere } from 'src/core/auth/session';
 
 // NotificationsGateway در transport_backend (namespace /notifications). کاربر از روی
 // JWT شناخته می‌شود؛ یک اتصال مشترک برای کل پنل.
@@ -15,6 +16,11 @@ function getSocket(): Socket {
       transports: ['websocket', 'polling'],
       // هر بار اتصال (یا اتصال دوباره) توکن فعلی خوانده می‌شود.
       auth: (cb) => cb({ token: localStorage.getItem('authToken') ?? '' }),
+    });
+    // the account signed in on another browser or device: this page, of an older session, signs out at once
+    socket.on('session-replaced', ({ sessionId }: { sessionId?: string }) => {
+      const { sid, multi } = sessionClaims();
+      if (!multi && sessionId && sid !== sessionId) signedOutElsewhere();
     });
   }
   return socket;

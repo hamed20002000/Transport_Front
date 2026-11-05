@@ -2,16 +2,23 @@ import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 
 // transport_backend CompanyBrokerLedgerController (api/company/broker-ledger): the company's account with each broker
-// on its own loads: drivers, delivered trips, the broker's commission (the admin's percent of each fare), payments.
-// Amounts are decimal strings, in the unit the fares were given in.
+// on its own loads: drivers, delivered trips and how the broker was paid for each (BrokerPayModel): COMMISSION, the
+// admin's percent of the fare the company confirmed, owed by the company; MARGIN, the broker's own gap between the
+// company's fare and the driver's, shown, not owed. Payments come off the commission. Amounts are decimal strings, tomans.
+import type { BrokerPayModel, FareCurrency } from './trip-fare/tripFare';
 export interface BrokerAccount {
   broker: { userId: string; name: string; mobile: string | null; accountCode: string | null };
   drivers: number;
   trips: number;
   fares: string;
-  /** delivered trips whose fare had a unit («1500 دلار»): no commission counted */
+  /** delivered COMMISSION trips whose commission could not be worked out (a fare in dollars) */
   unpriced: number;
+  commissionTrips: number;
+  marginTrips: number;
+  /** commission owed on COMMISSION trips */
   earned: string;
+  /** the broker's own margin on MARGIN trips: for the record, not owed */
+  margin: string;
   paid: string;
   remaining: string;
 }
@@ -25,9 +32,16 @@ export interface BrokerTrip {
   exitBorder: string | null;
   driverName: string | null;
   driverMobile: string | null;
+  /** the fare the broker gave the driver, as written */
   fare: string | null;
+  payModel: BrokerPayModel;
+  /** the fare the company confirmed at delivery; null for trips from before */
+  companyFare: string | null;
+  companyFareCurrency: FareCurrency | null;
+  weightTons: number | null;
   commission: string | null;
   percent: string | null;
+  margin: string | null;
 }
 
 export interface BrokerSettlement {

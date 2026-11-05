@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Hourglass, PackageCheck, Search, Truck, UserRound, X } from 'lucide-react';
 import { cn } from 'src/shared/utils/utils';
-import { fetchDriverPhoto, getCandidates, offerLoad, searchDrivers, type CargoListing, type DriverCard } from './api';
+import { fetchDriverPhoto, getCandidates, searchDrivers, type CargoListing, type DriverCard } from './api';
+import { getOfferFareForm, offerLoad, TripFareDialog } from './trip-fare';
 import { errorMessage } from './cargoText';
 import { IconButton, PrimaryButton, RouteLine, SecondaryButton, timeAgo } from './components';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
@@ -116,7 +117,8 @@ export default function AssignDriverDialog({
   const [found, setFound] = useState<DriverCard[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<DriverCard | null>(null);
-  const [saving, setSaving] = useState(false);
+  // the driver is picked: the agreed fare and weight next, then the offer
+  const [askingFare, setAskingFare] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -166,18 +168,10 @@ export default function AssignDriverDialog({
     }
   }
 
-  async function confirm() {
+  function confirm() {
     if (!selected) return;
-    setSaving(true);
     setError('');
-    try {
-      const offer = await offerLoad(listing.id, selected.userId);
-      onOffered(selected, offer.offerExpiresAt);
-    } catch (e) {
-      setError(errorMessage(e));
-    } finally {
-      setSaving(false);
-    }
+    setAskingFare(true);
   }
 
   const requestedIds = new Set(drivers.map((d) => d.userId));
@@ -277,12 +271,33 @@ export default function AssignDriverDialog({
         <div className="tw-flex tw-items-center tw-justify-end tw-gap-2 tw-border-t tw-border-brand-line tw-px-5 tw-py-3">
           <SecondaryButton onClick={onClose}>{waiting ? 'بستن' : 'انصراف'}</SecondaryButton>
           {!waiting && (
-            <PrimaryButton onClick={confirm} disabled={!selected || saving}>
+            <PrimaryButton onClick={confirm} disabled={!selected}>
               <PackageCheck size={16} aria-hidden /> {selected ? `سپردن بار به ${selected.name}` : 'راننده را انتخاب کنید'}
             </PrimaryButton>
           )}
         </div>
       </div>
+      {askingFare && selected && (
+        <TripFareDialog
+          mode="offer"
+          layer={(layer ?? 50) + 1}
+          summary={
+            <>
+              <RouteLine origin={listing.origin} destination={listing.destination} />
+              <p className="tw-m-0 tw-text-sm">
+                راننده: <strong>{selected.name}</strong>
+              </p>
+            </>
+          }
+          load={() => getOfferFareForm(listing.id)}
+          submit={async (fare) => {
+            const offer = await offerLoad(listing.id, selected.userId, fare);
+            setAskingFare(false);
+            onOffered(selected, offer.offerExpiresAt);
+          }}
+          onClose={() => setAskingFare(false)}
+        />
+      )}
     </div>,
     document.body,
   );

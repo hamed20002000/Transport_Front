@@ -2,6 +2,7 @@ import axios from 'axios';
 import endpoints from 'src/core/config/endpoints.json';
 import { isCompanyNationalId, isNationalCode } from 'src/shared/utils/nationalId';
 import type { RequestDriver } from './BrokerDriverBox';
+import type { BrokerPayModel, TripFareStages } from './trip-fare/tripFare';
 
 export type ListingStatus = 'OPEN' | 'TAKEN';
 
@@ -131,13 +132,13 @@ export interface Page<T> {
   pageSize: number;
 }
 
-const config = (params?: Record<string, unknown>) => ({
+export const config = (params?: Record<string, unknown>) => ({
   headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
   params,
   timeout: 20000,
 });
 
-async function unwrap<T>(request: Promise<{ data: { success: boolean; data: T } }>) {
+export async function unwrap<T>(request: Promise<{ data: { success: boolean; data: T } }>) {
   const { data } = await request;
   if (!data.success || !data.data) throw new Error('دریافت اطلاعات انجام نشد.');
   return data.data;
@@ -350,6 +351,10 @@ export interface CompanyTrip {
   forDriver?: RequestDriver | null;
   /** the border picked for an export or import load */
   exitBorder?: string | null;
+  /** a broker's trip: how the broker is paid (picked when the request was accepted) */
+  brokerPayModel?: BrokerPayModel | null;
+  /** the fare and weight recorded at the deal (agreed) and at delivery */
+  fare: TripFareStages;
   location: { latitude: number; longitude: number; receivedAt: string; liveUntil: string | null } | null;
 }
 
@@ -372,10 +377,10 @@ export function countCompanyRequests() {
   return unwrap<{ count: number }>(axios.get(`${endpoints.baseurl}cargo-listings/requests/count`, config())).then((r) => r.count);
 }
 
-// accept: the driver's trip starts and the load is taken (the other requests are turned down); reject: the driver is told
-export function decideCompanyRequest(requestId: string, decision: 'accept' | 'reject') {
+// reject: the driver is told. Accepting needs the agreed fare: trip-fare/acceptRequest
+export function rejectCompanyRequest(requestId: string) {
   return unwrap<{ requestId: string; status: string }>(
-    axios.patch(`${endpoints.baseurl}cargo-listings/requests/${requestId}/${decision}`, {}, config()),
+    axios.patch(`${endpoints.baseurl}cargo-listings/requests/${requestId}/reject`, {}, config()),
   );
 }
 
@@ -392,12 +397,6 @@ export function getOverdueTrips() {
 export function rejectTripDelivery(requestId: string) {
   return unwrap<{ requestId: string; status: string; deliveryReportedAt: null }>(
     axios.patch(`${endpoints.baseurl}cargo-listings/trips/${requestId}/reject-delivery`, {}, config()),
-  );
-}
-
-export function deliverTrip(requestId: string) {
-  return unwrap<{ requestId: string; status: string; deliveredAt: string }>(
-    axios.patch(`${endpoints.baseurl}cargo-listings/trips/${requestId}/deliver`, {}, config()),
   );
 }
 
@@ -552,13 +551,6 @@ export function getCandidates(listingId: string) {
 // Another driver of the platform by full mobile number or plate.
 export function searchDrivers(listingId: string, query: string) {
   return unwrap<DriverCard[]>(axios.get(`${endpoints.baseurl}cargo-listings/${listingId}/candidates/search`, config({ q: query })));
-}
-
-// Hand the load to a driver; it is taken once the driver confirms.
-export function offerLoad(listingId: string, driverUserId: string) {
-  return unwrap<{ id: string; status: string; offerExpiresAt: string }>(
-    axios.post(`${endpoints.baseurl}cargo-listings/${listingId}/offer`, { driverUserId }, config()),
-  );
 }
 
 // The photo endpoint needs the token, so it is fetched as a blob for an object URL.

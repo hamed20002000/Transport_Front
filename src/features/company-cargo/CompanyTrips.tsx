@@ -5,7 +5,8 @@ import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { deliverTrip, listCompanyTrips, rejectTripDelivery, type CompanyTrip, type Page } from './api';
+import { listCompanyTrips, rejectTripDelivery, type CompanyTrip, type Page } from './api';
+import { brokerPayModelLabels, deliverTrip, FareSummary, getFareForm, TripFareDialog } from './trip-fare';
 import { DriverPhoto } from './AssignDriverDialog';
 import { errorMessage } from './cargoText';
 import CompanyShell from './CompanyShell';
@@ -69,6 +70,8 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
 
       {trip.forDriver && <BrokerDriverBox driver={trip.forDriver} />}
       {trip.exitBorder && <p className="tw-m-0 tw-text-sm">🛂 مرز: <span className="tw-font-bold">{trip.exitBorder}</span></p>}
+      <FareSummary fare={trip.fare?.agreed} label="کرایه‌ی توافقی" />
+      {trip.brokerPayModel && <p className="tw-m-0 tw-text-xs tw-text-brand-muted">دریافت واسط: {brokerPayModelLabels[trip.brokerPayModel]}</p>}
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-t tw-border-brand-line tw-pt-3">
         {/* a broker answers for the load: no vehicle to follow, it reports the delivery itself */}
@@ -108,6 +111,8 @@ function Trips() {
   const [failed, setFailed] = useState(false);
   const [version, setVersion] = useState(0);
   const [busyId, setBusyId] = useState('');
+  // «تحویل شد» / «تأیید تحویل» opens the fare form: the final fare and weight, from the agreed ones
+  const [delivering, setDelivering] = useState<CompanyTrip | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -131,22 +136,8 @@ function Trips() {
     setData((current) => current && { ...current, items: current.items.map((trip) => (trip.requestId === requestId ? { ...trip, location } : trip)) }),
   );
 
-  async function deliver(trip: CompanyTrip) {
-    const route = trip.cargo ? `${trip.cargo.origin} به ${trip.cargo.destination}` : 'این بار';
-    const question = trip.deliveryReportedAt
-      ? `راننده تحویل بار ${route} را اعلام کرده. تأیید می‌کنید؟ راننده هم خبردار می‌شود.`
-      : `تحویل بار ${route} ثبت شود؟ راننده هم خبردار می‌شود.`;
-    if (!(await messageBox.confirm({ title: 'تحویل بار', message: question, confirmText: 'ثبت تحویل' }))) return;
-    setBusyId(trip.requestId);
-    try {
-      await deliverTrip(trip.requestId);
-      toast.success(trip.deliveryReportedAt ? 'تحویل تأیید شد و به راننده خبر دادیم.' : 'تحویل بار ثبت شد و به راننده خبر دادیم.');
-      setVersion((value) => value + 1);
-    } catch (e) {
-      toast.error(errorMessage(e));
-    } finally {
-      setBusyId('');
-    }
+  function deliver(trip: CompanyTrip) {
+    setDelivering(trip);
   }
 
   // «تحویل نشده»: the driver's report is turned down; the trip stays here and the driver is told
@@ -185,6 +176,28 @@ function Trips() {
           </ul>
           <Pager page={page} total={data.total} pageSize={PAGE_SIZE} onChange={setPage} />
         </>
+      )}
+      {delivering && (
+        <TripFareDialog
+          mode="deliver"
+          summary={
+            <>
+              <RouteLine origin={delivering.cargo?.origin} destination={delivering.cargo?.destination} />
+              <p className="tw-m-0 tw-text-sm">
+                {delivering.driver?.broker ? 'واسط' : 'راننده'}: <strong>{delivering.driver?.name ?? '—'}</strong>
+                {delivering.deliveryReportedAt && <span className="tw-text-brand-muted"> · تحویل را {timeAgo(delivering.deliveryReportedAt)} اعلام کرد</span>}
+              </p>
+            </>
+          }
+          load={() => getFareForm(delivering.requestId, 'DELIVERED')}
+          submit={async (fare) => {
+            await deliverTrip(delivering.requestId, fare);
+            toast.success(delivering.deliveryReportedAt ? 'تحویل تأیید شد و به راننده خبر دادیم.' : 'تحویل بار ثبت شد و به راننده خبر دادیم.');
+            setDelivering(null);
+            setVersion((value) => value + 1);
+          }}
+          onClose={() => setDelivering(null)}
+        />
       )}
     </div>
   );

@@ -8,7 +8,8 @@ import { factoryError } from 'src/features/factory/api';
 import AccountCode from 'src/shared/components/account-code/AccountCode';
 import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, PhoneLinks, SectionTitle } from './components';
-import { getBrokerAccount, listBrokerAccounts, removeBrokerSettlement, settleBroker, type BrokerAccount, type BrokerAccountDetail } from './brokerLedgerApi';
+import { getBrokerAccount, listBrokerAccounts, removeBrokerSettlement, settleBroker, type BrokerAccount, type BrokerAccountDetail, type BrokerTrip } from './brokerLedgerApi';
+import { brokerPayModelLabels, fareCurrencyLabels } from './trip-fare';
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 const money = (value: string) => groupDigits(value);
@@ -23,6 +24,22 @@ function Figure({ label, value, tone }: { label: string; value: string; tone?: '
       <p className="tw-m-0 tw-text-xs tw-text-brand-muted">{label}</p>
       <p className={cn('tw-m-0 tw-mt-1 tw-font-bold', tone === 'green' && 'tw-text-emerald-700', tone === 'orange' && 'tw-text-brand-orange-ink')}>{value}</p>
     </div>
+  );
+}
+
+/** What one trip brought the broker: the commission owed (COMMISSION) or its own margin (MARGIN). */
+function TripEarning({ trip }: { trip: BrokerTrip }) {
+  if (trip.payModel === 'MARGIN') {
+    return trip.margin !== null ? (
+      <span className="tw-font-bold tw-text-brand-navy">اختلاف کرایه‌ی واسط {money(trip.margin)}</span>
+    ) : (
+      <span className="tw-text-brand-muted">اختلاف کرایه (کرایه‌ی راننده عدد نیست)</span>
+    );
+  }
+  return trip.commission ? (
+    <span className="tw-font-bold tw-text-emerald-700">کمیسیون {money(trip.commission)} ({fa(Number(trip.percent))}٪)</span>
+  ) : (
+    <span className="tw-text-brand-muted">بدون کمیسیون (کرایه عدد نیست)</span>
   );
 }
 
@@ -105,9 +122,21 @@ function Detail({ brokerUserId, onChanged }: { brokerUserId: string; onChanged: 
                   {trip.code ? ` · ${trip.code}` : ''} · {faDate(trip.deliveredAt)} · {trip.driverName}
                 </span>
               </span>
-              <span className="tw-text-xs">
-                کرایه {trip.fare ? groupDigits(trip.fare) : '—'} ·{' '}
-                {trip.commission ? <span className="tw-font-bold tw-text-emerald-700">کمیسیون {money(trip.commission)} ({fa(Number(trip.percent))}٪)</span> : <span className="tw-text-brand-muted">بدون کمیسیون (کرایه عدد نیست)</span>}
+              <span className="tw-space-y-0.5 tw-text-xs">
+                <span className="tw-block">
+                  <span className="tw-rounded-full tw-bg-brand-sky tw-px-2 tw-py-0.5">{brokerPayModelLabels[trip.payModel]}</span>
+                  {trip.companyFare && (
+                    <>
+                      {' '}
+                      · کرایه‌ی شرکت {money(trip.companyFare)} {trip.companyFareCurrency ? fareCurrencyLabels[trip.companyFareCurrency] : ''}
+                      {trip.weightTons ? ` · ${fa(trip.weightTons)} تن` : ''}
+                    </>
+                  )}
+                  {' '}· کرایه‌ی راننده {trip.fare ? groupDigits(trip.fare) : '—'}
+                </span>
+                <span className="tw-block">
+                  <TripEarning trip={trip} />
+                </span>
               </span>
             </li>
           ))}
@@ -159,6 +188,7 @@ function AccountCard({ account, onChanged }: { account: BrokerAccount; onChanged
         <Figure label="سفرهای تحویل‌شده" value={fa(account.trips)} />
         <Figure label="جمع کرایه" value={money(account.fares)} />
         <Figure label="طلب (کمیسیون)" value={money(account.earned)} />
+        {account.marginTrips > 0 && <Figure label={`اختلاف کرایه (${fa(account.marginTrips)} سفر)`} value={money(account.margin)} />}
         <Figure label="پرداخت‌شده" value={money(account.paid)} tone="green" />
         <Figure label="مانده‌ی طلب" value={money(account.remaining)} tone={owed ? 'orange' : 'green'} />
       </div>

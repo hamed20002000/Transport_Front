@@ -5,7 +5,8 @@ import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { decideCompanyRequest, listCompanyRequests, type CompanyRequest, type Page } from './api';
+import { listCompanyRequests, rejectCompanyRequest, type CompanyRequest, type Page } from './api';
+import { acceptRequest, getFareForm, TripFareDialog } from './trip-fare';
 import { DriverPhoto } from './AssignDriverDialog';
 import { errorMessage } from './cargoText';
 import CompanyShell from './CompanyShell';
@@ -80,6 +81,8 @@ function Requests() {
   const [failed, setFailed] = useState(false);
   const [version, setVersion] = useState(0);
   const [busyId, setBusyId] = useState('');
+  // «قبول» opens the fare form: the request is accepted with the agreed fare and weight
+  const [accepting, setAccepting] = useState<CompanyRequest | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -100,15 +103,17 @@ function Requests() {
   });
 
   async function decide(request: CompanyRequest, accept: boolean) {
+    if (accept) {
+      setAccepting(request);
+      return;
+    }
     const route = request.cargo ? `${request.cargo.origin} به ${request.cargo.destination}` : 'این بار';
-    const question = accept
-      ? `درخواست ${request.driver?.name ?? 'راننده'} برای بار ${route} قبول شود؟ بار «برداشته شد» می‌شود، سفر راننده شروع می‌شود و درخواست بقیه رد می‌شود.`
-      : `درخواست ${request.driver?.name ?? 'راننده'} برای بار ${route} رد شود؟ راننده خبردار می‌شود.`;
-    if (!(await messageBox.confirm({ title: accept ? 'قبول درخواست' : 'رد درخواست', message: question, tone: accept ? 'primary' : 'danger', confirmText: accept ? 'قبول' : 'رد درخواست' }))) return;
+    const question = `درخواست ${request.driver?.name ?? 'راننده'} برای بار ${route} رد شود؟ راننده خبردار می‌شود.`;
+    if (!(await messageBox.confirm({ title: 'رد درخواست', message: question, tone: 'danger', confirmText: 'رد درخواست' }))) return;
     setBusyId(request.requestId);
     try {
-      await decideCompanyRequest(request.requestId, accept ? 'accept' : 'reject');
-      toast.success(accept ? 'قبول شد؛ بار برداشته شد و سفر راننده شروع شد.' : 'درخواست رد شد و به راننده خبر دادیم.');
+      await rejectCompanyRequest(request.requestId);
+      toast.success('درخواست رد شد و به راننده خبر دادیم.');
       setVersion((value) => value + 1);
     } catch (e) {
       toast.error(errorMessage(e));
@@ -138,6 +143,28 @@ function Requests() {
           </ul>
           <Pager page={page} total={data.total} pageSize={PAGE_SIZE} onChange={setPage} />
         </>
+      )}
+      {accepting && (
+        <TripFareDialog
+          mode="accept"
+          summary={
+            <>
+              <RouteLine origin={accepting.cargo?.origin} destination={accepting.cargo?.destination} />
+              <p className="tw-m-0 tw-text-sm">
+                {accepting.driver?.broker ? 'واسط' : 'راننده'}: <strong>{accepting.driver?.name ?? '—'}</strong>
+                {accepting.forDriver && <span className="tw-text-brand-muted"> · برای {accepting.forDriver.name}{accepting.forDriver.fare ? ` · کرایه‌ی اعلامی واسط ${groupDigits(accepting.forDriver.fare)}` : ''}</span>}
+              </p>
+            </>
+          }
+          load={() => getFareForm(accepting.requestId, 'AGREED')}
+          submit={async (fare, payModel) => {
+            await acceptRequest(accepting.requestId, fare, payModel);
+            setAccepting(null);
+            toast.success('قبول شد؛ بار برداشته شد و سفر شروع شد.');
+            setVersion((value) => value + 1);
+          }}
+          onClose={() => setAccepting(null)}
+        />
       )}
     </div>
   );

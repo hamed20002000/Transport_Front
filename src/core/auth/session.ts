@@ -57,6 +57,32 @@ export function signOut() {
   window.location.assign('/auth/login');
 }
 
+/** The server's answer when this device's session was taken over by a sign-in elsewhere (SessionService). */
+export const SESSION_REPLACED = 'SESSION_REPLACED';
+
+/**
+ * One web session per account (the parent company aside): another browser or device signed in, so this one is out.
+ * Its tokens are dropped (the server has already ended them) and the login page says why.
+ */
+export function signedOutElsewhere() {
+  localStorage.removeItem(ACCESS_KEY);
+  localStorage.removeItem(REFRESH_KEY);
+  for (const key of ['activeUserRoleName', 'activeUserRoleId']) localStorage.removeItem(key);
+  if (window.location.pathname !== '/auth/login') window.location.assign('/auth/login?reason=elsewhere');
+}
+
+/** The session claims of the stored access token: its session id, and whether the account may be on many devices. */
+export function sessionClaims(): { sid?: string; multi?: boolean } {
+  const token = read(ACCESS_KEY);
+  if (!token) return {};
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { sid?: string; multi?: boolean };
+    return { sid: payload.sid, multi: payload.multi };
+  } catch {
+    return {};
+  }
+}
+
 function expiresAt(token: string | null): number {
   if (!token) return 0;
   try {
@@ -87,6 +113,8 @@ async function exchange(rejected?: string | null): Promise<string | null> {
     if (response.status === 400 || response.status === 401) {
       // Revoked, expired or already used: the user has to sign in again.
       if (read(REFRESH_KEY) === refreshToken) localStorage.removeItem(REFRESH_KEY);
+      const body = (await response.json().catch(() => null)) as { message?: unknown } | null;
+      if (String(body?.message ?? '').includes(SESSION_REPLACED)) signedOutElsewhere();
       return null;
     }
     const body = (await response.json()) as { data?: SessionTokens };
