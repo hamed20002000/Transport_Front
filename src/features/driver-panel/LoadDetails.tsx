@@ -252,7 +252,7 @@ const SILENT_CLIP = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AA
 // the button stops it or plays it again. If the browser still blocks the sound, the button starts it.
 function StationsVoice({ listingId, route, fuels, element }: { listingId: string; route: number; fuels: FuelKind[]; element: HTMLAudioElement }) {
   const toast = useToast();
-  const [state, setState] = useState<'idle' | 'loading' | 'playing'>('loading');
+  const [state, setState] = useState<'idle' | 'loading' | 'playing' | 'failed'>('loading');
   const ready = useRef(false);
 
   useEffect(() => {
@@ -272,7 +272,7 @@ function StationsVoice({ listingId, route, fuels, element }: { listingId: string
       })
       .catch((error) => {
         if (!active) return;
-        setState('idle');
+        setState('failed');
         toast.error(errorMessage(error));
       });
     // Stop and free the audio when the dialog closes or another route is picked.
@@ -298,6 +298,9 @@ function StationsVoice({ listingId, route, fuels, element }: { listingId: string
       toast.error(errorMessage(error));
     }
   }
+
+  // no voice to replay: the error was already shown, a «listen again» button would do nothing
+  if (state === 'failed') return null;
 
   return (
     <button
