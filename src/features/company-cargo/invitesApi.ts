@@ -32,6 +32,24 @@ export const joinUrl = (token: string) => `${window.location.origin}/join/${toke
 
 export const getCompanyInvites = () => unwrap(axios.get<{ success: boolean; data: CompanyInvite[] }>(`${endpoints.baseurl}company/invites`, config()));
 
+/** One transport company of the platform, as the parent company sees it (CompanyInviteService.companies). */
+export interface PlatformCompany {
+  userId: string;
+  name: string;
+  mobile: string | null;
+  accountCode: string | null;
+  createdAt: string;
+  isParent: boolean;
+  verificationStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  /** invite: came with an invite link; approved: signed up and a parent company approved it; self: on its own */
+  source: 'invite' | 'approved' | 'self';
+  /** invited or approved by this parent company */
+  mine: boolean;
+  openFeatures: number;
+}
+
+export const getPlatformCompanies = () => unwrap(axios.get<{ success: boolean; data: PlatformCompany[] }>(`${endpoints.baseurl}company/invites/companies`, config()));
+
 export const createCompanyInvite = (mobile: string, companyName?: string) =>
   unwrap(axios.post<{ success: boolean; data: CompanyInvite & { sms: InviteSms } }>(`${endpoints.baseurl}company/invites`, { mobile, ...(companyName && { companyName }) }, config()));
 

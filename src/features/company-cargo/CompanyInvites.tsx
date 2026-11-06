@@ -8,7 +8,7 @@ import CompanyShell from './CompanyShell';
 import { CardSkeleton, EmptyState, LoadFailed, SectionTitle } from './components';
 import InviteLinks from './InviteLinks';
 import { useCompanyFeatures } from './featuresApi';
-import { createCompanyInvite, getCompanyInvites, joinUrl, type CompanyInvite } from './invitesApi';
+import { createCompanyInvite, getCompanyInvites, getPlatformCompanies, joinUrl, type CompanyInvite, type PlatformCompany } from './invitesApi';
 import { useNotificationEvent } from './notificationSocket';
 import { InviteTimeLeft } from './inviteExpiry';
 
@@ -60,6 +60,59 @@ function InviteCard({ invite, open, onToggle, featureCount }: { invite: CompanyI
   );
 }
 
+const SOURCE_LABEL: Record<PlatformCompany['source'], string> = { invite: 'با دعوت', approved: 'ثبت‌نام و تأیید', self: 'ثبت‌نام مستقل' };
+const VERIFICATION_LABEL: Partial<Record<PlatformCompany['verificationStatus'], string>> = { PENDING: 'منتظر بررسی', REJECTED: 'بررسی رد شده' };
+
+/** Every transport company of the platform: how it came, whose it is and how many menus it has open. */
+function PlatformCompanies({ featureCount, version }: { featureCount: number; version: number }) {
+  const [companies, setCompanies] = useState<PlatformCompany[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const load = useCallback(() => {
+    setFailed(false);
+    getPlatformCompanies().then(setCompanies, () => setFailed(true));
+  }, []);
+  useEffect(load, [load, version]);
+  return (
+    <section className="tw-space-y-3">
+      <h3 className="tw-m-0 tw-text-base tw-font-bold">همه‌ی شرکت‌های حمل‌ونقل ({fa(companies?.length ?? 0)})</h3>
+      <p className="tw-m-0 tw-text-xs tw-text-brand-muted">شرکت‌های حمل‌ونقل سامانه، جدیدترین اول؛ آن‌هایی که هنوز با لینک دعوت وارد نشده‌اند در فهرست بالا هستند.</p>
+      {failed ? (
+        <LoadFailed onRetry={load} />
+      ) : !companies ? (
+        <CardSkeleton />
+      ) : !companies.length ? (
+        <EmptyState icon={Building2} title="شرکت حمل‌ونقل دیگری در سامانه نیست" hint="شرکت‌هایی که دعوت کنید یا خودشان ثبت‌نام کنند اینجا می‌آیند." />
+      ) : (
+        <ul className="tw-m-0 tw-grid tw-list-none tw-gap-2 tw-p-0 md:tw-grid-cols-2">
+          {companies.map((company) => (
+            <li key={company.userId} className="tw-space-y-1.5 tw-rounded-2xl tw-border tw-border-brand-line tw-bg-white tw-p-4">
+              <span className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-font-bold">
+                <Building2 size={16} aria-hidden className="tw-text-brand-muted" /> {company.name}
+                {company.isParent && <span className="tw-rounded-full tw-bg-brand-orange-soft tw-px-2 tw-py-0.5 tw-text-[11px] tw-text-brand-orange-ink">شرکت مادر</span>}
+              </span>
+              <span className="tw-block tw-text-xs tw-text-brand-muted">
+                {company.mobile && <span dir="ltr">{company.mobile}</span>}
+                {company.accountCode && <> · کد {company.accountCode}</>} · از {faDate(company.createdAt)}
+              </span>
+              <span className="tw-flex tw-flex-wrap tw-gap-1.5 tw-text-xs">
+                <span className="tw-rounded-full tw-bg-brand-sky tw-px-2.5 tw-py-1">{SOURCE_LABEL[company.source]}{company.mine ? ' · شرکت شما' : ''}</span>
+                {VERIFICATION_LABEL[company.verificationStatus] && (
+                  <span className="tw-rounded-full tw-bg-amber-50 tw-px-2.5 tw-py-1 tw-text-amber-700">{VERIFICATION_LABEL[company.verificationStatus]}</span>
+                )}
+                {!company.isParent && (
+                  <span className="tw-rounded-full tw-bg-emerald-50 tw-px-2.5 tw-py-1 tw-text-emerald-700">
+                    {company.openFeatures ? `${fa(company.openFeatures)} از ${fa(featureCount)} بخش باز` : 'بخشی نخریده'}
+                  </span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 /**
  * The parent company invites a transport company by its number: the company's account is made right away (approved
  * by the parent company), every menu locked until bought. The company signs in with that number on the web, or gives
@@ -75,9 +128,12 @@ function InvitesContent() {
   const [saving, setSaving] = useState(false);
   const [opened, setOpened] = useState('');
 
+  // a company that came in moves from the invites to the list of all companies
+  const [companiesVersion, setCompaniesVersion] = useState(0);
   const load = useCallback(() => {
     setFailed(false);
     getCompanyInvites().then(setInvites, () => setFailed(true));
+    setCompaniesVersion((value) => value + 1);
   }, []);
   useEffect(load, [load]);
   // an invited company came in (any way): its row says so without a refresh
@@ -157,6 +213,8 @@ function InvitesContent() {
           ))
         )}
       </section>
+
+      <PlatformCompanies featureCount={featureCount} version={companiesVersion} />
     </div>
   );
 }

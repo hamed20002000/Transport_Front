@@ -35,7 +35,7 @@ const items = [
 ];
 // only the parent company: inviting new transport companies, and checking those that signed up on their own
 const PARENT_ITEMS = [
-  { to: '/account/company/companies', label: 'دعوت شرکت‌های حمل‌ونقل', icon: Crown, match: (path: string) => path === '/account/company/companies' },
+  { to: '/account/company/companies', label: 'شرکت‌های حمل‌ونقل', icon: Crown, match: (path: string) => path === '/account/company/companies' },
   { to: '/account/company/verifications', label: 'بررسی اعتبار', icon: BadgeCheck, match: (path: string) => path === '/account/company/verifications' },
   { to: '/account/company/broker-drivers', label: 'رانندگان واسط‌ها', icon: UserCheck, match: (path: string) => path === '/account/company/broker-drivers' },
 ];
