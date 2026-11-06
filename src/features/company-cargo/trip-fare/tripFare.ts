@@ -120,9 +120,21 @@ export interface FareDraft {
   basis: FareBasis | null;
   rate: string;
   weight: string;
+  /** the unit the weight is typed in; tons unless the company picks kilograms (sent as tons either way) */
+  weightUnit: WeightUnit;
   currency: FareCurrency;
   changeReason: FareChangeReason | null;
   note: string;
+}
+
+export type WeightUnit = 'TON' | 'KG';
+
+export const weightUnitLabels: Record<WeightUnit, string> = { TON: 'تن', KG: 'کیلوگرم' };
+
+/** The weight typed, in tons (kilograms divided by 1000), to two decimals; NaN when there is no number. */
+export function draftTons(draft: Pick<FareDraft, 'weight' | 'weightUnit'>): number {
+  const value = Number(latinDigits(draft.weight).replace(/[٫/]/g, '.').replace(/[^0-9.]/g, ''));
+  return Math.round((draft.weightUnit === 'KG' ? value / 1000 : value) * 100) / 100;
 }
 
 export function draftFrom(values: Partial<TripFareInput> | null | undefined): FareDraft {
@@ -130,6 +142,7 @@ export function draftFrom(values: Partial<TripFareInput> | null | undefined): Fa
     basis: values?.basis ?? null,
     rate: values?.rate ? String(values.rate) : '',
     weight: values?.weightTons ? String(values.weightTons) : '',
+    weightUnit: 'TON',
     currency: values?.currency ?? 'IRT',
     changeReason: values?.changeReason ?? null,
     note: values?.note ?? '',
@@ -141,8 +154,10 @@ export function readDraft(draft: FareDraft): { fare: TripFareInput & { total: nu
   if (!draft.basis) return { error: 'نوع کرایه را انتخاب کنید: دربست یا تنی.' };
   const rate = Number(latinDigits(draft.rate).replace(/\D/g, ''));
   if (!Number.isSafeInteger(rate) || rate <= 0) return { error: 'مبلغ کرایه را وارد کنید.' };
-  const weightTons = Math.round(Number(latinDigits(draft.weight).replace(/[٫/]/g, '.').replace(/[^0-9.]/g, '')) * 100) / 100;
-  if (!Number.isFinite(weightTons) || weightTons <= 0 || weightTons > MAX_WEIGHT_TONS) return { error: `وزن بار را به تن وارد کنید (تا ${persian(MAX_WEIGHT_TONS)} تن).` };
+  const weightTons = draftTons(draft);
+  if (!Number.isFinite(weightTons) || weightTons <= 0 || weightTons > MAX_WEIGHT_TONS) {
+    return { error: `وزن بار را وارد کنید (بیشتر از صفر و تا ${persian(MAX_WEIGHT_TONS)} تن، یعنی ${faNumber(MAX_WEIGHT_TONS * 1000)} کیلوگرم).` };
+  }
   const total = fareTotal(draft.basis, rate, weightTons);
   return {
     fare: {

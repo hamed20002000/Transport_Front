@@ -6,7 +6,7 @@ export type { CargoListing, Page };
 
 // CargoRequestStatus in transport_backend; ACCEPTED is the driver's active trip.
 // OFFERED: the company handed the load to this driver and waits for the driver to confirm (until offerExpiresAt).
-export type RequestStatus = 'PENDING' | 'OFFERED' | 'ACCEPTED' | 'REJECTED' | 'DECLINED' | 'EXPIRED' | 'CANCELLED' | 'DELIVERED';
+export type RequestStatus = 'PENDING' | 'OFFERED' | 'ACCEPTED' | 'REJECTED' | 'DECLINED' | 'EXPIRED' | 'CANCELLED' | 'DELIVERED' | 'TRIP_CANCELLED';
 
 export interface OpenLoad extends CargoListing {
   // This driver's own request for the load, if any.
@@ -253,6 +253,7 @@ const conflicts: Record<string, string> = {
   own: 'این بار را خودتان اعلام کرده‌اید.',
   already: 'برای این بار قبلاً درخواست داده‌اید.',
   rejected: 'شرکت حمل‌ونقل قبلاً درخواست شما برای این بار را رد کرده است.',
+  tripCancelled: 'شرکت حمل‌ونقل سفر شما با این بار را لغو کرده و درخواست دوباره برای آن پذیرفته نمی‌شود.',
   notPending: 'این درخواست دیگر در انتظار نیست.',
   notActive: 'این سفر دیگر فعال نیست.',
   reserved: 'این بار فعلاً به راننده‌ی دیگری سپرده شده و منتظر تأیید اوست.',

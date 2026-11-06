@@ -24,6 +24,7 @@ const STATUS: Record<string, string> = {
   CANCELLED: 'لغو شد',
   DECLINED: 'راننده نپذیرفت',
   EXPIRED: 'منقضی شد',
+  TRIP_CANCELLED: 'سفر لغو شد',
 };
 
 function Detail({ label, value, ltr }: { label: string; value?: string | null; ltr?: boolean }) {

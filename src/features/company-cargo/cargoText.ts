@@ -14,7 +14,12 @@ const conflicts: Record<string, string> = {
   notActive: 'این سفر دیگر فعال نیست (تحویلش قبلاً ثبت شده).',
   notReported: 'راننده تحویل این بار را اعلام نکرده است.',
   delivered: 'این بار تحویل داده شده و دیگر باز نمی‌شود.',
+  notPending: 'این درخواست دیگر در انتظار نیست (راننده لغوش کرده یا قبلاً جواب داده شده).',
+  fareLocked: 'کرایه‌ی توافقی این سفر قبلاً ثبت شده و دیگر عوض نمی‌شود.',
 };
+
+// a message the server wrote for the user (the fare's checks, «فعلاً ممکن نیست»), not a code or class-validator's English
+const userMessage = (message: unknown): string | null => (typeof message === 'string' && /[\u0600-\u06FF]/.test(message) ? message : null);
 
 export function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
@@ -25,6 +30,7 @@ export function errorMessage(error: unknown) {
     const code = (error.response.data as { message?: unknown } | undefined)?.message;
     if (error.response.status === 409 && typeof code === 'string' && conflicts[code]) return conflicts[code];
     if (error.response.status === 404) return 'بار پیدا نشد.';
+    if ([400, 503].includes(error.response.status) && userMessage(code)) return userMessage(code)!;
     return `خطای سرور (${error.response.status}). دوباره تلاش کنید.`;
   }
   return error instanceof Error ? error.message : 'عملیات انجام نشد.';

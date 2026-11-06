@@ -67,6 +67,7 @@ export const requestStatus: Record<RequestStatus, { label: string; icon: LucideI
   EXPIRED: { label: 'مهلت تأیید تمام شد', icon: Hourglass, tone: 'tw-bg-stone-100 tw-text-brand-muted tw-ring-stone-200' },
   CANCELLED: { label: 'لغو کردید', icon: Ban, tone: 'tw-bg-stone-100 tw-text-brand-muted tw-ring-stone-200' },
   DELIVERED: { label: 'تحویل شد', icon: CircleCheck, tone: 'tw-bg-brand-sky tw-text-brand-navy tw-ring-brand-line' },
+  TRIP_CANCELLED: { label: 'سفر را شرکت حمل‌ونقل لغو کرد', icon: CircleX, tone: 'tw-bg-red-50 tw-text-red-700 tw-ring-red-200' },
 };
 
 export function RequestBadge({ status, short }: { status: RequestStatus; short?: boolean }) {

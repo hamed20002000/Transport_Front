@@ -400,6 +400,11 @@ export function rejectTripDelivery(requestId: string) {
   );
 }
 
+// «لغو سفر»: a started trip is called off; the load opens again and the driver is told.
+export function cancelTrip(requestId: string) {
+  return unwrap<{ requestId: string; status: string }>(axios.patch(`${endpoints.baseurl}cargo-listings/trips/${requestId}/cancel`, {}, config()));
+}
+
 export function setListingStatus(id: string, status: ListingStatus) {
   return unwrap<CargoListing>(
     axios.patch(`${endpoints.baseurl}cargo-listings/${id}/status`, { status }, config()),

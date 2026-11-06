@@ -39,7 +39,7 @@ function RequestCard({
   const broker = useBrokerView();
   const listing = request.listing;
   if (!listing) return null;
-  const ended = ['REJECTED', 'CANCELLED', 'DECLINED', 'EXPIRED'].includes(request.status);
+  const ended = ['REJECTED', 'CANCELLED', 'DECLINED', 'EXPIRED', 'TRIP_CANCELLED'].includes(request.status);
   return (
     <LoadFrame
       tone={request.status === 'ACCEPTED' ? 'green' : request.status === 'PENDING' || request.status === 'OFFERED' ? 'orange' : 'sky'}

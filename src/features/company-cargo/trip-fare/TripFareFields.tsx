@@ -11,6 +11,9 @@ import {
   type FareChangeReason,
   type FareCurrency,
   type FareDraft,
+  type WeightUnit,
+  draftTons,
+  weightUnitLabels,
 } from './tripFare';
 
 const inputClass =
@@ -87,21 +90,34 @@ export default function TripFareFields({
         </label>
       </div>
 
-      <label className="tw-block tw-space-y-1.5 tw-text-sm tw-font-bold">
-        <span>{weightLabel}</span>
-        <div className="tw-relative">
+      <div className="tw-grid tw-grid-cols-1 tw-gap-3 sm:tw-grid-cols-[2fr_1fr]">
+        <label className="tw-block tw-space-y-1.5 tw-text-sm tw-font-bold" htmlFor="fare-weight">
+          <span>{weightLabel}</span>
           <input
-            className={cn(inputClass, 'tw-pl-10 tw-text-left')}
+            id="fare-weight"
+            className={cn(inputClass, 'tw-text-left')}
             dir="ltr"
             inputMode="decimal"
             autoComplete="off"
             value={draft.weight}
-            onChange={(event) => set({ weight: latinDigits(event.target.value).replace(/[٫/]/g, '.').replace(/[^0-9.]/g, '').slice(0, 7) })}
-            placeholder="مثلاً 25"
+            onChange={(event) => set({ weight: latinDigits(event.target.value).replace(/[٫/]/g, '.').replace(/[^0-9.]/g, '').slice(0, 9) })}
+            placeholder={draft.weightUnit === 'KG' ? 'مثلاً 25000' : 'مثلاً 25'}
           />
-          <span className="tw-pointer-events-none tw-absolute tw-inset-y-0 tw-left-3 tw-flex tw-items-center tw-text-xs tw-text-brand-muted">تن</span>
-        </div>
-      </label>
+        </label>
+        <label className="tw-block tw-space-y-1.5 tw-text-sm tw-font-bold">
+          <span>واحد وزن</span>
+          <select className={inputClass} value={draft.weightUnit} onChange={(event) => set({ weightUnit: event.target.value as WeightUnit })}>
+            {(Object.keys(weightUnitLabels) as WeightUnit[]).map((unit) => (
+              <option key={unit} value={unit}>
+                {weightUnitLabels[unit]}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {draft.weightUnit === 'KG' && draftTons(draft) > 0 && (
+        <p className="tw-m-0 -tw-mt-2 tw-text-xs tw-text-brand-muted">برابر {faNumber(draftTons(draft))} تن</p>
+      )}
 
       {total !== null && (
         <p className="tw-m-0 tw-rounded-xl tw-bg-brand-sky/60 tw-px-3 tw-py-2 tw-text-sm" aria-live="polite">

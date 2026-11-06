@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AlarmClock, CheckCircle2, Clock, MapPinned, Package, Scale, Truck, XCircle } from 'lucide-react';
+import { AlarmClock, Ban, CheckCircle2, Clock, MapPinned, Package, Scale, Truck, XCircle } from 'lucide-react';
 import { useAuth } from 'src/core/auth/AuthContext';
 import PageContainer from 'src/shared/components/container/PageContainer';
 import Spinner from 'src/shared/components/spinner/Spinner';
 import { useToast } from 'src/shared/components/toast/ToastProvider';
-import { listCompanyTrips, rejectTripDelivery, type CompanyTrip, type Page } from './api';
+import { cancelTrip, listCompanyTrips, rejectTripDelivery, type CompanyTrip, type Page } from './api';
 import { brokerPayModelLabels, deliverTrip, FareSummary, getFareForm, TripFareDialog } from './trip-fare';
 import { DriverPhoto } from './AssignDriverDialog';
 import { errorMessage } from './cargoText';
@@ -21,7 +21,7 @@ const PAGE_SIZE = 20;
 const REMINDER_DAYS = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy: boolean; onDeliver: () => void; onReject: () => void }) {
+function TripCard({ trip, busy, onDeliver, onReject, onCancel }: { trip: CompanyTrip; busy: boolean; onDeliver: () => void; onReject: () => void; onCancel: () => void }) {
   const { cargo, driver, location } = trip;
   const overdue = Date.now() - new Date(trip.startedAt).getTime() > REMINDER_DAYS * DAY_MS;
   const live = location?.liveUntil && new Date(location.liveUntil).getTime() > Date.now();
@@ -90,6 +90,14 @@ function TripCard({ trip, busy, onDeliver, onReject }: { trip: CompanyTrip; busy
         ) : (
           <span className="tw-text-sm tw-text-brand-muted">راننده هنوز موقعیتی نفرستاده</span>
         )}
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={busy}
+          className="tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-text-red-700 hover:tw-underline disabled:tw-opacity-50"
+        >
+          <Ban size={14} aria-hidden /> لغو سفر
+        </button>
         {trip.deliveryReportedAt && (
           <SecondaryButton onClick={onReject} disabled={busy}>
             <XCircle size={16} aria-hidden /> تحویل نشده
@@ -155,6 +163,23 @@ function Trips() {
     }
   }
 
+  // «لغو سفر»: the driver backed out; the load opens again for the others
+  async function cancel(trip: CompanyTrip) {
+    const who = trip.driver?.broker ? 'واسط' : 'راننده';
+    const message = `سفر این بار لغو شود؟ بار دوباره باز می‌شود، به ${who} خبر داده می‌شود و درخواست‌های راننده‌های دیگرِ این بار دوباره منتظر جواب شما می‌شوند. سفر لغوشده تحویل و کرایه ندارد.`;
+    if (!(await messageBox.confirm({ message, tone: 'danger', confirmText: 'لغو سفر' }))) return;
+    setBusyId(trip.requestId);
+    try {
+      await cancelTrip(trip.requestId);
+      toast.success(`سفر لغو شد، بار دوباره باز است و به ${who} خبر دادیم.`);
+      setVersion((value) => value + 1);
+    } catch (e) {
+      toast.error(errorMessage(e));
+    } finally {
+      setBusyId('');
+    }
+  }
+
   return (
     <div className="tw-space-y-5">
       <SectionTitle title="سفرهای فعال" hint="بارهایی که راننده دارند و تحویلشان هنوز ثبت نشده؛ جدیدترین سفر اول" />
@@ -171,7 +196,7 @@ function Trips() {
         <>
           <ul className="tw-m-0 tw-grid tw-grid-cols-1 tw-list-none tw-gap-3 tw-p-0 md:tw-grid-cols-2">
             {data.items.map((trip) => (
-              <TripCard key={trip.requestId} trip={trip} busy={busyId === trip.requestId} onDeliver={() => void deliver(trip)} onReject={() => void reject(trip)} />
+              <TripCard key={trip.requestId} trip={trip} busy={busyId === trip.requestId} onDeliver={() => void deliver(trip)} onReject={() => void reject(trip)} onCancel={() => void cancel(trip)} />
             ))}
           </ul>
           <Pager page={page} total={data.total} pageSize={PAGE_SIZE} onChange={setPage} />
