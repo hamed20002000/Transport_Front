@@ -42,9 +42,10 @@ export default function AgentListModal({
 
   return createPortal(
     <div
-      hidden={!open}
+      // closed by a class, not the hidden attribute: tw-flex (display: flex) would win over [hidden] and keep it shown
+      aria-hidden={!open}
       style={{ zIndex: LIST_LAYER }}
-      className="tw-fixed tw-inset-0 tw-flex tw-items-end tw-justify-center tw-bg-brand-navy/40 sm:tw-items-center sm:tw-p-6"
+      className={`tw-fixed tw-inset-0 tw-items-end tw-justify-center tw-bg-brand-navy/40 sm:tw-items-center sm:tw-p-6 ${open ? 'tw-flex' : 'tw-hidden'}`}
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
     >
       <div
