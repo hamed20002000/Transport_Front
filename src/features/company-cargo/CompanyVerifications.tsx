@@ -197,7 +197,6 @@ function RequestCard({ request, onDone }: { request: VerificationRequest; onDone
 
 /** The parent company checks the transport companies and factories that signed up on their own. */
 function VerificationsContent() {
-  const toast = useToast();
   const [tab, setTab] = useState<Tab>('PENDING');
   const [requests, setRequests] = useState<VerificationRequest[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -211,8 +210,8 @@ function VerificationsContent() {
     load();
   }, [load]);
 
+  // a new request (the toast comes from the panel's frame) or another parent company's decision
   useNotificationEvent('verification-requested', () => {
-    toast.info('درخواست بررسی اعتبار تازه رسید.');
     if (tab === 'PENDING') load();
   });
 

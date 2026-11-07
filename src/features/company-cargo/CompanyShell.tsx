@@ -2,6 +2,7 @@ import { createContext, Suspense, useCallback, useContext, useEffect, useState, 
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Archive, Bell, BadgeCheck, Building2, ClipboardList, Crown, Factory, Gem, Handshake, House, Inbox, Link2, Receipt, ShieldCheck, SlidersHorizontal, SquarePlus, Truck, UserCheck, UserPlus, Users, Wallet } from 'lucide-react';
 import { countCompanyRequests, getOverdueTrips } from './api';
+import { countVerifications } from './verificationApi';
 import { PageSkeleton, SignOutButton } from './components';
 import { preloadCompanyPages } from './pages';
 import SmoothScroll from 'src/shared/components/SmoothScroll';
@@ -42,6 +43,8 @@ const PARENT_ITEMS = [
 
 const fa = (value: number) => value.toLocaleString('fa-IR');
 
+const VERIFICATIONS_PATH = '/account/company/verifications';
+
 // Lets the page under the layout put its unread count on the bell.
 const UnreadContext = createContext<(count: number | undefined) => void>(() => undefined);
 
@@ -77,6 +80,20 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
   // a menu the company has not bought (parent companies have every menu): marked in the menu, and unlocked as soon as
   // the admin approves its receipt
   const features = useCompanyFeatures();
+  // a parent company: accounts waiting for its check, a count on «بررسی اعتبار» like the one on «درخواست‌ها»
+  const isParent = !!features?.isParent;
+  const [verifications, setVerifications] = useState(0);
+  const loadVerifications = useCallback(() => {
+    if (!isParent) return setVerifications(0);
+    countVerifications()
+      .then(setVerifications)
+      .catch(() => setVerifications(0));
+  }, [isParent]);
+  useEffect(loadVerifications, [loadVerifications]);
+  useNotificationEvent<{ type?: string; text?: string }>('verification-requested', (event) => {
+    if (event.type === 'requested' && event.text) toast.info(event.text);
+    loadVerifications();
+  });
   useNotificationEvent('company-features-changed', () => void reloadCompanyFeatures());
   // a parent company approved the account while the panel was open: it opens at once
   useNotificationEvent('verification-changed', () => void reloadCompanyFeatures());
@@ -93,9 +110,11 @@ function Frame({ children, unread }: { children: ReactNode; unread?: number }) {
               ...item,
               label: lockedFeature(features, featureByPath[item.to]) ? `${item.label} 🔒` : item.label,
               active: item.match(pathname, tab),
-              count: item.to === '/account/company/requests' ? requests : item.to === '/account/company/trips' ? overdue?.count : undefined,
+              count: item.to === '/account/company/requests' ? requests : item.to === '/account/company/trips' ? overdue?.count : item.to === VERIFICATIONS_PATH ? verifications : undefined,
               countLabel: item.to === '/account/company/requests'
                 ? `${fa(requests)} درخواست منتظر جواب`
+                : item.to === VERIFICATIONS_PATH
+                  ? `${fa(verifications)} درخواست بررسی اعتبار منتظر جواب`
                 : item.to === '/account/company/trips' && overdue
                   ? `${fa(overdue.count)} سفر بیش از ${fa(overdue.days)} روز است تحویلش ثبت نشده`
                   : undefined,

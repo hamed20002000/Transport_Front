@@ -197,8 +197,17 @@ export interface BorderChoice {
   options: string[];
 }
 
+// a load's borders do not change: asked once (opening its details already asks), a failure asked again next time
+const exitBorders = new Map<string, Promise<BorderChoice>>();
+
 export function getExitBorders(listingId: string) {
-  return unwrap<BorderChoice>(axios.get(url(`loads/${listingId}/exit-borders`), config()));
+  let choice = exitBorders.get(listingId);
+  if (!choice) {
+    choice = unwrap<BorderChoice>(axios.get(url(`loads/${listingId}/exit-borders`), config()));
+    exitBorders.set(listingId, choice);
+    choice.catch(() => exitBorders.delete(listingId));
+  }
+  return choice;
 }
 
 /** A broker's drivers from its earlier requests, newest first. */

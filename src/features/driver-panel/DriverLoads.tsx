@@ -206,7 +206,12 @@ export function useLoadActions(
       )}
     </>
   );
-  return { requestingId, request, openDetails: setDetails, dialog };
+  // an export or import load's details: its borders asked meanwhile, so «درخواست» has them at once
+  const openDetails = useCallback((load: OpenLoad | null) => {
+    if (load && !broker && load.tripType && load.tripType !== 'DOMESTIC') void getExitBorders(load.id).catch(() => undefined);
+    setDetails(load);
+  }, [broker]);
+  return { requestingId, request, openDetails, dialog };
 }
 
 export function patchPage(setData: (fn: (current: Page<OpenLoad> | null) => Page<OpenLoad> | null) => void) {

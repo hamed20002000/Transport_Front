@@ -77,3 +77,7 @@ export const approveVerification = (userId: string) =>
 
 export const rejectVerification = (userId: string, reason: string) =>
   unwrap(axios.post<{ success: boolean; data: { status: VerificationStatus; remaining: number } }>(`${endpoints.baseurl}company/verifications/${userId}/reject`, { reason }, config()));
+
+// how many wait for this parent company: the count on «بررسی اعتبار» in the menu
+export const countVerifications = () =>
+  unwrap(axios.get<{ success: boolean; data: { count: number } }>(`${endpoints.baseurl}company/verifications/count`, config())).then((r) => r.count);
