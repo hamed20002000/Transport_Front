@@ -5,7 +5,6 @@ import { useNavigate } from "react-router";
 import { Dialog, LinearProgress } from 'src/shared/components/compat';
 import { StopCircleSharp as BoltIcon } from 'src/shared/components/compat/icons';
 import { Mic } from 'src/shared/components/compat/icons';
-import { Stop as StopIcon } from 'src/shared/components/compat/icons';
 import { Cancel as CancelIcon } from 'src/shared/components/compat/icons';
 import { ArrowUpwardOutlined as Arrow } from 'src/shared/components/compat/icons';
 import { uniqueId } from "lodash";
@@ -18,7 +17,8 @@ import resultViewLink from 'src/features/ai-agent/localfiles/resultViewLink.json
 import AgentCargoList from 'src/features/ai-agent/components/AgentCargoList';
 import AgentChannelList from 'src/features/ai-agent/components/AgentChannelList';
 import AgentDriverLoadList from 'src/features/ai-agent/components/AgentDriverLoadList';
-import { hasAgentCards, isChannel, isDriverLoad } from 'src/features/ai-agent/helpers/agentCards';
+import { hasAgentCards, isChannel, isDriverLoad, textList } from 'src/features/ai-agent/helpers/agentCards';
+import AgentListModal, { AgentTextList } from 'src/features/ai-agent/components/AgentListModal';
 import TenderChoice from "src/features/ai-agent/components/tenderChoice";
 import HistoryItem from "src/features/ai-agent/components/historyItem";
 import DeleteConfirm from "src/features/ai-agent/components/deleteConfirm";
@@ -112,6 +112,9 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         onClose: () => { }
     })
     const [history, setHistory] = useState<FunctionCallResultType[]>([])
+    // the answer whose list is open in its own modal: a new list answer opens itself, an old one by its button
+    const [listOpenId, setListOpenId] = useState<string | null>(null)
+    const closeList = useCallback(() => setListOpenId(null), [])
     const [progress, setProgress] = useState<{
         currentOp?: string;
         percent: number;
@@ -802,9 +805,14 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
         return history.map((item, index) => {
             const isSuccess = item.result === "success";
             const isClickable = isSuccess && !!currentSessionId;
-            // With cards the full text list is redundant: only its first line (e.g. «۳ بار از بجنورد:») stays.
+            // A list (cards, or a text list) opens in its own modal; the chat only says it is ready, with its title
+            // (e.g. «۳ بار از بجنورد:») and a button to open it again.
             const cards = hasAgentCards(item.list) ? item.list : null;
-            const message = cards ? item.message?.split("\n")[0] : item.message;
+            const lines = cards || !isSuccess ? null : textList(item.message);
+            const listTitle = (cards ? item.message?.split("\n")[0] : lines?.title)?.replace(/[:：]\s*$/, "").trim() || "نتیجه";
+            const listCount = cards ? cards.length : lines?.items.length ?? 0;
+            const isList = !!cards || !!lines;
+            const message = isList ? `✅ لیست آماده است: ${listTitle}` : item.message;
 
             return (
                 <div className="chat-exchange" key={item.id}>
@@ -833,6 +841,18 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                             }
                         >
                             <p className="chat-text">{message}</p>
+                            {isList && (
+                                <button
+                                    type="button"
+                                    className="chat-list-open"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setListOpenId(item.id);
+                                    }}
+                                >
+                                    مشاهده‌ی لیست ({listCount.toLocaleString("fa-IR")} مورد)
+                                </button>
+                            )}
                             {item.continuePrompt && <p className="chat-hint">{item.continuePrompt}</p>}
                             <div className="chat-meta">
                                 {item.toolName && (
@@ -851,14 +871,16 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                         </div>
                     </div>
 
-                    {cards && (
-                        <div className="chat-cards">
-                            {cards.some(isChannel)
-                                ? <AgentChannelList items={cards.filter(isChannel)} />
-                                : cards.some(isDriverLoad)
-                                    ? <AgentDriverLoadList items={cards.filter(isDriverLoad)} />
-                                    : <AgentCargoList items={cards} />}
-                        </div>
+                    {isList && (
+                        <AgentListModal open={listOpenId === item.id} title={listTitle} count={listCount} onClose={closeList}>
+                            {cards
+                                ? cards.some(isChannel)
+                                    ? <AgentChannelList items={cards.filter(isChannel)} />
+                                    : cards.some(isDriverLoad)
+                                        ? <AgentDriverLoadList items={cards.filter(isDriverLoad)} />
+                                        : <AgentCargoList items={cards} />
+                                : <AgentTextList items={lines!.items} />}
+                        </AgentListModal>
                     )}
                     {
                         specialPrompt && index == 0 && handleSpecialPrompt()
@@ -902,8 +924,11 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
 
         const handleToolResult = (data: any) => {
             if (data.result === "success") {
+                const id = uniqueId();
+                // a list answer opens in its modal as soon as it arrives
+                if (hasAgentCards(data.list) || textList(data.message)) setListOpenId(id);
                 setHistory((prev) => [{
-                    id: uniqueId(),
+                    id,
                     list: data.list,
                     message: data.message,
                     result: data.result,
@@ -1143,7 +1168,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                             ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
                                         }
                                     }}
-                                    placeholder="از دستیار بپرسید…"
+                                    placeholder={isListening ? "🔴 در حال ضبط… برای فرستادن، ارسال را بزنید" : "از دستیار بپرسید…"}
                                     rows={1}
                                     onKeyDown={(event) => {
                                         if (
@@ -1156,16 +1181,19 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                     }}
                                 />
 
-                                <button
-                                type="button"
-                                className={`composer-button ${isListening ? "recording-button" : ""}`}
-                                onClick={() => { isListening ? stop() : start() }}
-                                disabled={loadingButton && !isListening}
-                                title={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
-                                aria-label={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
-                            >
-                                {isListening ? <StopIcon size={16} color="#ff4d4f" /> : <Mic size={18} color="#b5b8c0" />}
-                            </button>
+                                {/* while recording the send button sends the voice; only «لغو ضبط» stays beside it */}
+                                {!isListening && (
+                                    <button
+                                        type="button"
+                                        className="composer-button"
+                                        onClick={start}
+                                        disabled={loadingButton}
+                                        title="ورودی صوتی"
+                                        aria-label="ورودی صوتی"
+                                    >
+                                        <Mic size={18} color="#b5b8c0" />
+                                    </button>
+                                )}
 
                             {isListening && (
                                 <button
@@ -1192,11 +1220,11 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                             ) : (
                                 <button
                                     type="button"
-                                    className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
-                                    onClick={handleSubmit}
-                                    disabled={!voiceInput.trim() || isListening}
-                                    title="ارسال"
-                                    aria-label="ارسال"
+                                    className={`send-button ${isListening ? "is-voice" : !voiceInput.trim() ? "inactive" : ""}`}
+                                    onClick={isListening ? stop : handleSubmit}
+                                    disabled={!voiceInput.trim() && !isListening}
+                                    title={isListening ? "ارسال ویس" : "ارسال"}
+                                    aria-label={isListening ? "ارسال ویس" : "ارسال"}
                                 >
                                     <Arrow size={19} />
                                 </button>
@@ -1442,7 +1470,7 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                                         ta.style.overflowY = scrollH > maxHeight ? 'auto' : 'hidden';
                                                     }
                                                 }}
-                                                placeholder="از دستیار بپرسید…"
+                                                placeholder={isListening ? "🔴 در حال ضبط… برای فرستادن، ارسال را بزنید" : "از دستیار بپرسید…"}
                                                 rows={1}
                                                 onKeyDown={(event) => {
                                                     if (
@@ -1455,16 +1483,19 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                                 }}
                                             />
 
-                                            <button
-                                            type="button"
-                                            className={`composer-button ${isListening ? "recording-button" : ""}`}
-                                            onClick={() => { isListening ? stop() : start() }}
-                                            disabled={loadingButton && !isListening}
-                                            title={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
-                                            aria-label={isListening ? "توقف ضبط و ارسال" : "ورودی صوتی"}
-                                        >
-                                            {isListening ? <StopIcon size={16} color="#ff4d4f" /> : <Mic size={18} color="#b5b8c0" />}
-                                        </button>
+                                            {/* while recording the send button sends the voice; only «لغو ضبط» stays beside it */}
+                                            {!isListening && (
+                                                <button
+                                                    type="button"
+                                                    className="composer-button"
+                                                    onClick={start}
+                                                    disabled={loadingButton}
+                                                    title="ورودی صوتی"
+                                                    aria-label="ورودی صوتی"
+                                                >
+                                                    <Mic size={18} color="#b5b8c0" />
+                                                </button>
+                                            )}
 
                                         {isListening && (
                                             <button
@@ -1491,11 +1522,11 @@ function AiAgentPage({ onClose, backend = 'admin' }: AiAgentPageProps) {
                                         ) : (
                                             <button
                                                 type="button"
-                                                className={`send-button ${!voiceInput.trim() ? "inactive" : ""}`}
-                                                onClick={handleSubmit}
-                                                disabled={!voiceInput.trim() || isListening}
-                                                title="ارسال"
-                                                aria-label="ارسال"
+                                                className={`send-button ${isListening ? "is-voice" : !voiceInput.trim() ? "inactive" : ""}`}
+                                                onClick={isListening ? stop : handleSubmit}
+                                                disabled={!voiceInput.trim() && !isListening}
+                                                title={isListening ? "ارسال ویس" : "ارسال"}
+                                                aria-label={isListening ? "ارسال ویس" : "ارسال"}
                                             >
                                                 <Arrow size={19} />
                                             </button>
